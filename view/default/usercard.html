@@ -1,0 +1,84 @@
+{eval $setting=$this->setting; $user=$this->user; }
+<!--相关已解决-->
+<!--{if isset($userinfo)}-->
+<div class="usercard_in bm_clearfix">
+    <div class="usercard_c1 bm_clearfix">
+        <div class="usercard_c1_l"><a href="{url user/space/$userinfo['uid']}" class="avatar"><img src="{$userinfo['avatar']}" alt="{$userinfo['username']}"/></a></div>
+        <div class="usercard_c1_r">
+            <h2 class="tit"><a class="tx_user" href="{url user/space/$userinfo['uid']}" title="{$userinfo['username']}">{eval echo cutstr($userinfo['username'],24,'');}</a>{if $userinfo['gender']!=2}<i class="icon_{$userinfo['gender']}"></i>{/if}{if $userinfo['expert']}<i class="icon_expert" title='专家'></i>{/if} <span class="tx_id">({$userinfo_group['grouptitle']})</span></h2>
+
+            <!--{if $userinfo['signature']}-->
+            <p class="info">{$userinfo['signature']}</p>
+            <!--{/if}-->
+
+            <!--{if $userskill}-->
+            <p class="info">擅长:
+                <!--{loop $userskill $skill}-->
+                <i class="expert-field">{$skill}</i>
+                <!--{/loop}-->
+            </p>
+            <!--{/if}-->
+
+            <!--{if !empty($userresume['doctor_school'])}-->
+            <p class="info">
+                博士：{$userresume['doctor_school']}
+                <!--{if !empty($userresume['doctor_dept'])}-->
+                {$userresume['doctor_dept']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['doctor_major'])}-->
+                {$userresume['doctor_major']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['doctor_year'])}-->
+                {$userresume['doctor_year']}年
+                <!--{/if}-->
+                <!--{if !empty($userresume['doctor_month'])}-->
+                {$userresume['doctor_month']}月
+                <!--{/if}-->
+            </p>
+            <!--{/if}-->
+
+            <!--{if !empty($userresume['master_school'])}-->
+            <p class="info">
+                硕士：{$userresume['master_school']}
+                <!--{if !empty($userresume['master_dept'])}-->
+                {$userresume['master_dept']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['master_major'])}-->
+                {$userresume['master_major']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['master_year'])}-->
+                {$userresume['master_year']}年
+                <!--{/if}-->
+                <!--{if !empty($userresume['master_month'])}-->
+                {$userresume['master_month']}月
+                <!--{/if}-->
+            </p>
+            <!--{/if}-->
+
+
+            <!--{if !empty($userresume['bachelor_school'])}-->
+            <p class="info">
+                大学：{$userresume['bachelor_school']}
+                <!--{if !empty($userresume['bachelor_dept'])}-->
+                {$userresume['bachelor_dept']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['bachelor_major'])}-->
+                {$userresume['bachelor_major']}
+                <!--{/if}-->
+                <!--{if !empty($userresume['bachelor_year'])}-->
+                {$userresume['bachelor_year']}年
+                <!--{/if}-->
+                <!--{if !empty($userresume['bachelor_month'])}-->
+                {$userresume['bachelor_month']}月
+                <!--{/if}-->
+            </p>
+            <!--{/if}-->
+
+            <p class="stats">成功抢单{$userinfo['solved']}个</p>
+        </div>
+    </div>
+    <!--{if $userresume['experience']}-->
+    <div class="usercard_c3 bm_clearfix"><p class="info">{$userresume['experience']}</p></div> 
+    <!--{/if}-->
+</div>
+<!--{/if}-->

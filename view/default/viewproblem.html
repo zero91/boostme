@@ -1,0 +1,372 @@
+<!--{template header}-->
+<div style="height:29px;"></div>
+
+<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.all.js"></script> 
+
+<div class="bm_wrapper bm_clearfix">
+    <div class="bm_content_left">
+        <div class="problembox">
+            <div class="title pd40">
+                <a title="{$problem['author']}" target="_blank" href="{url user/space/$problem['authorid']}"><img width="50" height="50" src="{eval echo get_avatar_dir($problem['authorid'])}" class="avatar"></a>
+                <h1>{$problem['title']} </h1>
+
+                <!--{if PB_STATUS_UNSOLVED == $problem['status']}-->
+                <!--{if 0!=$problem['authorid'] && ($problem['authorid']!=$user['uid'])}-->
+                <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
+                <div class="same-q-mod"> <input type="button" class="button_demand" value="撤销请求" disabled="true"/> </div>
+                <!--{else}-->
+                <div class="same-q-mod"> <input type="button" class="button_demand" value="我要帮忙" /> </div>
+                <!--{/if}-->
+                <!--{/if}-->
+                <!--{else}-->
+                <div class="same-q-mod">求助已关闭</div>
+                <!--{/if}-->
+                <div class="tags">
+                    <!--{loop $taglist $tag}-->
+                    <a  title="$tag" href="{url problem/search/tag:$tag}">{$tag}</a>
+                    <!--{/loop}-->
+                </div>
+            </div>
+            <div class="user-label">
+                <div class="user-label-info">
+                    <span class="gold"><img src="{SITE_URL}css/default/gold.gif">¥{$problem['price']}</span>
+                    <span class="span-line">|</span>
+                    <!--{if $problem['authorid']==0}-->
+                    <span><!--{if $problem['ip']}-->{$problem['ip']}<!--{else}-->游客<!--{/if}--></span>
+                    <!--{else}-->
+                    <span><a  href="{url user/space/$problem['authorid']}" onmouseover="pop_user_on(this, '{$problem[authorid]}', 'text');"  onmouseout="pop_user_out();">{$problem['author']}</a></span>
+                    <!--{/if}-->
+                    <span class="span-line">|</span><span>浏览{$problem['views']}次</span>
+                </div>
+                <div class="timeright">{$problem['format_time']}</div>
+            </div>
+            <div class="description bm_clearfix">{$problem['description']}</div> 
+
+            <!--{if 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
+            <div class="managebox mt10">
+                <h3>处理求助：</h3>
+                <p> 如果尚未找到合适的人来解决你的求助，可以尝试以下操作：</p>
+                <span><input type="button" class="button_4" value="添加标签" title="修改求助标签" onclick="edittag();" /></span>
+                <span><input type="button" title="已解决，可以直接关闭求助" class="button_4" name="close_question" value="关闭求助"  onclick="close_question();"/></span>
+            </div>
+            <!--{/if}-->
+        </div>
+
+        <!--{if 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
+        <!--{if $accept_users}-->
+        <div class="bm_accept_user">
+            <div class="ac_title">您选择下面用户解决您的求助</div>
+            <!--{loop $accept_users $accept_user}-->
+            <div class="ac_user">
+                <div class="ac_user_left">
+                    <a title="{$accept_user['username']}" href="{url user/space/$accept_user['uid']}">
+                        <img width="50" height="50" alt="{$accept_user['username']}" src="{eval echo get_avatar_dir($accept_user['uid']);}" onmouseover="pop_user_on(this, '{$accept_user[uid]}', '');" onmouseout="pop_user_out();"/>
+                    </a>
+                    <h3><a title="{$accept_user['username']}" href="{url user/space/$accept_user['uid']}" onmouseover="pop_user_on(this, '{$accept_user[uid]}', 'text');"  onmouseout="pop_user_out();">{$accept_user['username']}</a></h3>
+                </div>
+                <div class="ac_user_info">
+                    <!--{if $accept_user['userinfo']['signature']}-->
+                    <p class="signature">签名：{$accept_user['userinfo']['signature']}</p>
+                    <!--{/if}-->
+
+                    <!--{if $accept_user['userskill']}-->
+                    <p class="skill">擅长:
+                        <!--{loop $accept_user['userskill'] $skill}-->
+                        <i>{$skill}</i>
+                        <!--{/loop}-->
+                    </p>
+                    <!--{/if}-->
+
+                    <!--{if !empty($accept_user['userresume']['doctor_school'])}-->
+                    <p class="school">
+                        博士：{$accept_user['userresume']['doctor_school']}
+                        <!--{if !empty($accept_user['userresume']['doctor_dept'])}-->
+                        {$accept_user['userresume']['doctor_dept']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['doctor_major'])}-->
+                        {$accept_user['userresume']['doctor_major']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['doctor_year'])}-->
+                        {$accept_user['userresume']['doctor_year']}年
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['doctor_month'])}-->
+                        {$accept_user['userresume']['doctor_month']}月
+                        <!--{/if}-->
+                    </p>
+                    <!--{/if}-->
+
+                    <!--{if !empty($accept_user['userresume']['master_school'])}-->
+                    <p class="school">
+                        硕士：{$accept_user['userresume']['master_school']}
+                        <!--{if !empty($accept_user['userresume']['master_dept'])}-->
+                        {$accept_user['userresume']['master_dept']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['master_major'])}-->
+                        {$accept_user['userresume']['master_major']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['master_year'])}-->
+                        {$accept_user['userresume']['master_year']}年
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['master_month'])}-->
+                        {$accept_user['userresume']['master_month']}月
+                        <!--{/if}-->
+                    </p>
+                    <!--{/if}-->
+
+                    <!--{if !empty($accept_user['userresume']['bachelor_school'])}-->
+                    <p class="school">
+                        大学：{$accept_user['userresume']['bachelor_school']}
+                        <!--{if !empty($accept_user['userresume']['bachelor_dept'])}-->
+                        {$accept_user['userresume']['bachelor_dept']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['bachelor_major'])}-->
+                        {$accept_user['userresume']['bachelor_major']}
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['bachelor_year'])}-->
+                        {$accept_user['userresume']['bachelor_year']}年
+                        <!--{/if}-->
+                        <!--{if !empty($accept_user['userresume']['bachelor_month'])}-->
+                        {$accept_user['userresume']['bachelor_month']}月
+                        <!--{/if}-->
+                    </p>
+                    <!--{/if}-->
+                    <p class="stats">成功抢单{$accept_user['userinfo']['solved']}个</p>
+
+                    <!--{if $accept_user['userresume']['experience']}-->
+                    <p class="experience">个人经历: {$accept_user['userresume']['experience']}</p>
+                    <!--{/if}-->
+                </div>
+            </div>
+            <!--{/loop}-->
+        </div>
+        <!--{/if}-->
+        <!--{/if}-->
+        <div style="height:19px;"></div>
+    </div>
+
+    <!--{if 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
+    <div class="aside-right">
+        <!--{if $demand_user_lists}-->
+        <div class="modbox mb10">
+            <div class="title">有这些用户想帮您解决此求助</div>
+            <ul class="bm_demand_user_list">
+                <!--{loop $demand_user_lists $demand_user}-->
+                <li id="{$demand_user['uid']}">
+                    <div class="pic"><a title="{$demand_user['username']}" target="_blank" href="{url user/space/$demand_user['uid']}"><img width="50" height="50" alt="{$demand_user['username']}" src="{eval echo get_avatar_dir($demand_user['uid']);}"  onmouseover="pop_user_on(this, '{$demand_user[uid]}', '');"  onmouseout="pop_user_out();"/></a></div>
+                    <h3><a title="{$demand_user['username']}" target="_blank" href="{url user/space/$demand_user['uid']}" onmouseover="pop_user_on(this, '{$demand_user[uid]}', 'text');"  onmouseout="pop_user_out();">{$demand_user['username']}</a></h3>
+                    <span>附加留言:<br/>{$demand_user['message']}</span>
+                    <input type="button" class="bm_demand_accept_btn" id="bm_demand_accept_btn" value="接受" style="color:blue"/>
+                    <input type="button" class="bm_demand_denied_btn" id="bm_demand_denied_btn" value="拒绝" style="color:blue"/>
+                </li>
+                <!--{/loop}-->
+            </ul>
+        </div>
+        <!--{/if}-->
+    </div>
+    <!--{/if}-->
+</div>
+
+<div id="dialog_tag" title="编辑标签" style="display: none">
+    <form name="edittagForm"  action="{url problem/edittag}" method="post" >
+        <input type="hidden"  value="{$problem['pid']}" name="pid"/>
+        <table border="0" cellpadding="0" cellspacing="0" width="470px">
+            <tr>            
+                <td>
+                    <div class="inputbox mt15">
+                        <input type="text" placeholder="多个标签请以空格隔开" class="tag-input" name="ptags" value="{eval echo implode(' ',$taglist)}"/>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="submit" class="normal-button flright mt15" value="确&nbsp;认" /></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div style="height:29px;"></div>
+
+<link rel="stylesheet" href="{SITE_URL}js/lightbox/lightbox.css"/>
+<link rel="stylesheet" href="{SITE_URL}js/editor/third-party/SyntaxHighlighter/shCoreDefault.css"/>
+<script type="text/javascript" src="{SITE_URL}js/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}js/editor/third-party/SyntaxHighlighter/shCore.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+    //关闭求助
+    $("#close_question").click(function() {
+        if (confirm('确定关闭该问题?') === true) {
+            document.location.href = "{url problem/close/$problem['pid']}";
+        }
+    });
+    
+    //删除问题
+    $("#delete_question").click(function() {
+        if (confirm('确定删除问题？该操作不可返回！') === true) {
+            document.location.href = "{url problem/delete/$problem['pid']}";
+        }
+        });
+    
+    $(".anscontent img,.description img,.mainbox img,.qa-content img").each(function(i) {
+        var img = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{url index/ajaxchkimg}",
+            async: true,
+            data: "imgsrc=" + img.attr("src"),
+            success: function(status) {
+                if ('1' == status) {
+                    img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
+                }
+            }
+        });
+    });
+
+    $(".button_demand").click(function(){
+        if ({$user['uid']} == 0) {
+            alert("您还未登录，请先登录");
+            window.location.href = "{SITE_URL}index.php" + query + "user/login";
+        }
+        var supportobj = $(this);
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxdemand/" + {$problem['pid']},
+            cache: false,
+            success: function(succeed){
+                if (succeed == '-1') {
+                    alert("您还未登录，请先登录");
+                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
+                } else if (succeed == '0') {
+                    supportobj.val("抢位失败");
+                    supportobj.css({color:"#FF0000"});
+                } else if (succeed == '1') {
+                    supportobj.val("抢位成功");
+                    supportobj.attr("disabled", "true");
+                    supportobj.css({color:"#00FF00"});
+                } else if (succeed == '2') {
+                    alert("正在排队，请耐心等候");
+                } else if (succeed == '3') {
+                    alert("您还没有获得抢位的资格，填写您的简历，审核通过后，您就可以进行抢位啦！");
+                    window.location.href = "{SITE_URL}index.php" + query + "user/resume";
+                }  
+            }
+        });
+    }); 
+
+    $(".bm_demand_accept_btn").click(function(){
+        var supportobj = $(this);
+        var parentobj = $(this).parent();
+        uid = $(this).parent().attr("id");
+
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxaccept/" + uid + "/{$problem['pid']}",
+            cache: false,
+            success: function(succeed){
+                if (succeed == '0') {
+                    alert("交易失败，请刷新页面重试！");
+                } else if (succeed == '1') {
+                    disable_all_demand_btn();
+                    supportobj.val("已接受");
+                    supportobj.css("color", "#00FF00");
+                    parentobj.css("border", "1px solid");
+                    parentobj.css("color", "#FF0000");
+                } else {
+                    alert("发生异常!");
+                }
+            }
+        });
+    }); 
+
+    $(".bm_demand_denied_btn").click(function(){
+        var supportobj = $(this);
+        var parentobj = $(this).parent();
+        uid = $(this).parent().attr("id");
+
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxdenied/" + uid + "/{$problem['pid']}",
+            cache: false,
+            success: function(succeed){
+                if (succeed == '1') {
+                    supportobj.val("已拒绝");
+                    supportobj.css("color", "grey");
+                    supportobj.siblings(".bm_demand_accept_btn").css("color", "grey");
+                } else {
+                    alert("发生异常!");
+                }
+            }
+        });
+    }); 
+
+    if ({eval echo count($accept_users)} > 0) {
+        disable_all_demand_btn();
+    }
+    SyntaxHighlighter.all();
+});
+
+function disable_all_demand_btn()
+{
+    var all_accept = $(".bm_demand_accept_btn");
+    var all_denied = $(".bm_demand_denied_btn");
+
+    for (i = 0; i < all_accept.length; ++i) {
+        all_accept[i].disabled = true;
+        all_accept[i].style.color = "grey";
+    }
+    for (i = 0; i < all_denied.length; ++i) {
+        all_denied[i].disabled = true;
+        all_denied[i].style.color = "grey";
+    }
+}
+
+function show_comment(answerid) {
+    if ($("#comment_" + answerid).css("display") === "none") {
+        load_comment(answerid);
+        $("#comment_" + answerid).slideDown();
+    } else {
+        $("#comment_" + answerid).slideUp();
+    }
+}
+
+function adoptanswer(aid) {
+    $("#dialogadopt").dialog({
+        autoOpen: false,
+        width: 480,
+        modal: true,
+        resizable: false
+    });
+    $("#adopt_answer").val(aid);
+    $("#dialogadopt").dialog("open");
+}
+
+function edittag() {
+    $("#dialog_tag").dialog({
+        autoOpen: false,
+        width: 500,
+        modal: true,
+        resizable: false
+    });
+    $("#dialog_tag").dialog("open");
+}
+
+//提高悬赏
+function append_score() {
+    $("#append_score").dialog({
+        autoOpen: false,
+        width: 480,
+        modal: true,
+        resizable: false
+    });
+    $("#append_score").dialog("open");
+}
+
+function close_question() {
+    if (confirm('确定关闭该问题?') === true) {
+        document.location.href = "{url problem/close/$problem['pid']}";
+    }
+}
+
+</script>
+<!--{template footer}-->

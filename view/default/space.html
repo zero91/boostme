@@ -1,0 +1,49 @@
+<!--{template header}-->
+<div class="bm_wrapper bm_mt10 bm_clearfix">
+    <div class="bm_space_content">
+        <div class="bm_space_box">
+            <div class="mod-status-info">
+                <div class="avatarbox bm_mt15">
+                    <img class="avatar" alt="{$member['username']}" src="{$member['avatar']}" />
+                </div>
+                <div style="font-size:14px;"> {$member['username']} </div>
+                <!--{if ($userid == $user['uid'])}-->
+                <div class="balance">您的账户余额：¥{$user['balance']}</div>
+                <div class="hd"><h3>最近动态</h3></div>
+                <ul class="p_tabmod bm_mt10">
+                    <!--{loop $problemlist $problem}-->
+                    <li id="bm_space_p_item" class="">
+                        <div class="msgcontent">
+                            <h3>发出求助 "<a href='{url problem/view/$problem['pid']}' target="_blank">{$problem['title']}</a>"</h3>
+                            <div class="detail">{eval echo cutstr($problem['description'],250)}</div>
+                            <div class="related">
+                                <div class="pv">{$problem['format_time']}</div>
+                            </div>
+                        </div>
+                        <div class="bm_clear"></div>
+                    </li>
+                    <!--{/loop}-->
+                </ul> 
+                <!--{/if}-->
+
+                <div class="hd"><h3>解决以下困难</h3></div>
+                <ul class="p_tabmod bm_mt10">
+                    <!--{loop $solve_plist $problem}-->
+                    <li id="bm_space_p_item" class="">
+                        <div class="msgcontent">
+                            <h3>解决求助 "<a href='{url problem/view/$problem['pid']}' target="_blank">{$problem['title']}</a>"</h3>
+                            <div class="detail">{eval echo cutstr($problem['description'],250)}</div>
+                            <div class="related">
+                                <div class="pv">{$problem['format_time']}</div>
+                            </div>
+                        </div>
+                        <div class="bm_clear"></div>
+                    </li>
+                    <!--{/loop}-->
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--{template footer}-->

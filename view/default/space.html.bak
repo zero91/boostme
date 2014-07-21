@@ -1,0 +1,70 @@
+<!--{template header}-->
+<div class="bm_wrapper bm_mt10 bm_clearfix">
+    <div class="bm_space_content">
+        <div class="bm_space_box">
+            <div class="mod-status-info">
+                <div class="hd"><h3>TA曾经解决以下需求</h3></div>
+                <div class="bd">
+                    <div class="status-data clearfix">
+                        <ul>
+                            <li class="item"><em>{$member['answers']}</em><span>回答</span></li>
+                            <li class="item"><em>{$member['problems']}</em><span>提问</span></li>
+                            <li class="item"><em>{$adoptpercent}%</em>采纳率</li>
+                            <li class="item"><em>{$member['supports']}</em>赞同</li>
+                            <li class="item"><em>{$member['credit1']}</em>经验</li>
+                            <li class="item last"><em>{$member['credit2']}</em><span>财富</span></li>
+                        </ul>
+                    </div>
+                    <div class="expert-single-input clearfix">
+                        <!--{if $member['introduction']}-->
+                        <p><label>身份：</label><i>{$member['introduction']}</i></p>
+                        <!--{/if}-->
+                        <p>
+                            <label>擅长：</label>
+                            <!--{if $member['category']}-->
+                            <!--{loop $member['category'] $category}-->
+                            <i class="expert-field"><a target="_blank" href="{url category/view/$category['cid']}">{$category['categoryname']}</a></i>
+                            <!--{/loop}-->
+                            <!--{else}-->
+                            暂无
+                            <!--{/if}-->
+                        </p>
+                        <!--{if $member['mobile']}-->
+                        <p><label>手机：</label><i>{$member['mobile']}</i></p>
+                        <!--{/if}-->
+                        <!--{if $member['qq']}-->
+                        <p><label>qq：</label><i>{$member['qq']}</i></p>
+                        <!--{/if}-->
+                        <p><label>介绍：</label><i><span>{if $member['signature']}{$member['signature']}{else}暂无介绍{/if}</span></i></p>
+                    </div>
+                    <div class="ask-box clearfix">
+                        <form name="askform" action="{url question/add/$member['uid']}" method="POST">
+                            <input type="text" class="tag-input" name="word"/>
+                            <input type="submit" name="post" class="normal-button" value="向TA提问"  />
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="mod-status-info">
+                <div class="hd">
+                    <h3>TA的动态</h3>
+                </div>
+                <ul class="q-tabmod mt10">
+                    <!--{loop $answerlist $answer}-->
+                    <li id="msg5010" class="">
+                        <div class="msgcontent">
+                            <h3>回答了问题 "<a href='{url question/view/$answer['qid']}' target="_blank">{$answer['title']}</a>"</h3>
+                            <div  class="detail">{eval echo cutstr($answer['content'],250)}</div>
+                            <div class="related">
+                                <div class="pv">{$answer['time']}</div>
+                            </div>
+                        </div>
+                        <div class="clr"></div>
+                    </li>
+                    <!--{/loop}-->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!--{template footer}-->

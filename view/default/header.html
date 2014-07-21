@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <!--{eval
+        global $starttime;
+        $mtime = explode(' ', microtime());
+        $runtime = number_format($mtime[1] + $mtime[0] - $starttime, 6);
+        $setting = $this->setting;
+        $user = $this->user;
+        $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
+        $regular = $this->regular;
+        }-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
+    <title><!--{if $navtitle}-->{$navtitle} - <!--{/if}-->{$setting['site_name']}</title>
+    <meta name="description" content="{$setting['site_name']}" />
+    <meta name="keywords" content="{$seo_keywords}" />
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow" />
+    <link rel="stylesheet" type="text/css" href="{SITE_URL}css/default/main.css" />
+    <link rel="stylesheet" type="text/css" href="{SITE_URL}js/jquery-ui/jquery-ui.css" />
+    <script type="text/javascript" src="{SITE_URL}js/jquery.js"></script>
+    <script type="text/javascript">
+        var g_site_url = "{SITE_URL}";
+        var g_site_name = "{$setting['site_name']}";
+        var g_uid = {$user['uid']};
+    </script>
+</head>
+
+<body>
+<div class="bm_head_fixed">
+    <div class="bm_top_bar">
+        <div class="bm_wrapper bm_clearfix">
+            <a href="{SITE_URL}" class="bm_top_link_logo" id="bm_top_link_logo">{$setting['site_name']}</a>
+            <div class="bm_searchbox">
+                <form name="searchform"  action="{url problem/search}" method="post">
+                    <span class="bm_top_round">
+                        <input autocomplete="off" maxlength="100" placeholder="搜索求助" class="bm_search_input" tabindex="1" name="word" id="search-kw" value="{$word}" />
+                    </span>
+                    <span class="button">
+                        <input type="button" id="ask_btn" class="bm_top_s_btn" value="我要求助" />
+                    </span>
+                </form>
+            </div>
+
+            <div class="bm_top_profile"> 
+                <!--{if 0 != $user['uid']}-->
+                <ul class="bm_top_user_login">
+                    <li class="bm_user_bar"><a href="{url user/space/{$user['uid']}}">{$user['username']}</a></li>
+                    <li id="mymessage" class="bm_user_menu">
+                        <!-- 如果没有短消息的话 msg-ico 后面有个 msg-null -->
+                        <!--{if ($user['msg_system']+$user['msg_personal'])>0}-->
+                        <span class="bm_ismore"><a target="_self" href="{url message/personal}" class="bm_msg_ico">收件箱</a><i class="ar-ico"></i></span>
+                        <!--{else}-->
+                        <span class="bm_ismore"><a target="_self" href="{url message/personal}" class="bm_msg_ico bm_msg_null">收件箱</a><i class="ar-ico"></i></span>
+                        <!--{/if}-->
+                        <div class="bm_user_more_list bm_user_msg">
+                            <a onclick="msgClear();" target="_blank" href="{url message/personal}">私人消息<!--{if $user['msg_personal']>0}--><span class="msg-num">{$user['msg_personal']}</span><!--{/if}--></a>
+                            <a onclick="msgClear();" target="_blank" href="{url message/system}">系统消息<!--{if $user['msg_system']>0}--><span class="msg-num">{$user['msg_system']}</span><!--{/if}--></a>
+                        </div>
+                    </li>
+                    <li class="bm_user_menu">
+                        <span class="bm_ismore"><a target="_self" href="{url user/profile}">账号</a><i class="ar-ico"></i></span>
+                        <div class="bm_user_more_list">
+                            <a target="_self" href="{url user/profile}">修改资料</a>
+                            <a href="{url user/logout}" class="tuser_logout">退出</a>
+                        </div>
+                    </li>
+                </ul>
+                <!--{else}-->
+                <ul class="bm_top_user_login">
+                    <li class="bm_user_bar">
+                        <span><a href="javascript:void(0);" onclick="login();">登录</a></span>
+                        <span><a href="{url user/register}">免费注册</a></span>
+                    </li>
+                </ul>
+                <!--{/if}-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="height:51px;"></div>
+
