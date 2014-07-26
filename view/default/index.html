@@ -24,7 +24,7 @@
                             <a href=""><img class="prob_idx_avatar" src={eval echo get_avatar_dir($problem['authorid']);}></a>
                         </div>
                         <div class="prob_content">
-                            <h3 class="prob_title"><a href="{url problem/view/$problem['pid']}">{$problem['title']}</a></h3>
+                            <h3 class="prob_title">{$problem['title']}<br/><a href="{url problem/view/$problem['pid']}">查看详细信息</a></h3>
                             <div class="prob_price">
                                 <span>回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
                             </div>
@@ -67,7 +67,6 @@
         </table>
     </form>
 </div>
-
 
 <script type="text/javascript">
 var timer;
@@ -118,6 +117,9 @@ $(document).ready(function() {
             alert("您还未登录，请先登录");
             window.location.href = "{SITE_URL}index.php" + query + "user/login";
         }
+        if (confirm('确定撤销请求?') === false) {
+            return false;
+        }
         var supportobj = $(this);
         var pid = $(this).attr("id");
         $.ajax({
@@ -131,35 +133,26 @@ $(document).ready(function() {
                 } else if (succeed == '0') {
                     alert("操作失败，请刷新页面重试");
                 } else if (succeed == '1') {
-                    supportobj.html("抢位");
+                    supportobj.removeClass("prob_cancel");
+                    supportobj.addClass("prob_demand");
+                    supportobj.unbind('click'); 
+                    supportobj.click(function() {
+                        var pid = $(this).attr("id");
+                        $("#dialog_pid").val(pid);
+                        $("#dialog_message").dialog({
+                            autoOpen: false,
+                            width: 500,
+                            modal: true,
+                            resizable: false
+                        });
+                        $("#dialog_message").dialog("open");
+                    });
+                    supportobj.html("我要帮忙");
                 } else if (succeed == '2') {
-                    alert("您还没有在该求助上抢位!");
+                    alert("您还没有在该求助上发过帮助请求!");
                 }
             }
         });
-    });
-
-    //slider
-    $(".pagination li").hover(function() {
-        $(".pagination li[class='spanhover']").removeClass("spanhover");
-        var topicid = $(this).attr("topicid");
-        $(this).addClass("spanhover");
-        timer = setTimeout(function() {
-            $(".topic").hide();
-            $("#" + topicid).show();
-        }, 100);
-    });
-    $("#weektab").hover(function() {
-        $(this).attr("class", "select");
-        $("#alltab").attr("class", "not-selected");
-        $("#weektop").show();
-        $("#alltop").hide();
-    });
-    $("#alltab").hover(function() {
-        $(this).attr("class", "select");
-        $("#weektab").attr("class", "not-selected");
-        $("#alltop").show();
-        $("#weektop").hide();
     });
 
     $(".bm_demand_btn").click(function(){
@@ -179,10 +172,10 @@ $(document).ready(function() {
                     alert("您还未登录，请先登录");
                     window.location.href = "{SITE_URL}index.php" + query + "user/login";
                 } else if (succeed == '0') {
-                    supportobj.val("抢位失败");
+                    supportobj.val("请求失败");
                     supportobj.css({color:"#FF0000"});
                 } else if (succeed == '1') {
-                    supportobj.val("抢位成功");
+                    supportobj.val("撤销请求");
                     supportobj.attr("disabled", "true");
                     supportobj.css({color:"#00FF00"});
                 } else if (succeed == '2') {

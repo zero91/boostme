@@ -48,7 +48,7 @@
                 <h3>处理求助：</h3>
                 <p> 如果尚未找到合适的人来解决你的求助，可以尝试以下操作：</p>
                 <span><input type="button" class="button_4" value="添加标签" title="修改求助标签" onclick="edittag();" /></span>
-                <span><input type="button" title="已解决，可以直接关闭求助" class="button_4" name="close_question" value="关闭求助"  onclick="close_question();"/></span>
+                <span><input type="button" title="已解决，可以直接关闭求助" class="button_4" name="close_problem" value="关闭求助"  onclick="close_problem();"/></span>
             </div>
             <!--{/if}-->
         </div>
@@ -156,8 +156,8 @@
                     <div class="pic"><a title="{$demand_user['username']}" target="_blank" href="{url user/space/$demand_user['uid']}"><img width="50" height="50" alt="{$demand_user['username']}" src="{eval echo get_avatar_dir($demand_user['uid']);}"  onmouseover="pop_user_on(this, '{$demand_user[uid]}', '');"  onmouseout="pop_user_out();"/></a></div>
                     <h3><a title="{$demand_user['username']}" target="_blank" href="{url user/space/$demand_user['uid']}" onmouseover="pop_user_on(this, '{$demand_user[uid]}', 'text');"  onmouseout="pop_user_out();">{$demand_user['username']}</a></h3>
                     <span>附加留言:<br/>{$demand_user['message']}</span>
-                    <input type="button" class="bm_demand_accept_btn" id="bm_demand_accept_btn" value="接受" style="color:blue"/>
-                    <input type="button" class="bm_demand_denied_btn" id="bm_demand_denied_btn" value="拒绝" style="color:blue"/>
+                    <a href="#" class="bm_demand_accept_btn" id="bm_demand_accept_btn" onclick="javascript:return false;"; style="color:blue">接受</a>
+                    <a href="#" class="bm_demand_denied_btn" id="bm_demand_denied_btn" onclick="javascript:return false;"; style="color:blue">拒绝</a>
                 </li>
                 <!--{/loop}-->
             </ul>
@@ -195,7 +195,7 @@
 
 $(document).ready(function() {
     //关闭求助
-    $("#close_question").click(function() {
+    $("#close_problem").click(function() {
         if (confirm('确定关闭该问题?') === true) {
             document.location.href = "{url problem/close/$problem['pid']}";
         }
@@ -238,10 +238,10 @@ $(document).ready(function() {
                     alert("您还未登录，请先登录");
                     window.location.href = "{SITE_URL}index.php" + query + "user/login";
                 } else if (succeed == '0') {
-                    supportobj.val("抢位失败");
+                    supportobj.val("请求失败");
                     supportobj.css({color:"#FF0000"});
                 } else if (succeed == '1') {
-                    supportobj.val("抢位成功");
+                    supportobj.val("撤销请求");
                     supportobj.attr("disabled", "true");
                     supportobj.css({color:"#00FF00"});
                 } else if (succeed == '2') {
@@ -255,6 +255,10 @@ $(document).ready(function() {
     }); 
 
     $(".bm_demand_accept_btn").click(function(){
+        if (confirm('确定选择该用户?') === false) {
+            return false;
+        }
+
         var supportobj = $(this);
         var parentobj = $(this).parent();
         uid = $(this).parent().attr("id");
@@ -280,8 +284,12 @@ $(document).ready(function() {
     }); 
 
     $(".bm_demand_denied_btn").click(function(){
+        if (confirm('确定该用户不满足您的条件?') === false) {
+            return false;
+        }
         var supportobj = $(this);
         var parentobj = $(this).parent();
+        parentobj.css('display','none');
         uid = $(this).parent().attr("id");
 
         $.ajax({
@@ -362,7 +370,7 @@ function append_score() {
     $("#append_score").dialog("open");
 }
 
-function close_question() {
+function close_problem() {
     if (confirm('确定关闭该问题?') === true) {
         document.location.href = "{url problem/close/$problem['pid']}";
     }

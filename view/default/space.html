@@ -14,8 +14,7 @@
                     <!--{loop $problemlist $problem}-->
                     <li id="bm_space_p_item" class="">
                         <div class="msgcontent">
-                            <h3>发出求助 "<a href='{url problem/view/$problem['pid']}' target="_blank">{$problem['title']}</a>"</h3>
-                            <div class="detail">{eval echo cutstr($problem['description'],250)}</div>
+                            <h3>发出求助 "<i>{$problem['title']}</i>" <a href='{url problem/view/$problem['pid']}' target="_blank">查看</a></h3>
                             <div class="related">
                                 <div class="pv">{$problem['format_time']}</div>
                             </div>
@@ -26,12 +25,12 @@
                 </ul> 
                 <!--{/if}-->
 
-                <div class="hd"><h3>解决以下困难</h3></div>
+                <div class="hd"><h3>解决以下求助</h3></div>
                 <ul class="p_tabmod bm_mt10">
                     <!--{loop $solve_plist $problem}-->
                     <li id="bm_space_p_item" class="">
                         <div class="msgcontent">
-                            <h3>解决求助 "<a href='{url problem/view/$problem['pid']}' target="_blank">{$problem['title']}</a>"</h3>
+                            <h3>解决求助 "<i>{$problem['title']}</i>" <a href='{url problem/view/$problem['pid']}' target="_blank">查看</a></h3>
                             <div class="detail">{eval echo cutstr($problem['description'],250)}</div>
                             <div class="related">
                                 <div class="pv">{$problem['format_time']}</div>
