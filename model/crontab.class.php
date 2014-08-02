@@ -1,15 +1,13 @@
 <?php
 
-/* 系统定时任务处理 */
+// 系统定时任务处理
 !defined('IN_SITE') && exit('Access Denied');
 
-class crontabmodel
-{
+class crontabmodel {
     var $db;
     var $base;
 
-    function crontabmodel(&$base)
-    {
+    function crontabmodel(&$base) {
         $this->base = $base;
         $this->db = $base->db;
     }

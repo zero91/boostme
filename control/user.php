@@ -2,53 +2,48 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class usercontrol extends base
-{
-    function usercontrol(& $get, & $post)
-    {
+class usercontrol extends base {
+
+    function usercontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load('user');
         $this->load('userskill');
         $this->load('problem');
         $this->load('userresume');
-        /*
-        $this->load('answer');
-        $this->load("favorite");
-         */
     }
 
-    function ondefault()
-    {
+    function ondefault() {
         $this->onscore();
     }
 
-    function oncode()
-    {
+    function oncode() {
         ob_clean();
         $code = random(4);
         $_ENV['user']->save_code(strtolower($code));
         makecode($code);
     }
 
-    function onregister()
-    {
+    function onregister() {
         if ($this->user['uid']) {
             header("Location:" . SITE_URL);
         }
+
         $navtitle = '注册新用户';
         if (!$this->setting['allow_register']) {
             $this->message("系统注册功能暂时处于关闭状态!", 'STOP');
         }
+
         if (isset($this->base->setting['max_register_num']) && $this->base->setting['max_register_num'] && !$_ENV['user']->is_allowed_register()) {
             $this->message("您的当前的IP已经超过当日最大注册数目，如有疑问请联系管理员!", 'STOP');
             exit;
         }
+
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        $this->setting['passport_open'] && !$this->setting['passport_type'] && $_ENV['user']->passport_client(); //通行证处理
         if (isset($this->post['submit'])) {
             $username = trim($this->post['username']);
             $password = trim($this->post['password']);
             $email = $this->post['email'];
+
             if ('' == $username || '' == $password) {
                 $this->message("用户名或密码不能为空!", 'user/register');
             } else if (!preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $email)) {
@@ -58,66 +53,51 @@ class usercontrol extends base
             } else if (!$_ENV['user']->check_usernamecensor($username)) {
                 $this->message("用户名不合法!", 'user/register');
             }
-            //$this->setting['code_register'] && $this->checkcode(); //检查验证码
+            $this->setting['code_register'] && $this->checkcode(); //检查验证码
+
             $user = $_ENV['user']->get_by_username($username);
             $user && $this->message("用户名 $username 已经存在!", 'user/register');
-            //ucenter注册成功，则不会继续执行后面的代码。
-            if ($this->setting["ucenter_open"]) {
-                $this->load('ucenter');
-                $_ENV['ucenter']->register();
-            }
+
             $uid = $_ENV['user']->add($username, $password, $email);
             $_ENV['user']->refresh($uid);
-            //$this->credit($this->user['uid'], $this->setting['credit1_register'], $this->setting['credit2_register']); //注册增加积分
-            //通行证处理
-            $forward = isset($this->post['forward']) ? $this->post['forward'] : SITE_URL;
-            $this->setting['passport_open'] && $this->setting['passport_type'] && $_ENV['user']->passport_server($forward);
+
             //发送邮件通知
-            $subject = "恭喜你在" . $this->setting['site_name'] . "注册成功！";
-            $message = '<p>现在您可以登录<a swaped="true" target="_blank" href="' . SITE_URL . '">' . $this->setting['site_name'] . '</a>自由的提问和回答问题。祝您使用愉快。</p>';
-            sendmail($this->user, $subject, $message);
+            $subject = "恭喜您在" . $this->setting['site_name'] . "注册成功！";
+            $message = '<p>现在您可以登录<a swaped="true" target="_blank" href="' . SITE_URL . '">' . $this->setting['site_name'] . '</a>，如有困难需要别人帮助，您可以自由发出您的求助信息。祝您使用愉快！</p>';
+            sendmail($username, $email, $subject, $message);
             $this->message('恭喜，注册成功！');
         }
         include template('register');
     }
 
-    function onlogin()
-    {
+    function onlogin() {
         if ($this->user['uid']) {
             header("Location:" . SITE_URL);
         }
+
         $navtitle = '用户登录';
-        $this->setting['passport_open'] && !$this->setting['passport_type'] && $_ENV['user']->passport_client(); //通行证处理
         if (isset($this->post['submit'])) {
             $username = trim($this->post['username']);
             $password = md5($this->post['password']);
             $cookietime = intval($this->post['cookietime']);
-            $forward = isset($this->post['forward']) ? $this->post['forward'] : SITE_URL;
+            $forward = isset($this->post['forward']) ? $this->post['forward'] : SITE_URL; 
 
-            //ucenter登录成功，则不会继续执行后面的代码。
-            if ($this->setting["ucenter_open"]) {
-                $this->load('ucenter');
-                $_ENV['ucenter']->login($username, $password);
-            }
             $this->setting['code_login'] && $this->checkcode(); //检查验证码
             $user = $_ENV['user']->get_by_username($username);
             if (is_array($user) && ($password == $user['password'])) {
                 $_ENV['user']->refresh($user['uid'], 1, $cookietime);
-                $this->setting['passport_open'] && $this->setting['passport_type'] && $_ENV['user']->passport_server($forward);
                 header("Location:" . $forward);
             } else {
                 $this->message('用户名或密码错误！', 'user/login');
             }
         } else {
-            //$forward = (isset($_SERVER['HTTP_REFERER']) && false!==strpos($group['regulars'],'question/answer'))  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-            $forward = SITE_URL;
+            $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
             include template('login');
         }
     }
 
     // 用于ajax登录
-    function onajaxlogin()
-    {
+    function onajaxlogin() {
         $username = $this->post['username'];
         if (WEB_CHARSET == 'GBK') {
             require_once(WEB_ROOT . '/lib/iconv.func.php');
@@ -132,8 +112,7 @@ class usercontrol extends base
     }
 
     // 用于ajax检测用户名是否存在
-    function onajaxusername()
-    {
+    function onajaxusername() {
         $username = $this->post['username'];
         if (WEB_CHARSET == 'GBK') {
             require_once(WEB_ROOT . '/lib/iconv.func.php');
@@ -149,8 +128,7 @@ class usercontrol extends base
     }
 
     // 用于ajax检测用户名是否存在
-    function onajaxemail()
-    {
+    function onajaxemail() {
         $email = $this->post['email'];
         $user = $_ENV['user']->get_by_email($email);
         if (is_array($user))
@@ -162,8 +140,7 @@ class usercontrol extends base
     }
 
     // 用于ajax检测验证码是否匹配
-    function onajaxcode()
-    {
+    function onajaxcode() {
         $code = strtolower(trim($this->get[2]));
         if ($code == $_ENV['user']->get_code()) {
             exit('1');
@@ -172,42 +149,42 @@ class usercontrol extends base
     }
 
     // 退出系统
-    function onlogout()
-    {
+    function onlogout() {
         $navtitle = '登出系统';
-        //ucenter退出成功，则不会继续执行后面的代码。
-        if ($this->setting["ucenter_open"]) {
-            $this->load('ucenter');
-            $_ENV['ucenter']->logout();
-        }
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        $this->setting['passport_open'] && !$this->setting['passport_type'] && $_ENV['user']->passport_client(); //通行证处理
         $_ENV['user']->logout();
-        $this->setting['passport_open'] && $this->setting['passport_type'] && $_ENV['user']->passport_server($forward); //通行证处理
         $this->message('成功退出！');
     }
 
-    function ondemand()
-    {
-        $navtitle = '我的需求';
+    function ondemand() {
+        $navtitle = '我的求助';
         $status = intval($this->get[2]);
         @$page = max(1, intval($this->get[3]));
         $pagesize = $this->setting['list_default'];
+        $pagesize = 4;
         $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
         $problemlist = $_ENV['problem']->list_by_uid($this->user['uid'], $status, $startindex, $pagesize);
         $problemtotal = intval($this->db->fetch_total('problem', 'authorid=' . $this->user['uid'] . $_ENV['problem']->statustable[$status]));
-        $departstr = page($problemtotal, $pagesize, $page, "user/demand/$status"); //得到分页字符串
+
+        $departstr = page($problemtotal, $pagesize, $page, "user/demand/$status");
         include template('mydemand');
     }
 
-    // 1提问  2回答
-    function onspace()
-    {
+    // 用户个人空间
+    function onspace() {
+        //需要用户登录才能够看到用户空间的内容
         if ($this->user['uid'] == 0) {
             $this->message("请先登录!", "user/login");
         }
+
         $navtitle = "个人空间";
-        $userid = intval($this->get[2]);
+
+        if (empty($this->get[2])) {
+            $userid = $this->user['uid'];
+        } else {
+            $userid = intval($this->get[2]);
+        }
+
         $member = $_ENV['user']->get_by_uid($userid);
         $member['avatar'] = get_avatar_dir($userid);
         if ($member) {
@@ -216,11 +193,9 @@ class usercontrol extends base
             $navtitle = $member['username'] . $navtitle;
             include template('space');
         } else {
-            $this->message("抱歉，该用户个人空间不存在！", 'BACK');
+            $this->message("抱歉，该用户不存在！", 'BACK');
         }
     }
-
-
 
     // 找回密码
     function ongetpass() {
@@ -234,9 +209,10 @@ class usercontrol extends base
                 $authstr = strcode($touser['username'], $this->setting['auth_key']);
                 $_ENV['user']->update_authstr($touser['uid'], $authstr);
                 $getpassurl = SITE_URL . '?user/resetpass/' . urlencode($authstr);
+
                 $subject = "找回您在" . $this->setting['site_name'] . "的密码";
-                $message = '<p>如果是您在<a swaped="true" target="_blank" href="' . SITE_URL . '">' . $this->setting['site_name'] . '</a>的密码丢失，请点击下面的链接找回：</p><p><a swaped="true" target="_blank" href="' . $getpassurl . '">' . $getpassurl . '</a></p><p>如果直接点击无法打开，请复制链接地址，在新的浏览器窗口里打开。</p>';
-                sendmail($touser, $subject, $message);
+                $message = '<p>如果您没有进行密码找回的操作，请忽略此邮件。</p><p>如果是您在<a swaped="true" target="_blank" href="' . SITE_URL . '">' . $this->setting['site_name'] . '</a>的密码丢失，请点击下面的链接找回：</p><p><a swaped="true" target="_blank" href="' . $getpassurl . '">' . $getpassurl . '</a></p><p>如果直接点击无法打开，请复制链接地址，在新的浏览器窗口里打开。</p>';
+                sendmail($touser['username'], $touser['email'], $subject, $message);
                 $this->message("找回密码的邮件已经发送到你的邮箱，请查收!", 'BACK');
             }
             $this->message("用户名或邮箱填写错误，请核实!", 'BACK');
@@ -248,13 +224,18 @@ class usercontrol extends base
     function onresetpass() {
         $navtitle = '重置密码';
         @$authstr = $this->get[2] ? $this->get[2] : $this->post['authstr'];
-        if (empty($authstr))
+        if (empty($authstr)) {
             $this->message("非法提交，缺少参数!", 'BACK');
+        }
+
         $authstr = urldecode($authstr);
         $username = strcode($authstr, $this->setting['auth_key'], 'DECODE');
         $theuser = $_ENV['user']->get_by_username($username);
-        if (!$theuser || ($authstr != $theuser['authstr']))
+
+        if (!$theuser || ($authstr != $theuser['authstr'])) {
             $this->message("本网址已过期，请重新使用找回密码的功能!", 'BACK');
+        }
+
         if (isset($this->post['submit'])) {
             $password = $this->post['password'];
             $repassword = $this->post['repassword'];
@@ -266,133 +247,13 @@ class usercontrol extends base
             }
             $_ENV['user']->uppass($theuser['uid'], $password);
             $_ENV['user']->update_authstr($theuser['uid'], '');
-            $this->message("重置密码成功，请使用新密码登录!");
+            $this->message("重置密码成功，请使用新密码登录!", "user/login");
         }
         include template('resetpass');
     }
 
-    function onask() {
-        $navtitle = '我的问题';
-        $status = intval($this->get[2]);
-        @$page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
-        $questionlist = $_ENV['question']->list_by_uid($this->user['uid'], $status, $startindex, $pagesize);
-        $questiontotal = intval($this->db->fetch_total('question', 'authorid=' . $this->user['uid'] . $_ENV['question']->statustable[$status]));
-        $departstr = page($questiontotal, $pagesize, $page, "user/ask/$status"); //得到分页字符串
-        include template('myask');
-    }
-
-    function onspace_ask() {
-        $navtitle = 'TA的提问';
-        $uid = intval($this->get[2]);
-        $member = $_ENV['user']->get_by_uid($uid);
-        $status = $this->get[3] ? $this->get[3] : 1;
-        //升级进度
-        $membergroup = $this->usergroup[$member['groupid']];
-        @$page = max(1, intval($this->get[4]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
-        $questionlist = $_ENV['question']->list_by_uid($uid, $status, $startindex, $pagesize);
-        $questiontotal = $this->db->fetch_total('question', 'authorid=' . $uid . $_ENV['question']->statustable[$status]);
-        $departstr = page($questiontotal, $pagesize, $page, "user/space_ask/$uid/$status"); //得到分页字符串
-        include template('space_ask');
-    }
-
-    function onanswer() {
-        $navtitle = '我的回答';
-        $status = intval($this->get[2]);
-        @$page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
-        $answerlist = $_ENV['answer']->list_by_uid($this->user['uid'], $status, $startindex, $pagesize);
-        $answersize = intval($this->db->fetch_total('answer', 'authorid=' . $this->user['uid'] . $_ENV['answer']->statustable[$status]));
-        $departstr = page($answersize, $pagesize, $page, "user/answer/$status"); //得到分页字符串
-        include template('myanswer');
-    }
-
-    function onspace_answer() {
-        $navtitle = 'TA的回答';
-        $uid = intval($this->get[2]);
-        $status = $this->get[3] ? $this->get[3] : 'all';
-        $member = $_ENV['user']->get_by_uid($uid);
-        //升级进度
-        $membergroup = $this->usergroup[$member['groupid']];
-        @$page = max(1, intval($this->get[4]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
-        $answerlist = $_ENV['answer']->list_by_uid($uid, $status, $startindex, $pagesize);
-        $answersize = intval($this->db->fetch_total('answer', 'authorid=' . $uid . $_ENV['answer']->statustable[$status]));
-        $departstr = page($answersize, $pagesize, $page, "user/space_answer/$uid/$status"); //得到分页字符串
-        include template('space_answer');
-    }
-
-    function onattention() {
-        $navtitle = '我的关注';
-        include template("myattention");
-    }
-
-    function onscore() {
-        $navtitle = '我的积分';
-        if ($this->setting['outextcredits']) {
-            $outextcredits = unserialize($this->setting['outextcredits']);
-        }
-        $higherneeds = intval($this->user['creditshigher'] - $this->user['credit1']);
-        $adoptpercent = $_ENV['user']->adoptpercent($this->user);
-        $highergroupid = $this->user['groupid'] + 1;
-        isset($this->usergroup[$highergroupid]) && $nextgroup = $this->usergroup[$highergroupid];
-        $credit_detail = $_ENV['user']->credit_detail($this->user['uid']);
-        $detail1 = $credit_detail[0];
-        $detail2 = $credit_detail[1];
-        include template('myscore');
-    }
-
-    function onlevel() {
-        $navtitle = '我的等级';
-        $usergroup = $this->usergroup;
-        include template("mylevel");
-    }
-
-    function onexchange() {
-        $navtitle = '积分兑换';
-        if ($this->setting['outextcredits']) {
-            $outextcredits = unserialize($this->setting['outextcredits']);
-        } else {
-            $this->message("系统没有开启积分兑换!", 'BACK');
-        }
-        $exchangeamount = $this->post['exchangeamount']; //先要兑换的积分数
-        $outextindex = $this->post['outextindex']; //读取相应积分配置
-        $outextcredit = $outextcredits[$outextindex];
-        $creditsrc = $outextcredit['creditsrc']; //积分兑换的源积分编号
-        $appiddesc = $outextcredit['appiddesc']; //积分兑换的目标应用程序 ID
-        $creditdesc = $outextcredit['creditdesc']; //积分兑换的目标积分编号
-        $ratio = $outextcredit['ratio']; //积分兑换比率
-        $needamount = $exchangeamount / $ratio; //需要扣除的积分数
-
-        if ($needamount <= 0) {
-            $this->message("兑换的积分必需大于0 !", 'BACK');
-        }
-        if (1 == $creditsrc) {
-            $titlecredit = '经验值';
-            if ($this->user['credit1'] < $needamount) {
-                $this->message("{$titlecredit}不足!", 'BACK');
-            }
-            $this->credit($this->user['uid'], -$needamount, 0, 0, 'exchange'); //扣除本系统积分
-        } else {
-            $titlecredit = '财富值';
-            if ($this->user['credit2'] < $needamount) {
-                $this->message("{$titlecredit}不足!", 'BACK');
-            }
-            $this->credit($this->user['uid'], 0, -$needamount, 0, 'exchange'); //扣除本系统积分
-        }
-        $this->load('ucenter');
-        $_ENV['ucenter']->exchange($this->user['uid'], $creditsrc, $creditdesc, $appiddesc, $exchangeamount);
-        $this->message("积分兑换成功!  你在“{$this->setting[site_name]}”的{$titlecredit}减少了{$needamount}。");
-    }
-
     // 个人中心修改资料
-    function onprofile()
-    {
+    function onprofile() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
         }
@@ -425,8 +286,7 @@ class usercontrol extends base
         include template('profile');
     }
 
-    function onuppass()
-    {
+    function onuppass() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
         }
@@ -449,33 +309,10 @@ class usercontrol extends base
         include template('uppass');
     }
 
-    // 0总排行、1上周排行 、2上月排行
-    //user/scorelist/1/
-    function onscorelist() {
-        $navtitle = "经验排行榜";
-        $type = isset($this->get[2]) ? $this->get[2] : 0;
-        $userlist = $_ENV['user']->list_by_credit($type, 100);
-        $usercount = count($userlist);
-        include template('scorelist');
-    }
-
-    function onactivelist() {
-        $page = max(1, intval($this->get[2]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        $userlist = $_ENV['user']->get_active_list($startindex, $pagesize);
-        $answertop = $_ENV['user']->get_answer_top();
-        $rownum = $this->db->fetch_total('user', " 1=1 ");
-        $departstr = page($rownum, $pagesize, $page, "user/activelist");
-        include template("activelist");
-    }
-
-    function onupload_resume()
-    {
+    function onupload_resume() {
         if (0 == $this->user['uid']) {
             return;
         }
-
 
         if (isset($_FILES["userresume"])) {
             $uid = intval($this->get[2]);
@@ -505,8 +342,7 @@ class usercontrol extends base
         }
     }
 
-    function oneditimg()
-    {
+    function oneditimg() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
         }
@@ -537,17 +373,12 @@ class usercontrol extends base
                     echo 'ok';
             }
         } else {
-            if ($this->setting["ucenter_open"]) {
-                $this->load('ucenter');
-                $imgstr = $_ENV['ucenter']->set_avatar($this->user['uid']);
-            }
             include template("editimg");
         }
     }
 
     // 维护个人简历
-    function onresume()
-    {
+    function onresume() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
         }
@@ -582,40 +413,13 @@ class usercontrol extends base
         include template("resume");
     }
 
-    //解除绑定
-    function onunchainauth() {
-        $type = ($this->get[2] == 'qq') ? 'qq' : 'sina';
-        $_ENV['user']->remove_login_auth($this->user['uid'], $type);
-        $this->message($type . "绑定解除成功!", 'user/mycategory');
-    }
-
-    function onajaxcategory() {
-        $cid = intval($this->post['cid']);
-        if ($cid && $this->user['uid']) {
-            foreach ($this->user['category'] as $category) {
-                if ($category['cid'] == $cid) {
-                    exit;
-                }
-            }
-            $_ENV['user']->add_category($cid, $this->user['uid']);
-        }
-    }
-
-    function onajaxdeletecategory() {
-        $cid = intval($this->post['cid']);
-        if ($cid && $this->user['uid']) {
-            $_ENV['user']->remove_category($cid, $this->user['uid']);
-        }
-    }
-
     function onajaxpoplogin() {
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
         include template("poplogin");
     }
 
     // 用户查看下详细信息 
-    function onajaxuserinfo()
-    {
+    function onajaxuserinfo() {
         $uid = intval($this->get[2]);
         if ($uid) {
             $userinfo = $_ENV['user']->get_by_uid($uid);
@@ -624,12 +428,6 @@ class usercontrol extends base
             include template("usercard");
         }
     }
-
-    //积分充值
-    function onrecharge() {
-        include template("recharge");
-    }
-
 }
 
 ?>

@@ -1,22 +1,18 @@
 <?php
 
-class cache
-{ 
+class cache { 
     var $db;
     var $cachefile;
 
-    function cache(& $db)
-    {
+    function cache(& $db) {
         $this->db = $db;
     }
 
-    function getfile($cachename)
-    {
+    function getfile($cachename) {
         $this->cachefile = WEB_ROOT . '/data/cache/' . $cachename . '.php';
     }
 
-    function isvalid($cachename, $cachetime)
-    {
+    function isvalid($cachename, $cachetime) {
         if (0 == $cachetime)
             return true;
 
@@ -28,8 +24,7 @@ class cache
         return (time() - filemtime($this->cachefile)) < $cachetime;
     }
 
-    function read($cachename, $cachetime=0)
-    {
+    function read($cachename, $cachetime=0) {
         $this->getfile($cachename);
         if ($this->isvalid($cachename, $cachetime)) {
             return @include $this->cachefile;
@@ -37,8 +32,7 @@ class cache
         return false;
     }
 
-    function write($cachename, $arraydata)
-    {
+    function write($cachename, $arraydata) {
         $this->getfile($cachename);
         if (!is_array($arraydata))
             return false;
@@ -47,16 +41,14 @@ class cache
         return $bytes;
     }
 
-    function remove($cachename)
-    {
+    function remove($cachename) {
         $this->getfile($cachename);
         if (file_exists($this->cachefile)) {
             unlink($this->cachefile);
         }
     }
 
-    function load($cachename, $id='id', $orderby='')
-    {
+    function load($cachename, $id='id', $orderby='') {
         $arraydata = $this->read($cachename);
         if (!$arraydata) {
             $sql = "SELECT * FROM $cachename";

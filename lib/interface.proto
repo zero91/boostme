@@ -1,0 +1,10 @@
+message bm_req_t {
+    required string name = 1;
+    required int32 age = 2;
+    repeated int32 num = 3;
+}
+
+message bm_res_t {
+    required int32 sum = 1;
+}
+

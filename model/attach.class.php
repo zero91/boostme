@@ -2,19 +2,16 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class attachmodel
-{
+class attachmodel {
     var $db;
     var $base;
 
-    function attachmodel(&$base)
-    {
+    function attachmodel(&$base) {
         $this->base = $base;
         $this->db = $base->db;
     }
 
-    function movetmpfile($attach, $targetfile)
-    {
+    function movetmpfile($attach, $targetfile) {
         forcemkdir(dirname($targetfile));
         if (copy($attach['tmp_name'], $targetfile) || move_uploaded_file($attach['tmp_name'], $targetfile)) {
             return 1;
@@ -36,8 +33,7 @@ class attachmodel
         return 0;
     }
 
-    function add($filename, $ftype, $fsize, $location, $isimage=1)
-    {
+    function add($filename, $ftype, $fsize, $location, $isimage=1) {
         $uid=$this->base->user['uid'];
         $this->db->query("INSERT INTO attach(time,filename,filetype,filesize,location,isimage,uid) VALUES ({$this->base->time},'$filename','$ftype','$fsize','$location',$isimage,$uid)");
         return $this->db->insert_id();

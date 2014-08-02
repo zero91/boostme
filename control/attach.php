@@ -2,16 +2,14 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class attachcontrol extends base
-{
-    function attachcontrol(& $get, & $post)
-    {
+class attachcontrol extends base {
+
+    function attachcontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load('attach');
     }
 
-    function onupload()
-    {
+    function onupload() {
         //上传配置
         $config = array(
             "uploadPath" => "data/attach/", //保存路径
@@ -53,8 +51,7 @@ class attachcontrol extends base
         echo '{"state":"' . $state . '","url":"' . $targetfile . '","fileType":"' . $current_type . '","original":"' . $clientFile["name"] . '"}';
     }
 
-    function onuploadimage()
-    {
+    function onuploadimage() {
         //上传配置
         $config = array(
             "uploadPath" => "data/attach/", //保存路径

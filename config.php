@@ -34,3 +34,7 @@ define('CHARGING_STATUS_INVALID', 4); // 交易无效
 
 // index page
 define('INDEX_PROBLEM_LIST_SIZE', 10); // 首页单页求助数量
+
+// search page
+define('SEARCH_PROBLEM_LIST_SIZE', 10); // 求助请求单页数量
+

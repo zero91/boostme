@@ -9,20 +9,17 @@ require WEB_ROOT . '/lib/global.func.php';
 require WEB_ROOT . '/model/base.class.php';
 require WEB_ROOT . '/lib/cache.class.php';
 
-class boostme
-{
+class boostme {
     var $get = array();
     var $post = array();
     var $vars = array();
 
-    function boostme()
-    {
+    function boostme() {
         $this->init_request();
         $this->load_control();
     }
 
-    function init_request()
-    {
+    function init_request() {
         global $urlmap;
 
         require WEB_ROOT . '/config.php';
@@ -34,7 +31,8 @@ class boostme
         if ($pos !== false) {
             $querystring = substr($querystring, 0, $pos);
         }
-        /* 处理简短url */
+
+        // 处理简短url
         $pos = strpos($querystring, '-');
         ($pos !== false) && $querystring = urlmap($querystring);
         $andpos = strpos($querystring, "&");
@@ -44,6 +42,7 @@ class boostme
         if (empty($this->get[0])) {
             $this->get[0] = 'index';
         }
+
         if (empty($this->get[1])) {
             $this->get[1] = 'default';
         }
@@ -60,19 +59,18 @@ class boostme
         unset($_POST);
     }
 
-    function load_control()
-    {
+    function load_control() {
         $controlfile = WEB_ROOT . '/control/' . $this->get[0] . '.php';
 
         $isadmin = ('admin' == substr($this->get[0], 0, 5));
         $isadmin && $controlfile = WEB_ROOT . '/control/admin/' . substr($this->get[0], 6) . '.php';
         if (false === @include($controlfile)) {
-            $this->notfound('control file "' . $controlfile . '" not found!');
+            //$this->notfound('control file "' . $controlfile . '" not found!');
+            $this->notfound("");
         }
     }
 
-    function run()
-    {
+    function run() {
         $controlname = $this->get[0] . 'control';
         $control = new $controlname($this->get, $this->post);
         $method = 'on' . $this->get[1];
@@ -81,17 +79,18 @@ class boostme
             $regular = $this->get[0] . '/' . $this->get[1];
             $isajax = (0 === strpos($this->get[1], 'ajax'));
             if ($control->checkable($regular) || $isajax) {
+                $control->checkable($regular);
                 $control->$method();
             } else {
-                $control->message('您无权进行当前操作，原因如下：<br/> 您所在的用户组(' . $control->user['grouptitle'] . ')无法进行此操作。', 'user/login');
+                $control->message('您无权进行当前操作，如有疑问，请联系管理员或者以更高的权限用户登录', 'user/login');
             }
         } else {
-            $this->notfound('method "' . $method . '" not found!');
+            //$this->notfound('method "' . $method . '" not found!');
+            $this->notfound("");
         }
     }
 
-    function notfound($error)
-    {
+    function notfound($error) {
         @header('HTTP/1.0 404 Not Found');
         exit("<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\"><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p> $error </p></body></html>");
     }

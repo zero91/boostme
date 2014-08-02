@@ -115,7 +115,7 @@ function tcookie($var, $value = 0, $life = 0)
     }
 }
 
-/* 通用加密解密函数，phpwind、phpcms、dedecms都用此函数 */
+// 通用加密解密函数，phpwind、phpcms、dedecms都用此函数
 function strcode($string, $auth_key, $action = 'ENCODE')
 {
     $key = substr(md5($_SERVER["HTTP_USER_AGENT"] . $auth_key), 8, 18);
@@ -419,7 +419,7 @@ function sendmail($tousername, $toemail, $subject, $message, $from = '')
 		<title>$subject</title>
 		</head>
 		<body>
-		hi, $tousername<br>
+		Hi, $tousername<br>
             $subject<br>
             $message<br>
 		这封邮件由系统自动发送，请不要回复。
@@ -582,6 +582,16 @@ function random($length = 6, $type = 0)
     }
     return $hash;
 }
+
+// 得到链接来源
+function get_url_source($forward = "") {
+    global $setting;
+    $refer = $forward ? $forward : $_SERVER['HTTP_REFERER'];
+    $start = $setting['seo_on'] ? strlen(SITE_URL) : strlen(SITE_URL) + 1;
+    $refer = substr($refer, $start);
+    return substr($refer, 0, strrpos($refer, "."));
+}
+
 
 
 
@@ -846,16 +856,6 @@ function getcategorypath($cid) {
         $dirpath = $item['dir'] . '/' . $dirpath;
     }
     return $dirpath;
-}
-
-/* 得到链接来源 */
-
-function get_url_source($forward = "") {
-    global $setting;
-    $refer = $forward ? $forward : $_SERVER['HTTP_REFERER'];
-    $start = $setting['seo_on'] ? strlen(SITE_URL) : strlen(SITE_URL) + 1;
-    $refer = substr($refer, $start);
-    return substr($refer, 0, strrpos($refer, "."));
 }
 
 /* 数组类型，是否是向量类型 */

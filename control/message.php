@@ -2,18 +2,16 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class messagecontrol extends base
-{
-    function messagecontrol(& $get, & $post)
-    {
+class messagecontrol extends base {
+
+    function messagecontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load('user');
         $this->load("message");
     }
 
     // 私人消息
-    function onpersonal()
-    {
+    function onpersonal() {
         $navtitle = '个人消息';
         $type = 'personal';
         $page = max(1, intval($this->get[2]));
@@ -26,8 +24,7 @@ class messagecontrol extends base
     }
 
     // 系统消息
-    function onsystem()
-    {
+    function onsystem() {
         $navtitle = '系统消息';
         $type = 'system';
         $page = max(1, intval($this->get[2]));
@@ -41,10 +38,8 @@ class messagecontrol extends base
     }
 
     // 发消息
-    function onsend()
-    {
+    function onsend() {
         $navtitle = '发站内消息';
-        $sendto = $_ENV['user']->get_by_uid(intval($this->get[2]));
         if (isset($this->post['submit'])) {
             $touser = $_ENV['user']->get_by_username($this->post['username']);
             (!$touser) && $this->message('该用户不存在!', "message/send");
@@ -57,8 +52,7 @@ class messagecontrol extends base
     }
 
     // 查看消息
-    function onview()
-    {
+    function onview() {
         $navtitle = "查看消息";
         $type = ($this->get[2] == 'personal') ? 'personal' : 'system';
         $fromuid = intval($this->get[3]);
@@ -69,17 +63,17 @@ class messagecontrol extends base
         $fromuser = $_ENV['user']->get_by_uid($fromuid);
         $status = 1;
         $messagelist = $_ENV['message']->list_by_fromuid($fromuid, $startindex, $pagesize);
-        $messagenum = $this->db->fetch_total('message', "fromuid<>touid AND ((fromuid=$fromuid AND touid=" . $this->user['uid'] . ") AND status IN (0,1)) OR ((touid=" . $this->user['uid'] . " AND fromuid=" . $fromuid . ") AND  status IN (0,2))");
+        $messagenum = $this->db->fetch_total('message', "fromuid<>touid AND ((fromuid=$fromuid AND touid=" . $this->user['uid'] . ") AND status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_FROM_DELETED . ")) OR ((fromuid=" . $this->user['uid'] . " AND touid=" . $fromuid . ") AND status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_TO_DELETED . "))");
         $departstr = page($messagenum, $pagesize, $page, "message/view/$type/$fromuid");
         include template('viewmessage');
     }
 
     // 删除消息
-    function onremove()
-    {
+    function onremove() {
         if (isset($this->post['submit'])) {
             $inbox = $this->post['messageid']['inbox'];
             $outbox = $this->post['messageid']['outbox'];
+
             if ($inbox)
                 $_ENV['message']->remove("inbox", $inbox);
 
@@ -91,8 +85,7 @@ class messagecontrol extends base
     }
 
     // 删除对话
-    function onremovedialog()
-    {
+    function onremovedialog() {
         if($this->post['message_author']){
             $authors = $this->post['message_author'];
             $_ENV['message']->remove_by_author($authors);

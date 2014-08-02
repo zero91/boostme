@@ -72,6 +72,11 @@
 var timer;
 $(document).ready(function() {
     $(".prob_demand").click(function() {
+        if ({$user['uid']} == 0) {
+            alert("您还未登录，请先登录");
+            login();
+            return false;
+        }
         var pid = $(this).attr("id");
         $("#dialog_pid").val(pid);
         $("#dialog_message").dialog({
@@ -83,39 +88,12 @@ $(document).ready(function() {
         $("#dialog_message").dialog("open");
     });
 
-    $(".prob_demand_asdf").click(function(){
-        if ({$user['uid']} == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "{SITE_URL}index.php" + query + "user/login";
-        }
-        var supportobj = $(this);
-        var pid = $(this).attr("id");
-        $.ajax({
-            type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxdemand/" + pid,
-            cache: false,
-            success: function(succeed){
-                if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    alert("操作失败，请刷新页面重试");
-                } else if (succeed == '1') {
-                    supportobj.html("取消抢位");
-                } else if (succeed == '2') {
-                    alert("正在排队，请耐心等候");
-                } else if (succeed == '3') {
-                    alert("您还没有获得抢位的资格，填写您的简历，审核通过后，您就可以进行抢位啦！");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/resume";
-                }
-            }
-        });
-    }); 
-
     $(".prob_cancel").click(function(){
         if ({$user['uid']} == 0) {
             alert("您还未登录，请先登录");
-            window.location.href = "{SITE_URL}index.php" + query + "user/login";
+            login();
+            return false;
+            //window.location.href = "{SITE_URL}index.php" + query + "user/login";
         }
         if (confirm('确定撤销请求?') === false) {
             return false;
@@ -154,39 +132,6 @@ $(document).ready(function() {
             }
         });
     });
-
-    $(".bm_demand_btn").click(function(){
-        if ({$user['uid']} == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "{SITE_URL}index.php" + query + "user/login";
-        }
-        var supportobj = $(this);
-        var pid = $(this).parent().attr("id");
-
-        $.ajax({
-            type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxdemand/" + pid,
-            cache: false,
-            success: function(succeed){
-                if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    supportobj.val("请求失败");
-                    supportobj.css({color:"#FF0000"});
-                } else if (succeed == '1') {
-                    supportobj.val("撤销请求");
-                    supportobj.attr("disabled", "true");
-                    supportobj.css({color:"#00FF00"});
-                } else if (succeed == '2') {
-                    alert("正在排队，请耐心等候");
-                } else if (succeed == '3') {
-                    alert("您还没有获得抢位的资格，填写您的简历，审核通过后，您就可以进行抢位啦！");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/resume";
-                }
-            }
-        });
-    }); 
 });
 
 </script>
