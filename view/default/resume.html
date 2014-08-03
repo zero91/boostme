@@ -1,201 +1,260 @@
 <!--{template header}-->
-<div class="bm_wrapper bm_mt10 bm_clearfix">
-    <div class="user-content">
-        <div class="my-answerbox">
-            <div class="title">个人信息</div>
-            <div id="qa-tabcard">
-                <ul>
-                    <li><a href="{url user/profile}">基本资料</a></li>
-                    <li><a href="{url user/uppass}">修改密码</a></li>
-                    <li><a href="{url user/editimg}">修改头像</a></li>
-                    <li class="on">我的简历</li>
-                </ul>
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "profile") {
+            location.href = "{url user/profile}";
+          } else if (e.target.id == "password") {
+            location.href = "{url user/uppass}";
+          } else if (e.target.id == "modavatar") {
+            location.href = "{url user/editimg}";
+          }
+        });
+        $("#menu_resume").addClass("active");
+    })
+</script>
+<div class="container">
+  <div class="col-md-3">
+  <!--{template leftmenu}-->
+  </div>
+  <div class="col-md-9">
+    <h4>个人信息</h4>
+    <ul class="nav nav-tabs" role="tablist" id="myTab">
+      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+      <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
+      <li><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
+      <li class="active"><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane" id="profile"></div>
+      <div class="tab-pane" id="password"></div>
+      <div class="tab-pane" id="modavatar"></div>
+      <div class="tab-pane active" id="resume">
+          <form method="POST" name="upinfoForm" action="{url user/resume}" class="form-horizontal">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="form-group" style="margin-bottom:5px;margin-top:15px"></div>
+                <div class="form-group">
+                    <label for="bachelor-school" class="col-sm-2 control-label">大学生:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="bachelor_school" id="bachelor-school" value="{$resume['bachelor_school']}" onclick="pop('bachelor')" class="form-control"/>
+                        <div id="bachelor-choose-box-wrapper" class="choose-box-wrapper">
+                            <div id="bachelor-choose-box" class="choose-box">
+                                <div id="bachelor-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
+                                <div id="bachelor-choose-a-province" class="choose-a-province"></div>
+                                <div id="bachelor-choose-a-school" class="choose-a-school"> </div>
+                                <div id="bachelor-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('bachelor')" value="关闭" /> </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bachelor-dept" class="col-sm-2 control-label">院系:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="bachelor_dept" id="bachelor-dept" value="{$resume['bachelor_dept']}" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bachelor-major" class="col-sm-2 control-label">专业:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="bachelor_major" id="bachelor-major" value="{$resume['bachelor_major']}" class="form-control"/>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label">入学年月:</label>
+                <div class="col-sm-8"><div class="row">
+                    <!--{eval $bdate=explode("-",$user['bday']);}-->
+                    <div class="col-sm-4">
+                        <select name="bachelor_year" id="bachelor-year" class="form-control">
+                            <option value=""></option>
+                            <!--{eval $curyear=date("Y");}-->
+                            <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                            <!--{loop $yearlist $year}-->
+                            <option value="{$year}" <!--{if ({$year}== $resume['bachelor_year'])}-->selected<!--{/if}--> >{$year}</option>
+                            <!--{/loop}-->
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">年</label>
+                    <div class="col-sm-3">
+                        <select name="bachelor_month" id="bachelor-month" class="form-control">
+                            <option value=""></option>
+                            <option value="1" <!--{if (1 == $resume['bachelor_month'])}-->selected<!--{/if}--> >1</option>
+                            <option value="2" <!--{if (2 == $resume['bachelor_month'])}-->selected<!--{/if}--> >2</option>
+                            <option value="3" <!--{if (3 == $resume['bachelor_month'])}-->selected<!--{/if}--> >3</option>
+                            <option value="4" <!--{if (4 == $resume['bachelor_month'])}-->selected<!--{/if}--> >4</option>
+                            <option value="5" <!--{if (5 == $resume['bachelor_month'])}-->selected<!--{/if}--> >5</option>
+                            <option value="6" <!--{if (6 == $resume['bachelor_month'])}-->selected<!--{/if}--> >6</option>
+                            <option value="7" <!--{if (7 == $resume['bachelor_month'])}-->selected<!--{/if}--> >7</option>
+                            <option value="8" <!--{if (8 == $resume['bachelor_month'])}-->selected<!--{/if}--> >8</option>
+                            <option value="9" <!--{if (9 == $resume['bachelor_month'])}-->selected<!--{/if}--> >9</option>
+                            <option value="10" <!--{if (10 == $resume['bachelor_month'])}-->selected<!--{/if}--> >10</option>
+                            <option value="11" <!--{if (11 == $resume['bachelor_month'])}-->selected<!--{/if}--> >11</option>
+                            <option value="12" <!--{if (12 == $resume['bachelor_month'])}-->selected<!--{/if}--> >12</option>
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">月</label>
+                </div></div>
+              </div>
             </div>
-            <div class="loginform">
-                <form method="POST" name="upinfoForm" action="{url user/resume}">
-                    <div class="resume_school_box">
-                        <div class="input-bar">
-                            <h2>大学生:</h2>
-                            <input type="text" name="bachelor_school" id="bachelor-school" value="{$resume['bachelor_school']}" onclick="pop('bachelor')" class="normal-input"/>
-                            <div id="bachelor-choose-box-wrapper" class="choose-box-wrapper">
-                                <div id="bachelor-choose-box" class="choose-box">
-                                    <div id="bachelor-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
-                                    <div id="bachelor-choose-a-province" class="choose-a-province"></div>
-                                    <div id="bachelor-choose-a-school" class="choose-a-school"> </div>
-                                    <div id="bachelor-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('bachelor')" value="关闭" /> </div>
-                                </div>
+
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="form-group" style="margin-bottom:5px;margin-top:15px"></div>
+                <div class="form-group">
+                    <label for="master-school" class="col-sm-2 control-label">研究生:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="master_school" id="master-school" value="{$resume['master_school']}" onclick="pop('master')" class="form-control"/>
+                        <div id="master-choose-box-wrapper" class="choose-box-wrapper">
+                            <div id="master-choose-box" class="choose-box">
+                                <div id="master-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
+                                <div id="master-choose-a-province" class="choose-a-province"></div>
+                                <div id="master-choose-a-school" class="choose-a-school"> </div>
+                                <div id="master-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('master')" value="关闭" /> </div>
                             </div>
                         </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>院系:</h2>
-                            <input type="text" name="bachelor_dept" id="bachelor-dept" value="{$resume['bachelor_dept']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>专业:</h2>
-                            <input type="text" name="bachelor_major" id="bachelor-major" value="{$resume['bachelor_major']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>入学年月:</h2>
-                            <select name="bachelor_year" id="bachelor-year" class="normal_select">
-                                <option value=""></option>
-                                <!--{eval $curyear=date("Y");}-->
-                                <!--{eval $yearlist = range($curyear, 1921, -1);}-->
-                                <!--{loop $yearlist $year}-->
-                                <option value="{$year}" <!--{if ({$year}== $resume['bachelor_year'])}-->selected<!--{/if}--> >{$year}</option>
-                                <!--{/loop}-->
-                            </select> 年&nbsp;&nbsp;
-                            <select name="bachelor_month" id="bachelor-month" class="normal_select">
-                                <option value=""></option>
-                                <option value="1" <!--{if (1 == $resume['bachelor_month'])}-->selected<!--{/if}--> >1</option>
-                                <option value="2" <!--{if (2 == $resume['bachelor_month'])}-->selected<!--{/if}--> >2</option>
-                                <option value="3" <!--{if (3 == $resume['bachelor_month'])}-->selected<!--{/if}--> >3</option>
-                                <option value="4" <!--{if (4 == $resume['bachelor_month'])}-->selected<!--{/if}--> >4</option>
-                                <option value="5" <!--{if (5 == $resume['bachelor_month'])}-->selected<!--{/if}--> >5</option>
-                                <option value="6" <!--{if (6 == $resume['bachelor_month'])}-->selected<!--{/if}--> >6</option>
-                                <option value="7" <!--{if (7 == $resume['bachelor_month'])}-->selected<!--{/if}--> >7</option>
-                                <option value="8" <!--{if (8 == $resume['bachelor_month'])}-->selected<!--{/if}--> >8</option>
-                                <option value="9" <!--{if (9 == $resume['bachelor_month'])}-->selected<!--{/if}--> >9</option>
-                                <option value="10" <!--{if (10 == $resume['bachelor_month'])}-->selected<!--{/if}--> >10</option>
-                                <option value="11" <!--{if (11 == $resume['bachelor_month'])}-->selected<!--{/if}--> >11</option>
-                                <option value="12" <!--{if (12 == $resume['bachelor_month'])}-->selected<!--{/if}--> >12</option>
-                            </select> 月&nbsp;&nbsp;
-                        </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="master-dept" class="col-sm-2 control-label">院系:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="master_dept" id="master-dept" value="{$resume['master_dept']}" class="form-control"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="master-dept" class="col-sm-2 control-label">专业:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="master_major" id="master-major" value="{$resume['master_major']}" class="form-control"/>
 
-                    <div class="resume_school_box">
-                        <div class="input-bar">
-                            <h2>研究生:</h2>
-                            <input type="text" name="master_school" id="master-school" value="{$resume['master_school']}" onclick="pop('master')" class="normal-input"/>
-                            <div id="master-choose-box-wrapper" class="choose-box-wrapper">
-                                <div id="master-choose-box" class="choose-box">
-                                    <div id="master-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
-                                    <div id="master-choose-a-province" class="choose-a-province"></div>
-                                    <div id="master-choose-a-school" class="choose-a-school"> </div>
-                                    <div id="master-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('master')" value="关闭" /> </div>
-                                </div>
+                    </div>
+                </div>
+                <label class="col-sm-2 control-label">入学年月:</label>
+                <div class="col-sm-8"><div class="row">
+                    <!--{eval $bdate=explode("-",$user['bday']);}-->
+                    <div class="col-sm-4">
+                        <select name="master_year" id="master-year" class="form-control">
+                            <option value=""></option>
+                            <!--{eval $curyear=date("Y");}-->
+                            <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                            <!--{loop $yearlist $year}-->
+                            <option value="{$year}" <!--{if ({$year}== $resume['master_year'])}-->selected<!--{/if}--> >{$year}</option>
+                            <!--{/loop}-->
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">年</label>
+                    <div class="col-sm-3">
+                        <select name="master_month" id="master-month" class="form-control">
+                            <option value=""></option>
+                            <option value="1" <!--{if (1 == $resume['master_month'])}-->selected<!--{/if}--> >1</option>
+                            <option value="2" <!--{if (2 == $resume['master_month'])}-->selected<!--{/if}--> >2</option>
+                            <option value="3" <!--{if (3 == $resume['master_month'])}-->selected<!--{/if}--> >3</option>
+                            <option value="4" <!--{if (4 == $resume['master_month'])}-->selected<!--{/if}--> >4</option>
+                            <option value="5" <!--{if (5 == $resume['master_month'])}-->selected<!--{/if}--> >5</option>
+                            <option value="6" <!--{if (6 == $resume['master_month'])}-->selected<!--{/if}--> >6</option>
+                            <option value="7" <!--{if (7 == $resume['master_month'])}-->selected<!--{/if}--> >7</option>
+                            <option value="8" <!--{if (8 == $resume['master_month'])}-->selected<!--{/if}--> >8</option>
+                            <option value="9" <!--{if (9 == $resume['master_month'])}-->selected<!--{/if}--> >9</option>
+                            <option value="10" <!--{if (10 == $resume['master_month'])}-->selected<!--{/if}--> >10</option>
+                            <option value="11" <!--{if (11 == $resume['master_month'])}-->selected<!--{/if}--> >11</option>
+                            <option value="12" <!--{if (12 == $resume['master_month'])}-->selected<!--{/if}--> >12</option>
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">月</label>
+                </div></div>
+              </div>
+            </div>
+
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="form-group" style="margin-bottom:5px;margin-top:15px"></div>
+                <div class="form-group">
+                    <label for="doctor-school" class="col-sm-2 control-label">博士生:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="doctor_school" id="doctor-school" value="{$resume['doctor_school']}" onclick="pop('doctor')" class="form-control"/>
+                        <div id="doctor-choose-box-wrapper" class="choose-box-wrapper">
+                            <div id="doctor-choose-box" class="choose-box">
+                                <div id="doctor-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
+                                <div id="doctor-choose-a-province" class="choose-a-province"></div>
+                                <div id="doctor-choose-a-school" class="choose-a-school"> </div>
+                                <div id="doctor-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('doctor')" value="关闭" /> </div>
                             </div>
                         </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>院系:</h2>
-                            <input type="text" name="master_dept" id="master-dept" value="{$resume['master_dept']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>专业:</h2>
-                            <input type="text" name="master_major" id="master-major" value="{$resume['master_major']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>入学年月:</h2>
-                            <select name="master_year" id="master-year" class="normal_select">
-                                <option value=""></option>
-                                <!--{eval $curyear=date("Y");}-->
-                                <!--{eval $yearlist = range($curyear, 1921, -1);}-->
-                                <!--{loop $yearlist $year}-->
-                                <option value="{$year}" <!--{if ({$year}== $resume['master_year'])}-->selected<!--{/if}--> >{$year}</option>
-                                <!--{/loop}-->
-                            </select> 年&nbsp;&nbsp;
-                            <select name="master_month" id="master-month" class="normal_select">
-                                <option value=""></option>
-                                <option value="1" <!--{if (1 == $resume['master_month'])}-->selected<!--{/if}--> >1</option>
-                                <option value="2" <!--{if (2 == $resume['master_month'])}-->selected<!--{/if}--> >2</option>
-                                <option value="3" <!--{if (3 == $resume['master_month'])}-->selected<!--{/if}--> >3</option>
-                                <option value="4" <!--{if (4 == $resume['master_month'])}-->selected<!--{/if}--> >4</option>
-                                <option value="5" <!--{if (5 == $resume['master_month'])}-->selected<!--{/if}--> >5</option>
-                                <option value="6" <!--{if (6 == $resume['master_month'])}-->selected<!--{/if}--> >6</option>
-                                <option value="7" <!--{if (7 == $resume['master_month'])}-->selected<!--{/if}--> >7</option>
-                                <option value="8" <!--{if (8 == $resume['master_month'])}-->selected<!--{/if}--> >8</option>
-                                <option value="9" <!--{if (9 == $resume['master_month'])}-->selected<!--{/if}--> >9</option>
-                                <option value="10" <!--{if (10 == $resume['master_month'])}-->selected<!--{/if}--> >10</option>
-                                <option value="11" <!--{if (11 == $resume['master_month'])}-->selected<!--{/if}--> >11</option>
-                                <option value="12" <!--{if (12 == $resume['master_month'])}-->selected<!--{/if}--> >12</option>
-                            </select> 月&nbsp;&nbsp;
-                        </div>
                     </div>
-
-                    <div class="resume_school_box">
-                        <div class="input-bar">
-                            <h2>博士生:</h2>
-                            <input type="text" name="doctor_school" id="doctor-school" value="{$resume['doctor_school']}" onclick="pop('doctor')" class="normal-input"/>
-                            <div id="doctor-choose-box-wrapper" class="choose-box-wrapper">
-                                <div id="doctor-choose-box" class="choose-box">
-                                    <div id="doctor-choose-box-title" class="choose-box-title"> <span>选择学校</span> </div>
-                                    <div id="doctor-choose-a-province" class="choose-a-province"></div>
-                                    <div id="doctor-choose-a-school" class="choose-a-school"> </div>
-                                    <div id="doctor-choose-box-bottom" class="choose-box-bottom"><input type="botton" onclick="hide('doctor')" value="关闭" /> </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>院系:</h2>
-                            <input type="text" name="doctor_dept" id="doctor-dept" value="{$resume['doctor_dept']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>专业:</h2>
-                            <input type="text" name="doctor_major" id="doctor-major" value="{$resume['doctor_major']}" class="normal-input"/>
-                        </div>
-
-                        <div class="clr"></div>
-                        <div class="input-bar">
-                            <h2>入学年月:</h2>
-                            <select name="doctor_year" id="doctor-year" class="normal_select">
-                                <option value=""></option>
-                                <!--{eval $curyear=date("Y");}-->
-                                <!--{eval $yearlist = range($curyear, 1921, -1);}-->
-                                <!--{loop $yearlist $year}-->
-                                <option value="{$year}" <!--{if ({$year}== $resume['doctor_year'])}-->selected<!--{/if}--> >{$year}</option>
-                                <!--{/loop}-->
-                            </select> 年&nbsp;&nbsp;
-                            <select name="doctor_month" id="doctor-month" class="normal_select">
-                                <option value=""></option>
-                                <option value="1" <!--{if (1 == $resume['doctor_month'])}-->selected<!--{/if}--> >1</option>
-                                <option value="2" <!--{if (2 == $resume['doctor_month'])}-->selected<!--{/if}--> >2</option>
-                                <option value="3" <!--{if (3 == $resume['doctor_month'])}-->selected<!--{/if}--> >3</option>
-                                <option value="4" <!--{if (4 == $resume['doctor_month'])}-->selected<!--{/if}--> >4</option>
-                                <option value="5" <!--{if (5 == $resume['doctor_month'])}-->selected<!--{/if}--> >5</option>
-                                <option value="6" <!--{if (6 == $resume['doctor_month'])}-->selected<!--{/if}--> >6</option>
-                                <option value="7" <!--{if (7 == $resume['doctor_month'])}-->selected<!--{/if}--> >7</option>
-                                <option value="8" <!--{if (8 == $resume['doctor_month'])}-->selected<!--{/if}--> >8</option>
-                                <option value="9" <!--{if (9 == $resume['doctor_month'])}-->selected<!--{/if}--> >9</option>
-                                <option value="10" <!--{if (10 == $resume['doctor_month'])}-->selected<!--{/if}--> >10</option>
-                                <option value="11" <!--{if (11 == $resume['doctor_month'])}-->selected<!--{/if}--> >11</option>
-                                <option value="12" <!--{if (12 == $resume['doctor_month'])}-->selected<!--{/if}--> >12</option>
-                            </select> 月&nbsp;&nbsp;
-                        </div>
+                </div>
+                <div class="form-group">
+                    <label for="doctor-dept" class="col-sm-2 control-label">院系:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="doctor_dept" id="doctor-dept" value="{$resume['doctor_dept']}" class="form-control"/>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="doctor-dept" class="col-sm-2 control-label">专业:</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="doctor_major" id="doctor-major" value="{$resume['doctor_major']}" class="form-control"/>
 
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>个人主要经历(500字以内):</h2>
-                        <textarea name="experience" id="experience" style="width:500px;height:148px;" class="normal-text" maxlength="500">{$resume['experience']}</textarea>
                     </div>
+                </div>
+                <label class="col-sm-2 control-label">入学年月:</label>
+                <div class="col-sm-8"><div class="row">
+                    <!--{eval $bdate=explode("-",$user['bday']);}-->
+                    <div class="col-sm-4">
+                        <select name="doctor_year" id="doctor-year" class="form-control">
+                            <option value=""></option>
+                            <!--{eval $curyear=date("Y");}-->
+                            <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                            <!--{loop $yearlist $year}-->
+                            <option value="{$year}" <!--{if ({$year}== $resume['doctor_year'])}-->selected<!--{/if}--> >{$year}</option>
+                            <!--{/loop}-->
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">年</label>
+                    <div class="col-sm-3">
+                        <select name="doctor_month" id="doctor-month" class="form-control">
+                            <option value=""></option>
+                            <option value="1" <!--{if (1 == $resume['doctor_month'])}-->selected<!--{/if}--> >1</option>
+                            <option value="2" <!--{if (2 == $resume['doctor_month'])}-->selected<!--{/if}--> >2</option>
+                            <option value="3" <!--{if (3 == $resume['doctor_month'])}-->selected<!--{/if}--> >3</option>
+                            <option value="4" <!--{if (4 == $resume['doctor_month'])}-->selected<!--{/if}--> >4</option>
+                            <option value="5" <!--{if (5 == $resume['doctor_month'])}-->selected<!--{/if}--> >5</option>
+                            <option value="6" <!--{if (6 == $resume['doctor_month'])}-->selected<!--{/if}--> >6</option>
+                            <option value="7" <!--{if (7 == $resume['doctor_month'])}-->selected<!--{/if}--> >7</option>
+                            <option value="8" <!--{if (8 == $resume['doctor_month'])}-->selected<!--{/if}--> >8</option>
+                            <option value="9" <!--{if (9 == $resume['doctor_month'])}-->selected<!--{/if}--> >9</option>
+                            <option value="10" <!--{if (10 == $resume['doctor_month'])}-->selected<!--{/if}--> >10</option>
+                            <option value="11" <!--{if (11 == $resume['doctor_month'])}-->selected<!--{/if}--> >11</option>
+                            <option value="12" <!--{if (12 == $resume['doctor_month'])}-->selected<!--{/if}--> >12</option>
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">月</label>
+                </div></div>
+              </div>
+            </div>
 
-                    <div class="clr"></div>
-                    <div class=""> <input id="file_upload" name="file_upload" type="file"/> </div>
+            <script type="text/javascript">
+            function adjust(obj) {
+                obj.style.height=obj.scrollHeight+'px';
+            }
+            </script>
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="col-sm-10 col-sm-offset-1">
+                    <h5>个人主要经历(500字以内):</h5>
+                    <textarea name="experience" id="experience" class="form-control" maxlength="500" style="overflow-y:hidden;" onpropertychange="adjust(this);" oninput="adjust(this);">{$resume['experience']}</textarea>
+                    <input id="file_upload" name="file_upload" type="file" class="form-control" />
                     <!--{if !empty($resume['resume_path'])}-->
-                    <a href="{$resume['resume_path']}"><!--{if empty($user['realname'])}-->{$user['username']}<!--{else}-->{$user['realname']}<!--{/if}-->简历</a>
+                    <a href="{$resume['resume_path']}" class="btn btn-primary"><!--{if empty($user['realname'])}-->{$user['username']}<!--{else}-->{$user['realname']}<!--{/if}-->简历</a>
                     <!--{/if}-->
-                    
-                    <div class="clr"></div>
-                    <div class="auto-login"> <input type="submit" name="submit" id="submit" class="normal-button" value="保&nbsp;存" /> </div>
-                </form>
+                    <button type="submit" name="submit" id="submit" class="form-control"/>保&nbsp;存</button>
+                </div>
+              </div>
             </div>
-        </div>
+            <script type="text/javascript">
+            var ta = document.getElementById('experience');
+            ta.style.height=ta.scrollHeight+'px';
+            </script>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <link href="{SITE_URL}js/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
@@ -296,15 +355,16 @@ function makeCenter(type)
     target_name = '#' + type + '-choose-box-wrapper';
     $(target_name).css("display","block");
     $(target_name).css("position","absolute");
-    $(target_name).css("top", Math.max(0, (($(window).height() - $('.choose-box-wrapper').outerHeight()) / 2) + $(window).scrollTop()) + "px");
-    $(target_name).css("left", Math.max(0, (($(window).width() - $('.choose-box-wrapper').outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+    $(target_name).css("z-index","100");
+    //$(target_name).css("top", Math.max(0, (($(window).height() - $('.choose-box-wrapper').outerHeight()) / 2) + $(window).scrollTop()) + "px");
+    //$(target_name).css("left", Math.max(0, (($(window).width() - $('.choose-box-wrapper').outerWidth()) / 2) + $(window).scrollLeft()) + "px");
 }
 
 </script>
 
 <style type="text/css">
 .choose-box-wrapper{
-    width: 652px;
+    width: 670px;
     background-color:#000;
     filter:alpha(opacity=50);
     background-color: rgba(0, 0, 0, 0.5);
@@ -383,7 +443,7 @@ function makeCenter(type)
     padding: 8px;
     text-align: right;
     border-top: 1px solid #CCC;
-    height:40px;
+    height:50px;
 }
 .choose-box-bottom input{
     vertical-align: middle;

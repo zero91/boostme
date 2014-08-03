@@ -1,100 +1,142 @@
 <!--{template header}-->
-<div class="bm_wrapper bm_mt10 bm_clearfix">
-    <div class="user-content">
-        <div class="my-answerbox">
-            <div class="title">个人信息</div>
-            <div id="qa-tabcard">
-                <ul>
-                    <li class="on">基本资料</li>
-                    <li><a href="{url user/uppass}">修改密码</a></li>
-                    <li><a href="{url user/editimg}">修改头像</a></li>
-                    <li><a href="{url user/resume}">我的简历</a></li>
-                </ul>
-            </div>
-            <div class="loginform">
-                <form method="POST" name="upinfoForm" action="{url user/profile}">
-                    <div class="input-bar">
-                        <h2>用户名:</h2>
-                        <span class="text">{$user['username']}</span>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>真实姓名:</h2>
-                        <!--{if empty($user['realname'])}-->
-                        <input type="text" name="realname" id="realname" class="normal-input" value=""/>
-                        <!--{else}-->
-                        <span class="text">{$user['realname']}</span>
-                        <!--{/if}-->
-                    </div>
-                    <div class="clr"></div>
+<link href="{SITE_URL}bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+<script type="text/javascript" src="{SITE_URL}bootstrap/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "password") {
+            location.href = "{url user/uppass}";
+          } else if (e.target.id == "modavatar") {
+            location.href = "{url user/editimg}";
+          } else if (e.target.id == "resume") {
+            location.href = "{url user/resume}";
+          }
+        });
+        $("#menu_profile").addClass("active");
+    })
+</script>
+<div class="container">
+  <div class="col-md-3">
+  <!--{template leftmenu}-->
+  </div>
+  <div class="col-md-9">
+    <h4>个人信息</h4>
+    <ul class="nav nav-tabs" role="tablist" id="myTab">
+      <li class="active"><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+      <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
+      <li><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
+      <li><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
+    </ul>
 
-                    <div class="input-bar">
-                        <h2>邮箱地址:</h2>
-                        <input type="text" name="email" id="email" class="normal-input" {if $user['email']!='null'} value="{$user['email']}"{else}value=""{/if} />
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>性别:</h2>
-                        <label><input type="radio" value="1" class="normal_radio" name="gender" <!--{if (1 == $user['gender'])}--> checked <!--{/if}--> />男&nbsp;&nbsp;</label>
-                        <label><input type="radio" value="0" class="normal_radio" name="gender" <!--{if (0 == $user['gender'])}--> checked <!--{/if}-->/>女 &nbsp;&nbsp;</label>
-                        <label><input type="radio" value="2" class="normal_radio" name="gender" <!--{if (2 == $user['gender'])}--> checked <!--{/if}--> />保密</label>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>生日:</h2>
-                        <!--{eval $bdate=explode("-",$user['bday']);}-->
-                        <select id="birthyear" name="birthyear" onchange="showbirthday();" class="normal_select">
+    <div class="tab-content">
+      <div class="tab-pane fade in active" id="profile">
+        <form method="POST" name="upinfoForm" action="{url user/profile}" class="form-horizontal">
+            <div class="form-group" style="margin-bottom:5px;margin-top:15px">
+                <label class="col-sm-2 control-label">用户名:</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static">{$user['username']}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">真实姓名:</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static">{$user['realname']}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">邮箱地址:</label>
+                <div class="col-sm-5">
+                  <input type="email" class="form-control" name="email" id="email" {if $user['email']!='null'} value="{$user['email']}"{else}value=""{/if}>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">性别:</label>
+                <div class="col-sm-10">
+                    <label class="radio-inline">
+                      <input type="radio" name="gender" value="1" <!--{if (1 == $user['gender'])}--> checked <!--{/if}-->> 男
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="gender" value="0" <!--{if (0 == $user['gender'])}--> checked <!--{/if}-->> 女
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="gender" value="2" <!--{if (2 == $user['gender'])}--> checked <!--{/if}-->> 保密
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">生日:</label>
+                <div class="col-sm-8"><div class="row">
+                    <!--{eval $bdate=explode("-",$user['bday']);}-->
+                    <div class="col-sm-3">
+                        <select id="birthyear" name="birthyear" onchange="showbirthday();" class="form-control">
                             <!--{eval $curyear=date("Y");}-->
                             <!--{eval $yearlist = range($curyear, 1921, -1);}-->
                             <!--{loop $yearlist $year}-->
                             <option value="{$year}" <!--{if $bdate[0]==$year}-->selected<!--{/if}--> >{$year}</option>
                             <!--{/loop}-->
-                        </select> 年&nbsp;&nbsp;
-                        <select id="birthmonth" name="birthmonth" onchange="showbirthday();" class="normal_select">
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">年</label>
+                    <div class="col-sm-3">
+                        <select id="birthmonth" name="birthmonth" onchange="showbirthday();" class="form-control">
                             {eval $monthlist = range(1,12);}
                             <!--{loop $monthlist $month}-->
                             <option value="{$month}" <!--{if $bdate[1]==$month}-->selected<!--{/if}-->>{$month}</option>
                             <!--{/loop}-->
-                        </select> 月&nbsp;&nbsp;
-                        <select id="birthday" name="birthday" class="normal_select">
+                        </select>
+                    </div>
+                    <label class="col-sm-1 control-label">月</label>
+                    <div class="col-sm-3">
+                        <select id="birthday" name="birthday" class="form-control">
                             {eval $dayhlist = range(1,31);}
                             <!--{loop $dayhlist $day}-->
                             <option  value="{$day}" <!--{if $bdate[3]==$day}-->selected<!--{/if}-->>{$day}</option>
                             <!--{/loop}-->
-                        </select>日
+                        </select>
                     </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>手机:</h2>
-                        <input type="text" name="phone" id="phone" class="normal-input" value="{$user['phone']}">
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>QQ:</h2>
-                        <input type="text" name="qq" id="qq" class="normal-input" value="{$user['qq']}"/>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>微信:</h2>
-                        <input type="text" name="wechat" id="wechat" class="normal-input" value="{$user['wechat']}"/>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>擅长:</h2>
-                        <input type="text" name="skills" id="skills" class="normal-input" value="{$skillstr}" placeholder="擅长多个领域请以空格隔开"/>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>签名:</h2>
-                        <textarea name="signature" id="signature" style="width:288px;height:89px;" class="normal-text" maxlength="200">{$user['signature']}</textarea>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="auto-login">
-                        <input type="submit" name="submit" class="normal-button" value="保&nbsp;存" />
-                    </div>
-                </form>
+                    <label class="col-sm-1 control-label">日</label>
+                </div></div>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">手机:</label>
+                <div class="col-sm-5">
+                  <input type="text" class="form-control" name="phone" id="phone" value="{$user['phone']}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">QQ:</label>
+                <div class="col-sm-5">
+                  <input type="text" class="form-control" name="qq" id="qq" value="{$user['qq']}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">微信:</label>
+                <div class="col-sm-5">
+                  <input type="text" class="form-control" name="wechat" id="wechat" value="{$user['wechat']}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">擅长:</label>
+                <div class="col-sm-5">
+                  <input type="text" class="form-control" name="skills" id="skills" value="{$skillstr}" placeholder="擅长多个领域请以空格隔开">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">签名:</label>
+                <div class="col-sm-5">
+                  <textarea class="form-control" name="signature" id="signature" rows="3" maxlength="200">{$user['signature']}</textarea>
+                </div>
+            </div>
+            <button type="submit" name="submit" class="btn btn-primary" style="margin-left:60px;width:300px;margin-bottom:20px">保 存</button>
+        </form>
+      </div>
+      <div class="tab-pane fade" id="password">...</div>
+      <div class="tab-pane fade" id="modavatar">...</div>
+      <div class="tab-pane fade" id="resume">...</div>
     </div>
+  </div>
 </div>
 <!--{template footer}-->

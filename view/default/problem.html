@@ -1,44 +1,69 @@
 <!--{template header}-->
 <script type="text/javascript" src="{SITE_URL}js/editor/ueditor.config.js"></script> 
-<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.all.js"></script> 
-<div class="nav-line"><a class="first" href="{SITE_URL}">{$setting['site_name']}</a> &gt; <span>发布求助</span></div>
-<div class="bm_wrapper bm_clearfix">
-    <div class="content-left">
-        <form enctype="multipart/form-data" method="POST" action="{url problem/add}" name="askform" id="askform" onsubmit="return check_form();" >
-            <div class="post_problem">
-                <div class="title">
-                    <div id="limitNum" class="tips">还可输入 <span>140</span> 字</div>
-                    {if isset($touser)}您正在向<a href="{url user/space/$touser['uid']}">{$touser['username']}</a>提问{else}请详细描述您的求助信息{/if}：
-                </div>
-                <div class="pp_inputbox">
-                    <textarea class="ptitle" name="title" id="ptitle">{$word}</textarea>
-                    <div class='clearfix'></div>
-                    <h3>问题补充</h3>
-                    <div id="introContent">
-                        <script type="text/plain" id="editor" name="description" style="height: 122px;"></script>
-                        <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
-                    </div>
-                </div>
-                <div class="tags">
-                    <span>标签: <input type="text" placeholder="多个标签请以空格隔开" class="pp_tag_input" name="ptags"/> </span>
-                </div>
-                <div class="price">
-                    <span>回报： <input type="number" min="10" max="10000" step="5" value="300" id="price" name="price"/> </span>
-                </div>
+<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.all.js"></script>
+<style type="text/css">
+    .panel {position: relative; padding: 15px;}
+    .tips {
+        color: grey;
+        float: right;
+        margin: 0px;
+    }
+    #ptitle {margin: 10px 0;}
+</style>
 
-                <div class="ask-input-bar clearfix">
-                    <!--{if $setting['code_ask']}-->
-                    <h2>验证码</h2>
-                    <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;<span class="verifycode"><img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span><a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
-                    <span id="codetip"></span>
-                    <!--{/if}-->
-                    <input type="submit" value="发布求助" class="normal-button flright"  name="submit" />
-                    <!--<div class="toweibo"><label style="padding:0;"><input type="checkbox" value="1" name="tobbs" />同步到微博</label></div>-->
+<div class="container">
+    <!--<ol class="breadcrumb">
+      <li><a href="{SITE_URL}">{$setting['site_name']}</a></li>
+      <li class="active">发布求助</li>
+    </ol>-->
+    <h4>发布求助</h4>
+    <form enctype="multipart/form-data" method="POST" action="{url problem/add}" name="askform" id="askform" onsubmit="return check_form();" class="form-horizontal">
+    <div class="panel panel-info">
+        <h4 style="display:inline;">{if isset($touser)}您正在向<a href="{url user/space/$touser['uid']}">{$touser['username']}</a>提问{else}请详细描述您的求助信息{/if}：</h4>
+        <h4 id="limitNum" class="tips">还可输入 <mark><span>140</span></mark> 字</h4>
+        <div class="clearfix"></div>
+        <textarea class="form-control" name="title" id="ptitle" rows="5">{$word}</textarea>
+        <h4>问题补充:</h4>
+        <div id="introContent">
+            <script type="text/plain" id="editor" name="description" style="height: 122px;"></script>
+            <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+        </div>
+        <div class="row" style="margin-top:10px">
+            <div class="form-group">
+                <label class="col-sm-1 control-label">标签：</label>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" placeholder="多个标签请以空格隔开" name="ptags"/>
                 </div>
             </div>
-        </form>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label class="col-sm-1 control-label">回报：</label>
+                <div class="col-sm-5">
+                    <input type="number" class="form-control" id="price" name="price" step="1" value="300" min="10" max="10000"/>
+                </div>
+            </div>
+        </div>
+        <div style="float:right">
+            <!--{if $setting['code_ask']}-->
+            <div class="form-group">
+                <label for="login_code" class="col-sm-2 control-label">验证码</label>
+                <div class="col-sm-3">
+                  <input type="text" class="form-control" id="code" name="code" onblur="check_code()">
+                </div>
+                <div class="col-sm-3">
+                  <span class="verifycode"><img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span><a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+                </div>
+            </div>
+            <!--{/if}-->
+        </div>
+        <button type="submit" class="btn btn-primary" name="submit" style="float:right">发布求助</button>
+        <div class="clearfix"></div>
     </div>
+    </form>
 </div>
+
+
 <script type="text/javascript">
     $(document).ready(function() {
         $("#ptitle").keyup(function() {
@@ -60,16 +85,15 @@
             $("#ptitle").focus();
             return false;
         }
-        {if $user['uid']}
-        //检查财富值是否够用
+                //检查财富值是否够用
         var offerscore = 0;
         var selectsocre = $("#price").val();
         offerscore += parseInt(selectsocre);
-        if (offerscore > $user['balance']) {
+        if (offerscore > 100000) {
             alert("你的账户余额不够，请联系管理员充值!");
             return false;
         }
-        {/if}   
+           
     }
 
 </script>

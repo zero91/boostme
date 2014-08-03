@@ -1,64 +1,89 @@
 <!--{template header}-->
-<div class="bm_wrapper bmmt10 bm_clearfix">
-    <div class="bm_space_content">
-        <form name="msgform" 
-            {if $type=='system'}
-                action="{url message/remove}"
-            {else}
-                action="{url message/removedialog}"
-            {/if}
-            method="POST" onsubmit="javascript:if (!confirm('确定删除所选消息全部内容?')) return false;">
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "jump1") {
+            location.href = "{url message/personal}";
+          } else if (e.target.id == "jump2") {
+            location.href = "{url message/system}";
+          }
+        })
+    })
+</script>
+<form name="msgform" 
+    {if $type=='system'}
+        action="{url message/remove}"
+    {else}
+        action="{url message/system}"
+    {/if}
+    method="POST" onsubmit="javascript:if (!confirm('确定删除所选消息全部内容?')) return false;">
 
-            <div class="bm_msgbox">
-                <div class="title">我的消息<span class="flright"><input type="button" value="写消息" class="normal-button" onclick="javascript:document.location = '{url message/send}'"/></span></div>            
-                <div id="qa-tabcard">
-                    <ul>
-                        <li <!--{if $regular=="message/personal"}--> class="on"<!--{/if}-->><!--{if $regular=="message/personal"}-->私人消息<!--{else}--><a href="{url message/personal}">私人消息</a><!--{/if}--></li>
-                        <li <!--{if $regular=="message/system"}--> class="on"<!--{/if}-->><!--{if $regular=="message/system"}-->系统消息<!--{else}--><a href="{url message/system}">系统消息</a><!--{/if}--></li>
-                    </ul>
+<div class="container" style="margin-top:20px;">
+  <div class="col-md-3">
+  <!--{template leftmenu}-->
+  </div>
+  <div class="col-md-9">
+    <p4 style="float:left">我的消息</p4>
+    <input type="button" value="写消息" class="btn btn-success btn-sm" style="float:right;width:150px" onclick="javascript:document.location='{url message/send}'"/>
+    <div class="clearfix"></div> 
+    <ul class="nav nav-tabs" role="tablist">
+        <!--{if $regular=="message/personal"}-->
+        <script type="text/javascript">$("#menu_personal").addClass("active");</script>
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">私人消息</a></li>
+        <!--{else}-->
+        <li><a href="#no_content" id="jump1" role="tab" data-toggle="tab">私人消息</a></li>
+        <!--{/if}-->
+        <!--{if $regular=="message/system"}-->
+        <script type="text/javascript">$("#menu_system").addClass("active");</script>
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">系统消息</a></li>
+        <!--{else}-->
+        <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">系统消息</a></li>
+        <!--{/if}-->
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" style="padding-top:10px">
+            <!--{loop $messagelist $message}-->
+            <div id="msg{$message['mid']}" class="panel panel-{if $message['new']}success{else}default{/if}">
+                <div class="panel-heading">
+                    <!--{if $message['fromuid']}-->
+                    <a href="{url user/space/$message['fromuid']}" target="_blank"><img alt="{$message['from']}" class="img-thumbnail" src="{$message['from_avatar']}" /></a>
+                    <!--{/if}-->
+                    <!--{if $message['fromuid']==0}-->
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="{$message['mid']}" name="messageid[inbox][]"> {$message['subject']}</label>
+                    </div>
+                    <!--{else}-->
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="{$message['fromuid']}" name="message_author[]"> <a href="{url user/space/$message['fromuid']}">{$message['from']}</a> 对 <a href="{url user/score}">您</a> 说：{$message['subject']}</label>
+                    </div>
+                    <!--{/if}-->
                 </div>
-                <ul class="p_tabmod bm_mt10">
-                    <!--{loop $messagelist $message}-->
-                    <li id="msg{$message['mid']}" {if $message['new']}class="new"{/if}>
-                        <!--{if $message['fromuid']}-->
-                        <div class="avatar">
-                            <a href="{url user/space/$message['fromuid']}" title="supermustang" target="_blank" class="pic"><img alt="{$message['from']}" src="{$message['from_avatar']}" /></a>
-                        </div>
-                        <!--{/if}-->
-                        <div class="msgcontent">
-                            <h3>
-                                <!--{if $message['fromuid']==0}-->
-                                <input type='checkbox' value="{$message['mid']}" name="messageid[inbox][]"/>
-                                {$message['subject']}
-                                <!--{else}-->
-                                <input type='checkbox' value="{$message['fromuid']}" name="message_author[]"/>
-                                <a href="{url user/space/$message['fromuid']}">{$message['from']}</a> 对 <a href="{url user/score}">您</a> 说：
-                                {$message['subject']}
-                                <!--{/if}-->
-                            </h3>
-                            <!--{if $type!='system'}-->
-                            <div class="detail" onclick="javascript:document.location = '{url message/view/$type/$message[fromuid]}';">{eval echo cutstr($message['content'],300,'')}</div>
-                            <!--{else}-->
-                            <div class="detail">{$message['content']}</div>
-                            <!--{/if}-->
-                            <div class="related">
-                                <div class="pv">{$message['format_time']}</div>
-                            </div>
-                        </div>
-                        <div class="clr"></div>
-                    </li>
-                    <!--{/loop}-->
-                </ul>
-                <div class="p_tabmod bm_mt10">                    
-                    <input type="checkbox" value="chkall" id="chkall" onclick="checkall('message');"/> 全选  <input type="submit" value="删除" name="submit" class="button_2" />
-                    <div class="pages flright">{$departstr}</div>
-                    <div class="clearfix"></div>
+                <div class="panel-body">
+                    <!--{if $type!='system'}-->
+                    <span onclick="javascript:document.location = '{url message/view/$type/$message[fromuid]}';">{eval echo cutstr($message['content'],300,'')}</span>
+                    <!--{else}-->
+                    <span>{$message['content']}</span>
+                    <!--{/if}-->
+                    <span style="color:grey">{$message['format_time']}</span>
                 </div>
-                
             </div>
-        </form>
+            <!--{/loop}-->
+            <div class="form-inline">
+                <div class="checkbox">
+                    <label><input type="checkbox" value="chkall" id="chkall" onclick="checkall('message');"> 全选</label>
+                </div>
+                <button type="submit" name="submit" class="btn btn-default btn-sm" style="margin-left:30px;">删除</button>
+            </div>
+            <div style="float:right">{$departstr}</div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="tab-pane" id="no_content"></div>
     </div>
+  </div>
 </div>
+
+</form>
+
 <!--{if $type=='personal'}-->
 <script type="text/javascript">
     $(document).ready(function() {

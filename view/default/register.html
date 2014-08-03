@@ -1,68 +1,119 @@
 <!--{template header}-->
-<div class="nav-line"></div>
-<div class="wrapper clearfix">
-    <div class="content-left">
-        <div class="modbox classifymod">
-            <div class="title">注册会员</div>
-            <div class="loginform">
-                <form name="loginform"  action="{url user/register}" method="post">
-                    <div class="input-bar">
-                        <h2>用户名</h2>
-                        <input type="text" class="normal-input" id="username" name="username" onblur="check_username();"/>
-                        <span id="usernametip" class="input_desc">不超过14个字节(中文，数字，字母和下划线)</span>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>登陆密码</h2>
-                        <input type="password" class="normal-input" id="password" name="password" onblur="check_passwd();" />
-                        <span id="passwordtip" class="input_desc">长度6-14位，字母区分大小写</span>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>密码确认</h2>
-                        <input type="password" class="normal-input" id="repassword" name="repassword"  onblur="check_repasswd();"/>
-                        <span id="repasswordtip" class="input_desc">与登录密码输入一致</span>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>电子邮箱</h2>
-                        <input type="text" class="normal-input" id="email" name="email"  onblur="check_email();"/>
-                        <span id="emailtip" class="input_desc">请输入正确的电子邮箱地址</span>
-                    </div>
-                    <!--{if $setting['code_register']}-->
-                    <div class="clr"></div>
-                    <div class="input-bar">
-                        <h2>验证码</h2>
-                        <input type="text" class="code-input" id="code" name="code" onblur="check_code();"/><span id="codetip"></span>
-                    </div>
-                    <div class="clr"></div>
-                    <div class="code-bar">
-                        <span class="verifycode"><img  src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span><a class="changecode" href="javascript:updatecode();">&nbsp;看不清?</a>
-                    </div>
-                    <!--{/if}-->
-                    <div class="clr"></div>
-                    <div class="auto-login">
-                        <input type="submit" value="注&nbsp;册" class="normal-button" name="submit" />&nbsp;&nbsp;<input type="checkbox" checked="true" name="agreeclause" id="agreeclause" value="1"/>同意&nbsp;<a href="javascript:void(0);" id="showclause" >网站服务条款</a>
-                    </div>
-                </form>
-                <div class="clr"></div>
+<br/>
+<br/>
+<style type="text/css">
+    .grey {color: grey}
+    .input_desc {line-height: 33px;}
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h4 style="margin-left:20px; margin-bottom:10px;">注册会员</h4>
+                    <form name="loginform" class="form-horizontal" action="{url user/login}" method="post">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><font color="red">*</font>&nbsp;用户名</label>
+                            <span id="usernamewrapper">
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="username" name="username" onblur="check_username();" />
+                            </div>
+                            <span id="usernametip" class="input_desc control-label">不超过14个字节(中文，数字，字母和下划线)</span>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><font color="red">*</font>&nbsp;登录密码</label>
+                            <span id="passwordwrapper">
+                            <div class="col-sm-5">
+                                <input type="password" class="form-control" id="password" name="password" onblur="check_passwd();"/>
+                            </div>
+                            <span id="passwordtip" class="input_desc control-label">长度6-14位，字母区分大小写</span>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><font color="red">*</font>&nbsp;密码确认</label>
+                            <span id="repasswordwrapper">
+                            <div class="col-sm-5">
+                                <input type="password" class="form-control" id="repassword" name="repassword" onblur="check_repasswd();"/>
+                            </div>
+                            <span id="repasswordtip" class="input_desc control-label">与登录密码输入一致</span>
+                            </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><font color="red">*</font>&nbsp;电子邮箱</label>
+                            <span id="emailwrapper">
+                            <div class="col-sm-5">
+                                <input type="email" class="form-control" id="email" name="email" onblur="check_email();"/>
+                            </div>
+                            <span id="emailtip" class="input_desc control-label">请输入正确的电子邮箱地址</span>
+                            </span>
+                        </div>
+                        <!--{if $setting['code_login']}-->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><font color="red">*</font>&nbsp;验证码</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" id="code" name="code" onblur="check_code();"/><span id="codetip"></span>
+                            </div>
+                            <div class="col-sm-2">
+                                <span class="verifycode"><img  src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span><a class="changecode" href="javascript:updatecode();">&nbsp;看不清?</a>
+                            </div>
+                        </div>
+                        <!--{/if}-->
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <div class="checkbox">
+                                <label>
+                                  <input type="checkbox" id="cookietime" name="cookietime" value="2592000"> 下次自动登录
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-2">
+                                <button type="submit" class="btn btn-primary" name="submit">注&nbsp;册</button>
+                            </div>
+                            <div class="col-sm-4" style="margin-left:-20px">
+                                <div class="checkbox">
+                                    <label><input type="checkbox">已阅读并同意<span ><a href="javascript:void(0);" data-toggle="modal" data-target="#myModal" style="">网站服务条款</a></label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h5 style="margin-left:10px;"><a href="{url user/register}">还没有账号？立即注册!</a></h5>
+                    <ul class="grey" style="margin-left:-20px">
+                      <li>我们提醒您注意，您需要注册并登陆，才能享受我们的完整服务进行各项操作。</li>
+                      <li>密码过于简单有被盗的风险，一旦密码被盗你的个人信息有泄漏的危险。</li>
+                      <li>我们拒绝垃圾邮件，请使用有效的邮件地址。</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-    <div class="aside-right">
-        <div class="modbox">
-            <div class="rtitle"><a href="{url user/login}">已有账号？立即登陆!</a></div>
-            <div class="rcontent clearfix">
-                <dl class="right-tips">
-                    <dd>我们提醒您注意，您需要注册并登陆，才能享受我们的完整服务进行各项操作。</dd>
-                    <dd>密码过于简单有被盗的风险，一旦密码被盗你的个人信息有泄漏的危险。</dd>
-                    <dd>我们拒绝垃圾邮件，请使用有效的邮件地址。</dd>
-                </dl>
-            </div>
-        </div>		
-    </div>
-    <div id="dialog" title="网站服务条款"  style="display: none">{$setting['register_clause']}</div>
 </div>
+
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">网站服务条款</h4>
+      </div>
+      <div class="modal-body">
+        <p>{$setting['register_clause']}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">我知道了</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <script type="text/javascript">
     var usernameok = 1;
     var password = 1;
@@ -74,21 +125,21 @@
         var length = bytes(username);
         if (length < 3 || length > 15) {
             $('#usernametip').html("用户名请使用3到15个字符");
-            $('#usernametip').attr('class', 'input_error');
+            $('#usernamewrapper').attr('class', 'has-error');
             usernameok = false;
         } else {
             $.post("{SITE_URL}index.php?user/ajaxusername", {username: username}, function(flag) {
                 if (-1 == flag) {
                     $('#usernametip').html("此用户名已经存在");
-                    $('#usernametip').attr('class', 'input_error');
+                    $('#usernamewrapper').attr('class', 'has-error');
                     usernameok = false;
                 } else if (-2 == flag) {
                     $('#usernametip').html("用户名含有禁用字符");
-                    $('#usernametip').attr('class', 'input_error');
+                    $('#usernamewrapper').attr('class', 'has-error');
                     usernameok = false;
                 } else {
-                    $('#usernametip').html("&nbsp;");
-                    $('#usernametip').attr('class', 'input_ok');
+                    $('#usernametip').html('<span class="glyphicon glyphicon-ok"></span>');
+                    $('#usernamewrapper').attr('class', 'has-success');
                     usernameok = true;
                 }
             });
@@ -99,11 +150,11 @@
         var passwd = $('#password').val();
         if (bytes(passwd) < 6 || bytes(passwd) > 16) {
             $('#passwordtip').html("密码最少6个字符，最长不得超过16个字符");
-            $('#passwordtip').attr('class', 'input_error');
+            $('#passwordwrapper').attr('class', 'has-error');
             password = false;
         } else {
-            $('#passwordtip').html("&nbsp;");
-            $('#passwordtip').attr('class', 'input_ok');
+            $('#passwordtip').html('<span class="glyphicon glyphicon-ok"></span>');
+            $('#passwordwrapper').attr('class', 'has-success');
             password = 1;
         }
     }
@@ -113,16 +164,16 @@
         var repassword = $('#repassword').val();
         if (bytes(repassword) < 6 || bytes(repassword) > 16) {
             $('#repasswordtip').html("密码最少6个字符，最长不得超过16个字符");
-            $('#repasswordtip').attr('class', 'input_error');
+            $('#repasswordwrapper').attr('class', 'has-error');
             repasswdok = false;
         } else {
             if ($('#password').val() == $('#repassword').val()) {
-                $('#repasswordtip').html("&nbsp;");
-                $('#repasswordtip').attr('class', 'input_ok');
+                $('#repasswordtip').html('<span class="glyphicon glyphicon-ok"></span>');
+                $('#repasswordwrapper').attr('class', 'has-success');
                 repasswdok = true;
             } else {
                 $('#repasswordtip').html("两次密码输入不一致");
-                $('#repasswordtip').attr('class', 'input_error');
+                $('#repasswordwrapper').attr('class', 'has-error');
                 repasswdok = false;
             }
         }
@@ -132,22 +183,22 @@
         var email = $.trim($('#email').val());
         if (!email.match(/^[\w\.\-]+@([\w\-]+\.)+[a-z]{2,4}$/ig)) {
             $('#emailtip').html("邮件格式不正确");
-            $('#emailtip').attr('class', 'input_error');
+            $('#emailwrapper').attr('class', 'has-error');
             usernameok = false;
         } else {
             $.post("{SITE_URL}index.php?user/ajaxemail", {email: email}, function(flag) {
                 if (-1 == flag) {
                     $('#emailtip').html("此邮件地址已经注册");
-                    $('#emailtip').attr('class', 'font_orange2');
+                    $('#emailwrapper').attr('class', 'has-warning');
                     emailok = false;
                 } else if (-2 == flag) {
                     $('#emailtip').html("邮件地址被禁止注册");
-                    $('#emailtip').attr('class', 'input_error');
+                    $('#emailwrapper').attr('class', 'has-error');
                     emailok = false;
                 } else {
                     emailok = true;
                     $('#emailtip').html("&nbsp;");
-                    $('#emailtip').attr('class', 'input_ok');
+                    $('#emailwrapper').attr('class', 'has-success');
                 }
             });
         }

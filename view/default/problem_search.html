@@ -1,90 +1,114 @@
 <!--{template header}-->
-<div class="wrapper clearfix">
-    <div id="container">
-        <div class="srsite">
-            <!--{if $rownum}-->
-            <div class="resultinfo mt15">{$setting['site_name']}为您找到相关结果约{$rownum}个</div>
-            <!--{/if}-->
-            <!--{if $corrected_words}-->
-            <div class="resultinfo mt15">
-                您要找的是不是:
-                <!--{loop $corrected_words $correct_word}-->
-                <a href="{url problem/search/$correct_word}">{$correct_word}</a>
-                <!--{/loop}-->
-            </div>
-            <!--{/if}-->
-            <div id="qa-tabcard" style="width:570px;">
-                <ul>
-                    <!--{if 1==$status}--><li class="on">全部问题</li><!--{else}--><li><a href="{url problem/search/$word}">全部问题</a></li><!--{/if}-->
-                    <!--{if 2==$status}--><li class="on">已解决<!--{else}--><li><a href="{url problem/search/$word/2}">已解决</a></li><!--{/if}-->
-                </ul>
-            </div>
-            <!--{if $problemlist}-->
-            <div clsss="clearfix" id="qaresult">
-                <ul class="qa-list">
-                    <!--{loop $problemlist $problem}-->
-                    <li class="item">
-                        <div class="qa-i-hd">
-                            <h3><a href="{url problem/view/$problem['pid']}" target="_blank">{$problem['title']}</a><!--{if in_array($problem['status'],array(2,6))}--><img title="已解决" src="{SITE_URL}css/default/solved.gif" /><!--{/if}--></h3>
-                        </div>
-                        <div class="qa-i-bd">{eval echo cutstr($problem['description'],250,'...');}</div>
-                        <div class="qa-i-ft"><span class="cate"><a href="{url category/view/$problem['cid']}" target="_blank" text="qaresult-cate">{$problem['category_name']}</a></span> - 提问人:<a href="{url user/space/$problem['authorid']}">{$problem['author']}</a> - {$problem['answers']}个回答 - 提问时间: {$problem['format_time']}</div>
-                    </li>
-                    <!--{/loop}-->
-                </ul>
-            </div>
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "jump1") {
+            location.href = "{url problem/search/$word}";
+          } else if (e.target.id == "jump2") {
+            location.href = "{url problem/search/$word/2}";
+          }
+        })
+    })
+</script>
+<style type="text/css">
+    .panel{margin: 5px 0px;}
+</style>
+<div class="container">
+    <!--{if $rownum}-->
+    <h5 style="color:grey">{$setting['site_name']}为您找到相关结果约{$rownum}个</h5>
+    <!--{else}-->
+    <br/><br/>
+    <!--{/if}-->
+    <div class="col-md-9">
+        
+        <!--{if $corrected_words}-->
+        <h5 style="color:grey">您要找的是不是:
+            <!--{loop $corrected_words $correct_word}-->
+            <a class="btn btn-default btn-sm" href="{url problem/search/$correct_word}">{$correct_word}</a>
+            <!--{/loop}-->
+        </h5>
+        <!--{/if}-->
+        <ul class="nav nav-tabs" role="tablist">
+            <!--{if 1==$status}-->
+            <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">全部问题</a></li>
             <!--{else}-->
-            <div id="no-result">
-                <p>抱歉，未找到和 <span>"</span><em>{$word}</em><span>"</span>相关的内容。</p>
-                <strong>建议您：</strong>
-                <ul>
-                    <li><span>检查输入是否正确</span></li>
-                    <li><span>简化查询词或尝试其他相关词</span></li>
-                </ul>
-            </div>
+            <li><a href="#no_content" id="jump1" role="tab" data-toggle="tab">全部问题</a></li>
             <!--{/if}-->
-
-            <!--{if $departstr}-->
-            <div class="pages">{$departstr}</div>
+            <!--{if 2==$status}-->
+            <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">已解决</a></li>
+            <!--{else}-->
+            <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">已解决</a></li>
             <!--{/if}-->
-            <!--{if $setting['xunsearch_open']}-->
-            <div class="mod-relation">
-                <div id="rs">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th class="tt" rowspan="2">相关搜索</th>
-                                <!--{loop $related_words $index $word}-->
-                                <!--{if $index<=3}-->
-                                <th><a href="{url problem/search/$word}">{$word}</a></th>
-                                <td></td>
-                                <!--{/if}-->
-                                <!--{/loop}-->
-                            </tr>
-                            <tr><th><a href="{url problem/search/$related_words[4]}">{$related_words[4]}</a></th><td></td><th><a href="{url problem/search/$related_words[5]}">{$related_words[5]}</a></th><td></td><th><a href="{url problem/search/$related_words[6]}">{$related_words[6]}</a></th><td></td><th><a href="{url problem/search/$related_words[7]}">{$related_words[7]}</a></th><td></td></tr>
-                        </tbody>
-                    </table>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade in active">
+                <!--{if $problemlist}-->
+                <!--{loop $problemlist $problem}-->
+                <div class="panel panel-info">
+                    <div class="panel-body">
+                        {$problem['title']}&nbsp;&nbsp;<!--{if in_array($problem['status'],array(2,6))}--><img title="已解决" src="{SITE_URL}css/default/solved.gif" /><!--{/if}-->&nbsp;&nbsp;<a href="{url problem/view/$problem['pid']}" target="_blank">查看详情</a>
+                    </div>
+                    <div class="panel-footer"><span class="cate"><a href="{url category/view/$problem['cid']}" target="_blank" text="qaresult-cate">{$problem['category_name']}</a></span> - 提问人:<a href="{url user/space/$problem['authorid']}">{$problem['author']}</a> - {$problem['answers']}个回答 - 提问时间: {$problem['format_time']}</div>
                 </div>
+                <!--{/loop}-->
+                <!--{else}-->
+                <div class="jumbotron" style="background-color:#ffffff;">
+                  <h3>抱歉，未找到和 "<code>{$word}</code>" 相关的内容。</h3>
+                  <p>
+                    <strong>建议您：</strong>
+                    <ul>
+                        <li><span>检查输入是否正确</span></li>
+                        <li><span>简化查询词或尝试其他相关词</span></li>
+                    </ul>
+                  </p>
+                </div>
+                <!--{/if}-->
+
+                <!--============这一块不清楚是干什么的，先简单处理，看不到效果===================-->
+                <!--{if $departstr}-->
+                <div class="pages">{$departstr}</div>
+                <!--{/if}-->
+                <!--{if $setting['xunsearch_open']}-->
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        相关搜索 ：
+                        <!--{loop $related_words $index $word}-->
+                        <!--{if $index<=3}-->
+                        <a href="{url problem/search/$word}" class="btn btn-default btn-sm">{$word}</a>
+                        <!--{/if}-->
+                        <!--{/loop}-->
+                    </div>
+                    <div class="panel-body">
+                        <a href="{url problem/search/$related_words[4]}" class="btn btn-default btn-sm">{$related_words[4]}</a>
+                        <a href="{url problem/search/$related_words[5]}" class="btn btn-default btn-sm">{$related_words[5]}</a>
+                        <a href="{url problem/search/$related_words[6]}" class="btn btn-default btn-sm">{$related_words[6]}</a>
+                        <a href="{url problem/search/$related_words[7]}" class="btn btn-default btn-sm">{$related_words[7]}</a>
+                    </div>
+                </div>
+                <!--{/if}-->
+                <!--=======================这一块不清楚是干什么的===================-->
             </div>
-            <!--{/if}-->
         </div>
-        <div class="hot-search">
-            <div class="hd"><h3>热门搜索</h3></div>
-            <div class="bd">
-                <ul>
-                    <!--{if $hot_words}-->
-                    <!--{loop $hot_words $hostword}-->
-                    <li><a href="{url problem/search/$hostword}">{$hostword}</a></li>
-                    <!--{/loop}-->
-                    <!--{else}-->
-                    <!--{eval $wordslist = unserialize($this->setting['hot_words']);}-->
-                    <!--{loop $wordslist $hotword}-->
-                    <li><a {if $hotword['qid']}href="{url problem/view/$hotword['qid']}" {else}href="{url problem/search/$hotword['w']}"{/if}>{$hotword['w']}</a></li>
-                    <!--{/loop}-->    
-                    <!--{/if}-->
-                </ul>
-            </div>
-        </div>
+        <div class="tab-pane" id="no_content"></div>
+    </div>
+    <div class="col-md-3">
+        <h5>热门搜索</h5>
+        <!--============这一块简单处理，看不到效果===================-->
+        <!--{if $hot_words}-->
+        <ul>
+            <!--{loop $hot_words $hostword}-->
+            <li><a href="{url problem/search/$hostword}" class="btn btn-default btn-sm">{$hostword}</a></li>
+            <!--{/loop}-->
+        </ul>
+        <!--{else}-->
+        <!--{eval $wordslist = unserialize($this->setting['hot_words']);}-->
+        <ul>
+            <!--{loop $wordslist $hotword}-->
+            <li><a {if $hotword['qid']}href="{url problem/view/$hotword['qid']}" {else}href="{url problem/search/$hotword['w']}"{/if}>{$hotword['w']}</a></li>
+            <!--{/loop}-->
+        </ul>
+        <!--{/if}-->
+        <!--============这一块简单处理，看不到效果===================-->
     </div>
 </div>
 <!--{template footer}-->

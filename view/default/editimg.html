@@ -1,43 +1,62 @@
 <!--{template header}-->
-<div class="bm_wrapper bm_mt10 bm_clearfix">
-    <div class="user-content">
-        <div class="my-answerbox">
-            <div class="title">修改头像</div>
-            <div id="qa-tabcard">
-                <ul>
-                    <li><a href="{url user/profile}">基本资料</a></li>
-                    <li><a href="{url user/uppass}">修改密码</a></li>
-                    <li class="on">修改头像</li>
-                    <li><a href="{url user/resume}">我的简历</a></li>
-                </ul>
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "profile") {
+            location.href = "{url user/profile}";
+          } else if (e.target.id == "password") {
+            location.href = "{url user/uppass}";
+          } else if (e.target.id == "resume") {
+            location.href = "{url user/resume}";
+          }
+        });
+        $("#menu_editimg").addClass("active");
+    })
+</script>
+<div class="container">
+  <div class="col-md-3">
+  <!--{template leftmenu}-->
+  </div>
+  <div class="col-md-9">
+    <h4>个人信息</h4>
+    <ul class="nav nav-tabs" role="tablist" id="myTab">
+      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+      <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
+      <li class="active"><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
+      <li><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane" id="profile"></div>
+      <div class="tab-pane" id="password"></div>
+      <div class="tab-pane in active" id="modavatar">
+        <!--{if isset($imgstr)}-->
+        <h4>{$imgstr}</h4>
+        <!--{else}-->
+        <form method="POST" action="{url user/uppass}" class="form-horizontal">
+            <h4>说明：</h4>
+            <ol>
+              <li>支持jpg、gif、png、jpeg四种格式图片上传</li>
+              <li>图片大小不能超过2M;</li>
+              <li>图片长宽大于80*80px时系统将自动压缩</li>
+            </ol>
+            <div class="form-group">
+                <div class="col-md-2">
+                    <img class="img-thumbnail" alt="{$user['username']}" src="{$user['avatar']}" />
+                </div>
+                <div class="col-md-3" style="margin-left:-30px;">
+                    <input type="file" id="file_upload" name="file_upload">
+                    <button type="button" name="uploadavatar" id="uploadavatar" class="btn btn-warning" style="width:88px;padding:4px 12px;">保&nbsp;存</button>
+                </div>
             </div>
-            <div class="loginform">
-                <!--{if isset($imgstr)}-->
-                {$imgstr}
-                <!--{else}-->
-                <form  action="{url user/uppass}" method="post">
-                    <div class="input-bar">
-                        <p>
-                            说明：<br />
-                            1、支持jpg、gif、png、jpeg四种格式图片上传<br />
-                            2、图片大小不能超过2M;<br />
-                            3、图片长宽大于80*80px时系统将自动压缩
-                        </p>
-                        <div class="avatarbox mt15">
-                            <img class="avatar" alt="{$user['username']}" src="{$user['avatar']}" />
-                        </div>
-                        <div class="avatarbox_r mt15">
-                            <input id="file_upload" name="file_upload" type="file"/>
-                            <input type="button" name="uploadavatar" id="uploadavatar" class="normal-button" value="保&nbsp;存" />
-                        </div>
-                    </div>
-                </form>
-                <!--{/if}-->
-            </div>
-            <div class="clr"></div>
-        </div>
+        </form>
+        <!--{/if}-->
+      </div>
+      <div class="tab-pane" id="resume">...</div>
     </div>
+  </div>
 </div>
+
 <link href="{SITE_URL}js/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js"></script>
 <script type="text/javascript">
