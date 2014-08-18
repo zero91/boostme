@@ -15,6 +15,7 @@ CREATE TABLE user (
   `qq` varchar(18) DEFAULT NULL,
   `wechat` varchar(30) DEFAULT NULL,
   `authstr` varchar(100) DEFAULT NULL,
+  `alipay` varchar(100) DEFAULT NULL, /* 支付宝账号 */
   `signature` mediumtext,
   `problems` int(10) unsigned NOT NULL DEFAULT '0', /* 提交的需求数量 */
   `solved` int(10) unsigned NOT NULL DEFAULT '0', /* 解决的需求数量 */
@@ -252,6 +253,20 @@ CREATE TABLE attach (
   KEY `time` (`time`,`isimage`,`downloads`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE feedback (
+  `fid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL DEFAULT 0,
+  `username` char(18) NOT NULL DEFAULT '',
+  `content` char(200) NOT NULL,
+  `page` char(100) NOT NULL,
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `ip` varchar(20) DEFAULT NULL,
+  PRIMARY KEY(`fid`),
+  KEY `uid`(`uid`),
+  KEY `time`(`time`),
+  KEY `page`(`page`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS setting;
 CREATE TABLE setting (
   k varchar(32) NOT NULL default '',
@@ -280,7 +295,7 @@ INSERT INTO setting VALUES ('code_problem', '0');
 INSERT INTO setting VALUES ('maildefault', 'boostme@qq.com');
 INSERT INTO setting VALUES ('list_default', '10');
 INSERT INTO setting VALUES ('verify_problem', '0');
-
+INSERT INTO setting VALUES ('editor_toolbars', 'bold,forecolor,insertimage,autotypeset,attachment,link,unlink,map,insertcode,fullscreen');
 
 
 
@@ -352,7 +367,6 @@ INSERT INTO setting VALUES ('msgtpl', 'a:4:{i:0;a:2:{s:5:"title";s:36:"您的问
 INSERT INTO setting VALUES ('stopcopy_maxnum', '60');
 INSERT INTO setting VALUES ('editor_wordcount', 'false');
 INSERT INTO setting VALUES ('editor_elementpath', 'false');
-INSERT INTO setting VALUES ('editor_toolbars', 'bold,forecolor,insertimage,autotypeset,attachment,link,unlink,insertvideo,map,insertcode,fullscreen');
 INSERT INTO setting VALUES ('gift_range', 'a:3:{i:0;s:2:"50";i:50;s:3:"100";i:100;s:3:"300";}');
 INSERT INTO setting VALUES ('usernamepre', 'tipask_');
 INSERT INTO setting VALUES ('usercount', '0');

@@ -8,24 +8,56 @@
     .mypanel {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px;}
     .arrow {left:76px;top:40px;position:absolute;}
     .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
-    .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:10px;left:50%;margin-left:-15px;top:50%;margin-top:-10px}
-    .arrow:after{border-color:transparent #fff transparent transparent;border-width:10px;left:50%;margin-left:-12px;top:50%;margin-top:-10px}
+    .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
+    .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
 </style>
 <!--{eval $statistics = $this->fromcache('statistics');}-->
 <!--{eval $onlineusernum = $this->fromcache('onlineusernum');}-->
 
-<div class="container mybadge_div">
 <!--
+<div class="container mybadge_div">
 <a href="#" class="mybadge">已解决需求 <span class="badge">{$statistics['solves']}</span></a>
 <a href="#" class="mybadge">待解决需求 <span class="badge">{$statistics['nosolves']}</span></a>
 <a href="#" class="mybadge">当前在线人数 <span class="badge">{$onlineusernum['0']}</span></a>
+</div>
 -->
+
+<div id="index_info" class="carousel slide hidden-xs hidden-sm">
+  <!-- 轮播（Carousel）指标 -->
+  <ol class="carousel-indicators">
+    <li data-target="#index_info" data-slide-to="0" class="active"></li>
+    <li data-target="#index_info" data-slide-to="1"></li>
+    <li data-target="#index_info" data-slide-to="2"></li>
+  </ol>
+
+  <div class="carousel-inner">
+    <div class="item active container" style="background:#5cb85c; height:190px;">
+      <h2>要考研，但是有很多地方学不明白，需要有人讲解？</h2>
+      <p>发布求助，说清楚您有困难的地方，让心仪学校的学长、学姐给您讲解</p>
+      <p>这就<a href="{url problem/add}">求助</a></p>
+    </div>
+    <div class="item container" style="background:#428bca; height:190px;">
+      <h2>考研班太坑爹？不仅贵，学到的东西很少，还打乱了复习的节奏？</h2>
+      <p>发布求助，说清楚您有困难的地方，让心仪学校的学长、学姐给您讲解</p>
+      <p>Boostme聚集了一大波985高校的学长、学姐，考研均取得了优异的成绩</p>
+      <p>这就向学长、学姐<a href="{url problem/add}" style="color:#5cb85c;">求助</a></p>
+    </div>
+    <div class="item container" style="background:#1abc9c; height:190px;">
+      <h2>考研机构拿走太多回扣？辛苦替考研机构教授别人知识，却拿很少一部分？</h2>
+      <p>Boostme欢迎985高校的同学来一起帮助其他考研有困难的同学，尤其是考研拿到了高分的同学</p>
+      <p>为保证质量，如果您的水平很高并且信誉度很高，教学费用全部归您所有，Boostme不收取您一分钱</p>
+      <p>这就填写个人详细信息，让Boostme的同学审核</p>
+    </div>
+  </div>
+  <!-- 轮播（Carousel）导航 -->
+  <a class="carousel-control left" href="#index_info" data-slide="prev">&lsaquo;</a>
+  <a class="carousel-control right" href="#index_info" data-slide="next">&rsaquo;</a>
 </div>
 
 <div class="container">
     <ul class="nav nav-tabs" role="tablist">
-      <li class="active"><a href="#now_prob" role="tab" data-toggle="tab">现有求助</a></li>
-      <li><a href="#my_prob" role="tab" data-toggle="tab">我的求助</a></li>
+      <li class="active"><a href="#now_prob" role="tab" data-toggle="tab">全部求助</a></li>
+      <li><a href="#my_prob" role="tab" data-toggle="tab">已解决求助</a></li>
       <li><a href="#sys_sugg" role="tab" data-toggle="tab">系统推荐</a></li>
     </ul>
 
@@ -35,14 +67,15 @@
         <div class="list-group">
             <!--{loop $page_tobesolvedlist $index $problem}-->
             <div id="{$problem['pid']}" class="list-group-item">
-                <div class="photo"><a href="">
-                    <img class="img-thumbnail" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
-                </a></div>
+                <div class="photo" style="max-width:60px">
+                    <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
+                    <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
+                </div>
                 <div class="panel panel-default mypanel">
-                    <h5>{$problem['title']}</h5>
-                    <a href="{url problem/view/$problem['pid']}">查看详细信息</a>
-                    <span>&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
-                    <div class="action">
+                    <p style="font-size:14px">{$problem['title']}</p>
+                    <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
+                    <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
+                    <div class="action" style="font-size:12px">
                         <!--{if $problem['authorid'] != $user['uid']}-->
                         <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
                         <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
@@ -50,7 +83,7 @@
                         <a class="prob_demand last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">我要帮忙</a>
                         <!--{/if}-->
                         <!--{else}-->
-                        <a href="{url problem/view/$problem['pid']}" class="last">查看</a>
+                        <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
                         <!--{/if}-->
                     </div>
                     <span class="arrow"></span>
@@ -94,9 +127,9 @@
         <div class="list-group">
             <!--{loop $page_tobesolvedlist $index $problem}-->
             <div id="{$problem['pid']}" class="list-group-item">
-                <div class="photo"><a href="">
-                    <img class="img-thumbnail" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
-                </a></div>
+                <div class="photo">
+                    <a href=""><img class="img-thumbnail" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}></a>
+                </div>
                 <div class="panel panel-info mypanel">
                     <h5>{$problem['title']}</h5>
                     <a class="btn btn-default btn-sm" href="{url problem/view/$problem['pid']}">查看详细信息</a>
@@ -129,7 +162,7 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">附加信息</h4>
       </div>
-      <form name="edit_message" action="<?=SITE_URL?>?problem/demand.html" method="post" id="dialog_form">
+      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
       <div class="modal-body">
             <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
             <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
@@ -151,56 +184,32 @@ $(document).ready(function() {
         $("#demandModal").modal('show');
     });
 
-    $(".prob_demand_asdf").click(function(){
-        if (<?=$user['uid']?> == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
-        }
-        var supportobj = $(this);
-        var pid = $(this).attr("id");
-        $.ajax({
-            type: "GET",
-            url:"<?=SITE_URL?>index.php" + query + "problem/ajaxdemand/" + pid,
-            cache: false,
-            success: function(succeed){
-                if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    alert("操作失败，请刷新页面重试");
-                } else if (succeed == '1') {
-                    supportobj.html("取消抢位");
-                } else if (succeed == '2') {
-                    alert("正在排队，请耐心等候");
-                } else if (succeed == '3') {
-                    alert("您还没有获得抢位的资格，填写您的简历，审核通过后，您就可以进行抢位啦！");
-                    window.location.href = "<?=SITE_URL?>index.php" + query + "user/resume";
-                }
-            }
-        });
-    }); 
-
     $(".prob_cancel").click(function(){
-        if (<?=$user['uid']?> == 0) {
+        if ({$user['uid']} == 0) {
             alert("您还未登录，请先登录");
-            window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
+            window.location.href = "{SITE_URL}index.php" + query + "user/login";
         }
+
+        if (confirm('确定撤销请求?') === false) {
+            return false;
+        }
+
         var supportobj = $(this);
         var pid = $(this).attr("id");
         $.ajax({
             type: "GET",
-            url:"<?=SITE_URL?>index.php" + query + "problem/ajaxcancel/" + pid,
+            url:"{SITE_URL}index.php" + query + "problem/ajaxcancel/" + pid,
             cache: false,
             success: function(succeed){
                 if (succeed == '-1') {
                     alert("您还未登录，请先登录");
-                    window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
+                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
                 } else if (succeed == '0') {
                     alert("操作失败，请刷新页面重试");
                 } else if (succeed == '1') {
-                    supportobj.html("抢位");
+                    supportobj.html("我要帮忙");
                 } else if (succeed == '2') {
-                    alert("您还没有在该求助上抢位!");
+                    alert("您还没有发出过申请!");
                 }
             }
         });
@@ -228,39 +237,6 @@ $(document).ready(function() {
         $("#alltop").show();
         $("#weektop").hide();
     });
-
-    $(".bm_demand_btn").click(function(){
-        if (<?=$user['uid']?> == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
-        }
-        var supportobj = $(this);
-        var pid = $(this).parent().attr("id");
-
-        $.ajax({
-            type: "GET",
-            url:"<?=SITE_URL?>index.php" + query + "problem/ajaxdemand/" + pid,
-            cache: false,
-            success: function(succeed){
-                if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "<?=SITE_URL?>index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    supportobj.val("抢位失败");
-                    supportobj.css({color:"#FF0000"});
-                } else if (succeed == '1') {
-                    supportobj.val("抢位成功");
-                    supportobj.attr("disabled", "true");
-                    supportobj.css({color:"#00FF00"});
-                } else if (succeed == '2') {
-                    alert("正在排队，请耐心等候");
-                } else if (succeed == '3') {
-                    alert("您还没有获得抢位的资格，填写您的简历，审核通过后，您就可以进行抢位啦！");
-                    window.location.href = "<?=SITE_URL?>index.php" + query + "user/resume";
-                }
-            }
-        });
-    }); 
 });
 
 </script>

@@ -4,19 +4,16 @@
 require WEB_ROOT . '/lib/alipay/alipay_service.class.php';
 require WEB_ROOT . '/lib/alipay/alipay_notify.class.php';
 
-class ebankmodel
-{
+class ebankmodel {
     var $db;
     var $base;
 
-    function __construct(&$base)
-    {
+    function ebankmodel(&$base) {
         $this->base = $base;
         $this->db = $base->db;
     }
 
-    function aliapytransfer($rechargemoney)
-    {
+    function aliapytransfer($rechargemoney) {
         $aliapy_config = include WEB_ROOT . '/data/alipay.config.php';
         $tradeid = "u-" . strtolower(random(6));
         //构造要请求的参数数组
@@ -51,8 +48,7 @@ class ebankmodel
      * 针对return_url验证消息是否是支付宝发出的合法消息
      * @return 验证结果
      */
-    function aliapyverifyreturn()
-    {
+    function aliapyverifyreturn() {
         $aliapy_config = include WEB_ROOT . '/data/alipay.config.php';
         $alipayNotify = new AlipayNotify($aliapy_config, $this->base->get, $this->base->post);
         return $alipayNotify->verifyReturn();

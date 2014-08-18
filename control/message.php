@@ -30,10 +30,11 @@ class messagecontrol extends base {
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
-        $_ENV['message']->read_by_fromuid(0);
         $messagelist = $_ENV['message']->list_by_touid($this->user['uid'], $startindex, $pagesize);
         $messagenum = $this->db->fetch_total('message', 'touid=' . $this->user['uid'] . ' AND fromuid=0 AND status<>'. MSG_STATUS_TO_DELETED);
         $departstr = page($messagenum, $pagesize, $page, "message/system");
+
+        $_ENV['message']->read_by_fromuid(0);
         include template("message");
     }
 
@@ -84,13 +85,15 @@ class messagecontrol extends base {
         }
     }
 
-    // 删除对话
+    // ajax删除对话
     function onremovedialog() {
-        if($this->post['message_author']){
-            $authors = $this->post['message_author'];
-            $_ENV['message']->remove_by_author($authors);
-             $this->message("对话删除成功!", get_url_source());
+        $fromuid = intval($this->get[2]);
+
+        if ($fromuid > 0) {
+            $_ENV['message']->remove_by_author($fromuid);
+            exit('1');
         }
+        exit('-1');
     }
 }
 

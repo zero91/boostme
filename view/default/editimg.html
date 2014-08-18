@@ -13,14 +13,12 @@
         $("#menu_editimg").addClass("active");
     })
 </script>
-<div class="container">
-  <div class="col-md-3">
-  <!--{template leftmenu}-->
-  </div>
-  <div class="col-md-9">
-    <h4>个人信息</h4>
+<div class="container" style="margin-top:5px;">
+  <div class="col-md-3"><!--{template leftmenu}--></div>
+  <div class="col-md-9" style="font-size:13px;">
+    <h5>个人信息</h5>
     <ul class="nav nav-tabs" role="tablist" id="myTab">
-      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">基本信息</a></li>
       <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
       <li class="active"><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
       <li><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
@@ -31,28 +29,30 @@
       <div class="tab-pane" id="password"></div>
       <div class="tab-pane in active" id="modavatar">
         <!--{if isset($imgstr)}-->
-        <h4>{$imgstr}</h4>
+        <h5>{$imgstr}</h5>
         <!--{else}-->
         <form method="POST" action="{url user/uppass}" class="form-horizontal">
-            <h4>说明：</h4>
-            <ol>
-              <li>支持jpg、gif、png、jpeg四种格式图片上传</li>
-              <li>图片大小不能超过2M;</li>
-              <li>图片长宽大于80*80px时系统将自动压缩</li>
-            </ol>
-            <div class="form-group">
-                <div class="col-md-2">
-                    <img class="img-thumbnail" alt="{$user['username']}" src="{$user['avatar']}" />
-                </div>
-                <div class="col-md-3" style="margin-left:-30px;">
-                    <input type="file" id="file_upload" name="file_upload">
-                    <button type="button" name="uploadavatar" id="uploadavatar" class="btn btn-warning" style="width:88px;padding:4px 12px;">保&nbsp;存</button>
-                </div>
+          <h5>说明：</h5>
+          <ol>
+            <li>支持jpg、gif、png、jpeg四种格式图片上传</li>
+            <li>图片大小不能超过2M;</li>
+            <li>图片长宽大于80*80px时系统将自动压缩</li>
+          </ol>
+          <div class="form-group">
+            <div class="col-md-2">
+              <img class="img-circle" width="80px" height="80px" alt="{$user['username']}" src="{$user['avatar']}" />
             </div>
+            <div class="col-md-3" style="margin-left:-30px;">
+              <input type="file" id="file_upload" name="file_upload">
+              <button type="button" name="uploadavatar" id="uploadavatar" class="btn btn-warning" style="width:88px;padding:4px 13px;">
+                保&nbsp;存
+              </button>
+            </div>
+          </div>
         </form>
         <!--{/if}-->
       </div>
-      <div class="tab-pane" id="resume">...</div>
+      <div class="tab-pane" id="resume"></div>
     </div>
   </div>
 </div>
@@ -60,25 +60,27 @@
 <link href="{SITE_URL}js/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('#file_upload').uploadify({
-            'swf': '{SITE_URL}js/uploadify/uploadify.swf',
-            'uploader': "{url user/editimg/$user['uid']}",
-            'auto': false,
-            'buttonImage': '{SITE_URL}js/uploadify/selectimg.gif',
-            'fileObjName': 'userimage',
-            'multi': false,
-            'fileSizeLimit': "2MB",
-            'fileTypeExts': '*.jpg;*.jpeg;*.gif;*.png',
-            'fileTypeDesc': 'User Avatar(.JPG, .GIF, .PNG,.JPEG)',
-            'onUploadSuccess': function() {
-                alert('头像上传成功!');
-                document.location = "{url user/editimg}";
-            }
-        });
-        $("#uploadavatar").click(function() {
-            $('#file_upload').uploadify("upload", "*");
-        });
+
+$(document).ready(function() {
+    $('#file_upload').uploadify({
+        'swf': '{SITE_URL}js/uploadify/uploadify.swf',
+        'uploader': "{url user/editimg/$user['uid']}",
+        'auto': false,
+        'buttonImage': '{SITE_URL}js/uploadify/selectimg.gif',
+        'fileObjName': 'userimage',
+        'multi': false,
+        'fileSizeLimit': "2MB",
+        'fileTypeExts': '*.jpg;*.jpeg;*.gif;*.png',
+        'fileTypeDesc': 'User Avatar(.JPG, .GIF, .PNG,.JPEG)',
+        'onUploadSuccess': function() {
+            alert('头像上传成功!');
+            document.location = "{url user/editimg}";
+        }
     });
+    $("#uploadavatar").click(function() {
+        $('#file_upload').uploadify("upload", "*");
+    });
+});
+
 </script>
 <!--{template footer}-->

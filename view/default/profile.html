@@ -15,127 +15,150 @@
         $("#menu_profile").addClass("active");
     })
 </script>
-<div class="container">
-  <div class="col-md-3">
-  <!--{template leftmenu}-->
-  </div>
+<div class="container" style="margin-top:5px;">
+  <div class="col-md-3"><!--{template leftmenu}--></div>
   <div class="col-md-9">
-    <h4>个人信息</h4>
-    <ul class="nav nav-tabs" role="tablist" id="myTab">
-      <li class="active"><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+    <h5>个人信息</h5>
+    <ul class="nav nav-tabs" role="tablist" id="myTab" style="font-size:13px;">
+      <li class="active"><a href="#profile" id="profile" role="tab" data-toggle="tab">基本信息</a></li>
       <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
       <li><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
       <li><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content" style="font-size:13px;">
       <div class="tab-pane fade in active" id="profile">
         <form method="POST" name="upinfoForm" action="{url user/profile}" class="form-horizontal">
-            <div class="form-group" style="margin-bottom:5px;margin-top:15px">
-                <label class="col-sm-2 control-label">用户名:</label>
-                <div class="col-sm-10">
-                  <p class="form-control-static">{$user['username']}</p>
-                </div>
+          <div class="form-group" style="margin-bottom:5px;margin-top:15px">
+            <div class="col-sm-2 control-label">用户名:</div>
+            <div class="col-sm-10">
+              <p class="form-control-static">{$user['username']}</p>
             </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">真实姓名:</label>
-                <div class="col-sm-10">
-                  <p class="form-control-static">{$user['realname']}</p>
-                </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-2 control-label">真实姓名:</div>
+            <!--{if $user['realname']}-->
+            <div class="col-sm-10">
+              <p class="form-control-static">{$user['realname']}</p>
+              <input type="hidden" name="realname" id="realname" value="{$user['realname']}">
             </div>
-            <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">邮箱地址:</label>
-                <div class="col-sm-5">
-                  <input type="email" class="form-control" name="email" id="email" {if $user['email']!='null'} value="{$user['email']}"{else}value=""{/if}>
-                </div>
+            <!--{else}-->
+            <div class="col-sm-5">
+              <input type="text" class="form-control" name="realname" id="realname" value="">
             </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">性别:</label>
-                <div class="col-sm-10">
-                    <label class="radio-inline">
-                      <input type="radio" name="gender" value="1" <!--{if (1 == $user['gender'])}--> checked <!--{/if}-->> 男
-                    </label>
-                    <label class="radio-inline">
-                      <input type="radio" name="gender" value="0" <!--{if (0 == $user['gender'])}--> checked <!--{/if}-->> 女
-                    </label>
-                    <label class="radio-inline">
-                      <input type="radio" name="gender" value="2" <!--{if (2 == $user['gender'])}--> checked <!--{/if}-->> 保密
-                    </label>
-                </div>
+            <!--{/if}-->
+          </div>
+          <div class="form-group">
+            <div for="email" class="col-sm-2 control-label">邮箱地址:</div>
+            <div class="col-sm-5">
+              <!--{if $user['email_verify']}-->
+              <p class="form-control-static">{$user['email']}</p>
+              <input type="hidden" name="email" id="email" value="{$user['email']}">
+              <!--{else}-->
+              <input type="email" class="form-control" name="email" id="email" value="{$user['email']}">
+              <!--{/if}-->
             </div>
-
-            <div class="form-group">
-                <label class="col-sm-2 control-label">生日:</label>
-                <div class="col-sm-8"><div class="row">
-                    <!--{eval $bdate=explode("-",$user['bday']);}-->
-                    <div class="col-sm-3">
-                        <select id="birthyear" name="birthyear" onchange="showbirthday();" class="form-control">
-                            <!--{eval $curyear=date("Y");}-->
-                            <!--{eval $yearlist = range($curyear, 1921, -1);}-->
-                            <!--{loop $yearlist $year}-->
-                            <option value="{$year}" <!--{if $bdate[0]==$year}-->selected<!--{/if}--> >{$year}</option>
-                            <!--{/loop}-->
-                        </select>
-                    </div>
-                    <label class="col-sm-1 control-label">年</label>
-                    <div class="col-sm-3">
-                        <select id="birthmonth" name="birthmonth" onchange="showbirthday();" class="form-control">
-                            {eval $monthlist = range(1,12);}
-                            <!--{loop $monthlist $month}-->
-                            <option value="{$month}" <!--{if $bdate[1]==$month}-->selected<!--{/if}-->>{$month}</option>
-                            <!--{/loop}-->
-                        </select>
-                    </div>
-                    <label class="col-sm-1 control-label">月</label>
-                    <div class="col-sm-3">
-                        <select id="birthday" name="birthday" class="form-control">
-                            {eval $dayhlist = range(1,31);}
-                            <!--{loop $dayhlist $day}-->
-                            <option  value="{$day}" <!--{if $bdate[3]==$day}-->selected<!--{/if}-->>{$day}</option>
-                            <!--{/loop}-->
-                        </select>
-                    </div>
-                    <label class="col-sm-1 control-label">日</label>
-                </div></div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-2 control-label">性别:</div>
+              <div class="col-sm-10">
+                <label class="radio-inline">
+                  <input type="radio" name="gender" value="1" <!--{if (1 == $user['gender'])}--> checked <!--{/if}-->> 男
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="gender" value="0" <!--{if (0 == $user['gender'])}--> checked <!--{/if}-->> 女
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" name="gender" value="2" <!--{if (2 == $user['gender'])}--> checked <!--{/if}-->> 保密
+                </label>
+              </div>
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">手机:</label>
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="phone" id="phone" value="{$user['phone']}">
+              <div class="col-sm-2 control-label">生日:</div>
+              <!--{if $user['bday']}-->
+              <!--{eval $bdate=explode("-",$user['bday']);}-->
+              <div class="col-sm-5">
+                <p class="form-control-static">{$user['bday']}</p>
+                <input type="hidden" name="birthyear" id="birthyear" value="{$bdate[0]}">
+                <input type="hidden" name="birthmonth" id="birthmonth" value="{$bdate[1]}">
+                <input type="hidden" name="birthday" id="birthday" value="{$bdate[2]}">
+              </div>
+              <!--{else}-->
+              <div class="col-sm-7">
+                <div class="col-sm-4">
+                  <select id="birthyear" name="birthyear" onchange="showbirthday();" class="form-control">
+                    <!--{eval $curyear=date("Y");}-->
+                    <!--{eval $yearlist = range($curyear, 1931, -1);}-->
+                    <!--{loop $yearlist $year}-->
+                    <option value="{$year}" <!--{if $bdate[0]==$year}-->selected<!--{/if}--> >{$year}年</option>
+                    <!--{/loop}-->
+                  </select>
                 </div>
+                <div class="col-sm-3">
+                  <select id="birthmonth" name="birthmonth" onchange="showbirthday();" class="form-control">
+                    {eval $monthlist = range(1,12);}
+                    <!--{loop $monthlist $month}-->
+                    <option value="{$month}" <!--{if $bdate[1]==$month}-->selected<!--{/if}-->>{$month}月</option>
+                    <!--{/loop}-->
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <select id="birthday" name="birthday" class="form-control">
+                    {eval $dayhlist = range(1,31);}
+                    <!--{loop $dayhlist $day}-->
+                    <option  value="{$day}" <!--{if $bdate[3]==$day}-->selected<!--{/if}-->>
+                      {$day}
+                    </option>
+                    <!--{/loop}-->
+                  </select>
+                </div>
+              </div>
+              <!--{/if}-->
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">QQ:</label>
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="qq" id="qq" value="{$user['qq']}">
-                </div>
+              <div for="phone" class="col-sm-2 control-label">手机:</div>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" name="phone" id="phone" value="{$user['phone']}">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div for="qq" class="col-sm-2 control-label">QQ:</div>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" name="qq" id="qq" value="{$user['qq']}">
+              </div>
             </div>
             <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">微信:</label>
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="wechat" id="wechat" value="{$user['wechat']}">
-                </div>
+              <div for="wechat" class="col-sm-2 control-label">微信:</div>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" name="wechat" id="wechat" value="{$user['wechat']}">
+              </div>
             </div>
             <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">擅长:</label>
-                <div class="col-sm-5">
-                  <input type="text" class="form-control" name="skills" id="skills" value="{$skillstr}" placeholder="擅长多个领域请以空格隔开">
-                </div>
+              <div for="skills" class="col-sm-2 control-label">擅长:</div>
+              <div class="col-sm-5">
+                <input type="text" class="form-control" name="skills" id="skills" value="{$skillstr}" placeholder="擅长多个领域请以空格隔开">
+              </div>
             </div>
             <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">签名:</label>
-                <div class="col-sm-5">
-                  <textarea class="form-control" name="signature" id="signature" rows="3" maxlength="200">{$user['signature']}</textarea>
-                </div>
+              <div for="signature" class="col-sm-2 control-label">签名:</div>
+              <div class="col-sm-5">
+                <textarea class="form-control" name="signature" id="signature" rows="3" maxlength="200">{$user['signature']}</textarea>
+              </div>
             </div>
-            <button type="submit" name="submit" class="btn btn-primary" style="margin-left:60px;width:300px;margin-bottom:20px">保 存</button>
+
+            <div class="form-group">
+              <div class="col-sm-2"></div>
+              <div class="col-sm-5">
+                <button type="submit" name="submit" class="btn btn-primary btn-block">
+                  保存
+                </button>
+              </div>
+            </div>
         </form>
       </div>
-      <div class="tab-pane fade" id="password">...</div>
-      <div class="tab-pane fade" id="modavatar">...</div>
-      <div class="tab-pane fade" id="resume">...</div>
     </div>
   </div>
 </div>

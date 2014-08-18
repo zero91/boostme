@@ -16,23 +16,44 @@
       <li><a href="{SITE_URL}">{$setting['site_name']}</a></li>
       <li class="active">发布求助</li>
     </ol>-->
+
+    <!--{if $op_type == "add"}-->
     <h4>发布求助</h4>
-    <form enctype="multipart/form-data" method="POST" action="{url problem/add}" name="askform" id="askform" onsubmit="return check_form();" class="form-horizontal">
+    <!--{else}-->
+    <h4>编辑求助</h4>
+    <!--{/if}-->
+    <form enctype="multipart/form-data" method="POST" 
+        <!--{if $op_type=="add"}-->action="{url problem/add}" <!--{else}-->action="{url problem/edit/$problem['pid']}"<!--{/if}-->
+        name="askform" id="askform" onsubmit="return check_form();" class="form-horizontal">
     <div class="panel panel-info">
         <h4 style="display:inline;">{if isset($touser)}您正在向<a href="{url user/space/$touser['uid']}">{$touser['username']}</a>提问{else}请详细描述您的求助信息{/if}：</h4>
         <h4 id="limitNum" class="tips">还可输入 <mark><span>140</span></mark> 字</h4>
         <div class="clearfix"></div>
+        <!--{if $op_type == "add"}-->
         <textarea class="form-control" name="title" id="ptitle" rows="5">{$word}</textarea>
-        <h4>问题补充:</h4>
-        <div id="introContent">
-            <script type="text/plain" id="editor" name="description" style="height: 122px;"></script>
+        <!--{else}-->
+        <textarea class="form-control" name="title" id="ptitle" rows="5">{$problem['title']}</textarea>
+        <!--{/if}-->
+
+        <h4>求助补充:</h4>
+
+        <div id="introContent"> 
+            <script type="text/plain" id="editor" name="description" style="height: 220px;"></script>
+            <!--{if $op_type == "add"}-->
             <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+            <!--{else}-->
+            <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]], initialContent:"{eval echo taddslashes($problem['description'])}"}));</script>
+            <!--{/if}-->
         </div>
         <div class="row" style="margin-top:10px">
             <div class="form-group">
                 <label class="col-sm-1 control-label">标签：</label>
                 <div class="col-sm-5">
+                    <!--{if $op_type == "add"}-->
                     <input type="text" class="form-control" placeholder="多个标签请以空格隔开" name="ptags"/>
+                    <!--{else}-->
+                    <input type="text" class="form-control" placeholder="多个标签请以空格隔开" name="ptags" value="{eval echo implode(' ',$taglist)}"/>
+                    <!--{/if}-->
                 </div>
             </div>
         </div>
@@ -40,7 +61,11 @@
             <div class="form-group">
                 <label class="col-sm-1 control-label">回报：</label>
                 <div class="col-sm-5">
+                    <!--{if $op_type == "add"}-->
                     <input type="number" class="form-control" id="price" name="price" step="1" value="300" min="10" max="10000"/>
+                    <!--{else}-->
+                    <input type="number" class="form-control" id="price" name="price" step="1" value="{$problem['price']}" min="10" max="10000"/>
+                    <!--{/if}-->
                 </div>
             </div>
         </div>
@@ -57,7 +82,11 @@
             </div>
             <!--{/if}-->
         </div>
+        <!--{if $op_type == "add"}-->
         <button type="submit" class="btn btn-primary" name="submit" style="float:right">发布求助</button>
+        <!--{else}-->
+        <button type="submit" class="btn btn-primary" name="submit" style="float:right">保存修改</button>
+        <!--{/if}-->
         <div class="clearfix"></div>
     </div>
     </form>

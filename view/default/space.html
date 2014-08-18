@@ -1,119 +1,48 @@
 <!--{template header}-->
 <style type="text/css">
-    .photo {position: absolute; top: 20px; left: 20px; }
-    /*.list-group-item {min-height: 80px;}*/
-    .mypanel {margin: 0 10px 0 120px !important; padding: 10px; line-height: 26px;}
+    /* .photo {position: absolute; top: 20px; left: 20px; } */
+    /* .mypanel {margin: 0 10px 0 120px !important; padding: 10px; line-height: 26px;} */
     .action {position: absolute; right: 50px; bottom: 5px;} /* panel右下角的动作 */
 </style>
-<script type="text/javascript">
-    $(function(){
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-          if (e.target.id == "jump1") {
-            $("#menu_problem").removeClass("active");
-            $("#menu_space").addClass("active");
-          } else if (e.target.id == "jump2") {
-            $("#menu_space").removeClass("active");
-            $("#menu_problem").addClass("active");
-          }
-        })
-    })
-</script>
-<!--{if ($userid == $user['uid'])}-->
-<div class="container">
-  <div class="col-md-3">
-  <!--{template leftmenu}-->
-  </div>
+
+<div class="container" style="margin-top:5px;">
+
+  <!--{if $userid == $this->user['uid']}-->
+  <div class="col-md-3"> <!--{template leftmenu}--> </div>
+  <!--{/if}-->
+
   <script type="text/javascript">$("#menu_space").addClass("active");</script>
+  <!--{if $userid == $this->user['uid']}-->
   <div class="col-md-9">
-    <div class="panel" style="position:relative;min-height:120px">
-        <img class="img-thumbnail photo" src="{$member['avatar']}"/>
-        <div class="mypanel">
-            <h5>{$member['username']}</h5>
-            <div class="balance">您的账户余额：¥<?=$user['balance']?></div>
-        </div>
-    </div>
-
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="active"><a href="#now_prob" role="tab" data-toggle="tab" id="jump1">最近动态</a></li>
-      <li><a href="#my_prob" role="tab" data-toggle="tab" id="jump2">解决以下困难</a></li>
-    </ul>
-
+  <!--{else}-->
+  <div>
+  <!--{/if}-->
+    <h5>最近动态</h5>
     <!-- Tab panes -->
     <div class="tab-content">
-      <div class="tab-pane active" id="now_prob">
-        <div class="list-group">
-            <!--{loop $problemlist $problem}-->
-            <div class="list-group-item">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">发出求助</h3>
-                  </div>
-                  <div class="panel-body">
-                    {$problem['title']}
-                    <span><a href='{url problem/view/$problem['pid']}' target="_blank">查看</a></span>
-                    <div class="action">{$problem['format_time']}</div>
-                  </div>
-                </div>
-            </div>
-            <!--{/loop}-->
+      <div class="tab-pane active" id="prob">
+        <!--{if count($problemlist) == 0}-->
+        <p style="color:grey;">暂无动态~</p>
+        <!--{else}-->
+        <!--{loop $problemlist $problem}-->
+        <div class="panel <!--{if $problem['data_type'] == 'prob'}-->panel-info<!--{else}-->panel-success<!--{/if}-->" style="margin-bottom:15px !important;">
+          <!--{if $problem['data_type'] == 'prob'}-->
+          <div class="panel-heading">发出求助</div>
+          <!--{else}-->
+          <div class="panel-heading">解决求助</div>
+          <!--{/if}-->
+          <div class="panel-body" style="font-size:13px;">
+            <span>{$problem['title']}</span>
+            <span>
+              <a href='{url problem/view/$problem['pid']}' target="_blank">查看</a>
+            </span>
+            <br/><span class="pull-right">{$problem['format_time']}</span>
+          </div>
         </div>
+        <!--{/loop}-->
+        <!--{/if}-->
       </div><!-- existing problems tab end -->
-      <div class="tab-pane <!--{if ($userid != $user['uid'])}-->active<!--{/if}-->" id="my_prob">
-        <div class="list-group">
-            <!--{loop $solve_plist $problem}-->
-            <div class="list-group-item">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">解决求助</h3>
-                  </div>
-                  <div class="panel-body">
-                    {$problem['title']}
-                    <span><a href='{url problem/view/$problem['pid']}' target="_blank">查看</a></span>
-                    <div class="action">{$problem['format_time']}</div>
-                  </div>
-                </div>
-            </div> 
-            <!--{/loop}-->
-        </div>
-      </div>
     </div>
   </div>
 </div><!-- container end -->
-<!--{else}-->
-<div class="container">
-    <div class="panel" style="position:relative;min-height:120px">
-        <img class="img-thumbnail photo" src="{$member['avatar']}"/>
-        <div class="mypanel">
-            <h5>{$member['username']}</h5>
-        </div>
-    </div>
-
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="active"><a href="#my_prob" role="tab" data-toggle="tab">解决以下困难</a></li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <div class="tab-pane active" id="my_prob">
-        <div class="list-group">
-            <!--{loop $solve_plist $problem}-->
-            <div class="list-group-item">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">解决求助</h3>
-                  </div>
-                  <div class="panel-body">
-                    {$problem['title']}
-                    <span><a href='{url problem/view/$problem['pid']}' target="_blank">查看</a></span>
-                    <div class="action">{$problem['format_time']}</div>
-                  </div>
-                </div>
-            </div> 
-            <!--{/loop}-->
-        </div>
-      </div>
-    </div>
-    
-</div><!-- container end -->
-<!--{/if}-->
-<? include template('footer'); ?>
+<!--{template footer}-->

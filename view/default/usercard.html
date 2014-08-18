@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-2">
             <a href="{url user/space/$userinfo['uid']}">
-                <img src="{$userinfo['avatar']}" class="img-thumbnail" alt="{$userinfo['username']}"/>
+                <img src="{$userinfo['avatar']}" class="img-circle" alt="{$userinfo['username']}"/>
             </a>
         </div>
         <div class="col-md-10">
@@ -16,7 +16,6 @@
                 {/if}{if $userinfo['expert']}
                     <span class="icon_expert" title='专家'></span>
                 {/if}
-                <span>({$userinfo_group['grouptitle']})</span>
             </div>
             <div>
                 <!--{if $userinfo['signature']}-->

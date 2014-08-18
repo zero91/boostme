@@ -17,6 +17,7 @@ class problemcontrol extends base {
 
     // 发布求助
     function onadd() {
+        $op_type = "add"; // 操作类型：增加求助
         $navtitle = "发布求助";
         if (isset($this->post['submit'])) {
             $title = htmlspecialchars($this->post['title']);
@@ -90,7 +91,7 @@ class problemcontrol extends base {
 
             $problem = $_ENV['problem']->get($pid);
             $subject = "有人想帮您解决您的求助 \"{$problem['title']}\"";
-            $content ='<br/><a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
+            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $problem['authorid'], $subject, $content);
             $_ENV['userlog']->add('demand', "uid:'{$this->user['uid']}',pid:'$pid'");
             $this->message("恭喜您，请求信息已经成功发送到对方账户，请您耐心等待！", "problem/view/$pid");
@@ -121,7 +122,7 @@ class problemcontrol extends base {
 
             $problem = $_ENV['problem']->get($pid);
             $subject = "有人想帮您解决您的求助 \"{$problem['title']}\"";
-            $content ='<br/><a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
+            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $problem['authorid'], $subject, $content);
             $_ENV['userlog']->add('demand', "uid:'{$this->user['uid']}',pid:'$pid'");
             exit('1');
@@ -166,7 +167,7 @@ class problemcontrol extends base {
             $cid = $_ENV['charging']->add($problem['pid'], $problem['authorid'], $problem['author'], $user['uid'], $user['username'], $system, $problem['price']);
 
             $subject = "您抢求助 \"{$problem['title']}\" 成功啦";
-            $content ='<br/><a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
+            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $uid, $subject, $content);
             $_ENV['userlog']->add('accept', "pid:'$pid',uid:'$uid'");
             exit('1');
@@ -183,7 +184,7 @@ class problemcontrol extends base {
         if ($affected_rows > 0) {
             $problem = $_ENV['problem']->get($pid);
             $subject = "Sorry, 您没有成功抢到求助 \"{$problem['title']}\"";
-            $content ='<br/><a href="' . url("problem/view/$pid", 1) . '">点击查看</a>'; 
+            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>'; 
             $this->send('', 0, $uid, $subject, $content);
             $_ENV['userlog']->add('denied', "pid:'$pid',uid:'$uid'");
             exit('1');
@@ -209,7 +210,7 @@ class problemcontrol extends base {
             $user = $_ENV['user']->get_by_uid($problem['authorid']);
 
             $subject = "您的求助\"{$problem['title']}\"已过期";
-            $content ='<br/><a href="' . url("problem/view/{$problem['pid']}", 1) . '">点击查看</a>'; 
+            $content ='<a href="' . url("problem/view/{$problem['pid']}", 1) . '">点击查看</a>'; 
             $this->send('', 0, $user['uid'], $subject, $content);
         }
         $asktime = tdate($problem['time']);
@@ -287,13 +288,14 @@ class problemcontrol extends base {
 
     //编辑问题
     function onedit() {
+        $op_type = "edit"; // 操作类型：更改求助
         $navtitle = '更改求助信息';
         $pid = $this->get[2] ? $this->get[2] : $this->post['pid'];
 
         $problem = $_ENV['problem']->get($pid);
 
         if ($problem['authorid'] != $this->user['uid']) {
-            $this->message("您没有发布该求助！", "STOP");
+            $this->message("您没有发布该求助！", "BACK");
         }
 
         if (!$problem) {
@@ -301,8 +303,9 @@ class problemcontrol extends base {
         }
 
         if ($problem['status'] == PB_STATUS_SOLVED) {
-            $this->message("求助已被解决！", "STOP");
+            $this->message("求助已被解决！", "BACK");
         }
+
         if (isset($this->post['submit'])) {
             $title = htmlspecialchars($this->post['title']);
             $description = $this->post['description'];
@@ -341,11 +344,8 @@ class problemcontrol extends base {
                 $this->message("求助更新成功！", $viewurl);
             }
         } else {
-            $title = $problem['title'];
-            $description = $problem['description'];
-            $price = $problem['price'];
-            $status = $problem['status'];
-            include template("edit_problem");
+            $taglist = $_ENV['tag']->get_by_pid($pid);
+            include template("problem");
         }
     }
 

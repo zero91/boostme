@@ -91,10 +91,10 @@ class messagemodel {
     // 根据发件人删除整个对话
     function remove_by_author($authors) {
         foreach ($authors as $fromuid) {
-            $this->db->query("DELETE FROM message WHERE fromuid<>touid AND ((fromuid=$fromuid AND touid=" . $this->base->user['uid'] . ") AND status=" . MSG_STATUS_FROM_DELETED . ")");
-            $this->db->query("DELETE FROM message WHERE fromuid<>touid AND ((fromuid=" . $this->base->user['uid'] . " AND touid=" . $fromuid . ") AND  status=" . MSG_STATUS_TO_DELETED);
-            $this->db->query("UPDATE message SET status=" . MSG_STATUS_TO_DELETED . " WHERE fromuid<>touid AND ((fromuid=$fromuid AND touid=" . $this->base->user['uid'] . ") AND status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_FROM_DELETED . "))");
-            $this->db->query("UPDATE message SET status=" . MSG_STATUS_FROM_DELETED . " WHERE fromuid<>touid AND ((fromuid=" . $this->base->user['uid'] . " AND touid=" . $fromuid . ") AND  status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_TO_DELETED . "))");
+            $this->db->query("DELETE FROM message WHERE fromuid<>touid AND fromuid=$fromuid AND touid=" . $this->base->user['uid'] . " AND status=" . MSG_STATUS_FROM_DELETED);
+            $this->db->query("DELETE FROM message WHERE fromuid<>touid AND fromuid=" . $this->base->user['uid'] . " AND touid=$fromuid AND status=" . MSG_STATUS_TO_DELETED);
+            $this->db->query("UPDATE message SET status=" . MSG_STATUS_TO_DELETED . " WHERE fromuid<>touid AND fromuid=$fromuid AND touid=" . $this->base->user['uid'] . " AND status=" . MSG_STATUS_NODELETED);
+            $this->db->query("UPDATE message SET status=" . MSG_STATUS_FROM_DELETED . " WHERE fromuid<>touid AND fromuid=" . $this->base->user['uid'] . " AND touid=$fromuid AND  status=" . MSG_STATUS_NODELETED);
         }
     }
 

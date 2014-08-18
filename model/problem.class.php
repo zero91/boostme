@@ -175,7 +175,7 @@ class problemmodel {
     }
 
     // 我的所有求助，用户中心
-    function list_by_uid($uid, $status, $start = 0, $limit = 10) {
+    function list_by_uid($uid, $status, $start=0, $limit=10) {
         $problemlist = array();
         $sql = 'SELECT * FROM problem WHERE `authorid` = ' . $uid;
         $sql .= $this->prob_status_table[$status] . " ORDER BY `time` DESC LIMIT $start,$limit";

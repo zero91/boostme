@@ -1,6 +1,4 @@
-<!--{eval global $starttime,$querynum;$mtime = explode(' ', microtime());$runtime=number_format($mtime[1] + $mtime[0] - $starttime,6); $setting=$this->setting;$user=$this->user;$headernavlist=$this->nav;$regular=$this->regular;}-->
-<form class="form-horizontal" {if $setting['ucenter_open']==0}onsubmit="return checkform();"{/if} role="form" 
-            name="loginform"  action="{url user/login}" method="post">
+<form class="form-horizontal" onsubmit="return checkform();" role="form" name="loginform" action="{url user/login}" method="post">
   <div class="alert alert-danger col-sm-offset-2 col-sm-8" role="alert" id="user_error" style="display:none"></div>
   <div class="form-group">
     <label for="popusername" class="col-sm-3 control-label">用&nbsp;户&nbsp;名</label>
@@ -122,7 +120,7 @@
             type: "POST",
             async: false,
             cache: false,
-            url: "<?=SITE_URL?>index.php?user/ajaxcode/"+code,
+            url: "{SITE_URL}index.php?user/ajaxcode/"+code,
             success: function(flag) {                   
                 if (1 == flag) {
                     $('#logincodetip').html("&nbsp;");

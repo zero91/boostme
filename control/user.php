@@ -188,12 +188,54 @@ class usercontrol extends base {
         $member = $_ENV['user']->get_by_uid($userid);
         $member['avatar'] = get_avatar_dir($userid);
         if ($member) {
-            $problemlist = $_ENV['problem']->list_by_uid($userid, 'all');
-            $solve_plist = $_ENV['problem']->list_by_solverid($userid);
+            $uid_prob_list = $_ENV['problem']->list_by_uid($userid, 'all');
+            $uid_solve_list = $_ENV['problem']->list_by_solverid($userid);
+
+            $prob_idx = 0;
+            $solve_idx = 0;
+
+            $problemlist = array();
+            while ($prob_idx < count($uid_prob_list) && $solve_idx < count($uid_solve_list)) {
+                if (intval($uid_prob_list[$prob_idx]['time']) > intval($uid_solve_list[$solve_idx]['time'])) {
+                    $uid_prob_list[$prob_idx]['data_type'] = 'prob';
+                    $problemlist[] = $uid_prob_list[$prob_idx];
+                    $prob_idx += 1;
+                } else {
+                    $uid_prob_list[$prob_idx]['data_type'] = 'solved';
+                    $problemlist[] = $uid_solve_list[$solve_idx];
+                    $solve_idx += 1;
+                }
+            }
+            while ($prob_idx < count($uid_prob_list)) {
+                $uid_prob_list[$prob_idx]['data_type'] = 'prob';
+                $problemlist[] = $uid_prob_list[$prob_idx];
+                $prob_idx += 1;
+            }
+            while ($solve_idx < count($uid_solve_list)) {
+                $uid_prob_list[$solve_idx]['data_type'] = 'solved';
+                $problemlist[] = $uid_solve_list[$solve_idx];
+                $solve_idx += 1;
+            }
             $navtitle = $member['username'] . $navtitle;
             include template('space');
         } else {
             $this->message("抱歉，该用户不存在！", 'BACK');
+        }
+    }
+
+    function onproblem() {
+        if (empty($this->get[2])) {
+            $this->message("非法提交，缺少参数!", 'BACK');
+        }
+
+        $op_type = $this->get[2];
+
+        if ($op_type == "all") {
+            $problemlist = $_ENV['problem']->list_by_uid($this->user['uid']);
+            include template('userprob');
+        } else if ($op_type == "solved") {
+            $problemlist = $_ENV['problem']->list_by_solverid($this->user['uid']);
+            include template('userprob');
         }
     }
 
