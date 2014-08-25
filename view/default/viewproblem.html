@@ -264,14 +264,14 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">附加信息</h4>
       </div>
-      <form name="edit_message" action="<?=SITE_URL?>?problem/demand.html" method="post" id="dialog_form">
-      <div class="modal-body">
-            <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
-            <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
-      </div>
-      <div class="modal-footer">
-        <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
-      </div>
+      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
+        <div class="modal-body">
+          <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
+          <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
+        </div>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
+        </div>
       </form>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

@@ -144,6 +144,10 @@ class base {
     // 权限检测
     function checkable($url) {
         $this->regular = $url; // 此项在后面需要使用到
+
+        if ('admin' == substr($this->regular, 0, 5)) {
+            return $this->user['isadmin'] == 1;
+        }
         return true;
         //$regulars = explode(',', 'user/login,user/logout,user/code,user/getpass,user/resetpass,index/help,js/view,attach/upload,' . $this->user['regulars']);
         //return in_array($url, $regulars);
@@ -169,7 +173,8 @@ class base {
         if ($url == '') {
             $redirect = SITE_URL;
         } else if ($url == 'BACK' || $url == 'STOP') {
-            $redirect = $url;
+            //$redirect = $url;
+            $redirect = $_SERVER['HTTP_REFFERER'];
         } else {
             $redirect = SITE_URL . $this->setting['seo_prefix'] . $url . $this->setting['seo_suffix'];
         }

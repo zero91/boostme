@@ -86,7 +86,7 @@
             type: "POST",
             async: false,
             cache: false,
-            url: "<?=SITE_URL?>index.php?user/ajaxlogin",
+            url: "{SITE_URL}index.php?user/ajaxlogin",
             data: "username=" + $.trim(username) + "&password=" + password,
             success: function(ret) {
                 if (ret == '-1') {

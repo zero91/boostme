@@ -6,6 +6,7 @@ CREATE TABLE user (
   `password` char(32) DEFAULT NULL,
   `email` varchar(40) DEFAULT NULL,
   `email_verify` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 邮箱验证 */
+  `isadmin` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 是否是管理员 */
   `regip` char(15) DEFAULT NULL,
   `regtime` int(10) NOT NULL DEFAULT '0',
   `lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
@@ -83,10 +84,15 @@ CREATE TABLE user_resume (
   `doctor_year` smallint(4) DEFAULT NULL,
   `doctor_month` tinyint(2) DEFAULT NULL,
   `experience` mediumtext,
-  `resume_path` varchar(100) NOT NULL DEFAULT '',
+  `resume_path` varchar(100) DEFAULT NULL,
+  `realname` char(18) DEFAULT NULL, /* 真实姓名 */
+  `ID` varchar(18) DEFAULT NULL, /* 身份证号*/
+  `ID_path` varchar(100) DEFAULT NULL, /* 身份证照片路径 */
+  `studentID` varchar(100) DEFAULT NULL, /* 学生证照片路径 */
   `verified` tinyint(1) NOT NULL DEFAULT '0',
 
-  PRIMARY KEY (`uid`)
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `ID`(`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
@@ -296,6 +302,7 @@ INSERT INTO setting VALUES ('maildefault', 'boostme@qq.com');
 INSERT INTO setting VALUES ('list_default', '10');
 INSERT INTO setting VALUES ('verify_problem', '0');
 INSERT INTO setting VALUES ('editor_toolbars', 'bold,forecolor,insertimage,autotypeset,attachment,link,unlink,map,insertcode,fullscreen');
+INSERT INTO setting VALUES ('tpl_dir', 'default');
 
 
 
@@ -361,7 +368,6 @@ INSERT INTO setting VALUES ('ucenter_ip', '');
 INSERT INTO setting VALUES ('ucenter_password', '');
 INSERT INTO setting VALUES ('ucenter_ask', '1');
 INSERT INTO setting VALUES ('ucenter_answer', '1');
-INSERT INTO setting VALUES ('tpl_dir', 'default');
 INSERT INTO setting VALUES ('verify_question', '0');
 INSERT INTO setting VALUES ('msgtpl', 'a:4:{i:0;a:2:{s:5:"title";s:36:"您的问题{wtbt}有了新回答！";s:7:"content";s:51:"你在{wzmc}上的提出的问题有了新回答！";}i:1;a:2:{s:5:"title";s:54:"恭喜，您对问题{wtbt}的回答已经被采纳！";s:7:"content";s:42:"你在{wzmc}上的回答内容被采纳！";}i:2;a:2:{s:5:"title";s:78:"抱歉，您的问题{wtbt}由于长时间没有处理，现已过期关闭！";s:7:"content";s:69:"您的问题{wtbt}由于长时间没有处理，现已过期关闭！";}i:3;a:2:{s:5:"title";s:42:"您对{wtbt}的回答有了新的评分！";s:7:"content";s:36:"您的回答{hdnr}有了新评分！";}}');
 INSERT INTO setting VALUES ('stopcopy_maxnum', '60');

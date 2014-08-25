@@ -15,23 +15,19 @@ class userlogmodel {
         return $this->db->fetch_first("SELECT * FROM `userlog` WHERE `type`='$type'");
     }
 
-    /**
-     * 添加用户操作记录
-     * @param enum $type= login | problem | demand | cancel | accept | deal
-     * @return int  
-     */
+    // 添加用户操作记录
+    // @param enum $type= login | problem | demand | cancel | accept | deal
+    // @return int  
     function add($type, $comment='') {
         $comment = taddslashes($comment);
         $this->db->query("INSERT INTO userlog(`sid`,`uid`,`type`,`time`,`comment`) VALUES ('{$this->base->user['sid']}','{$this->base->user['uid']}','$type',{$this->base->time},'$comment')");
         return $this->db->insert_id();
     }
 
-    /**
-     * 按时间计算用户的操作次数
-     * @param ENUM $type
-     * @param INT $hours
-     * @return INT 
-     */
+     // 按时间计算用户的操作次数
+     // @param ENUM $type
+     // @param INT $hours
+     // @return INT 
     function rownum_by_time($type='problem', $hours=1) {
         $starttime = strtotime(date("Y-m-d H:00:00", $this->base->time));
         $endtime = $starttime + $hours * 3600;

@@ -64,8 +64,8 @@ class boostme {
 
         $isadmin = ('admin' == substr($this->get[0], 0, 5));
         $isadmin && $controlfile = WEB_ROOT . '/control/admin/' . substr($this->get[0], 6) . '.php';
+
         if (false === @include($controlfile)) {
-            //$this->notfound('control file "' . $controlfile . '" not found!');
             $this->notfound("");
         }
     }
@@ -82,10 +82,10 @@ class boostme {
                 $control->checkable($regular);
                 $control->$method();
             } else {
-                $control->message('您无权进行当前操作，如有疑问，请联系管理员或者以更高的权限用户登录', 'user/login');
+                //$control->message('您无权进行当前操作，如有疑问，请联系管理员或者以更高的权限用户登录', 'STOP');
+                $this->notfound("");
             }
         } else {
-            //$this->notfound('method "' . $method . '" not found!');
             $this->notfound("");
         }
     }

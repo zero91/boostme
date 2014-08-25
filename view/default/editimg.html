@@ -40,15 +40,20 @@
           </ol>
           <div class="form-group">
             <div class="col-md-2">
-              <img class="img-circle" width="80px" height="80px" alt="{$user['username']}" src="{$user['avatar']}" />
+              <img class="img-circle" width="100px" height="100px" alt="{$user['username']}" src="{$user['avatar']}" />
             </div>
-            <div class="col-md-3" style="margin-left:-30px;">
+            <div class="col-md-3" style="margin-left:-10px;margin-top:10px;">
               <input type="file" id="file_upload" name="file_upload">
-              <button type="button" name="uploadavatar" id="uploadavatar" class="btn btn-warning" style="width:88px;padding:4px 13px;">
-                保&nbsp;存
-              </button>
-            </div>
+            </div> 
           </div>
+          <!--
+          <div style="margin-top:100px;">
+            <p>浏览器不支持自动上传？点击“保存”按钮</p>
+            <button type="button" name="uploadavatar" id="uploadavatar" class="btn btn-primary" style="width:120px;">
+              保&nbsp;存
+            </button>
+          </div>
+          -->
         </form>
         <!--{/if}-->
       </div>
@@ -58,15 +63,18 @@
 </div>
 
 <link href="{SITE_URL}js/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js"></script>
+<script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js?ver=<?php echo rand(0,9999);?>"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {
     $('#file_upload').uploadify({
         'swf': '{SITE_URL}js/uploadify/uploadify.swf',
         'uploader': "{url user/editimg/$user['uid']}",
-        'auto': false,
-        'buttonImage': '{SITE_URL}js/uploadify/selectimg.gif',
+        'auto': true,
+        //'buttonImage': '{SITE_URL}js/uploadify/selectimg.gif',
+        'buttonText' : '更改头像',
+        'buttonClass' : 'btn btn-primary',
+        'height' : '40px',
         'fileObjName': 'userimage',
         'multi': false,
         'fileSizeLimit': "2MB",
@@ -74,12 +82,14 @@ $(document).ready(function() {
         'fileTypeDesc': 'User Avatar(.JPG, .GIF, .PNG,.JPEG)',
         'onUploadSuccess': function() {
             alert('头像上传成功!');
-            document.location = "{url user/editimg}";
+            window.top.location.reload();
         }
     });
+    /*
     $("#uploadavatar").click(function() {
         $('#file_upload').uploadify("upload", "*");
     });
+    */
 });
 
 </script>

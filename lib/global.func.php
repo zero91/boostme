@@ -194,7 +194,7 @@ function get_avatar_dir($uid)
             return SITE_URL . $avatar_dir . ".png";
     }
     //显示系统默认头像
-    return SITE_URL . 'css/default/avatar.jpg';
+    return SITE_URL . 'css/default/avatar.png';
 }
 
 // 获得用户简历地址

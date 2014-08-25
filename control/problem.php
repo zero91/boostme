@@ -241,9 +241,12 @@ class problemcontrol extends base {
 
     // 搜索求助
     function onsearch() {
-        $pstatus = $status = $this->get[3] ? $this->get[3] : PB_STATUS_UNSOLVED;
-        (PB_STATUS_UNSOLVED == $status) && ($pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED);
-        (PB_STATUS_SOLVED == $status) && ($pstatus = PB_STATUS_SOLVED);
+        $pstatus = $status = $this->get[3] ? $this->get[3] : 'all';
+        if ($status == 'all') {
+            $pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED . "," . PB_STATUS_CLOSED;
+        } else if ($status != PB_STATUS_SOLVED) {
+            $status = $pstatus = PB_STATUS_SOLVED;
+        }
 
         $word = urldecode($this->post['word'] ? str_replace("%27", "", $this->post['word']) : $this->get[2]);
         (!trim($word)) && $this->message("搜索关键词不能为空!", 'BACK');

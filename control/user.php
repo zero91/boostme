@@ -358,7 +358,7 @@ class usercontrol extends base {
 
         if (isset($_FILES["userresume"])) {
             $uid = intval($this->get[2]);
-            $resumedir = "/data/resume/";
+            $resumedir = "/data/userdata/resume/";
             $extname = extname($_FILES["userresume"]["name"]);
             $uid = abs($uid);
             $uid = sprintf("%010d", $uid);
@@ -379,8 +379,71 @@ class usercontrol extends base {
 
             if (move_uploaded_file($_FILES["userresume"]["tmp_name"], $upload_target_fname)) {
                 $_ENV['userresume']->update_resume($uid, substr($file_web_path, 1));
-                echo 'ok';
+                //echo 'ok';
+                echo substr($file_web_path, 1);
             }
+        }
+    }
+
+    function onupload_ID() {
+        if (0 == $this->user['uid']) {
+            return;
+        }
+        $uid = intval($this->get[2]);
+        $resumedir = "/data/userdata/ID/";
+        $extname = extname($_FILES["userID"]["name"]);
+        $uid = abs($uid);
+        $uid = sprintf("%010d", $uid);
+        $dir1 = $resumedir . substr($uid, 0, 3);
+        $dir2 = $dir1 . '/' . substr($uid, 3, 3);
+        $dir3 = $dir2 . '/' . substr($uid, 6, 2);
+
+        (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
+        (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
+        (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
+
+        $file_web_path = $dir3 . "/{$uid}.{$extname}";
+
+        $upload_target_fname = WEB_ROOT . $file_web_path;
+        if (file_exists($upload_target_fname)) { //删除现有身份证照片
+            unlink($upload_target_fname);
+        }
+
+        if (move_uploaded_file($_FILES["userID"]["tmp_name"], $upload_target_fname)) {
+            $_ENV['userresume']->update_ID_path($uid, substr($file_web_path, 1));
+            //echo 'ok';
+            echo substr($file_web_path, 1);
+        }
+    }
+
+    function onupload_studentID() {
+        if (0 == $this->user['uid']) {
+            return;
+        }
+        $uid = intval($this->get[2]);
+        $resumedir = "/data/userdata/studentID/";
+        $extname = extname($_FILES["studentID"]["name"]);
+        $uid = abs($uid);
+        $uid = sprintf("%010d", $uid);
+        $dir1 = $resumedir . substr($uid, 0, 3);
+        $dir2 = $dir1 . '/' . substr($uid, 3, 3);
+        $dir3 = $dir2 . '/' . substr($uid, 6, 2);
+
+        (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
+        (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
+        (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
+
+        $file_web_path = $dir3 . "/{$uid}.{$extname}";
+
+        $upload_target_fname = WEB_ROOT . $file_web_path;
+        if (file_exists($upload_target_fname)) { //删除现有身份证照片
+            unlink($upload_target_fname);
+        }
+
+        if (move_uploaded_file($_FILES["studentID"]["tmp_name"], $upload_target_fname)) {
+            $_ENV['userresume']->update_studentID($uid, substr($file_web_path, 1));
+            //echo 'ok';
+            echo substr($file_web_path, 1);
         }
     }
 
@@ -446,9 +509,11 @@ class usercontrol extends base {
             $doctor_month = trim($this->post['doctor_month']);
 
             $experience = trim($this->post['experience']);
+            $realname = trim($this->post['realname']);
+            $ID = trim($this->post['ID']);
 
-            $_ENV['userresume']->update($this->user['uid'], $bachelor_school, $bachelor_dept, $bachelor_major, $bachelor_year, $bachelor_month, $master_school, $master_dept, $master_major, $master_year, $master_month, $doctor_school, $doctor_dept, $doctor_major, $doctor_year, $doctor_month, $experience);
-            $this->message("简历更改成功！", 'user/resume');
+            $_ENV['userresume']->update($this->user['uid'], $realname, $bachelor_school, $bachelor_dept, $bachelor_major, $bachelor_year, $bachelor_month, $master_school, $master_dept, $master_major, $master_year, $master_month, $doctor_school, $doctor_dept, $doctor_major, $doctor_year, $doctor_month, $experience, $ID);
+            $this->message("简历更改成功！", 'BACK');
         } else {
             $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
         }

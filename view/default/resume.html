@@ -18,7 +18,7 @@
   <div class="col-md-9" style="font-size:13px;">
     <h5>个人信息</h5>
     <ul class="nav nav-tabs" role="tablist" id="myTab">
-      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">个人资料</a></li>
+      <li><a href="#profile" id="profile" role="tab" data-toggle="tab">基本信息</a></li>
       <li><a href="#password" id="password" role="tab" data-toggle="tab">修改密码</a></li>
       <li><a href="#modavatar" id="modavatar" role="tab" data-toggle="tab">修改头像</a></li>
       <li class="active"><a href="#resume" id="resume" role="tab" data-toggle="tab">我的简历</a></li>
@@ -72,32 +72,29 @@
                     <select name="bachelor_year" id="bachelor-year" class="form-control">
                       <option value=""></option>
                       <!--{eval $curyear=date("Y");}-->
-                      <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                      <!--{eval $yearlist = range($curyear+1, 1921, -1);}-->
                       <!--{loop $yearlist $year}-->
-                      <option value="{$year}" <!--{if ({$year}== $resume['bachelor_year'])}-->selected<!--{/if}--> >{$year}</option>
+                      <option value="{$year}" <!--{if ({$year}== $resume['bachelor_year'])}-->selected<!--{/if}--> >{$year}年</option>
                       <!--{/loop}-->
                     </select>
                   </div>
-
-                  <label class="col-sm-1 control-label">年</label>
                   <div class="col-sm-3">
                     <select name="bachelor_month" id="bachelor-month" class="form-control">
                       <option value=""></option>
-                      <option value="1" <!--{if (1 == $resume['bachelor_month'])}-->selected<!--{/if}--> >1</option>
-                      <option value="2" <!--{if (2 == $resume['bachelor_month'])}-->selected<!--{/if}--> >2</option>
-                      <option value="3" <!--{if (3 == $resume['bachelor_month'])}-->selected<!--{/if}--> >3</option>
-                      <option value="4" <!--{if (4 == $resume['bachelor_month'])}-->selected<!--{/if}--> >4</option>
-                      <option value="5" <!--{if (5 == $resume['bachelor_month'])}-->selected<!--{/if}--> >5</option>
-                      <option value="6" <!--{if (6 == $resume['bachelor_month'])}-->selected<!--{/if}--> >6</option>
-                      <option value="7" <!--{if (7 == $resume['bachelor_month'])}-->selected<!--{/if}--> >7</option>
-                      <option value="8" <!--{if (8 == $resume['bachelor_month'])}-->selected<!--{/if}--> >8</option>
-                      <option value="9" <!--{if (9 == $resume['bachelor_month'])}-->selected<!--{/if}--> >9</option>
-                      <option value="10" <!--{if (10 == $resume['bachelor_month'])}-->selected<!--{/if}--> >10</option>
-                      <option value="11" <!--{if (11 == $resume['bachelor_month'])}-->selected<!--{/if}--> >11</option>
-                      <option value="12" <!--{if (12 == $resume['bachelor_month'])}-->selected<!--{/if}--> >12</option>
+                      <option value="1" <!--{if (1 == $resume['bachelor_month'])}-->selected<!--{/if}--> >1月</option>
+                      <option value="2" <!--{if (2 == $resume['bachelor_month'])}-->selected<!--{/if}--> >2月</option>
+                      <option value="3" <!--{if (3 == $resume['bachelor_month'])}-->selected<!--{/if}--> >3月</option>
+                      <option value="4" <!--{if (4 == $resume['bachelor_month'])}-->selected<!--{/if}--> >4月</option>
+                      <option value="5" <!--{if (5 == $resume['bachelor_month'])}-->selected<!--{/if}--> >5月</option>
+                      <option value="6" <!--{if (6 == $resume['bachelor_month'])}-->selected<!--{/if}--> >6月</option>
+                      <option value="7" <!--{if (7 == $resume['bachelor_month'])}-->selected<!--{/if}--> >7月</option>
+                      <option value="8" <!--{if (8 == $resume['bachelor_month'])}-->selected<!--{/if}--> >8月</option>
+                      <option value="9" <!--{if (9 == $resume['bachelor_month'])}-->selected<!--{/if}--> >9月</option>
+                      <option value="10" <!--{if (10 == $resume['bachelor_month'])}-->selected<!--{/if}--> >10月</option>
+                      <option value="11" <!--{if (11 == $resume['bachelor_month'])}-->selected<!--{/if}--> >11月</option>
+                      <option value="12" <!--{if (12 == $resume['bachelor_month'])}-->selected<!--{/if}--> >12月</option>
                     </select>
                   </div>
-                  <label class="col-sm-1 control-label">月</label>
                 </div>
               </div>
             </div>
@@ -147,32 +144,29 @@
                    <select name="master_year" id="master-year" class="form-control">
                      <option value=""></option>
                      <!--{eval $curyear=date("Y");}-->
-                     <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                     <!--{eval $yearlist = range($curyear+1, 1937, -1);}-->
                      <!--{loop $yearlist $year}-->
-                     <option value="{$year}" <!--{if ({$year}== $resume['master_year'])}-->selected<!--{/if}--> >{$year}</option>
+                     <option value="{$year}" <!--{if ({$year}== $resume['master_year'])}-->selected<!--{/if}--> >{$year}年</option>
                      <!--{/loop}-->
                    </select>
                  </div>
-
-                 <label class="col-sm-1 control-label">年</label>
                  <div class="col-sm-3">
                    <select name="master_month" id="master-month" class="form-control">
                      <option value=""></option>
-                     <option value="1" <!--{if (1 == $resume['master_month'])}-->selected<!--{/if}--> >1</option>
-                     <option value="2" <!--{if (2 == $resume['master_month'])}-->selected<!--{/if}--> >2</option>
-                     <option value="3" <!--{if (3 == $resume['master_month'])}-->selected<!--{/if}--> >3</option>
-                     <option value="4" <!--{if (4 == $resume['master_month'])}-->selected<!--{/if}--> >4</option>
-                     <option value="5" <!--{if (5 == $resume['master_month'])}-->selected<!--{/if}--> >5</option>
-                     <option value="6" <!--{if (6 == $resume['master_month'])}-->selected<!--{/if}--> >6</option>
-                     <option value="7" <!--{if (7 == $resume['master_month'])}-->selected<!--{/if}--> >7</option>
-                     <option value="8" <!--{if (8 == $resume['master_month'])}-->selected<!--{/if}--> >8</option>
-                     <option value="9" <!--{if (9 == $resume['master_month'])}-->selected<!--{/if}--> >9</option>
-                     <option value="10" <!--{if (10 == $resume['master_month'])}-->selected<!--{/if}--> >10</option>
-                     <option value="11" <!--{if (11 == $resume['master_month'])}-->selected<!--{/if}--> >11</option>
-                     <option value="12" <!--{if (12 == $resume['master_month'])}-->selected<!--{/if}--> >12</option>
+                     <option value="1" <!--{if (1 == $resume['master_month'])}-->selected<!--{/if}--> >1月</option>
+                     <option value="2" <!--{if (2 == $resume['master_month'])}-->selected<!--{/if}--> >2月</option>
+                     <option value="3" <!--{if (3 == $resume['master_month'])}-->selected<!--{/if}--> >3月</option>
+                     <option value="4" <!--{if (4 == $resume['master_month'])}-->selected<!--{/if}--> >4月</option>
+                     <option value="5" <!--{if (5 == $resume['master_month'])}-->selected<!--{/if}--> >5月</option>
+                     <option value="6" <!--{if (6 == $resume['master_month'])}-->selected<!--{/if}--> >6月</option>
+                     <option value="7" <!--{if (7 == $resume['master_month'])}-->selected<!--{/if}--> >7月</option>
+                     <option value="8" <!--{if (8 == $resume['master_month'])}-->selected<!--{/if}--> >8月</option>
+                     <option value="9" <!--{if (9 == $resume['master_month'])}-->selected<!--{/if}--> >9月</option>
+                     <option value="10" <!--{if (10 == $resume['master_month'])}-->selected<!--{/if}--> >10月</option>
+                     <option value="11" <!--{if (11 == $resume['master_month'])}-->selected<!--{/if}--> >11月</option>
+                     <option value="12" <!--{if (12 == $resume['master_month'])}-->selected<!--{/if}--> >12月</option>
                    </select>
                  </div>
-                 <label class="col-sm-1 control-label">月</label>
                </div>
              </div>
             </div>
@@ -216,51 +210,106 @@
                     <select name="doctor_year" id="doctor-year" class="form-control">
                       <option value=""></option>
                       <!--{eval $curyear=date("Y");}-->
-                      <!--{eval $yearlist = range($curyear, 1921, -1);}-->
+                      <!--{eval $yearlist = range($curyear+1, 1921, -1);}-->
                       <!--{loop $yearlist $year}-->
-                      <option value="{$year}" <!--{if ({$year}== $resume['doctor_year'])}-->selected<!--{/if}--> >{$year}</option>
+                      <option value="{$year}" <!--{if ({$year}== $resume['doctor_year'])}-->selected<!--{/if}--> >{$year}年</option>
                       <!--{/loop}-->
                     </select>
                   </div>
-
-                  <label class="col-sm-1 control-label">年</label>
                   <div class="col-sm-3">
                     <select name="doctor_month" id="doctor-month" class="form-control">
                       <option value=""></option>
-                      <option value="1" <!--{if (1 == $resume['doctor_month'])}-->selected<!--{/if}--> >1</option>
-                      <option value="2" <!--{if (2 == $resume['doctor_month'])}-->selected<!--{/if}--> >2</option>
-                      <option value="3" <!--{if (3 == $resume['doctor_month'])}-->selected<!--{/if}--> >3</option>
-                      <option value="4" <!--{if (4 == $resume['doctor_month'])}-->selected<!--{/if}--> >4</option>
-                      <option value="5" <!--{if (5 == $resume['doctor_month'])}-->selected<!--{/if}--> >5</option>
-                      <option value="6" <!--{if (6 == $resume['doctor_month'])}-->selected<!--{/if}--> >6</option>
-                      <option value="7" <!--{if (7 == $resume['doctor_month'])}-->selected<!--{/if}--> >7</option>
-                      <option value="8" <!--{if (8 == $resume['doctor_month'])}-->selected<!--{/if}--> >8</option>
-                      <option value="9" <!--{if (9 == $resume['doctor_month'])}-->selected<!--{/if}--> >9</option>
-                      <option value="10" <!--{if (10 == $resume['doctor_month'])}-->selected<!--{/if}--> >10</option>
-                      <option value="11" <!--{if (11 == $resume['doctor_month'])}-->selected<!--{/if}--> >11</option>
-                      <option value="12" <!--{if (12 == $resume['doctor_month'])}-->selected<!--{/if}--> >12</option>
+                      <option value="1" <!--{if (1 == $resume['doctor_month'])}-->selected<!--{/if}--> >1月</option>
+                      <option value="2" <!--{if (2 == $resume['doctor_month'])}-->selected<!--{/if}--> >2月</option>
+                      <option value="3" <!--{if (3 == $resume['doctor_month'])}-->selected<!--{/if}--> >3月</option>
+                      <option value="4" <!--{if (4 == $resume['doctor_month'])}-->selected<!--{/if}--> >4月</option>
+                      <option value="5" <!--{if (5 == $resume['doctor_month'])}-->selected<!--{/if}--> >5月</option>
+                      <option value="6" <!--{if (6 == $resume['doctor_month'])}-->selected<!--{/if}--> >6月</option>
+                      <option value="7" <!--{if (7 == $resume['doctor_month'])}-->selected<!--{/if}--> >7月</option>
+                      <option value="8" <!--{if (8 == $resume['doctor_month'])}-->selected<!--{/if}--> >8月</option>
+                      <option value="9" <!--{if (9 == $resume['doctor_month'])}-->selected<!--{/if}--> >9月</option>
+                      <option value="10" <!--{if (10 == $resume['doctor_month'])}-->selected<!--{/if}--> >10月</option>
+                      <option value="11" <!--{if (11 == $resume['doctor_month'])}-->selected<!--{/if}--> >11月</option>
+                      <option value="12" <!--{if (12 == $resume['doctor_month'])}-->selected<!--{/if}--> >12月</option>
                     </select>
                   </div>
-                  <label class="col-sm-1 control-label">月</label>
                 </div>
               </div>
             </div>
           </div>
-          <div class="panel panel-default">
+
+          <h5>个人主要经历(500字以内):</h5>
+          <textarea name="experience" id="experience" class="form-control" maxlength="500"
+              style="overflow-y:hidden;padding-bottom:10px;margin-bottom:10px;" onpropertychange="adjust(this);" oninput="adjust(this);">{$resume['experience']}</textarea>
+
+          <div class="panel panel-info">
+            <div class="panel-heading" style="font-size:18px;">申请资料</div>
             <div class="panel-body">
-              <div class="col-sm-10 col-sm-offset-1">
-                <h5>个人主要经历(500字以内):</h5>
-                <textarea name="experience" id="experience" class="form-control" maxlength="500" style="overflow-y:hidden;" onpropertychange="adjust(this);" oninput="adjust(this);">
-                  {$resume['experience']}
-                </textarea>
-                <input id="file_upload" name="file_upload" type="file" class="form-control" />
-                <!--{if !empty($resume['resume_path'])}-->
-                <a href="{$resume['resume_path']}" class="btn btn-primary">
-                  <!--{if empty($user['realname'])}-->{$user['username']}<!--{else}-->{$user['realname']}<!--{/if}-->简历
-                </a>
-                <!--{/if}-->
-                <button type="submit" name="submit" id="submit" class="form-control"/>保&nbsp;存</button>
+              <div style="margin-top:20px;">
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="realname">真实姓名</label>
+                  <div class="col-sm-5">
+                    <input type="text" class="form-control" id="realname" name="realname" value="{$resume['realname']}"/>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="ID">身份证</label>
+                  <div class="col-sm-5">
+                    <input type="text" maxlength="18" class="form-control" name="ID" id="ID" value="{$resume['ID']}" vtype="ID_no"/>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="vcode">持身份证正面照</label>
+                  <div class="col-sm-2">
+                    <input id="ID_upload" name="ID_upload" type="file" class="btn btn-primary form-control">
+                  </div>
+                  <div class="col-sm-5" <!--{if empty($resume['ID_path'])}-->style="display:none;"<!--{/if}--> id="ID_path_div">
+                    <a data-toggle="modal" id="ID_path_pic" data-target="#IDPathPicModal">
+                      <img src="{$resume['ID_path']}" width="40px" height="40px" id="img_id_path_pic">
+                    </a>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="vcode">持学生证正面照</label>
+                  <div class="col-sm-2">
+                    <input id="studentID_upload" name="studentID_upload" type="file" class="btn btn-primary form-control">
+                  </div>
+                  <div class="col-sm-5" <!--{if empty($resume['studentID'])}-->style="display:none;"<!--{/if}--> id="studentID_div">
+                    <a data-toggle="modal" id="studentID_pic" data-target="#studentIDModal">
+                      <img src="{$resume['studentID']}" width="40px" height="40px" id="img_studentID">
+                    </a>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label" for="vcode">电子简历</label>
+
+                  <div class="col-sm-2">
+                    <input id="file_upload" name="file_upload" type="file" class="btn btn-primary form-control">
+                  </div>
+                  <div class="col-sm-3" <!--{if empty($resume['resume_path'])}-->style="display:none;"<!--{/if}--> id="resume_div">
+                    <a class="btn btn-link" href="{$resume['resume_path']}" target="_blank" id="resume_link">
+                      <!--{if empty($resume['realname'])}-->{$user['username']}<!--{else}-->{$resume['realname']}<!--{/if}-->简历
+                    </a>
+                  </div>
+                </div>
               </div>
+
+              <div class="form-group" style="margin-bottom:5px;margin-top:15px"></div>
+              <div class="form-group"></div>
+            </div>
+         </div>
+
+          <div>
+            <div class="col-sm-3"></div>
+            <div class="col-sm-3">
+              <button type="submit" name="submit" id="save" class="form-control btn btn-primary" onclick="check_data(this)">保&nbsp;存</button>
+            </div>
+            <div class="col-sm-3">
+              <button type="submit" name="submit" id="request" class="form-control btn btn-primary" onclick="check_data(this)">申请抢单资格</button>
             </div>
           </div>
         </form>
@@ -269,9 +318,37 @@
   </div>
 </div>
 
+<div class="modal fade" id="IDPathPicModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="ID_path_pic_body">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <img src="{$resume['ID_path']}" width="98%" height="98%" id="img_modal_id_path">
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="studentIDModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="studentID_pic_body">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <img src="{$resume['studentID']}" width="98%" height="98%" id="img_modal_studentID">
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <link href="{SITE_URL}js/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="{SITE_URL}js/school.js"></script>
-<script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js"></script>
+<script type="text/javascript" src="{SITE_URL}js/uploadify/jquery.uploadify.js?ver=<?php echo rand(0,9999);?>"></script>
 <script type="text/javascript">
 var ta = document.getElementById('experience');
 ta.style.height=ta.scrollHeight+'px';
@@ -280,21 +357,69 @@ $(document).ready(function() {
     $('#file_upload').uploadify({
         'swf': '{SITE_URL}js/uploadify/uploadify.swf',
         'uploader': "{url user/upload_resume/$user['uid']}",
-        'auto': false,
-        'buttonImage': '{SITE_URL}js/uploadify/selectresume.gif',
+        'auto': true,
+        'buttonText' : "上传简历",
+        'buttonClass' : "btn btn-primary",
         'fileObjName': 'userresume',
+        'height': '40px',
         'multi': false,
         'fileSizeLimit': "5MB",
         'fileTypeExts': '*.pdf;*.doc;*.docx',
         'fileTypeDesc': 'User resume(.pdf, .doc, .docx)',
-        'onUploadSuccess': function() {
-            alert('简历上传成功!');
-            document.location = "{url user/resume}";
+        'onUploadSuccess': function(file, data, response) {
+            alert('简历上传成功!'); 
+            $("#resume_link").attr("href", data+"?"+Math.random());
+            $("#resume_div").show();
         }
     });
+
+    $('#ID_upload').uploadify({
+        'swf': '{SITE_URL}js/uploadify/uploadify.swf',
+        'uploader': "{url user/upload_ID/$user['uid']}",
+        'auto': true,
+        'buttonText' : "上传证件照",
+        'buttonClass' : "btn btn-primary",
+        'fileObjName': 'userID',
+        'height': '40px',
+        'multi': false,
+        'fileSizeLimit': "7MB",
+        'fileTypeExts': '*.bmp;*.png;*.jpg;*.gif',
+        'fileTypeDesc': 'User (.bmp, .png, .jpg, .gif)',
+        'onUploadSuccess': function(file, data, response) {
+            alert('证件照上传成功!');
+            $("#img_id_path_pic").attr("src", data+"?"+Math.random());
+            $("#ID_path_div").show();
+            $("#img_modal_id_path").attr("src", data+"?"+Math.random());
+            $(".uploadify-queue").hide();
+        }
+    });
+
+    $('#studentID_upload').uploadify({
+        'swf': '{SITE_URL}js/uploadify/uploadify.swf',
+        'uploader': "{url user/upload_studentID/$user['uid']}",
+        'auto': true,
+        'buttonText' : "上传学生证",
+        'buttonClass' : "btn btn-primary",
+        'fileObjName': 'studentID',
+        'height': '40px',
+        'multi': false,
+        'fileSizeLimit': "7MB",
+        'fileTypeExts': '*.bmp;*.png;*.jpg;*.gif',
+        'fileTypeDesc': 'User (.bmp, .png, .jpg, .gif)',
+        'onUploadSuccess': function(file, data, response) {
+            alert('学生证上传成功!');
+            $("#img_studentID").attr("src", data+"?"+Math.random());
+            $("#studentID_div").show();
+            $("#img_modal_studentID").attr("src", data+"?"+Math.random());
+            $(".uploadify-queue").hide();
+        }
+    });
+
     $('#submit').click(function() {
         $('#file_upload').uploadify("upload", "*");
-    });
+        $('#ID_upload').uploadify("upload", "*");
+        $('#studentID_upload').uploadify("upload", "*");
+    }); 
 });
 
 //弹出窗口
@@ -373,6 +498,17 @@ function makeCenter(type)
     $(target_name).css("display","block");
     $(target_name).css("position","absolute");
     $(target_name).css("z-index","1000");
+}
+
+function check_data(obj) 
+{
+    if (obj.id == "save") {
+        $("form").unbind('submit');
+        $("form").submit(function() { return true;});
+    } else {
+        $("form").unbind('submit');
+        $("form").submit(function() { return false;});
+    }
 }
 
 </script>
