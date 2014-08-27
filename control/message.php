@@ -71,18 +71,12 @@ class messagecontrol extends base {
 
     // 删除消息
     function onremove() {
-        if (isset($this->post['submit'])) {
-            $inbox = $this->post['messageid']['inbox'];
-            $outbox = $this->post['messageid']['outbox'];
-
-            if ($inbox)
-                $_ENV['message']->remove("inbox", $inbox);
-
-            if ($outbox)
-                $_ENV['message']->remove("outbox", $outbox);
-
-            $this->message("消息删除成功!", get_url_source());
+        $msgid = intval($this->get[2]);
+        if ($msgid > 0) {
+            $_ENV['message']->remove($msgid);
+            exit('1');
         }
+        exit('-1');
     }
 
     // ajax删除对话

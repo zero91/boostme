@@ -7,25 +7,13 @@
     .align_center {text-align: center;}
 </style>
 
-<div class="container align_center">
-    <div>
-        <a href="{SITE_URL}" target="_blank">&nbsp;{$setting['site_name']}&nbsp;</a>
-        <span class="span-line">&nbsp;|&nbsp;</span>
-        <a href="mailto:boostme@qq.com" target="_blank">&nbsp;联系我们&nbsp;</a>
-        <span class="span-line">&nbsp;|&nbsp;</span>
-        <a href="{url index/help}" target="_blank">&nbsp;使用帮助&nbsp;</a>
-        <!--{if $setting['site_icp']}-->
-        <span class="span-line">|</span><a href="http://www.miibeian.gov.cn" target="_blank">{$setting['site_icp']}</a>
-        <!--{/if}-->
-
-        <!--{if $setting['site_statcode']}-->
-        {$setting['site_statcode']}
-        <!--{/if}-->
-    </div>
-    <p>Powered by <a rel="nofollow" target="_blank" href="http://www.boostme.cn/">Boostme</a>
-         &copy;2014-2014 <a rel="nofollow" target="_blank" href="http://www.boostme.cn">boostme.cn</a>
-         ，Processed in {$runtime} second(s).</p>
+<div class="container align_center" style="font-size:12px;margin-bottom:11px;">
+    <a href="{SITE_URL}" target="_blank">&nbsp;{$setting['site_name']}&nbsp;</a>
+    <span class="span-line">&nbsp;|&nbsp;</span> <a href="mailto:boostme@qq.com" target="_blank">&nbsp;联系我们&nbsp;</a>
+    <span class="span-line">&nbsp;|&nbsp;</span> <a href="{url index/help}" target="_blank">&nbsp;使用帮助&nbsp;</a>
+    <span class="span-line">&nbsp;|&nbsp;</span><a href="http://www.miibeian.gov.cn" target="_blank">&nbsp;京ICP备14035508号&nbsp;</a>
 </div>
+
 
 <a id="scrollUp" href="#top" title="" style="position: fixed; z-index: 2147483647; display: block;"></a>
 <div class="usercard" id="usercard" style="display:none"></div>

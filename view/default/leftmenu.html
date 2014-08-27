@@ -1,6 +1,6 @@
 <style type="text/css">
     .avatar {position: absolute; top:5px; left:5px;}
-    .userinfo {margin: 0 10px 0 80px !important; padding: 3px; line-height: 26px;}
+    .userinfo {margin: 0 10px 0 80px !important; padding: 15px; line-height: 26px;}
 
     .nav-sidebar > .active > a, .nav-sidebar > .active > a:hover, .nav-sidebar > .active > a:focus {
       color: #fff;
@@ -22,13 +22,7 @@
 <div class="sidebar">
   <div class="panel" style="position:relative;">
     <img class="img-circle avatar" src="{$user['avatar']}" width="70px" height="70px">
-    <div class="userinfo" style="font-size:13px;">
-      <h5>{$user['username']}</h5>
-      <div class="balance">
-        账户余额：¥{$user['balance']}
-        <a href="#" style="font-size:12px;">充值</a>
-      </div>
-    </div>
+    <div class="userinfo" style="font-size:13px;height:80px;"><h5>{$user['username']}</h5></div>
   </div>
 
   <ul class="list-unstyled" style="font-size:13px;">

@@ -39,3 +39,15 @@ define('INDEX_PROBLEM_LIST_SIZE', 10); // 首页单页求助数量
 // search page
 define('SEARCH_PROBLEM_LIST_SIZE', 10); // 求助请求单页数量
 
+// education
+define('HIGH_SCHOOL', 4);
+define('BACHELOR', 5);
+define('MASTER', 6);
+define('DOCTOR', 7);
+define('POST_DOCTOR', 8);
+
+define('SAVE', 0);     // 仅仅保存资料，未做任何其他处理
+define('APPLY', 1);    // 申请资格
+define('ACCEPTED', 2); // 成功获取资格
+define('DENIED', 3);   // 获取资格失败
+

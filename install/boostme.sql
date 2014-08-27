@@ -2,13 +2,12 @@
 CREATE TABLE user (
   `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` char(18) NOT NULL,
-  `realname` char(18) DEFAULT NULL,
-  `password` char(32) DEFAULT NULL,
-  `email` varchar(40) DEFAULT NULL,
+  `password` char(32) NOT NULL,
+  `email` varchar(40) NOT NULL,
   `email_verify` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 邮箱验证 */
   `isadmin` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 是否是管理员 */
-  `regip` char(15) DEFAULT NULL,
   `regtime` int(10) NOT NULL DEFAULT '0',
+  `regip` char(15) DEFAULT NULL,
   `lastlogin` int(10) unsigned NOT NULL DEFAULT '0',
   `gender` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `bday` date DEFAULT NULL,
@@ -16,23 +15,19 @@ CREATE TABLE user (
   `qq` varchar(18) DEFAULT NULL,
   `wechat` varchar(30) DEFAULT NULL,
   `authstr` varchar(100) DEFAULT NULL,
-  `alipay` varchar(100) DEFAULT NULL, /* 支付宝账号 */
   `signature` mediumtext,
   `problems` int(10) unsigned NOT NULL DEFAULT '0', /* 提交的需求数量 */
   `solved` int(10) unsigned NOT NULL DEFAULT '0', /* 解决的需求数量 */
   `failed` int(10) unsigned NOT NULL DEFAULT '0', /* 未抢到的需求数量 */
-  `charge` tinyint(3) unsigned NOT NULL DEFAULT '23', /* 付费比例 */
-  `resumenum` tinyint(3) unsigned NOT NULL DEFAULT '0', /* 简历个数 */
-  `can_teach` tinyint(3) unsigned NOT NULL DEFAULT '0', /* 是否可以教别人 */ 
+  `can_teach` tinyint(3) unsigned NOT NULL DEFAULT '0', /* 是否可以教别人，获取抢单的资格 */
+  `teach_level` smallint(5) NOT NULL DEFAULT '0', /* 授课水平 */
+  `credit` smallint(5) NOT NULL DEFAULT '0', /* 用户信用等级 */
   `paid` DOUBLE NOT NULL DEFAULT '0', /* 总共付费 */
   `earned` DOUBLE NOT NULL DEFAULT '0', /* 总共收入 */
-  `balance` DOUBLE NOT NULL DEFAULT '0', /* 账户余额 */
-  `recommender_id` int(10) unsigned DEFAULT NULL, /* 推荐人id */
-  `recommender` char(18) DEFAULT NULL, /* 推荐人姓名 */
-  `recommend_num` mediumint(8) NOT NULL DEFAULT '0', /* 推荐用户数 */
+  
   PRIMARY KEY (`uid`),
   KEY username(username),
-  KEY email (email)
+  KEY email(email),
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /* alter table `user` add column `balance` int(10) NOT NULL DEFAULT '0'; */
 
@@ -46,72 +41,41 @@ CREATE TABLE user_skill (
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS charging;
-CREATE TABLE charging (
-  `cid` int(10) unsigned NOT NULL AUTO_INCREMENT, 
-  `pid` int(10) unsigned NOT NULL,
-  `fromuid` int(10) NOT NULL,
-  `from` char(18) NOT NULL,
-  `touid` int(10) DEFAULT NULL,
-  `to` char(18) DEFAULT NULL,
-  `price` DOUBLE unsigned NOT NULL DEFAULT '0',
-  `system` DOUBLE NOT NULL DEFAULT '0',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `time` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`cid`),
-  UNIQUE KEY `pid`(`pid`),
-  KEY `fromuid`(`fromuid`),
-  KEY `touid`(`touid`),
-  KEY `time`(`time`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS user_resume;
+/* DROP TABLE IF EXISTS user_resume; */
 CREATE TABLE user_resume (
   `uid` int(10) NOT NULL,
-  `bachelor_school` varchar(40) DEFAULT NULL,
-  `bachelor_dept` varchar(40) DEFAULT NULL,
-  `bachelor_major` varchar(40) DEFAULT NULL,
-  `bachelor_year` smallint(4) DEFAULT NULL,
-  `bachelor_month` tinyint(2) DEFAULT NULL,
-  `master_school` varchar(40) DEFAULT NULL,
-  `master_dept` varchar(40) DEFAULT NULL,
-  `master_major` varchar(40) DEFAULT NULL,
-  `master_year` smallint(4) DEFAULT NULL,
-  `master_month` tinyint(2) DEFAULT NULL,
-  `doctor_school` varchar(40) DEFAULT NULL,
-  `doctor_dept` varchar(40) DEFAULT NULL,
-  `doctor_major` varchar(40) DEFAULT NULL,
-  `doctor_year` smallint(4) DEFAULT NULL,
-  `doctor_month` tinyint(2) DEFAULT NULL,
-  `experience` mediumtext,
-  `resume_path` varchar(100) DEFAULT NULL,
   `realname` char(18) DEFAULT NULL, /* 真实姓名 */
   `ID` varchar(18) DEFAULT NULL, /* 身份证号*/
   `ID_path` varchar(100) DEFAULT NULL, /* 身份证照片路径 */
+  `experience` mediumtext,
+  `resume_path` varchar(100) DEFAULT NULL,
   `studentID` varchar(100) DEFAULT NULL, /* 学生证照片路径 */
-  `verified` tinyint(1) NOT NULL DEFAULT '0',
+  `verified` tinyint(1) NOT NULL DEFAULT '0', /* 是否通过验证 */
 
   PRIMARY KEY (`uid`),
   UNIQUE KEY `ID`(`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
-DROP TABLE IF EXISTS login_auth;
-CREATE TABLE login_auth (
+/* DROP TABLE IF EXISTS education; */
+CREATE TABLE education (
+  `eid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) NOT NULL,
-  `type` enum('qq','wechat') NOT NULL,
-  `token` varchar(50) NOT NULL,
-  `openid` varchar(50) NOT NULL,
-  `time` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`uid`,`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `edu_type` tinyint(1) DEFAULT NULL, /* 教育类型：小学、初中、高中、大学、硕士、博士 */
+  `school` varchar(100) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `major` varchar(100) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  PRIMARY KEY (`eid`),
+  KEY `uid`(`uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
-DROP TABLE IF EXISTS userlog;
+/* DROP TABLE IF EXISTS userlog; */
 CREATE TABLE userlog (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `sid` varchar(10) NOT NULL DEFAULT '',
   `uid` int(10) NOT NULL DEFAULT 0,
-  `type` enum('login','problem','demand','cancel','accept','denied','deal') NOT NULL,
+  `type` enum('login','problem','demand','cancel','accept','denied') NOT NULL,
   `time` int(10) NOT NULL,
   `comment` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -120,23 +84,22 @@ CREATE TABLE userlog (
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
 /* DROP TABLE IF EXISTS problem; */
 CREATE TABLE problem (
   `pid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `authorid` int(10) unsigned NOT NULL DEFAULT '0',
   `author` char(18) NOT NULL DEFAULT '',
   `authorscore` tinyint(3) unsigned DEFAULT '0',
-  `solverid` int(10) unsigned DEFAULT '0',
+  `solverid` int(10) unsigned DEFAULT NULL,
   `solver` char(18) DEFAULT NULL,
-  `solverscore` tinyint(3) unsigned DEFAULT '0',
+  `solverscore` tinyint(3) DEFAULT NULL,
   `price` smallint(6) unsigned NOT NULL DEFAULT '0',
   `title` char(200) NOT NULL,
   `description` text NOT NULL,
   `ip` varchar(20) DEFAULT NULL,
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `endtime` int(10) unsigned NOT NULL DEFAULT '0',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '1', /* 默认为未审核 */
   `views` int(10) unsigned NOT NULL DEFAULT '0',
   `demands` int(10) unsigned NOT NULL DEFAULT '0',
 
@@ -158,7 +121,6 @@ CREATE TABLE problem_tag (
 
 /* DROP TABLE IF EXISTS demand; */
 CREATE TABLE demand (
-  `did` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL,
   `username` char(18) NOT NULL,
   `pid` int(10) unsigned NOT NULL,
@@ -166,7 +128,7 @@ CREATE TABLE demand (
   `result` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `message` text DEFAULT NULL,
 
-  PRIMARY KEY (`did`),
+  PRIMARY KEY (`uid`,`pid`),
   KEY uid (`uid`),
   KEY pid (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -213,7 +175,6 @@ CREATE TABLE session (
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
 DROP TABLE IF EXISTS badword;
 CREATE TABLE badword (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
@@ -224,7 +185,6 @@ CREATE TABLE badword (
   PRIMARY KEY (`id`),
   UNIQUE KEY `find` (`find`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 
 DROP TABLE IF EXISTS crontab;
 CREATE TABLE crontab (
@@ -330,18 +290,6 @@ INSERT INTO setting VALUES ('mailauth_password', '');
 INSERT INTO setting VALUES ('maildelimiter', '0');
 INSERT INTO setting VALUES ('mailusername', '1');
 INSERT INTO setting VALUES ('mailsilent', '0');
-INSERT INTO setting VALUES ('credit1_register', '20');
-INSERT INTO setting VALUES ('credit2_register', '20');
-INSERT INTO setting VALUES ('credit1_login', '2');
-INSERT INTO setting VALUES ('credit2_login', '0');
-INSERT INTO setting VALUES ('credit1_ask', '5');
-INSERT INTO setting VALUES ('credit2_ask', '0');
-INSERT INTO setting VALUES ('credit1_answer', '2');
-INSERT INTO setting VALUES ('credit2_answer', '0');
-INSERT INTO setting VALUES ('credit1_message', '-1');
-INSERT INTO setting VALUES ('credit2_message', '0');
-INSERT INTO setting VALUES ('credit1_adopt', '5');
-INSERT INTO setting VALUES ('credit2_adopt', '2');
 INSERT INTO setting VALUES ('list_indexnosolve', '10');
 INSERT INTO setting VALUES ('list_indexcommend', '10');
 INSERT INTO setting VALUES ('list_indexreward', '8');
@@ -382,3 +330,36 @@ INSERT INTO setting VALUES ('allow_credit3', '-10');
 INSERT INTO setting VALUES ('apend_question_num', '5');
 INSERT INTO setting VALUES ('time_friendly', '1');
 INSERT INTO setting VALUES ('register_clause', '<p>&nbsp; &nbsp; &nbsp; &nbsp;当您申请用户时，表示您已经同意遵守本规章。 <br/>欢迎您加入本站点参加交流和讨论，本站点为公共论坛，为维护网上公共秩序和社会稳定，请您自觉遵守以下条款： <br/><br/>一、不得利用本站危害国家安全、泄露国家秘密，不得侵犯国家社会集体的和公民的合法权益，不得利用本站制作、复制和传播下列信息：<br/>　 （一）煽动抗拒、破坏宪法和法律、行政法规实施的；<br/>　（二）煽动颠覆国家政权，推翻社会主义制度的；<br/>　（三）煽动分裂国家、破坏国家统一的；<br/>　（四）煽动民族仇恨、民族歧视，破坏民族团结的；<br/>　（五）捏造或者歪曲事实，散布谣言，扰乱社会秩序的；<br/>　（六）宣扬封建迷信、淫秽、色情、赌博、暴力、凶杀、恐怖、教唆犯罪的；<br/>　（七）公然侮辱他人或者捏造事实诽谤他人的，或者进行其他恶意攻击的；<br/>　（八）损害国家机关信誉的；<br/>　（九）其他违反宪法和法律行政法规的；<br/>　（十）进行商业广告行为的。<br/><br/>二、互相尊重，对自己的言论和行为负责。<br/>三、禁止在申请用户时使用相关本站的词汇，或是带有侮辱、毁谤、造谣类的或是有其含义的各种语言进行注册用户，否则我们会将其删除。<br/>四、禁止以任何方式对本站进行各种破坏行为。<br/>五、如果您有违反国家相关法律法规的行为，本站概不负责，您的登录论坛信息均被记录无疑，必要时，我们会向相关的国家管理部门提供此类信息。</p><p><br/></p><p><br/> </p><p><br/></p>');
+
+
+
+/*
+DROP TABLE IF EXISTS charging;
+CREATE TABLE charging (
+  `cid` int(10) unsigned NOT NULL AUTO_INCREMENT, 
+  `pid` int(10) unsigned NOT NULL,
+  `fromuid` int(10) NOT NULL,
+  `from` char(18) NOT NULL,
+  `touid` int(10) DEFAULT NULL,
+  `to` char(18) DEFAULT NULL,
+  `price` DOUBLE unsigned NOT NULL DEFAULT '0',
+  `system` DOUBLE NOT NULL DEFAULT '0',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `time` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`cid`),
+  UNIQUE KEY `pid`(`pid`),
+  KEY `fromuid`(`fromuid`),
+  KEY `touid`(`touid`),
+  KEY `time`(`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS login_auth;
+CREATE TABLE login_auth (
+  `uid` int(10) NOT NULL,
+  `type` enum('qq','wechat') NOT NULL,
+  `token` varchar(50) NOT NULL,
+  `openid` varchar(50) NOT NULL,
+  `time` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`uid`,`type`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/

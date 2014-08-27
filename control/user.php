@@ -10,6 +10,7 @@ class usercontrol extends base {
         $this->load('userskill');
         $this->load('problem');
         $this->load('userresume');
+        $this->load("education");
     }
 
     function ondefault() {
@@ -302,7 +303,7 @@ class usercontrol extends base {
         $navtitle = '个人资料';
         if (isset($this->post['submit'])) {
             $gender = $this->post['gender'];
-            $bday = $this->post['birthyear'] . '-' . $this->post['birthmonth'] . '-' . $this->post['birthday'];
+            $bday = $this->post['birthday'];
             $phone = $this->post['phone'];
             $qq = $this->post['qq'];
             $wechat = $this->post['wechat'];
@@ -319,7 +320,6 @@ class usercontrol extends base {
 
             $skill_list && $_ENV['userskill']->multi_add(array_unique($skill_list), $this->user['uid']);
             isset($this->post['email']) && $_ENV['user']->update_email($this->user['uid'], $this->post['email']);
-            isset($this->post['realname']) && $_ENV['user']->update_realname($this->user['uid'], $this->post['realname']);
             $this->message("个人资料更新成功", 'user/profile');
         } else {
             $skill_list  = $_ENV['userskill']->get_by_uid($this->user['uid']);
@@ -490,32 +490,38 @@ class usercontrol extends base {
 
         $navtitle = "完善简历";
         if (isset($this->post['submit'])) {
-            $bachelor_school = trim($this->post['bachelor_school']);
-            $bachelor_dept = trim($this->post['bachelor_dept']);
-            $bachelor_major = trim($this->post['bachelor_major']);
-            $bachelor_year = trim($this->post['bachelor_year']);
-            $bachelor_month = trim($this->post['bachelor_month']);
-
-            $master_school = trim($this->post['master_school']);
-            $master_dept = trim($this->post['master_dept']);
-            $master_major = trim($this->post['master_major']);
-            $master_year = trim($this->post['master_year']);
-            $master_month = trim($this->post['master_month']);
-
-            $doctor_school = trim($this->post['doctor_school']);
-            $doctor_dept = trim($this->post['doctor_dept']);
-            $doctor_major = trim($this->post['doctor_major']);
-            $doctor_year = trim($this->post['doctor_year']);
-            $doctor_month = trim($this->post['doctor_month']);
-
-            $experience = trim($this->post['experience']);
             $realname = trim($this->post['realname']);
             $ID = trim($this->post['ID']);
+            $experience = trim($this->post['experience']);
 
-            $_ENV['userresume']->update($this->user['uid'], $realname, $bachelor_school, $bachelor_dept, $bachelor_major, $bachelor_year, $bachelor_month, $master_school, $master_dept, $master_major, $master_year, $master_month, $doctor_school, $doctor_dept, $doctor_major, $doctor_year, $doctor_month, $experience, $ID);
-            $this->message("简历更改成功！", 'BACK');
+            $_ENV['userresume']->update($this->user['uid'], $realname, $ID, $experience);
+
+            $edu_num = min(count($this->post['school']), 6);
+            $edu_list = array();
+            for ($i = 0; $i < $edu_num; ++$i) {
+                $edu_list[] = array('edu_type'=> $this->post['edu_type'][$i],
+                                      'school'=> $this->post['school'][$i],
+                                        'dept'=> $this->post['dept'][$i],
+                                       'major'=> $this->post['major'][$i],
+                                  'start_time'=> $this->post['start_time'][$i],
+                                    'end_time'=> $this->post['end_time'][$i]);
+            }
+            $_ENV['education']->remove_by_uid($this->user['uid']);
+            $_ENV['education']->multi_add($this->user['uid'], $edu_list);
+
+            if ($_ENV['userresume']->already_id_used($this->user['uid'], $ID)) {
+                $this->message("您填写的身份证号不符合条件，请确认您填写了正确的身份证号", "STOP");
+            }
+
+            if ($this->post['operation'] == APPLY) {
+                $_ENV['userresume']->update_verify($this->user['uid'], APPLY);
+                $this->message("提交请求成功，Boostme将以最快的速度审核您的材料！", 'BACK');
+            } else {
+                $this->message("简历更改成功！", 'BACK');
+            }
         } else {
             $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+            $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
         }
         include template("resume");
     }

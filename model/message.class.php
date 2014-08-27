@@ -76,16 +76,16 @@ class messagemodel {
         return $num;
     }
 
-    function remove($type, $msgids) {
+    function remove($msgids) {
         $messageid = ($msgids && is_array($msgids)) ? implode(",", $msgids) : $msgids;
-        if ('inbox' == $type) {
-            $this->db->query("DELETE FROM message WHERE fromuid=0 AND `mid` IN ($messageid)");
-            $this->db->query("DELETE FROM message WHERE status = " . MSG_STATUS_FROM_DELETED . " AND `mid` IN ($messageid)");
-            $this->db->query("UPDATE message SET status=" . MSG_STATUS_TO_DELETED ." WHERE status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
-        } else {
-            $this->db->query("DELETE FROM message WHERE status = " . MSG_STATUS_TO_DELETED . " AND `mid` IN ($messageid)");
-            $this->db->query("UPDATE message SET status=" . MSG_STATUS_FROM_DELETED . " WHERE status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
-        }
+        //if ('inbox' == $type) {
+            $this->db->query("DELETE FROM message WHERE fromuid=0 AND touid=" . $this->base->user['uid'] ." AND `mid` IN ($messageid)");
+            $this->db->query("DELETE FROM message WHERE touid=" . $this->base->user['uid'] ." AND status=" . MSG_STATUS_FROM_DELETED . " AND `mid` IN ($messageid)");
+            $this->db->query("UPDATE message SET status=" . MSG_STATUS_TO_DELETED ." WHERE touid=". $this->base->user['uid'] . " AND status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
+        //} else {
+            $this->db->query("UPDATE message SET status=" . MSG_STATUS_FROM_DELETED . " WHERE fromuid=" . $this->base->user['uid'] . " AND status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
+            $this->db->query("DELETE FROM message WHERE fromuid=" . $this->base->user['uid'] . " AND status = " . MSG_STATUS_TO_DELETED . " AND `mid` IN ($messageid)");
+        //}
     }
 
     // 根据发件人删除整个对话

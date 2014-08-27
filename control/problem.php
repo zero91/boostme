@@ -26,7 +26,6 @@ class problemcontrol extends base {
             $price = intval($this->post["price"]);
 
             $this->setting['code_problem'] && $this->checkcode(); //检查验证码
-            (intval($this->user['balance']) < $price) && $this->message("账户余额不足!", 'BACK');
 
             $status = ($this->setting['verify_problem'] ? PB_STATUS_UNAUDIT : PB_STATUS_UNSOLVED);
 
@@ -44,7 +43,7 @@ class problemcontrol extends base {
 
             $pid = $_ENV['problem']->add($title, $description, $price);
             $_ENV['problem']->update_status($pid, $status);
-            $_ENV['user']->add_problem($this->user['uid'], $price);
+            $_ENV['user']->update_problem_num($this->user['uid'], 1);
 
             // 插入标签
             !empty($tags) && $taglist = explode(" ", $tags);
@@ -249,7 +248,7 @@ class problemcontrol extends base {
         }
 
         $word = urldecode($this->post['word'] ? str_replace("%27", "", $this->post['word']) : $this->get[2]);
-        (!trim($word)) && $this->message("搜索关键词不能为空!", 'BACK');
+        (!trim($word)) && $this->message("搜索关键词不能为空!", 'STOP');
         $navtitle = $word . '-搜索求助';
         @$page = max(1, intval($this->get[4]));
         $pagesize = $this->setting['list_default'];

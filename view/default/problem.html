@@ -60,13 +60,14 @@
         <div class="row">
             <div class="form-group">
                 <label class="col-sm-1 control-label">回报：</label>
-                <div class="col-sm-5">
+                <div class="col-sm-2">
                     <!--{if $op_type == "add"}-->
                     <input type="number" class="form-control" id="price" name="price" step="1" value="300" min="10" max="10000"/>
                     <!--{else}-->
                     <input type="number" class="form-control" id="price" name="price" step="1" value="{$problem['price']}" min="10" max="10000"/>
                     <!--{/if}-->
                 </div>
+                <div class="col-sm-1 btn" style="color:grey">*最少为10</div>
             </div>
         </div>
         <div style="float:right">
@@ -114,16 +115,6 @@
             $("#ptitle").focus();
             return false;
         }
-                //检查财富值是否够用
-        var offerscore = 0;
-        var selectsocre = $("#price").val();
-        offerscore += parseInt(selectsocre);
-        if (offerscore > 100000) {
-            alert("你的账户余额不够，请联系管理员充值!");
-            return false;
-        }
-           
     }
-
 </script>
 <!--{template footer}-->

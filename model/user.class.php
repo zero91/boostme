@@ -162,35 +162,42 @@ class usermodel {
         $this->db->query("UPDATE user SET `email`='$email' WHERE `uid`=$uid");
     }
 
-    function update_realname($uid, $realname) {
-        $this->db->query("UPDATE user SET `realname`='$realname' WHERE `uid`='$uid'");
+    function update_problem_num($uid, $delta=1) {
+        $this->db->query("UPDATE user SET `problems`=`problems`+($delta) WHERE `uid`=$uid");
     }
 
-    function update_problems($uid) {
-        $this->db->query("UPDATE user SET `problems`=`problems`+1 WHERE `uid`=$uid");
-    }
-
-    function update_balance($uid, $money) {
-        $this->db->query("UPDATE user SET `balance`=`balance`+($money) WHERE `uid`=$uid");
-    }
-
-    // 用户发表了新求助
-    function add_problem($uid, $price) {
-        $this->db->query("UPDATE user SET `problems`=`problems`+1,`balance`=`balance`-$price,`paid`=`paid`+$price WHERE `uid`=$uid");
+    function update_paid($uid, $price) {
+        $this->db->query("UPDATE user SET `paid`=`paid`+$price WHERE `uid`=$uid");
     }
 
     // 用户解决了一个求助
     function solve_problem($uid, $earned) {
-        $this->db->query("UPDATE user SET `solved`=`solved`+1,`earned`=`earned`+$earned,`balance`=`balance`+$earned WHERE `uid`=$uid");
+        $this->db->query("UPDATE user SET `solved`=`solved`+1,`earned`=`earned`+$earned WHERE `uid`=$uid");
+    }
+
+    function update_solved_num($uid, $delta=1) {
+        $this->db->query("UPDATE user SET `solved`=`solved`+($delta) WHERE `uid`=$uid");
+    }
+
+    function update_earned($uid, $delta) {
+        $this->db->query("UPDATE user SET `earned`=`earned`+($delta) WHERE `uid`=$uid");
+    }
+
+    function update_failed($uid, $delta=1) {
+        $this->db->query("UPDATE user SET `failed`=`failed`+($delta) WHERE `uid`=$uid");
+    }
+
+    function update_can_teach($uid, $can_teach) {
+        $this->db->query("UPDATE user SET `can_teach`='$can_teach' WHERE `uid`=$uid");
     }
 
     // 删除用户
     function remove_users($uids, $all = 0) {
         // 需要进一步完善
         $this->db->query("DELETE FROM `user` WHERE `uid` IN ($uids)");
-        // 删除问题和回答
+        // 删除求助
         if ($all) {
-            $this->db->query("DELETE FROM `problem` WHERE `authorid` IN ($uids)");
+            //$this->db->query("DELETE FROM `problem` WHERE `authorid` IN ($uids)");
         }
     }
 
@@ -254,14 +261,6 @@ class usermodel {
         } else {
             return TRUE;
         }
-    }
-
-    function get_login_auth($uid, $type = 'wechat') {
-        return $this->db->fetch_first("SELECT * FROM login_auth WHERE type='$type' AND uid=$uid");
-    }
-
-    function remove_login_auth($uid, $type='wechat') {
-        $this->db->query("DELETE FROM login_auth WHERE type='$type' AND uid=$uid");
     }
 
     // 获取所有注册用户数目

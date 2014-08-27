@@ -172,9 +172,11 @@ class base {
         $seotitle = '操作提示';
         if ($url == '') {
             $redirect = SITE_URL;
-        } else if ($url == 'BACK' || $url == 'STOP') {
+        } else if ($url == 'BACK') {
             //$redirect = $url;
             $redirect = $_SERVER['HTTP_REFFERER'];
+        } else if ($url == 'STOP') {
+            $redirect = $url;
         } else {
             $redirect = SITE_URL . $this->setting['seo_prefix'] . $url . $this->setting['seo_suffix'];
         }

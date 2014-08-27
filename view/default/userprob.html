@@ -53,7 +53,7 @@
       <div class="tab-pane active">
         <div class="list-group">
           <!--{loop $problemlist $problem}-->
-          <div id="prob_{$problem['pid']}" class="list-group-item <!--{if $problem['solverid'] != 0}-->list-group-item-success<!--{else}-->list-group-item-info<!--{/if}-->"
+          <div id="prob_{$problem['pid']}" class="list-group-item <!--{if $problem['solverid'] != 0}-->list-group-item-success<!--{else}-->list-group-item-warning<!--{/if}-->"
               style="padding-top:15px;padding-bottom:28px;font-size:13px;margin-bottom:15px;">
             <span>$problem['title']</span>
             <span><a href="{url problem/view/$problem['pid']}">查看详细</a></span><br/>

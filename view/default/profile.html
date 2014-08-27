@@ -13,6 +13,12 @@
           }
         });
         $("#menu_profile").addClass("active");
+        $("#birthday").datepicker({
+            changeYear: true,
+            changeMonth: true,
+            yearRange: '-60:+0',
+            dateFormat: 'yy-mm-dd'
+        });
     })
 </script>
 <div class="container" style="margin-top:5px;">
@@ -34,19 +40,6 @@
             <div class="col-sm-10">
               <p class="form-control-static">{$user['username']}</p>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="col-sm-2 control-label">真实姓名:</div>
-            <!--{if $user['realname']}-->
-            <div class="col-sm-10">
-              <p class="form-control-static">{$user['realname']}</p>
-              <input type="hidden" name="realname" id="realname" value="{$user['realname']}">
-            </div>
-            <!--{else}-->
-            <div class="col-sm-5">
-              <input type="text" class="form-control" name="realname" id="realname" value="">
-            </div>
-            <!--{/if}-->
           </div>
           <div class="form-group">
             <div for="email" class="col-sm-2 control-label">邮箱地址:</div>
@@ -76,45 +69,9 @@
 
             <div class="form-group">
               <div class="col-sm-2 control-label">生日:</div>
-              <!--{if $user['bday']}-->
-              <!--{eval $bdate=explode("-",$user['bday']);}-->
               <div class="col-sm-5">
-                <p class="form-control-static">{$user['bday']}</p>
-                <input type="hidden" name="birthyear" id="birthyear" value="{$bdate[0]}">
-                <input type="hidden" name="birthmonth" id="birthmonth" value="{$bdate[1]}">
-                <input type="hidden" name="birthday" id="birthday" value="{$bdate[2]}">
+                <input type="text" name="birthday" id="birthday" readonly class="form-control datepicker" value="{$user['bday']}"/>
               </div>
-              <!--{else}-->
-              <div class="col-sm-7">
-                <div class="col-sm-4">
-                  <select id="birthyear" name="birthyear" onchange="showbirthday();" class="form-control">
-                    <!--{eval $curyear=date("Y");}-->
-                    <!--{eval $yearlist = range($curyear, 1931, -1);}-->
-                    <!--{loop $yearlist $year}-->
-                    <option value="{$year}" <!--{if $bdate[0]==$year}-->selected<!--{/if}--> >{$year}年</option>
-                    <!--{/loop}-->
-                  </select>
-                </div>
-                <div class="col-sm-3">
-                  <select id="birthmonth" name="birthmonth" onchange="showbirthday();" class="form-control">
-                    {eval $monthlist = range(1,12);}
-                    <!--{loop $monthlist $month}-->
-                    <option value="{$month}" <!--{if $bdate[1]==$month}-->selected<!--{/if}-->>{$month}月</option>
-                    <!--{/loop}-->
-                  </select>
-                </div>
-                <div class="col-sm-3">
-                  <select id="birthday" name="birthday" class="form-control">
-                    {eval $dayhlist = range(1,31);}
-                    <!--{loop $dayhlist $day}-->
-                    <option  value="{$day}" <!--{if $bdate[3]==$day}-->selected<!--{/if}-->>
-                      {$day}
-                    </option>
-                    <!--{/loop}-->
-                  </select>
-                </div>
-              </div>
-              <!--{/if}-->
             </div>
 
             <div class="form-group">

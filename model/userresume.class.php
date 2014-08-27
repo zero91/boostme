@@ -16,13 +16,13 @@ class userresumemodel {
         return $resume;
     }
 
-    function update($uid, $realname, $bachelor_school, $bachelor_dept, $bachelor_major, $bachelor_year, $bachelor_month, $master_school, $master_dept, $master_major, $master_year, $master_month, $doctor_school, $doctor_dept, $doctor_major, $doctor_year, $doctor_month, $experience,$ID) {
-        $this->db->query("INSERT INTO user_resume(`uid`,`realname`,`bachelor_school`,`bachelor_dept`,`bachelor_major`,`bachelor_year`,`bachelor_month`,`master_school`,`master_dept`,`master_major`,`master_year`,`master_month`,`doctor_school`,`doctor_dept`,`doctor_major`,`doctor_year`,`doctor_month`,`experience`,`ID`) VALUES('$uid','$realname','$bachelor_school','$bachelor_dept','$bachelor_major','$bachelor_year','$bachelor_month','$master_school','$master_dept','$master_major','$master_year','$master_month','$doctor_school','$doctor_dept','$doctor_major','$doctor_year','$doctor_month','$experience','$ID') "
+    function update($uid, $realname, $ID, $experience) {
+        $ret = $this->db->query("INSERT INTO user_resume(`uid`,`realname`,`ID`,`experience`) VALUES('$uid','$realname','$ID','$experience') "
             . " ON DUPLICATE KEY "
-            . " UPDATE `realname`='$realname',`bachelor_school`='$bachelor_school',`bachelor_dept`='$bachelor_dept',`bachelor_major`='$bachelor_major',`bachelor_year`='$bachelor_year',`bachelor_month`='$bachelor_month',`master_school`='$master_school',`master_dept`='$master_dept',`master_major`='$master_major',`master_year`='$master_year',`master_month`='$master_month',`doctor_school`='$doctor_school',`doctor_dept`='$doctor_dept',`doctor_major`='$doctor_major',`doctor_year`='$doctor_year',`doctor_month`='$doctor_month',`experience`='$experience',`ID`='$ID'");
+            . " UPDATE `realname`='$realname',`ID`='$ID',`experience`='$experience'");
     }
 
-    function update_verify($uid, $verified=1) {
+    function update_verify($uid, $verified=APPLY) {
         $this->db->query("INSERT INTO user_resume(`uid`,`verified`) VALUES ('$uid', '$verified') ON DUPLICATE KEY UPDATE `verified`='$verified'");
     }
 
@@ -40,6 +40,11 @@ class userresumemodel {
 
     function update_studentID($uid, $studentID_path) {
         $this->db->query("INSERT INTO user_resume(`uid`,`studentID`) VALUES ('$uid', '$studentID_path') ON DUPLICATE KEY UPDATE `studentID`='$studentID_path'");
+    }
+
+    function already_id_used($uid, $ID) {
+        $ID_num = $this->db->result_first("SELECT COUNT(*) FROM `user_resume` WHERE `ID`='$ID' AND `uid`!='$uid'");
+        return $ID_num > 0;
     }
 }
 

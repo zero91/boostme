@@ -60,7 +60,11 @@
             <!--{loop $messagelist $message}-->
             <div id="msg{$message['mid']}" class="list-group-item" {if $message['new']}style="background-color:#D1EEEE;"{/if}>
                 <div class="pull-right">
+                    <!--{if $message['fromuid']}-->
                     <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['fromuid']}" style="color:grey"></a>
+                    <!--{else}-->
+                    <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey"></a>
+                    <!--{/if}-->
                 </div>
 
                 <!--{if $message['fromuid']}-->
@@ -96,14 +100,13 @@
   </div>
 </div>
 
-<!--{if $type=='personal'}-->
 <script type="text/javascript">
     $(document).ready(function() {
         $(".del_personal_msg_btn").click(function() {
+            <!--{if $type=='personal'}-->
             if (confirm('确定删除与该用户的私信?') === false) {
                 return false;
             }
-
             fromuid = $(this).attr("id");
             grandparent = $(this).parent().parent();
             $.ajax({
@@ -118,9 +121,29 @@
                     }
                 }
             });
+            <!--{else}-->
+            if (confirm('确定删除该条信息?') === false) {
+                return false;
+            }
+            msg_id = $(this).attr("id");
+            grandparent = $(this).parent().parent();
+            $.ajax({
+                type: "GET",
+                url:"{SITE_URL}index.php" + query + "message/remove/" + msg_id,
+                cache: false,
+                success: function(succeed) {
+                    if (succeed == '1') {
+                        grandparent.hide();
+                    } else if (succeed == '-1') {
+                        alert("删除失败，请重试！");
+                    }
+                }
+            });
+            <!--{/if}-->
         });
     });
+
+message/remove
 </script>
-<!--{/if}-->
 
 <!--{template footer}-->
