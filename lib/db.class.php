@@ -1,11 +1,9 @@
 <?php
 
-class db
-{
+class db {
     var $mlink;
 
-    function db($dbhost, $dbuser, $dbpw, $dbname = '', $dbcharset='utf8', $pconnect=0)
-    {
+    function db($dbhost, $dbuser, $dbpw, $dbname = '', $dbcharset='utf8', $pconnect=0) {
         if ($pconnect) {
             if (!$this->mlink = @mysql_pconnect($dbhost, $dbuser, $dbpw)) {
                 $this->halt('Can not connect to MySQL');
@@ -32,40 +30,33 @@ class db
         }
     }
 
-    function select_db($dbname)
-    {
+    function select_db($dbname) {
         return mysql_select_db($dbname, $this->mlink);
     }
 
-    function fetch_array($query, $result_type = MYSQL_ASSOC)
-    {
+    function fetch_array($query, $result_type = MYSQL_ASSOC) {
         return (is_resource($query)) ? mysql_fetch_array($query, $result_type) : false;
     }
 
-    function result_first($sql)
-    {
+    function result_first($sql) {
         $query = $this->query($sql);
         return $this->result($query, 0);
     }
 
-    function fetch_first($sql)
-    {
+    function fetch_first($sql) {
         $query = $this->query($sql);
         return $this->fetch_array($query);
     }
 
-    function update_field($table, $field, $value, $where)
-    {
+    function update_field($table, $field, $value, $where) {
         return $this->query("UPDATE $table SET $field='$value' WHERE $where");
     }
 
-    function fetch_total($table,$where='1')
-    {
+    function fetch_total($table,$where=' 1=1 ') {
         return $this->result_first("SELECT COUNT(*) num FROM $table WHERE $where");
     }
 
-    function query($sql, $type = '')
-    {
+    function query($sql, $type = '') {
         global $debug, $querynum;
         $func = $type == 'UNBUFFERED' && @function_exists('mysql_unbuffered_query') ? 'mysql_unbuffered_query' : 'mysql_query';
         if(!($query = $func($sql, $this->mlink)) && $type != 'SILENT') {
@@ -75,50 +66,41 @@ class db
         return $query;
     }
 
-    function affected_rows()
-    {
+    function affected_rows() {
         return mysql_affected_rows($this->mlink);
     }
 
-    function error()
-    {
+    function error() {
         return (($this->mlink) ? mysql_error($this->mlink) : mysql_error());
     }
 
-    function errno()
-    {
+    function errno() {
         return intval(($this->mlink) ? mysql_errno($this->mlink) : mysql_errno());
     }
 
-    function result($query, $row)
-    {
+    function result($query, $row) {
         $query = @mysql_result($query, $row);
         return $query;
     }
 
-    function num_rows($query)
-    {
+    function num_rows($query) {
         $query = mysql_num_rows($query);
         return $query;
     }
 
-    function num_fields($query)
-    {
+    function num_fields($query) {
         return mysql_num_fields($query);
     }
 
-    function free_result($query)
-    {
+    function free_result($query) {
         return mysql_free_result($query);
     }
 
-    function insert_id()
-    {
+    function insert_id() {
         return ($id = mysql_insert_id($this->mlink)) >= 0 ? $id : $this->result($this->query('SELECT last_insert_id()'), 0);
     }
 
-    function fetch_row($query)
-    {
+    function fetch_row($query) {
         $query = mysql_fetch_row($query);
         return $query;
     }
@@ -127,8 +109,7 @@ class db
         return mysql_fetch_field($query);
     }
 
-    function fetch_all($sql, $id = '')
-    {
+    function fetch_all($sql, $id = '') {
         $arr = array();
         $query = $this->query($sql);
         while ($data = $this->fetch_array($query)) {
@@ -137,18 +118,15 @@ class db
         return $arr;
     }
 
-    function version()
-    {
+    function version() {
         return mysql_get_server_info($this->mlink);
     }
 
-    function close()
-    {
+    function close() {
         return mysql_close($this->mlink);
     }
 
-    function halt($msg, $debug=true)
-    {
+    function halt($msg, $debug=true) {
         if ($debug) {
             echo "<html>\n";
             echo "<head>\n";

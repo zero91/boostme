@@ -1,80 +1,124 @@
 <!--{template header}-->
+<link rel="stylesheet" href="{SITE_URL}js/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}js/lightbox/lightbox.js"></script>
 <script type="text/javascript" src="{SITE_URL}js/editor/ueditor.config.js"></script> 
 <script type="text/javascript" src="{SITE_URL}js/editor/ueditor.all.js"></script> 
-<div class="wrapper mt10 clearfix">
-    <div class="user-content">
-        <div class="my-answerbox">
-            <div class="title">我的消息<span class="flright"><input type="button" value="写消息" class="normal-button" onclick="javascript:document.location = '{url message/send}'"/></span></div>            
-            <div id="qa-tabcard">
-                <ul>
-                    <li<!--{if $type=="personal"}--> class="on"<!--{/if}-->><!--{if $type=="personal"}-->私人消息<!--{else}--><a href="{url message/personal}">私人消息</a><!--{/if}--></li>
-                    <li<!--{if $type=="system"}--> class="on"<!--{/if}-->><!--{if $type=="system"}-->系统消息<!--{else}--><a href="{url message/system}">系统消息</a><!--{/if}--></li>
-                </ul>
+
+<style type="text/css">
+    .input_ok {background: url("{SITE_URL}/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
+    .input_error {background: url("{SITE_URL}/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
+    .avatar {position: absolute; top: 20px; left: 10px; }
+    .msg_content {margin: 0 10px 0 95px !important; padding: 10px; line-height: 26px;}
+    .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
+    .arrow {left:96px;top:40px;position:absolute;}
+    .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
+    .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
+    .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
+    .msg_content img {max-width:200px;max-height:200px;}
+</style>
+<div class="container" style="margin-top:30px;">
+  <div class="panel panel-info">
+    <div class="panel-heading"><h3 class="panel-title">我的消息</h3></div> 
+    <div class="panel-body">
+      <span class="pull-right">
+        <input type="button" value="写消息" class="btn btn-primary" onclick="javascript:document.location = '{url message/send}'"/>
+      </span>
+      <a href="{url message/personal}">私人消息</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{url message/system}">系统消息</a>
+
+      <div class="list-group" style="margin-top:15px;">
+        <!--{loop $messagelist $message}-->
+        <div class="list-group-item">
+          <div class="avatar" style="max-width:60px;">
+            <a href="{url user/space/$message['fromuid']}" title="supermustang" target="_blank">
+              <img class="img-circle" width="60px" height="60px;" alt="{$message['from']}" src="{$message['from_avatar']}"/>
+            </a>
+          </div>
+          <div class="panel panel-default msg_content">
+            <div class="pull-right">
+              <a type="button" name="delete_{$message['mid']}" class="glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey"></a>
             </div>
-            <form name="msgform" action="{url message/remove}" method="POST" onsubmit="javascript:if (!confirm('确定删除所选消息?')) return false;">
-                <ul class="q-tabmod mt10">
-                    <!--{loop $messagelist $message}-->
-                    <li>
-                        <!--{if $message['fromuid']}-->
-                        <div class="avatar">
-                            <a href="{url user/space/$message['fromuid']}" title="supermustang" target="_blank" class="pic"><img alt="{$message['from']}" src="{$message['from_avatar']}"/></a>
-                        </div>
-                        <!--{/if}-->
-                        <div class="msgcontent">
-                            <h3>                                
-                                <!--{if $message['fromuid']==$user['uid']}-->
-                                <input type='checkbox' value="{$message['mid']}" name="messageid[outbox][]"/>
-                                <a href="{url user/score}">您</a> 对 <a href="{url user/space/$message['fromuid']}">{$message['touser']}</a> 说：
-                                <!--{else}-->
-                                <input type='checkbox' value="{$message['mid']}" name="messageid[inbox][]"/>
-                                <a href="{url user/space/$message['fromuid']}">{$message['from']}</a> 对 <a href="{url user/score}">您</a> 说：
-                                <!--{/if}-->
-                                {$message['subject']}
-                            </h3>
-                            <p>{$message['content']}</p>
-                            <div class="related">
-                                <div class="pv">{$message['format_time']}</div>
-                            </div>
-                        </div>
-                        <div class="clr"></div>
-                    </li>
-                    <!--{/loop}-->
-                    <li><div class="manage-box"><input type="checkbox"value="chkall" id="chkall" onclick="checkall('messageid');"/> 全选&nbsp;&nbsp;<input type="submit" value="删除" name="submit" class="button_2" /></div></li>
-                </ul>
-            </form>
-            <!--{if 'personal'==$type}-->
-            <ul class="q-tabmod mt10">
-                <form name="commentform" action="{url message/send}" method="POST" onsubmit="return check_form();">
-                    <li>
-                        <div class="avatar">
-                            <span class="pic"><img alt="{$user['username']}" src="{$user['avatar']}"/></span>
-                        </div>
-                        <div class="msgcontent">
-                            <script type="text/plain" id="content" name="content" style="height: 122px;"></script>
-                            <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
-                            <div class="related">
-                                <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;<span class="verifycode"><img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span><a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
-                                <span id="codetip"></span>
-                                <input type="hidden" name="username" value="{$fromuser['username']}" />
-                                <input type="submit" value="提&nbsp;交" class="normal-button flright" name="submit">
-                            </div>
-                        </div>
-                        <div class="clr"></div>
-                    </li>
-                </form>
-            </ul>
-            <!--{/if}-->
-            <div class="pages">{$departstr}</div>
+
+            <p><a href="{url user/space/$message['fromuid']}">{$message['from']}</a> : {$message['subject']}</p>
+            <p>{$message['content']}</p>
+
+            <div style="position:absolute;right:30px;bottom:10px;">
+              <span>{$message['format_time']}</span>
+            </div>
+          </div>
+          <span class="arrow"></span>
         </div>
+        <!--{/loop}-->
+        <center><div class="pages">{$departstr}</div></center>
+        <div class="list-group-item">
+          <form name="commentform" action="{url message/send}" method="POST"
+                onsubmit="return check_form();">
+            <div class="avatar" style="max-width:60px;">
+              <img class="img-circle" width="60px" height="60px;" alt="{$user['username']}" src="{$user['avatar']}"/>
+            </div>
+            <div class="msg_content">
+              <script type="text/plain" id="content" name="content" style="height: 122px;"></script>
+              <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+              <div style="margin-top:15px;">
+                <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
+                <img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode">
+                <a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+                <span id="codetip"></span>
+                <input type="hidden" name="username" value="{$fromuser['username']}" />
+                <input type="submit" value="提&nbsp;交" class="btn btn-primary pull-right" name="submit">
+              </div>
+            </div>
+          </form>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>
+
 <script type="text/javascript">
+$(document).ready(function() {
+    $(".glyphicon").click(function() {
+        if (confirm('确定删除与该用户的私信?') === false) {
+            return false;
+        }
+        msgid = $(this).attr("id");
+        grandparent = $(this).parent().parent().parent();
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "message/remove/" + msgid,
+            cache: false,
+            success: function(succeed) {
+                if (succeed == '1') {
+                    grandparent.hide();
+                } else if (succeed == '-1') {
+                    alert("删除失败，请重试！");
+                }
+            }
+        });
+    });
+
+    $(".msg_content img").each(function(i) {
+        var img = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{SITE_URL}index.php?index/ajaxchkimg",
+            async: true,
+            data: "imgsrc=" + img.attr("src"),
+            success: function(status) {
+                if ('1' == status) {
+                    img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
+                }
+            }
+        });
+    }); 
+});
+
 function check_form() {
     if ($.trim(UE.getEditor('content').getPlainTxt()) == '') {
         alert("消息内容不能为空!");
         return false;
     }
-    return true;
+    return check_code();
 }
 </script>
 <!--{template footer}-->

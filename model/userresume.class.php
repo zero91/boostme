@@ -16,14 +16,28 @@ class userresumemodel {
         return $resume;
     }
 
+    function get_apply_num() {
+        return $this->db->fetch_total('user_resume', ' `verified`=' . RESUME_APPLY . ' '); 
+    }
+
+    function get_apply_list($start = 0, $limit = 10) {
+        $query = $this->db->query("SELECT * FROM user_resume ORDER BY apply_time DESC LIMIT $start,$limit");
+        $resume_list = array();
+        while ($resume = $this->db->fetch_array($query)) {
+            $resume['apply_time'] = tdate($resume['apply_time']);
+            $resume_list[] = $resume;
+        }
+        return $resume_list;
+    }
+
     function update($uid, $realname, $ID, $experience) {
         $ret = $this->db->query("INSERT INTO user_resume(`uid`,`realname`,`ID`,`experience`) VALUES('$uid','$realname','$ID','$experience') "
             . " ON DUPLICATE KEY "
             . " UPDATE `realname`='$realname',`ID`='$ID',`experience`='$experience'");
     }
 
-    function update_verify($uid, $verified=APPLY) {
-        $this->db->query("INSERT INTO user_resume(`uid`,`verified`) VALUES ('$uid', '$verified') ON DUPLICATE KEY UPDATE `verified`='$verified'");
+    function update_verify($uid, $verified=RESUME_APPLY) {
+        $this->db->query("INSERT INTO user_resume(`uid`,`verified`,`apply_time`) VALUES ('$uid', '$verified', {$this->base->time}) ON DUPLICATE KEY UPDATE `verified`='$verified',`apply_time`={$this->base->time}");
     }
 
     function update_experience($uid, $experience) {

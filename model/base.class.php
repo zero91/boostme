@@ -73,6 +73,8 @@ class base {
             $cachedata = array();
             $cachedata['solves'] = $this->db->fetch_total('problem', 'status IN (' . PB_STATUS_SOLVED . ')');   //已解决问题数
             $cachedata['nosolves'] = $this->db->fetch_total('problem', 'status=' . PB_STATUS_UNSOLVED); //待解决问题数
+            $cachedata['all_prob_num'] = $_ENV['problem']->get_all_prob_num(); // 全部求助数量
+            $cachedata['all_user_num'] = $_ENV['user']->rownum_alluser();
             break;
         case 'onlineusernum':
             $this->load('user');
@@ -173,8 +175,8 @@ class base {
         if ($url == '') {
             $redirect = SITE_URL;
         } else if ($url == 'BACK') {
-            //$redirect = $url;
-            $redirect = $_SERVER['HTTP_REFFERER'];
+            $redirect = $url;
+            //$redirect = $_SERVER['HTTP_REFFERER'];
         } else if ($url == 'STOP') {
             $redirect = $url;
         } else {

@@ -11,88 +11,73 @@
     .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
     .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
 </style>
-<!--{eval $statistics = $this->fromcache('statistics');}-->
-<!--{eval $onlineusernum = $this->fromcache('onlineusernum');}-->
 
-<!--
-<div class="container mybadge_div">
-<a href="#" class="mybadge">已解决需求 <span class="badge">{$statistics['solves']}</span></a>
-<a href="#" class="mybadge">待解决需求 <span class="badge">{$statistics['nosolves']}</span></a>
-<a href="#" class="mybadge">当前在线人数 <span class="badge">{$onlineusernum['0']}</span></a>
-</div>
--->
-
-<div id="index_info" class="carousel slide hidden-xs hidden-sm">
-  <!-- 轮播（Carousel）指标 -->
-  <ol class="carousel-indicators">
-    <li data-target="#index_info" data-slide-to="0" class="active"></li>
-    <li data-target="#index_info" data-slide-to="1"></li>
-    <li data-target="#index_info" data-slide-to="2"></li>
-  </ol>
-
-  <div class="carousel-inner">
-    <div class="item active container" style="background:#5cb85c; height:190px;">
-      <h2>要考研，但是有很多地方学不明白，需要有人讲解？</h2>
-      <p>发布求助，说清楚您有困难的地方，让心仪学校的学长、学姐给您讲解</p>
-      <p>这就<a href="{url problem/add}">求助</a></p>
-    </div>
-    <div class="item container" style="background:#428bca; height:190px;">
-      <h2>考研班太坑爹？不仅贵，学到的东西很少，还打乱了复习的节奏？</h2>
-      <p>发布求助，说清楚您有困难的地方，让心仪学校的学长、学姐给您讲解</p>
-      <p>Boostme聚集了一大波985高校的学长、学姐，考研均取得了优异的成绩</p>
-      <p>这就向学长、学姐<a href="{url problem/add}" style="color:#5cb85c;">求助</a></p>
-    </div>
-    <div class="item container" style="background:#1abc9c; height:190px;">
-      <h2>考研机构拿走太多回扣？辛苦替考研机构教授别人知识，却拿很少一部分？</h2>
-      <p>Boostme欢迎985高校的同学来一起帮助其他考研有困难的同学，尤其是考研拿到了高分的同学</p>
-      <p>为保证质量，如果您的水平很高并且信誉度很高，教学费用全部归您所有，Boostme不收取您一分钱</p>
-      <p>这就填写个人详细信息，让Boostme的同学审核</p>
-    </div>
-  </div>
-  <!-- 轮播（Carousel）导航 -->
-  <a class="carousel-control left" href="#index_info" data-slide="prev">&lsaquo;</a>
-  <a class="carousel-control right" href="#index_info" data-slide="next">&rsaquo;</a>
-</div>
-
-<div class="container">
+<div class="container" style="margin-top:23px;">
     <!-- <ul class="nav nav-tabs" role="tablist">
     <li class="active"><a href="#now_prob" role="tab" data-toggle="tab">全部</a></li>
     <li><a href="#my_prob" role="tab" data-toggle="tab">已解决</a></li>
     <li><a href="#sys_sugg" role="tab" data-toggle="tab">推荐</a></li> </ul>-->
 
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <div class="tab-pane active" id="now_prob">
-        <div class="list-group">
-            <!--{loop $page_tobesolvedlist $index $problem}-->
-            <div id="{$problem['pid']}" class="list-group-item">
-                <div class="photo" style="max-width:60px">
-                    <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
-                    <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
-                </div>
-                <div class="panel panel-default mypanel">
-                    <p style="font-size:14px">{$problem['title']}</p>
-                    <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
-                    <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
-                    <div class="action" style="font-size:12px">
-                        <!--{if $problem['authorid'] != $user['uid']}-->
-                        <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
-                        <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
-                        <!--{else}-->
-                        <a class="prob_demand last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">我要帮忙</a>
-                        <!--{/if}-->
-                        <!--{else}-->
-                        <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
-                        <!--{/if}-->
+    <div class="col-sm-9">
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div class="tab-pane active" id="now_prob">
+            <div class="list-group">
+                <!--{loop $page_tobesolvedlist $index $problem}-->
+                <div id="{$problem['pid']}" class="list-group-item">
+                    <div class="photo" style="max-width:60px">
+                        <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
                     </div>
-                    <span class="arrow"></span>
-                </div>
-                <div class="clearfix"></div>
-            </div>   
-            <!--{/loop}-->
-        </div>    
-        <ul class="pagination">{$departstr}</ul>
-      </div><!-- existing problems tab end -->
+                    <div class="panel panel-default mypanel">
+                        <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
+                        <p style="font-size:14px">{$problem['title']}</p>
+                        <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
+                        <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
+                        <div class="action" style="font-size:12px">
+                            <!--{if $problem['authorid'] != $user['uid']}-->
+                            <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
+                            <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
+                            <!--{else}-->
+                            <a class="prob_demand last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">我要帮忙</a>
+                            <!--{/if}-->
+                            <!--{else}-->
+                            <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
+                            <!--{/if}-->
+                        </div>
+                        <span class="arrow"></span>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>   
+                <!--{/loop}-->
+            </div>    
+            <center><ul class="pagination">{$departstr}</ul></center>
+          </div><!-- existing problems tab end -->
+        </div>
+    </div>
+    <div class="col-sm-3">
+      <span>&nbsp;&nbsp;QQ群：32480019</span>
+      <ul class="list-group" style="font-size:13px;">
+        <li class="list-group-item">
+          <div class="panel panel-info">
+            <div class="panel-heading">找学长、学姐</div>
+            <div class="panel-body">
+              <p>考研复习过程中，遇到一些小问题想找人解答，但找不到？</p>
+              <p>想找名校牛逼学长、学姐给你解答困惑</p>
+              <p>这就说明清楚自己的情况，并填写对学长/学姐的背景要求&nbsp;<a href="{url problem/add}">进入</a></p>
+            </div>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="panel panel-info">
+            <div class="panel-heading">找家教兼职</div>
+            <div class="panel-body">
+              <p>考研曾经历的无数的坑，想帮助学弟、学妹们绕过这些坑？</p>
+              <p>Boostme聚集了一大波985高校的牛逼学生，如果您是985高校的学生，并且有着牛逼的能力和成绩，欢迎你加入</p>
+              <p>这就填写自己的申请资料&nbsp;<a href="{url user/resume}">进入</a></p>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
 </div><!-- container end -->
 

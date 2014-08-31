@@ -17,7 +17,11 @@
   <!--{else}-->
   <div>
   <!--{/if}-->
-    <h5>最近动态</h5>
+  <h5>
+    <!--{if $userid != $this->user['uid']}-->
+    <span style="color:blue;">{$member['username']}</span>
+    的<!--{/if}-->最近动态
+  </h5>
     <!-- Tab panes -->
     <div class="tab-content">
       <div class="tab-pane active" id="prob">

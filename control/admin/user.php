@@ -2,27 +2,35 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class admin_maincontrol extends base {
+class admin_usercontrol extends base {
 
-    function admin_maincontrol(& $get, & $post) {
+    function admin_usercontrol(& $get, & $post) {
         $this->base($get, $post);
-        $this->load('setting');
         $this->load('user');
-        $this->load('problem');
+        $this->load('userresume');
     }
 
     function ondefault() {
-        $type = "default";
+        $type = "user/default";
         $statistics = $this->fromcache('statistics');
 
         $page = max(1, intval($this->get[2]));
-        $pagesize = $this->setting['admin_prob_page_size'];
-        
-        $problemlist = $_ENV['problem']->get_list(($page - 1) * $pagesize, $pagesize);
+        $pagesize = $this->setting['admin_user_page_size'];
+        $userlist = $_ENV['user']->get_user_list(($page - 1) * $pagesize, $pagesize);
+        $departstr = page($statistics['all_user_num'], $pagesize, $page, "admin_user/default");
 
-        $departstr = page($statistics['all_prob_num'], $pagesize, $page, "admin_main/default");
+        include template('user', 'admin');
+    }
 
-        include template('index', 'admin');
+    function onapply() {
+        $type = "user/apply";
+
+        $page = max(1, intval($this->get[2]));
+        $pagesize = $this->setting['admin_user_page_size'];
+        $apply_num = $_ENV['userresume']->get_apply_num();
+        $userlist = $_ENV['user']->get_apply_list(($page - 1) * $pagesize, $pagesize);
+        $departstr = page($apply_num, $pagesize, $page, "admin_user/apply");
+        include template('user', 'admin');
     }
 
     function onuser() {

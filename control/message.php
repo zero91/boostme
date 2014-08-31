@@ -81,7 +81,7 @@ class messagecontrol extends base {
 
     // ajax删除对话
     function onremovedialog() {
-        $fromuid = intval($this->get[2]);
+        $fromuid = array(intval($this->get[2]));
 
         if ($fromuid > 0) {
             $_ENV['message']->remove_by_author($fromuid);

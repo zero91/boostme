@@ -10,9 +10,10 @@ class problemcontrol extends base {
         $this->load("tag");
         $this->load("userlog");
         $this->load("demand");
-        $this->load("charging");
         $this->load('userresume');
         $this->load('userskill');
+        $this->load('education');
+        $this->load('user');
     }
 
     // 发布求助
@@ -151,22 +152,28 @@ class problemcontrol extends base {
     }
 
     function onajaxaccept() {
+        if (!($this->user['phone'] || $this->user['qq'] || $this->user['wechat'])) {
+            exit('2'); // 没有联系方式
+        }
         $uid = $this->get[2];
         $pid = $this->get[3];
         (empty($uid) || empty($pid)) && exit('0');
-
         $affected_rows = $_ENV['demand']->update_status($uid, $pid, DEMAND_STATUS_ACCEPT);
         $affected_rows = 1;
         if ($affected_rows > 0) {
             $user = $_ENV['user']->get_by_uid($uid);
             $_ENV['problem']->update_solver($pid, $user['uid'], $user['username']);
             $problem = $_ENV['problem']->get($pid);
+            $_ENV['user']->solve_problem($user['uid'], $problem['price']);
 
             $system = $problem['price'] * $user['charge'] / 100.0;
-            $cid = $_ENV['charging']->add($problem['pid'], $problem['authorid'], $problem['author'], $user['uid'], $user['username'], $system, $problem['price']);
 
             $subject = "您抢求助 \"{$problem['title']}\" 成功啦";
-            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
+            $content = "您可以通过以下方式联系到{$problem['author']}:<br/>";
+            if ($this->user['phone']) $content .= "手机：{$this->user['phone']}<br/>";
+            if ($this->user['qq']) $content .= "QQ：{$this->user['qq']}<br/>";
+            if ($this->user['wechat']) $content .= "微信：{$this->user['wechat']}<br/>";
+            $content .='<a href="' . url("problem/view/$pid", 1) . '">点击查看求助</a>';
             $this->send('', 0, $uid, $subject, $content);
             $_ENV['userlog']->add('accept', "pid:'$pid',uid:'$uid'");
             exit('1');
@@ -226,14 +233,30 @@ class problemcontrol extends base {
             $accept_users[$i]['userinfo'] = $_ENV['user']->get_by_uid($accept_users[$i]['uid']);
             $accept_users[$i]['userresume'] = $_ENV['userresume']->get_by_uid($accept_users[$i]['uid']);
             $accept_users[$i]['userskill'] = $_ENV['userskill']->get_by_uid($accept_users[$i]['uid']);
-        } 
+            $accept_users[$i]['education'] = $_ENV['education']->get_by_uid($accept_users[$i]['uid']);
+        }
         include template("viewproblem");
     }
 
     // 关闭求助
     function onclose() {
         $pid = intval($this->get[2]) ? intval($this->get[2]) : $this->post['pid'];
+        $problem = $_ENV['problem']->get($pid);
+
+        if ($problem['authorid'] != $this->user['uid']) {
+            $this->message('您无权执行此操作！', 'STOP');
+        }
+
+        if ($problem['status'] != PB_STATUS_UNSOLVED &&
+            $problem['status'] != PB_STATUS_UNAUDIT) {
+            $this->message('求助状态已经改变，关闭求助失败！', 'BACK');
+        }
+
         $_ENV['problem']->update_status($pid, PB_STATUS_CLOSED);
+
+        $subject = "您关闭求助\"{$problem['title']}\"成功！";
+        $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>'; 
+        $this->send('', 0, $problem['authorid'], $subject, $content);
         $viewurl = urlmap("problem/view/$pid", 2);
         $this->message('关闭问题成功！', $viewurl);
     }
@@ -316,7 +339,6 @@ class problemcontrol extends base {
 
             $this->setting['code_problem'] && $this->checkcode(); //检查验证码
             $delta_price = $price - intval($problem['price']);
-            (intval($this->user['balance']) < $delta_price) && $this->message("账户余额不足!", 'BACK');
             $status = ($this->setting['verify_problem'] ? PB_STATUS_UNAUDIT : PB_STATUS_UNSOLVED);
 
             //检查标题违禁词
@@ -332,7 +354,6 @@ class problemcontrol extends base {
             $description = $descarray[1];
 
             $_ENV['problem']->update($pid, $title, $description, $price, $status); 
-            $_ENV['user']->update_balance($problem['authorid'], -$delta_price);
 
             // 插入标签
             !empty($tags) && $taglist = explode(" ", $tags);
@@ -360,6 +381,23 @@ class problemcontrol extends base {
         $taglist = explode(" ", $tag);
         $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
         $this->message($message, $viewurl);
+    }
+
+    function onevaluser(){
+        $pid = intval($this->post['pid']);
+        $solverdesc = trim($this->post['solverdesc']);
+        $solverscore = intval($this->post['score']);
+        if ($pid > 0 && $solverscore >= 1 && $solverscore <= 10) {
+            $problem = $_ENV['problem']->get($pid);
+            if ($problem['authorid'] == $this->user['uid']) {
+                $_ENV['problem']->update_solver_score($pid, $solverscore, $solverdesc);
+                $this->message("评价成功，您为大家提供了宝贵的一份反馈，谢谢！", "p-$pid");
+            } else {
+                $this->message("您无权执行此操作，请重新确认！", "STOP");
+            }
+        } else {
+            $this->message("不良参数，请重新操作", "STOP");
+        }
     }
 }
 

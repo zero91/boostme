@@ -1,4 +1,8 @@
 <!--{template header}-->
+<style type="text/css">
+.input_ok {background: url("{SITE_URL}/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
+.input_error {background: url("{SITE_URL}/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
+</style>
 <script type="text/javascript">
     $(function(){
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -114,6 +118,7 @@
                   <div class="col-sm-5">
                     <input type="text" class="form-control" id="realname" name="realname" value="{$resume['realname']}"/>
                   </div>
+                  <span id="realname_tip"></span>
                 </div>
 
                 <div class="form-group">
@@ -121,6 +126,7 @@
                   <div class="col-sm-5">
                     <input type="text" maxlength="18" class="form-control" name="ID" id="ID" value="{$resume['ID']}" />
                   </div>
+                  <span id="ID_tip"></span>
                 </div>
 
                 <div class="form-group">
@@ -134,6 +140,7 @@
                     </a>
                   </div>
                   <div class="col-sm-3 btn">.bmp .png .jpg .gif</div>
+                  <span id="ID_path_tip"></span>
                 </div>
 
                 <div class="form-group">
@@ -147,6 +154,7 @@
                     </a>
                   </div>
                   <div class="col-sm-3 btn">.bmp .png .jpg .gif</div>
+                  <span id="studentID_tip"></span>
                 </div>
 
                 <div class="form-group">
@@ -161,6 +169,7 @@
                     </a>
                   </div>
                   <div class="col-sm-2"><span class="btn">.pdf .doc .docx</span></div>
+                  <span id="resume_tip"></span>
                 </div>
               </div>
 
@@ -170,7 +179,7 @@
          </div>
 
           <div>
-            <input type="hidden" name="operation" id="operation" value="{SAVE}"/>
+            <input type="hidden" name="operation" id="operation" value="{RESUME_SAVE}"/>
             <div class="col-sm-3"></div>
             <div class="col-sm-3">
               <button type="submit" name="submit" id="save" class="form-control btn btn-primary" onclick="check_data(this)">保&nbsp;存</button>
@@ -221,6 +230,10 @@ var ta = document.getElementById('experience');
 ta.style.height=ta.scrollHeight+'px';
 g_edu_idx = <!--{eval echo count($edu_list)}-->;
 
+var ID_ok = <!--{eval echo count($resume['ID_path'])}-->;
+var studentID_ok = <!--{eval echo count($resume['studentID'])}-->;
+var resume_ok = <!--{eval echo count($resume['resume_path'])}-->;
+
 $(document).ready(function() {
      $("body").on('click', '.glyphicon', function() {
          $(this).parent().parent().parent().parent().remove();
@@ -247,6 +260,7 @@ $(document).ready(function() {
         'fileTypeDesc': 'User resume(.pdf, .doc, .docx)',
         'onUploadSuccess': function(file, data, response) {
             alert('简历上传成功!'); 
+            resume_ok = true;
             $("#resume_link").attr("href", data+"?"+Math.random());
             $("#resume_div").show();
         }
@@ -266,6 +280,7 @@ $(document).ready(function() {
         'fileTypeDesc': 'User (.bmp, .png, .jpg, .gif)',
         'onUploadSuccess': function(file, data, response) {
             alert('证件照上传成功!');
+            ID_ok = true;
             $("#img_id_path_pic").attr("src", data+"?"+Math.random());
             $("#ID_path_div").show();
             $("#img_modal_id_path").attr("src", data+"?"+Math.random());
@@ -287,6 +302,7 @@ $(document).ready(function() {
         'fileTypeDesc': 'User (.bmp, .png, .jpg, .gif)',
         'onUploadSuccess': function(file, data, response) {
             alert('学生证上传成功!');
+            studentID_ok = true;
             $("#img_studentID").attr("src", data+"?"+Math.random());
             $("#studentID_div").show();
             $("#img_modal_studentID").attr("src", data+"?"+Math.random());
@@ -383,12 +399,58 @@ function check_data(obj)
 {
     if (obj.id == "save") {
         $("form").unbind('submit');
-        $("#operation").val("{SAVE}");
+        $("#operation").val("{RESUME_SAVE}");
         $("form").submit(function() { return true;});
     } else {
         $("form").unbind('submit');
-        $("#operation").val("{APPLY}");
-        $("form").submit(function() { return true;});
+        $("#operation").val("{RESUME_APPLY}");
+        $("form").submit(function() {
+                if ($("#realname").val().length == 0) {
+                    $('#realname_tip').html("请填写您的真实姓名");
+                    $('#realname_tip').attr('class', 'input_error');
+                    return false;
+                } else {
+                    $('#realname_tip').html("&nbsp;");
+                    $('#realname_tip').attr('class', 'input_ok');
+                }
+
+                if ($("#ID").val().length != 18) {
+                    $('#ID_tip').html("请填写您的真实身份证号");
+                    $('#ID_tip').attr('class', 'input_error');
+                    return false;
+                } else {
+                    $('#ID_tip').html("&nbsp;");
+                    $('#ID_tip').attr('class', 'input_ok');
+                }
+
+                if (!ID_ok) {
+                    $('#ID_path_tip').html("请上传您的身份证照片");
+                    $('#ID_path_tip').attr('class', 'input_error');
+                    return false;
+                } else {
+                    $('#ID_path_tip').html("&nbsp;");
+                    $('#ID_path_tip').attr('class', 'input_ok');
+                }
+
+                if (!studentID_ok) {
+                    $('#studentID_tip').html("请上传您的学生证照片");
+                    $('#studentID_tip').attr('class', 'input_error');
+                    return false;
+                } else {
+                    $('#studentID_tip').html("&nbsp;");
+                    $('#studentID_tip').attr('class', 'input_ok');
+                }
+
+                if (!resume_ok) {
+                    $('#resume_tip').html("请上传您的电子简历");
+                    $('#resume_tip').attr('class', 'input_error');
+                    return false;
+                } else {
+                    $('#resume_tip').html("&nbsp;");
+                    $('#resume_tip').attr('class', 'input_ok');
+                }
+                return true;
+            });
     }
 }
 

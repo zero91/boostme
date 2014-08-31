@@ -22,64 +22,25 @@
                 <h5 class="info">{$userinfo['signature']}</h5>
                 <!--{/if}-->
                 <!--{if $userskill}-->
-                <h5 class="info">擅长:
+                <h5 class="info"><span style="font-weight:bold">擅长:</span>&nbsp;&nbsp;
                     <!--{loop $userskill $skill}-->
-                        <i class="expert-field"><?=$skill?></i>
+                        <span class="btn btn-link"><?=$skill?></span>
                     <!--{/loop}-->
                 </h5>
                 <!--{/if}-->
-                 <!--{if !empty($userresume['doctor_school'])}-->
-                    博士：{$userresume['doctor_school']}
-                    <!--{if !empty($userresume['doctor_dept'])}-->
-                    {$userresume['doctor_dept']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['doctor_major'])}-->
-                    {$userresume['doctor_major']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['doctor_year'])}-->
-                    {$userresume['doctor_year']}年
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['doctor_month'])}-->
-                    {$userresume['doctor_month']}月
-                    <!--{/if}-->
-                </h5>
-                <!--{/if}-->
-                <!--{if !empty($userresume['master_school'])}-->
-                <h5 class="info">
-                    硕士：{$userresume['master_school']}
-                    <!--{if !empty($userresume['master_dept'])}-->
-                    {$userresume['master_dept']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['master_major'])}-->
-                    {$userresume['master_major']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['master_year'])}-->
-                    {$userresume['master_year']}年
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['master_month'])}-->
-                    {$userresume['master_month']}月
-                    <!--{/if}-->
-                </h5>
-                <!--{/if}-->
-                <!--{if !empty($userresume['bachelor_school'])}-->
-                <h5 class="info">
-                    大学：{$userresume['bachelor_school']}
-                    <!--{if !empty($userresume['bachelor_dept'])}-->
-                    {$userresume['bachelor_dept']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['bachelor_major'])}-->
-                    {$userresume['bachelor_major']}
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['bachelor_year'])}-->
-                    {$userresume['bachelor_year']}年
-                    <!--{/if}-->
-                    <!--{if !empty($userresume['bachelor_month'])}-->
-                    {$userresume['bachelor_month']}月
-                    <!--{/if}-->
-                </h5>
-                <!--{/if}-->
+                <!--{loop $education $edu}-->
+                <span style="font-weight:bold">
+                    <!--{if $edu['edu_type'] == HIGH_SCHOOL}--> 高中：
+                    <!--{elseif $edu['edu_type'] == BACHELOR}--> 本科：
+                    <!--{elseif $edu['edu_type'] == MASTER}--> 硕士：
+                    <!--{elseif $edu['edu_type'] == DOCTOR}--> 博士：
+                    <!--{elseif $edu['edu_type'] == POST_DOCTOR}--> 博士后：
+                    <!--{else}--> 经历： <!--{/if}-->
+                </span>
+                {$edu['school']}&nbsp;&nbsp;{$edu['department']}&nbsp;&nbsp;{$edu['major']}&nbsp;&nbsp;&nbsp;&nbsp;{$edu['start_time']}&nbsp;至&nbsp;{$edu['end_time']}<br/>
+                <!--{/loop}-->
             </div>
-            <a href="#" class="btn btn-default btn-md disabled" role="button">成功抢单{$userinfo['solved']}个</a>
+            <h4 style="font-size:11px;">成功抢单{$userinfo['solved']}个</h4>
         </div><!-- col-md-9 right end -->
         <div class="col-md-12">
             <!--{if $userresume['experience']}-->

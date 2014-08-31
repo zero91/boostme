@@ -1,8 +1,9 @@
 <?php 
+
 define('DB_HOST', 'localhost');
-define('DB_USER', 'boostme');
-define('DB_PW', 'boostme');
-define('DB_NAME', 'boostme');
+define('DB_USER', 'boostme_alpha');
+define('DB_PW', 'boostme_alpha');
+define('DB_NAME', 'boostme_alpha');
 define('DB_CHARSET', 'utf8');
 define('DB_CONNECT', 0);
 define('WEB_CHARSET', 'UTF-8');
@@ -46,8 +47,12 @@ define('MASTER', 6);
 define('DOCTOR', 7);
 define('POST_DOCTOR', 8);
 
-define('SAVE', 0);     // 仅仅保存资料，未做任何其他处理
-define('APPLY', 1);    // 申请资格
-define('ACCEPTED', 2); // 成功获取资格
-define('DENIED', 3);   // 获取资格失败
+define('RESUME_SAVE', 0);     // 仅仅保存资料，未做任何其他处理
+define('RESUME_APPLY', 1);    // 申请资格
+define('RESUME_ACCEPTED', 2); // 成功获取资格
+define('RESUME_DENIED', 3);   // 获取资格失败
 
+// feedback
+define('FB_NEW', 1);   // 新用户反馈
+define('FB_DONE', 2);  // 已处理反馈
+define('FB_DELAY', 3); // 延迟处理用户反馈

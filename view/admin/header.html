@@ -3,7 +3,6 @@
     <!--{eval
         global $starttime;
         $mtime = explode(' ', microtime());
-        $runtime = number_format($mtime[1] + $mtime[0] - $starttime, 6);
         $setting = $this->setting;
         $user = $this->user;
         $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
@@ -37,7 +36,7 @@
     .navbar-nav>li>a:hover {background:#0066CC !important; color:#FFF !important;}
     .align_center {text-align: center;}
     h4, h5, h6 { line-height: 26px; }
-    .container { width: 1050px !important;}
+    .container { width: 100% !important;}
     .logo {
       width:200px;
       height:50px;
@@ -101,62 +100,3 @@
 
 <div style="height:51px;"></div>
 
-<a class="btn btn-link" data-toggle="modal" id="feedback" data-target="#feedbackModal" style="position:fixed;left:5px;top:95%;">
-    网站建议<span class="glyphicon glyphicon-question-sign"></span>
-</a>
-<!-- <a href="{url index/help}" target="_blank">&nbsp;使用帮助&nbsp;</a> -->
-
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-          <span class="sr-only">Close</span>
-        </button>
-        <h4 class="modal-title">欢迎登录Boostme</h4>
-      </div>
-      <div class="modal-body" id="login_body">
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-          <span class="sr-only">Close</span>
-        </button>
-        <h4 class="modal-title">Boostme使用反馈</h4>
-      </div>
-
-      <form name="feedback_form" action="{SITE_URL}?feedback/add.html" method="post" id="feedback_dialog">
-        <div class="modal-body" id="feedback_body">
-          <input type="hidden" value="{$regular}" name="fb_regular" id="fb_regular"/>
-          <p>您的每一份反馈都是我们继续改善{$setting['site_name']}的动力，让我们一起为打造一个更好的产品而努力！</p>
-          <textarea class="form-control" name="fb_content" id="fb_content" rows="5" placeholder="您认为{$setting['site_name']}现有功能有哪些可以改善的地方，您还希望加入哪些功能"></textarea>
-        </div>
-        <div class="modal-footer">
-          <!-- <input type="submit" class="btn btn-primary" data-dismiss="modal" id="submit_fb" value="提&nbsp;交" /> -->
-          <input type="submit" class="btn btn-primary" id="submit_fb" value="提&nbsp;交" />
-        </div>
-      </form>
-
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
-<script type="text/javascript">
-
-$(function() {
-    if ($("#login_link")) {
-        $("#login_body").load(g_site_url + "index.php?user/ajaxpoplogin");
-    }
-});
-
-</script>

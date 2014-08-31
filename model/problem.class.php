@@ -72,15 +72,23 @@ class problemmodel {
         return $this->db->fetch_first("SELECT * FROM problem WHERE `title`='$title'");
     }
 
-    function get_list($start = 0, $limit = 10) {
+    function get_list($start=0, $limit='') {
         $problemlist = array();
-        $query = $this->db->query("SELECT * FROM `problem` WHERE 1=1 limit $start,$limit");
+
+        $sql = "SELECT * FROM `problem` WHERE 1=1 ";
+        !empty($limit) && $sql.=" LIMIT $start,$limit";
+
+        $query = $this->db->query($sql);
         while ($problem = $this->db->fetch_array($query)) {
             $problem['format_time'] = tdate($problem['time']);
             $problem['url'] = url('problem/view/' . $problem['pid'], $problem['url']);
             $problemlist[] = $problem;
         }
         return $problemlist;
+    }
+
+    function get_all_prob_num() {
+        return $this->db->fetch_total('problem');
     }
 
     // 前台问题搜索
@@ -107,6 +115,10 @@ class problemmodel {
         $this->db->query("INSERT INTO problem SET authorid='$uid',author='$username',title='$title',description='$description',price='$price',time='$creattime',endtime='$endtime',status='$status',ip='{$this->base->ip}'");
         $pid = $this->db->insert_id();
         return $pid;
+    }
+
+    function update_solver_score($pid, $solverscore, $solverdesc) {
+        $this->db->query("UPDATE `problem` SET `solverscore`='$solverscore',`solverdesc`='$solverdesc' WHERE `pid`=$pid");
     }
 
     // 获得热门问题，目前定义热门问题为请求帮助量大、浏览量大的问题

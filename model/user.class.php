@@ -57,6 +57,17 @@ class usermodel {
         return $userlist;
     }
 
+    function get_apply_list($start = 0, $limit = 10) {
+        $query = $this->db->query("SELECT * FROM user_resume r INNER JOIN user u ON r.verified=" . RESUME_APPLY . " AND r.uid=u.uid ORDER BY r.apply_time ASC LIMIT $start,$limit");
+
+        $userlist = array();
+        while ($user = $this->db->fetch_array($query)) {
+            $user['avatar'] = get_avatar_dir($user['uid']);
+            $userlist[] = $user;
+        }
+        return $userlist;
+    }
+
     function get_lastest_register($start = 0, $limit = 10) {
         $userlist = array();
         $query = $this->db->query("SELECT * FROM user ORDER BY regtime DESC LIMIT $start,$limit");
@@ -265,13 +276,13 @@ class usermodel {
 
     // 获取所有注册用户数目
     function rownum_alluser() {
-        return array($this->db->fetch_total('user', ' 1=1'));
+        return $this->db->fetch_total('user', ' 1=1');
     }
 
     // 获取所有在线用户数目
     function rownum_onlineuser() {
         $end = $this->base->time - intval($this->base->setting['sum_onlineuser_time']) * 60;
-        return array($this->db->result_first("SELECT COUNT(DISTINCT `ip`) FROM session WHERE time>$end"));
+        return $this->db->result_first("SELECT COUNT(DISTINCT `ip`) FROM session WHERE time>$end");
     }
 
     // 更新authstr 

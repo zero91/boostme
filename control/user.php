@@ -513,8 +513,8 @@ class usercontrol extends base {
                 $this->message("您填写的身份证号不符合条件，请确认您填写了正确的身份证号", "STOP");
             }
 
-            if ($this->post['operation'] == APPLY) {
-                $_ENV['userresume']->update_verify($this->user['uid'], APPLY);
+            if ($this->post['operation'] == RESUME_APPLY) {
+                $_ENV['userresume']->update_verify($this->user['uid'], RESUME_APPLY);
                 $this->message("提交请求成功，Boostme将以最快的速度审核您的材料！", 'BACK');
             } else {
                 $this->message("简历更改成功！", 'BACK');
@@ -538,6 +538,7 @@ class usercontrol extends base {
             $userinfo = $_ENV['user']->get_by_uid($uid);
             $userresume = $_ENV['userresume']->get_by_uid($uid);
             $userskill = $_ENV['userskill']->get_by_uid($uid);
+            $education = $_ENV['education']->get_by_uid($uid);
             include template("usercard");
         }
     }

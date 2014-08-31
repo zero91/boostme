@@ -51,6 +51,7 @@ CREATE TABLE user_resume (
   `resume_path` varchar(100) DEFAULT NULL,
   `studentID` varchar(100) DEFAULT NULL, /* 学生证照片路径 */
   `verified` tinyint(1) NOT NULL DEFAULT '0', /* 是否通过验证 */
+  `apply_time` int(10) DEFAULT NULL, /* 申请时间 */
 
   PRIMARY KEY (`uid`),
   UNIQUE KEY `ID`(`ID`)
@@ -89,10 +90,12 @@ CREATE TABLE problem (
   `pid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `authorid` int(10) unsigned NOT NULL DEFAULT '0',
   `author` char(18) NOT NULL DEFAULT '',
-  `authorscore` tinyint(3) unsigned DEFAULT '0',
+  `authorscore` tinyint(3) unsigned DEFAULT NULL,
+  `authordesc` varchar(300) DEFAULT NULL,
   `solverid` int(10) unsigned DEFAULT NULL,
   `solver` char(18) DEFAULT NULL,
   `solverscore` tinyint(3) DEFAULT NULL,
+  `solverdesc` varchar(300) DEFAULT NULL,
   `price` smallint(6) unsigned NOT NULL DEFAULT '0',
   `title` char(200) NOT NULL,
   `description` text NOT NULL,
@@ -227,6 +230,7 @@ CREATE TABLE feedback (
   `page` char(100) NOT NULL,
   `time` int(10) unsigned NOT NULL DEFAULT '0',
   `ip` varchar(20) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1', /* 反馈状态 */
   PRIMARY KEY(`fid`),
   KEY `uid`(`uid`),
   KEY `time`(`time`),
@@ -263,7 +267,12 @@ INSERT INTO setting VALUES ('list_default', '10');
 INSERT INTO setting VALUES ('verify_problem', '0');
 INSERT INTO setting VALUES ('editor_toolbars', 'bold,forecolor,insertimage,autotypeset,attachment,link,unlink,map,insertcode,fullscreen');
 INSERT INTO setting VALUES ('tpl_dir', 'default');
+INSERT INTO setting VALUES ('max_feedback_num', '20');
 
+
+INSERT INTO setting VALUES ('admin_prob_page_size', '15');
+INSERT INTO setting VALUES ('admin_user_page_size', '10');
+INSERT INTO setting VALUES ('admin_fb_page_size', '20');
 
 
 INSERT INTO setting VALUES ('code_ask', '0');
