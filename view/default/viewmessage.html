@@ -35,7 +35,7 @@
           </div>
           <div class="panel panel-default msg_content">
             <div class="pull-right">
-              <a type="button" name="delete_{$message['mid']}" class="glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey"></a>
+              <a type="button" name="delete_{$message['mid']}" class="glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey;cursor:pointer;"></a>
             </div>
 
             <p><a href="{url user/space/$message['fromuid']}">{$message['from']}</a> : {$message['subject']}</p>

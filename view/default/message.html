@@ -59,9 +59,9 @@
             <div id="msg{$message['mid']}" class="list-group-item" {if $message['new']}style="background-color:#D1EEEE;"{/if}>
                 <div class="pull-right">
                     <!--{if $message['fromuid']}-->
-                    <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['fromuid']}" style="color:grey"></a>
+                    <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['fromuid']}" style="color:grey;cursor:pointer;"></a>
                     <!--{else}-->
-                    <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey"></a>
+                    <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey;cursor:pointer;"></a>
                     <!--{/if}-->
                 </div>
 
@@ -73,7 +73,7 @@
                 <div class="msg_content">
                     <a href="{url user/space/$message['fromuid']}" target="_blank">{$message['from']}</a>
                     <span style="font-weight:bold;font-size:17px;"> {$message['subject']} </span><br/>
-                    <span onclick="javascript:document.location = '{url message/view/$type/$message[fromuid]}';"> 
+                    <span onclick="javascript:document.location = '{url message/view/$type/$message[fromuid]}';" style="cursor:pointer;">
                         {eval echo cutstr($message['content'],30,'')}...  
                     </span>
                 </div>

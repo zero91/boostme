@@ -113,7 +113,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                             <!--{/if}-->
                         <!--{/if}-->
                     <!--{elseif PB_STATUS_SOLVED == $problem['status']}-->
-                        <a href="#" class="action btn btn-link btn-sm disabled" role="button">求助已解决</a>
+                        <a href="#" class="action btn btn-link btn-sm disabled" role="button">已成功</a>
                     <!--{elseif PB_STATUS_CLOSED == $problem['status']}-->
                         <a href="#" class="action btn btn-link btn-sm disabled" role="button">求助已关闭</a>
                     <!--{/if}-->
@@ -132,7 +132,8 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                             <span><!--{if $problem['ip']}-->{$problem['ip']}<!--{else}-->游客<!--{/if}--></span>
                             <span class="span-line">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                             <!--{/if}-->
-                            <span>浏览{$problem['views']}次</span>
+                            <span>浏览{$problem['views']}次</span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                            <span>{$problem['demands']}人在抢</span>&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$problem['format_time']}
                         </div>
                     </div>
@@ -155,7 +156,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                 </div>
             </div><!-- problem sub panel end -->
 
-            <!--{if $problem['solverid'] == $this->user['uid']}-->
+            <!--{if $this->user['uid'] && $problem['solverid'] == $this->user['uid']}-->
             <!--{eval $author_info = $_ENV['user']->get_by_uid($problem['authorid'])}-->
             <p>您已成功抢得该求助，可以通过以下方式联系到{$problem['author']}</p>
             <p>手机：{$author_info['phone']}</p>

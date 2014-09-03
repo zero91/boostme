@@ -63,6 +63,7 @@ class usermodel {
         $userlist = array();
         while ($user = $this->db->fetch_array($query)) {
             $user['avatar'] = get_avatar_dir($user['uid']);
+            $user['apply_time'] = tdate($user['apply_time']);
             $userlist[] = $user;
         }
         return $userlist;

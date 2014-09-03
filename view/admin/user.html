@@ -1,4 +1,6 @@
 <!--{template header,'admin'}-->
+<link rel="stylesheet" href="{SITE_URL}js/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}js/lightbox/lightbox.js"></script>
 <script type="text/javascript">
     $(function(){
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -10,8 +12,6 @@
         })
     })
 </script>
-
-
 <style type="text/css">
     .mybadge_div {margin-top: 10px; margin-bottom: 10px;}
     .mybadge {margin: 10px 20px;}
@@ -58,19 +58,38 @@
             <div id="{$problem['pid']}" class="list-group-item">
                 <div class="photo" style="max-width:60px">
                     <img class="img-circle" width="60px" height="60px" src={$user['avatar']}>
-                    <a href="{url user/space/$user['uid']}" class="trigger_btn align_center">{$user['username']}</a>
                 </div>
                 <div class="panel panel-default mypanel">
+                    <p><a href="{url user/space/$user['uid']}" class="trigger_btn align_center">{$user['username']}</a></p>
                     <!--{if $type == "user/apply"}-->
+                    <a class="accept-user pull-right" id="{$user['uid']}" href="#" onclick="javascript:return false;">接受请求</a>
+                    <p>真实姓名：{$user['realname']}</p>
+                    <p>手机：{$user['phone']}</p>
+                    <p>QQ：{$user['qq']}</p>
+                    <p>wechat：{$user['wechat']}</p>
+                    <p>身份证号：{$user['ID']}</p>
+                    <p>身份证照片：<a href="{$user['ID_path']}"><img src="{$user['ID_path']}" width="50px" height="50px" id="img_id_path_pic_{$user['uid']}"></a></p>
+                    <p>学生证照片：<a href="{$user['studentID']}"><img src="{$user['studentID']}" width="40px" height="40px" id="img_studentID_{$user['uid']}"></a></p>
+                    <p>电子简历：<a class="btn btn-link" href="{$user['resume_path']}" target="_blank" id="resume_link"><!--{if empty($user['realname'])}-->{$user['username']}<!--{else}-->{$user['realname']}<!--{/if}-->简历</a></p>
+                    <!--{eval $edulist = $_ENV['education']->get_by_uid($user['uid'])}-->
+                    <!--{loop $edulist $edu}-->
+                    <span style="font-weight:bold">
+                        <!--{if $edu['edu_type'] == HIGH_SCHOOL}--> 高中：
+                        <!--{elseif $edu['edu_type'] == BACHELOR}--> 本科：
+                        <!--{elseif $edu['edu_type'] == MASTER}--> 硕士：
+                        <!--{elseif $edu['edu_type'] == DOCTOR}--> 博士：
+                        <!--{elseif $edu['edu_type'] == POST_DOCTOR}--> 博士后：
+                        <!--{else}--> 经历： <!--{/if}-->
+                    </span>
+                    {$edu['school']}&nbsp;&nbsp;{$edu['department']}&nbsp;&nbsp;{$edu['major']}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$edu['start_time']}&nbsp;至&nbsp;{$edu['end_time']}<br/>
+                    <p>
+                    <!--{/loop}-->
+                    <p>申请时间：{$user['apply_time']}</p>
 
-                    <a href="{$user['ID_path']}"><img src="{$user['ID_path']}" width="50px" height="50px" id="img_id_path_pic_{$user['uid']}"></a>
-                    <a href="{$user['studentID']}"><img src="{$user['studentID']}" width="40px" height="40px" id="img_studentID_{$user['uid']}"></a>
-                    <a class="btn btn-link" href="{$user['resume_path']}" target="_blank" id="resume_link">
-                      <!--{if empty($user['realname'])}-->{$user['username']}<!--{else}-->{$user['realname']}<!--{/if}-->简历
-                    </a>
                     <!--{else}-->
-                    <p>{$user['regtime']}</p>
-                    <p>{$user['regtime']}</p>
+                    <p>E-mail：{$user['email']}</p>
+                    <p>注册时间：{$user['regtime']}</p>
+                    <p>注册IP：{$user['regip']}</p>
                     <!--{/if}-->
                     <span class="arrow"></span>
                 </div>
@@ -109,38 +128,38 @@
 <script type="text/javascript">
 var timer;
 $(document).ready(function() {
-    $(".prob_demand").click(function() {
-        var pid = $(this).attr("id");
-        $("#dialog_pid").val(pid);
-        $("#demandModal").modal('show');
+    $(".panel img").each(function(i) {
+        var img = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{SITE_URL}index.php?index/ajaxchkimg",
+            async: true,
+            data: "imgsrc=" + img.attr("src"),
+            success: function(status) {
+                if ('1' == status) {
+                    img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
+                }
+            }
+        });
     });
 
-    $(".prob_cancel").click(function(){
-        if ({$user['uid']} == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "{SITE_URL}index.php" + query + "user/login";
-        }
-
-        if (confirm('确定撤销请求?') === false) {
+    $(".accept-user").click(function(){
+        if (confirm('确定赋予该用户资格?') === false) {
             return false;
         }
 
+        var uid = $(this).attr('id');
         var supportobj = $(this);
-        var pid = $(this).attr("id");
+        var hide_target = $(this).parent().parent();
         $.ajax({
             type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxcancel/" + pid,
+            url:"{SITE_URL}index.php" + query + "admin_user/accept_apply/" + uid,
             cache: false,
             success: function(succeed){
                 if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    alert("操作失败，请刷新页面重试");
+                    alert("操作失败！");
                 } else if (succeed == '1') {
-                    supportobj.html("我要帮忙");
-                } else if (succeed == '2') {
-                    alert("您还没有发出过申请!");
+                    hide_target.hide();
                 }
             }
         });

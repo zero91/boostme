@@ -85,7 +85,6 @@ class problemcontrol extends base {
         }
 
         $last_insert_id = $_ENV['demand']->add($pid, $message);
-
         if ($last_insert_id > 0) {
             $_ENV['problem']->add_demand($pid);
 
@@ -121,7 +120,7 @@ class problemcontrol extends base {
             $_ENV['problem']->add_demand($pid);
 
             $problem = $_ENV['problem']->get($pid);
-            $subject = "有人想帮您解决您的求助 \"{$problem['title']}\"";
+            $subject = "有人想帮您解决您的求助 \"" . cutstr($problem['title'], 30) . "\"";
             $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $problem['authorid'], $subject, $content);
             $_ENV['userlog']->add('demand', "uid:'{$this->user['uid']}',pid:'$pid'");

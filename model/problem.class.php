@@ -77,6 +77,7 @@ class problemmodel {
 
         $sql = "SELECT * FROM `problem` WHERE 1=1 ";
         !empty($limit) && $sql.=" LIMIT $start,$limit";
+        $sql .= " ORDER BY `time` DESC";
 
         $query = $this->db->query($sql);
         while ($problem = $this->db->fetch_array($query)) {

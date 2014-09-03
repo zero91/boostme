@@ -32,8 +32,13 @@
                         <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
                         <p style="font-size:14px">{$problem['title']}</p>
                         <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
-                        <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
+                        <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}元/小时&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
                         <div class="action" style="font-size:12px">
+
+                            <!--{if $problem['solverid'] != 0}-->
+                            <span class="last" id="{$problem['pid']}" style="color:red;">已成功</span>
+                            <!--{else}-->
+
                             <!--{if $problem['authorid'] != $user['uid']}-->
                             <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
                             <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
@@ -42,6 +47,8 @@
                             <!--{/if}-->
                             <!--{else}-->
                             <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
+                            <!--{/if}-->
+
                             <!--{/if}-->
                         </div>
                         <span class="arrow"></span>
@@ -55,25 +62,28 @@
         </div>
     </div>
     <div class="col-sm-3">
-      <span>&nbsp;&nbsp;QQ群：32480019</span>
+      <span>3号群已满，同学们可以加入4号QQ群：32480019</span>
       <ul class="list-group" style="font-size:13px;">
         <li class="list-group-item">
           <div class="panel panel-info">
-            <div class="panel-heading">找学长、学姐</div>
+            <div class="panel-heading">找学长学姐</div>
             <div class="panel-body">
-              <p>考研复习过程中，遇到一些小问题想找人解答，但找不到？</p>
-              <p>想找名校牛逼学长、学姐给你解答困惑</p>
-              <p>这就说明清楚自己的情况，并填写对学长/学姐的背景要求&nbsp;<a href="{url problem/add}">进入</a></p>
+              <p>考研路，问题多，思来思去难奈何！</p>
+              <p>亲，想找名校的牛掰学长学姐来给你答疑解惑吗？</p>
+              <p>这就说明清楚自己的情况，寻找你心仪的学长学姐吧！</p>
+              <a href="{url problem/add}">点击进入</a>
             </div>
           </div>
+
         </li>
         <li class="list-group-item">
           <div class="panel panel-info">
             <div class="panel-heading">找家教兼职</div>
             <div class="panel-body">
-              <p>考研曾经历的无数的坑，想帮助学弟、学妹们绕过这些坑？</p>
-              <p>Boostme聚集了一大波985高校的牛逼学生，如果您是985高校的学生，并且有着牛逼的能力和成绩，欢迎你加入</p>
-              <p>这就填写自己的申请资料&nbsp;<a href="{url user/resume}">进入</a></p>
+              <p>考研路，坑满地，我们帮你跳过去！</p>
+              <p>Boostme聚集了一大批985名校的牛掰学生，</p>
+              <p>如果您是985名校的学生，欢迎你的加入！</p>
+              <p>这就填写资料申请加入吧！&nbsp;<a href="{url user/resume}">进入</a></p>
             </div>
           </div>
         </li>
@@ -105,9 +115,19 @@
 var timer;
 $(document).ready(function() {
     $(".prob_demand").click(function() {
-        var pid = $(this).attr("id");
-        $("#dialog_pid").val(pid);
-        $("#demandModal").modal('show');
+        <!--{if $user['uid']}-->
+            <!--{if $user['can_teach']}-->
+            var pid = $(this).attr("id");
+            $("#dialog_pid").val(pid);
+            $("#demandModal").modal('show');
+            <!--{else}-->
+            alert("您还没有获得资格，现在就去填写资料申请吧");
+            window.location.href = "{SITE_URL}index.php" + query + "user/resume";
+            <!--{/if}-->
+        <!--{else}-->
+            alert("您还未登录，请先登录");
+            window.location.href = "{SITE_URL}index.php" + query + "user/login";
+        <!--{/if}-->
     });
 
     $(".prob_cancel").click(function(){

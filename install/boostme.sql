@@ -1,4 +1,4 @@
-/* DROP TABLE IF EXISTS user; */
+DROP TABLE IF EXISTS user;
 CREATE TABLE user (
   `uid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` char(18) NOT NULL,
@@ -27,21 +27,22 @@ CREATE TABLE user (
   
   PRIMARY KEY (`uid`),
   KEY username(username),
-  KEY email(email),
+  KEY email(email)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /* alter table `user` add column `balance` int(10) NOT NULL DEFAULT '0'; */
 
-/* DROP TABLE IF EXISTS user_skill; */
+DROP TABLE IF EXISTS user_skill;
 CREATE TABLE user_skill (
   `uid` int(10) NOT NULL,
   `skill` varchar(20) NOT NULL,
   `time` int(10) NOT NULL DEFAULT '0',
   `verified` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`uid`,`skill`),
+  KEY `uid`(`uid`),
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS user_resume; */
+DROP TABLE IF EXISTS user_resume;
 CREATE TABLE user_resume (
   `uid` int(10) NOT NULL,
   `realname` char(18) DEFAULT NULL, /* 真实姓名 */
@@ -57,7 +58,7 @@ CREATE TABLE user_resume (
   UNIQUE KEY `ID`(`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS education; */
+DROP TABLE IF EXISTS education;
 CREATE TABLE education (
   `eid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) NOT NULL,
@@ -68,10 +69,13 @@ CREATE TABLE education (
   `start_time` date DEFAULT NULL,
   `end_time` date DEFAULT NULL,
   PRIMARY KEY (`eid`),
-  KEY `uid`(`uid`)
+  KEY `uid`(`uid`),
+  KEY `school`(`school`),
+  KEY `department`(`department`),
+  KEY `major`(`major`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
-/* DROP TABLE IF EXISTS userlog; */
+DROP TABLE IF EXISTS userlog;
 CREATE TABLE userlog (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `sid` varchar(10) NOT NULL DEFAULT '',
@@ -82,10 +86,11 @@ CREATE TABLE userlog (
   PRIMARY KEY (`id`),
   KEY `sid` (`sid`),
   KEY `uid` (`uid`),
-  KEY `time` (`time`)
+  KEY `time` (`time`),
+  KEY `type`(`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS problem; */
+DROP TABLE IF EXISTS problem;
 CREATE TABLE problem (
   `pid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `authorid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -113,17 +118,19 @@ CREATE TABLE problem (
   KEY price (price)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS problem_tag; */
+DROP TABLE IF EXISTS problem_tag;
 CREATE TABLE problem_tag (
   `pid` int(10) NOT NULL,
   `name` varchar(20) NOT NULL,
   `time` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`pid`,`name`),
+  KEY `pid`(`pid`),
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS demand; */
+DROP TABLE IF EXISTS demand;
 CREATE TABLE demand (
+  `did` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL,
   `username` char(18) NOT NULL,
   `pid` int(10) unsigned NOT NULL,
@@ -131,12 +138,13 @@ CREATE TABLE demand (
   `result` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `message` text DEFAULT NULL,
 
-  PRIMARY KEY (`uid`,`pid`),
+  PRIMARY KEY (`did`),
+  UNIQUE KEY uid_pid (`uid`,`pid`),
   KEY uid (`uid`),
   KEY pid (`pid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS message; */
+DROP TABLE IF EXISTS message;
 CREATE TABLE message (
   `mid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `from` varchar(15) NOT NULL DEFAULT '',
@@ -152,7 +160,7 @@ CREATE TABLE message (
   KEY `fromuid` (`fromuid`,`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS banned; */
+DROP TABLE IF EXISTS banned;
 CREATE TABLE banned (
   `id` smallint(6) unsigned NOT NULL AUTO_INCREMENT,
   `ip1` char(3) NOT NULL,
@@ -165,7 +173,7 @@ CREATE TABLE banned (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS session; */
+DROP TABLE IF EXISTS session;
 CREATE TABLE session (
   `sid` char(16) NOT NULL DEFAULT '',
   `uid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -206,7 +214,7 @@ CREATE TABLE crontab (
   KEY `nextrun` (`available`,`nextrun`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/* DROP TABLE IF EXISTS attach; */
+DROP TABLE IF EXISTS attach;
 CREATE TABLE attach (
   `aid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `time` int(10) unsigned NOT NULL DEFAULT '0',

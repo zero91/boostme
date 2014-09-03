@@ -19,8 +19,11 @@
   <!--{/if}-->
   <h5>
     <!--{if $userid != $this->user['uid']}-->
-    <span style="color:blue;">{$member['username']}</span>
-    的<!--{/if}-->最近动态
+    <div class="panel" style="position:relative;font-size:20px;">
+      <img class="img-circle avatar" src="{$member['avatar']}" width="70px" height="70px">
+      <span style="color:blue;">{$member['username']}</span>的最近动态
+    </div>
+    <!--{else}-->最近动态<!--{/if}-->
   </h5>
     <!-- Tab panes -->
     <div class="tab-content">

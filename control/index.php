@@ -12,7 +12,8 @@ class indexcontrol extends base {
         $page = max(1, intval($this->get[2]));
         $pagesize = INDEX_PROBLEM_LIST_SIZE;
 
-        $tobesolvedlist = $this->fromcache('tobesolved');
+        $tobesolvedlist = $this->fromcache('allprob');
+        //$tobesolvedlist = $this->fromcache('tobesolved');
         $total = count($tobesolvedlist);
         $page_tobesolvedlist = array_slice($tobesolvedlist, ($page - 1) * $pagesize, $pagesize);
         $departstr = page($total, $pagesize, $page, "index/default");

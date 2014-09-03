@@ -51,7 +51,7 @@ class base {
     }
 
     // 从缓存中读取数据，如果失败，则自动去读取数据然后写入缓存
-    function fromcache($cachename, $cachetime = 3) { // 这个时间参数暂时没有起到作用
+    function fromcache($cachename, $cachetime = 3) {
         $cachetime = ($this->setting['index_life'] == 0) ? 1 : $this->setting['index_life'] * 60;
         $cachedata = $this->cache->read($cachename, $cachetime);
 
@@ -60,6 +60,11 @@ class base {
         }
 
         switch ($cachename) {
+        case 'allprob': // 所有的求助
+            $this->load('problem');
+            $cachedata = $_ENV['problem']->get_list();
+            break;
+
         case 'tobesolved': // 待解决求助
             $this->load('problem');
             $cachedata = $_ENV['problem']->list_by_status(PB_STATUS_UNSOLVED);

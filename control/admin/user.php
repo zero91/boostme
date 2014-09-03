@@ -8,6 +8,7 @@ class admin_usercontrol extends base {
         $this->base($get, $post);
         $this->load('user');
         $this->load('userresume');
+        $this->load('education');
     }
 
     function ondefault() {
@@ -31,6 +32,20 @@ class admin_usercontrol extends base {
         $userlist = $_ENV['user']->get_apply_list(($page - 1) * $pagesize, $pagesize);
         $departstr = page($apply_num, $pagesize, $page, "admin_user/apply");
         include template('user', 'admin');
+    }
+
+    // 接受用户请求
+    function onaccept_apply() {
+        $uid = intval($this->get[2]);
+        if ($uid > 0) {
+            $_ENV['userresume']->update_verify($uid, RESUME_ACCEPTED);
+            $_ENV['user']->update_can_teach($uid, 1);
+            $subject = "恭喜您通过审核，获取抢单资格！";
+            $content = '您现在就可以根据自己的特长去帮助别人啦，现在进入<a href="' . SITE_URL . '">首页</a>';
+            $this->send('', 0, $uid, $subject, $content);
+            exit("1");
+        }
+        exit("-1");
     }
 
     function onuser() {
