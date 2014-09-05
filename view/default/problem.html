@@ -62,12 +62,13 @@
                 <label class="col-sm-1 control-label">回报：</label>
                 <div class="col-sm-2">
                     <!--{if $op_type == "add"}-->
-                    <input type="number" class="form-control" id="price" name="price" step="1" value="100" min="10" max="10000"/>
+                    <input type="number" class="form-control" id="price" name="price" step="1" value="100" min="0" max="10000"/>
                     <!--{else}-->
-                    <input type="number" class="form-control" id="price" name="price" step="1" value="{$problem['price']}" min="10" max="10000"/>
+                    <input type="number" class="form-control" id="price" name="price" step="1" value="{$problem['price']}" min="0" max="10000"/>
                     <!--{/if}-->
                 </div>
-                <div class="col-sm-1 btn">元/小时&nbsp;&nbsp;&nbsp;<span style="color:grey">(*最少为10)</span></div>
+                <div class="col-sm-1 btn">元/小时</div>
+                <!-- <div class="col-sm-1 btn">元/小时&nbsp;&nbsp;&nbsp;<span style="color:grey">(*最少为10)</span></div>-->
             </div>
         </div>
         <div style="float:right">

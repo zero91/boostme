@@ -352,9 +352,11 @@ class usercontrol extends base {
     }
 
     function onupload_resume() {
+        /*
         if (0 == $this->user['uid']) {
             return;
         }
+         */
 
         if (isset($_FILES["userresume"])) {
             $uid = intval($this->get[2]);
@@ -386,9 +388,11 @@ class usercontrol extends base {
     }
 
     function onupload_ID() {
+        /*
         if (0 == $this->user['uid']) {
             return;
         }
+         */
         $uid = intval($this->get[2]);
         $resumedir = "/data/userdata/ID/";
         $extname = extname($_FILES["userID"]["name"]);
@@ -417,9 +421,11 @@ class usercontrol extends base {
     }
 
     function onupload_studentID() {
+        /*
         if (0 == $this->user['uid']) {
             return;
         }
+         */
         $uid = intval($this->get[2]);
         $resumedir = "/data/userdata/studentID/";
         $extname = extname($_FILES["studentID"]["name"]);
@@ -448,9 +454,11 @@ class usercontrol extends base {
     }
 
     function oneditimg() {
+        /*
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
         }
+         */
 
         if (isset($_FILES["userimage"])) {
             $uid = intval($this->get[2]);

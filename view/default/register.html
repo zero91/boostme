@@ -179,7 +179,7 @@
         if (!email.match(/^[\w\.\-]+@([\w\-]+\.)+[a-z]{2,4}$/ig)) {
             $('#emailtip').html("邮件格式不正确");
             $('#emailtip').attr('class', 'input_error');
-            usernameok = false;
+            emailok = false;
         } else {
             $.post("{SITE_URL}index.php?user/ajaxemail", {email: email}, function(flag) {
                 if (-1 == flag) {
