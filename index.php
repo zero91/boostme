@@ -10,7 +10,7 @@ define('WEB_ROOT', dirname(__FILE__));
 
 define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, -9));
 
-include WEB_ROOT . '/model/boostme.class.php';
+include WEB_ROOT . '/code/model/boostme.class.php';
 
 $boostme = new boostme();
 $boostme->run();
