@@ -9,6 +9,7 @@ class base {
     var $cache;
     var $user = array();
     var $setting = array();
+    var $category = array();
     var $get = array();
     var $post = array();
     var $regular;
@@ -34,10 +35,11 @@ class base {
 
     // 一旦setting的缓存文件读取失败，则更新所有cache
     function init_cache() {
-        global $setting, $badword;
+        global $setting, $badword, $category;
         $this->cache = new cache($this->db);
         $setting = $this->setting = $this->cache->load('setting');
         $badword = $this->cache->load('badword', 'find');
+        $category = $this->category = $this->cache->load('category', 'cid');
     }
 
     function init_crontab() {
@@ -73,7 +75,7 @@ class base {
             $user['msg_system'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid=0 AND status<>" . MSG_STATUS_TO_DELETED);
             $user['msg_personal'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid<>0 AND status<>" . MSG_STATUS_TO_DELETED);
         }
-        $_ENV['user']->refresh_session_time($sid, $user['uid']);
+        $_ENV['user']->refresh_session_time($sid, $this->ip, $user['uid']);
         $user['sid'] = $sid;
         $user['ip'] = $this->ip;
         $user['uid'] && $user['loginuser'] = $user['username'];

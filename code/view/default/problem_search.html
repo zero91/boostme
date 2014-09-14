@@ -33,15 +33,15 @@
 
       <ul class="nav nav-tabs" role="tablist">
         <!--{if $status == "all"}-->
-        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">全部问题</a></li>
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">全部求助</a></li>
         <!--{else}-->
-        <li><a href="#no_content" id="jump1" role="tab" data-toggle="tab">全部问题</a></li>
+        <li><a href="#no_content" id="jump1" role="tab" data-toggle="tab">全部求助</a></li>
         <!--{/if}-->
 
         <!--{if $status == PB_STATUS_SOLVED}-->
-        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">已解决</a></li>
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">已解决求助</a></li>
         <!--{else}-->
-        <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">已解决</a></li>
+        <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">已解决求助</a></li>
         <!--{/if}-->
       </ul>
 
@@ -58,7 +58,7 @@
               <p>
                 {$problem['title']}&nbsp;&nbsp;
                 <!--{if in_array($problem['status'],array(PB_STATUS_SOLVED,PB_STATUS_CLOSED))}-->
-                <img title="已解决" src="{SITE_URL}css/default/solved.gif" />
+                <img title="已解决" src="{SITE_URL}public/css/default/solved.gif" />
                 <!--{/if}-->
               </p>
               <a href="{url problem/view/$problem['pid']}" target="_blank">查看详情</a>

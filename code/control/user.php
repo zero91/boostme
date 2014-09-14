@@ -352,14 +352,14 @@ class usercontrol extends base {
     }
 
     function onupload_resume() {
-        /*
-        if (0 == $this->user['uid']) {
-            return;
-        }
-         */
-
         if (isset($_FILES["userresume"])) {
             $uid = intval($this->get[2]);
+            $session_id = $this->post['session_id'];
+            $session_info = $_ENV['user']->get_session_by_sid($session_id);
+            if ($uid != $session_info['uid'] || $this->ip != $session_info['ip']) {
+                return;
+            }
+
             $resumedir = "/private/userdata/resume/";
             $extname = extname($_FILES["userresume"]["name"]);
             $uid = abs($uid);
@@ -387,12 +387,20 @@ class usercontrol extends base {
     }
 
     function onupload_ID() {
-        /*
-        if (0 == $this->user['uid']) {
+        $uid = intval($this->get[2]);
+        $session_id = $this->post['session_id'];
+        $session_info = $_ENV['user']->get_session_by_sid($session_id);
+
+        /*$file = fopen("/home/boostme/web/debug/boostme/log.txt", "w+");
+        fwrite($file, "uid=$uid, session_uid = {$session_info['uid']}, ip={$this->ip}, session_ip={$session_info['ip']}, session_id=$session_id\n");
+        $strdata = var_export($session_info, true);
+        fwrite($file, $strdata);
+        fclose($file);*/
+
+        if ($uid != $session_info['uid'] || $this->ip != $session_info['ip']) {
             return;
         }
-         */
-        $uid = intval($this->get[2]);
+
         $resumedir = "/private/userdata/ID/";
         $extname = extname($_FILES["userID"]["name"]);
         $uid = abs($uid);
@@ -419,12 +427,13 @@ class usercontrol extends base {
     }
 
     function onupload_studentID() {
-        /*
-        if (0 == $this->user['uid']) {
+        $uid = intval($this->get[2]);
+        $session_id = $this->post['session_id'];
+        $session_info = $_ENV['user']->get_session_by_sid($session_id);
+        if ($uid != $session_info['uid'] || $this->ip != $session_info['ip']) {
             return;
         }
-         */
-        $uid = intval($this->get[2]);
+
         $resumedir = "/private/userdata/studentID/";
         $extname = extname($_FILES["studentID"]["name"]);
         $uid = abs($uid);

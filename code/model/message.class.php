@@ -20,8 +20,8 @@ class messagemodel {
 
     // 发送消息
     function add($msgfrom, $msgfromid, $msgtoid, $subject, $content) {
-        $subject = taddslashes($subject);
-        $content = taddslashes($content);
+        //$subject = taddslashes($subject);
+        //$content = taddslashes($content);
         $this->db->query("INSERT INTO message SET `from`='$msgfrom',`fromuid`=$msgfromid,`touid`=$msgtoid,`subject`='$subject',`time`={$this->base->time},`content`='$content'");
         return $this->db->insert_id();
     }

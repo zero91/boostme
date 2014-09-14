@@ -303,6 +303,7 @@ $(document).ready(function() {
     $('#file_upload').uploadify({
         'swf': '{SITE_URL}public/js/uploadify/uploadify.swf',
         'uploader': "{url user/upload_resume/$user['uid']}",
+        'formData': { "session_id" : "{$user['sid']}" },
         'auto': true,
         'buttonText' : "上传简历",
         'buttonClass' : "btn btn-primary",
@@ -315,7 +316,7 @@ $(document).ready(function() {
         'onUploadSuccess': function(file, data, response) {
             alert('简历上传成功!'); 
             resume_ok = true;
-            $("#resume_link").attr("href", data+"?"+Math.random());
+            $("#resume_link").attr("href", "{SITE_URL}?resource/request/resume/{$user['uid']}&&rand=" + Math.random());
             $("#resume_div").show();
         }
     });
@@ -323,6 +324,7 @@ $(document).ready(function() {
     $('#ID_upload').uploadify({
         'swf': '{SITE_URL}public/js/uploadify/uploadify.swf',
         'uploader': "{url user/upload_ID/$user['uid']}",
+        'formData': { "session_id" : "{$user['sid']}" },
         'auto': true,
         'buttonText' : "上传证件照",
         'buttonClass' : "btn btn-primary",
@@ -335,9 +337,8 @@ $(document).ready(function() {
         'onUploadSuccess': function(file, data, response) {
             alert('证件照上传成功!');
             ID_ok = true;
-            $("#img_id_path_pic").attr("src", "{SITE_URL}?resource/request/ID/{$user['uid']}");
+            $("#img_id_path_pic").attr("src", "{SITE_URL}?resource/request/ID/{$user['uid']}&&rand=" + Math.random());
             $("#ID_path_div").show();
-            $("#img_modal_id_path").attr("src", "{SITE_URL}?resource/request/ID/{$user['uid']}");
             $(".uploadify-queue").hide();
         }
     });
@@ -345,6 +346,7 @@ $(document).ready(function() {
     $('#studentID_upload').uploadify({
         'swf': '{SITE_URL}public/js/uploadify/uploadify.swf',
         'uploader': "{url user/upload_studentID/$user['uid']}",
+        'formData': { "session_id" : "{$user['sid']}" },
         'auto': true,
         'buttonText' : "上传学生证",
         'buttonClass' : "btn btn-primary",
@@ -357,9 +359,8 @@ $(document).ready(function() {
         'onUploadSuccess': function(file, data, response) {
             alert('学生证上传成功!');
             studentID_ok = true;
-            $("#img_studentID").attr("src", data+"?"+Math.random());
+            $("#img_studentID").attr("src", "{SITE_URL}?resource/request/studentID/{$user['uid']}&&rand="+Math.random());
             $("#studentID_div").show();
-            $("#img_modal_studentID").attr("src", data+"?"+Math.random());
             $(".uploadify-queue").hide();
         }
     });
@@ -395,8 +396,7 @@ function initProvince(id) {
     target_name='#choose-a-province-' + id;
     //原先的省份列表清空
     $(target_name).html('');
-    for(i=0;i<schoolList.length;i++)
-    {
+    for (i = 0; i < schoolList.length; ++i) {
         $(target_name).append('<a class="province-item" province-id="'+schoolList[i].id+'">'+schoolList[i].name+'</a>');
     }
     //添加省份列表项的click事件
@@ -418,8 +418,7 @@ function initSchool(provinceID, id) {
     //原先的学校列表清空
     $(target_name).html('');
     var schools = schoolList[provinceID-1].school;
-    for(i=0;i<schools.length;i++)
-    {
+    for (i = 0; i <schools.length; ++i) {
         $(target_name).append('<a class="school-item" school-id="'+schools[i].id+'">'+schools[i].name+'</a>');
     }
     //添加大学列表项的click事件
@@ -428,12 +427,7 @@ function initSchool(provinceID, id) {
 
             var school = item.attr('school-id');
             //更新选择大学文本框中的值
-
             item.parents(".col-sm-5").children(".form-control").val(item.text());
-            //item.parents(".form-group").children(".fohide();
-            //item.parents(".input-bar").children(".normal-input").val(item.text());
-            //$('#bachelor-school').val(item.text());
-            //关闭弹窗
             hide(id);
         }
     );

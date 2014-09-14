@@ -33,7 +33,7 @@ class resourcecontrol extends base {
         header("Content-Disposition: attachment; filename=$data_type");
 
         if (file_exists($filepath)) {
-          echo readfromfile($filepath);
+            echo readfromfile($filepath);
         }
     }
 }

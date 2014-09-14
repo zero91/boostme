@@ -6,7 +6,8 @@ function parse_template($tplfile, $objfile) {
     $nest = 5;
 
     if(!@$fp = fopen($tplfile, 'r')) {
-        exit("Current template file '$tplfile' not found or have no access!");
+        exit();
+        //exit("Current template file '$tplfile' not found or have no access!");
     }
 
     $template = fread($fp, filesize($tplfile));

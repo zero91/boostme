@@ -119,11 +119,11 @@ class usermodel {
         $this->base->user['newmsg'] = 0;
     }
 
-    function refresh_session_time($sid, $uid) {
+    function refresh_session_time($sid, $ip, $uid) {
         $lastrefresh = tcookie("lastrefresh");
         if (!$lastrefresh) {
             if ($uid) {
-                $this->db->query("UPDATE session SET `time` = {$this->base->time} WHERE sid='$sid'");
+                $this->db->query("UPDATE session SET `time` = {$this->base->time},`ip`='$ip' WHERE sid='$sid'");
             } else {
                 $session = $this->db->fetch_first("SELECT * FROM session WHERE sid='$sid'");
                 if ($session) {
@@ -238,6 +238,10 @@ class usermodel {
     function get_code() {
         $sid = $this->base->user['sid'];
         return $this->db->result_first("SELECT code FROM session WHERE sid='$sid'");
+    }
+
+    function get_session_by_sid($sid) {
+        return $this->db->fetch_first("SELECT * FROM session WHERE sid='$sid'");
     }
 
     function is_login($uid = 0) {

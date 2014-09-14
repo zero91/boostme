@@ -55,10 +55,10 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 
 
 <!--{if $problem['authorid'] != 0 && ($problem['authorid'] == $user['uid']) && (PB_STATUS_SOLVED == $problem['status'])}-->
-.star-rating {list-style:none; margin: 0px; padding:0px; width: 190px; height: 19px;position: relative; background: url("{SITE_URL}css/default/heart.png") top left repeat-x; }
+.star-rating {list-style:none; margin: 0px; padding:0px; width: 190px; height: 19px;position: relative; background: url("{SITE_URL}public/css/default/heart.png") top left repeat-x; }
 .star-rating li {padding:0px; margin:0px; float: left;position:relative;}
 .star-rating li a{ display:block; width:19px; height:19px; text-decoration: none; text-indent: -9000px; z-index: 20; position: absolute; padding: 0px; }
-.star-rating li a:hover{background: url("{SITE_URL}css/default/heart.png") left bottom; z-index: 1; left: 0px;}
+.star-rating li a:hover{background: url("{SITE_URL}public/css/default/heart.png") left bottom; z-index: 1; left: 0px;}
 .star-rating a.star1{left: 0px;}
 .star-rating a.star1:hover{width:19px;}
 .star-rating a.stars2{left:19px;}
@@ -100,7 +100,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                     <div class="mypanel_for_action">
                     <div>
                         <a target="blank" href="{url user/space/$problem['authorid']}" class="" >{$problem['author']}</a>
-                        <h5>{$problem['title']}</h5>
+                        <h5>【{$category[$problem['cid']]['name']}】{$problem['title']}</h5>
                     </div>
 
                     <div class="pull-right">
@@ -126,7 +126,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                     </div>
                     <div class="user-label" style="font-size:13px;">
                         <div class="user-label-info">
-                            <span class="gold"><img src="{SITE_URL}public/css/default/gold.gif">&nbsp;¥{$problem['price']}</span>
+                            <span class="gold"><img src="{SITE_URL}public/css/default/gold.gif">&nbsp;¥{$problem['price']}元/小时</span>
                             <span class="span-line">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                             <!--{if $problem['authorid'] == 0}-->
                             <span><!--{if $problem['ip']}-->{$problem['ip']}<!--{else}-->游客<!--{/if}--></span>
@@ -195,7 +195,6 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
             </div>
             <!--{/if}-->
             <!--{/if}-->
-
         </div><!-- left panel end -->
 
         <!--{if $problem['authorid'] != 0 && ($problem['authorid'] == $user['uid'])}-->
@@ -380,7 +379,7 @@ $(document).ready(function() {
         $("#star_tip").html(elem_id + "分");
         $("#star" + elem_id).width(elem_id * 19);
         $("#user_score").val(elem_id);
-        $("#star" + elem_id).css({"background":"url(\"{SITE_URL}css/default/heart.png\") left bottom","z-index":"1","left":"0"});
+        $("#star" + elem_id).css({"background":"url(\"{SITE_URL}public/css/default/heart.png\") left bottom","z-index":"1","left":"0"});
         $('#star_info_tip').html("&nbsp;");
         $('#star_info_tip').removeClass('input_error');
     });

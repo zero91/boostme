@@ -1,12 +1,12 @@
 <!--{template header}-->
-<link rel="stylesheet" href="{SITE_URL}js/lightbox/lightbox.css"/>
-<script type="text/javascript" src="{SITE_URL}js/lightbox/lightbox.js"></script>
-<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.config.js"></script> 
-<script type="text/javascript" src="{SITE_URL}js/editor/ueditor.all.js"></script> 
+<link rel="stylesheet" href="{SITE_URL}public/js/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.all.js"></script> 
 
 <style type="text/css">
-    .input_ok {background: url("{SITE_URL}/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
-    .input_error {background: url("{SITE_URL}/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
+    .input_ok {background: url("{SITE_URL}public/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
+    .input_error {background: url("{SITE_URL}public/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
     .avatar {position: absolute; top: 20px; left: 10px; }
     .msg_content {margin: 0 10px 0 95px !important; padding: 10px; line-height: 26px;}
     .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
@@ -30,7 +30,7 @@
         <div class="list-group-item">
           <div class="avatar" style="max-width:60px;">
             <a href="{url user/space/$message['fromuid']}" title="supermustang" target="_blank">
-              <img class="img-circle" width="60px" height="60px;" alt="{$message['from']}" src="{$message['from_avatar']}"/>
+              <img class="img-circle" width="60px" height="60px;" alt="{$message['from']}" src="{eval echo get_avatar_dir($message['fromuid'])}"/>
             </a>
           </div>
           <div class="panel panel-default msg_content">

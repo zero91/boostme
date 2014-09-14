@@ -104,37 +104,12 @@ function initcategory(category1) {
         resizable: false
     });
 }
-function fillcategory(category2, value1, cateid) {
-    var optionhtml = '<option value="0">不选择</option>';
-    var selectedcid = 0;
-    if (cateid === "category2") {
-        selectedcid = $("#selectcid2").val();
-    } else if (cateid === "category3") {
-        selectedcid = $("#selectcid3").val();
-    }
-    $("#" + cateid).html("");
-    for (var i = 0; i < category2.length; i++) {
-        if (value1 === category2[i][0]) {
-            var selected = '';
-            if (selectedcid === category2[i][1]) {
-                selected = ' selected';
-                $("#" + cateid).show();
-            }
-            optionhtml += "<option value='" + category2[i][1] + "' " + selected + ">" + category2[i][2] + "</option>";
-        }
-    }
-    $("#" + cateid).html(optionhtml);
-}
-
 //验证码
 function updatecode()
 {
     var img = g_site_url + "index.php" + query + "user/code/" + Math.random();
     $('#verifycode').attr("src", img);
 }
-
-
-
 //usercard弹出层
 function pop_user_on(popobj, uid, type) {
     $("#usercard").load(g_site_url + "index.php" + query + "user/ajaxuserinfo/" + uid, {}, function() {

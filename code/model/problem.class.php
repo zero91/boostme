@@ -68,8 +68,21 @@ class problemmodel {
         return $problem;
     }
 
-    function get_by_title($title) {
-        return $this->db->fetch_first("SELECT * FROM problem WHERE `title`='$title'");
+    function get_by_cid($cid, $start = 0, $limit = 10) {
+        $query = $this->db->query("SELECT * FROM problem WHERE cid='$cid' ORDER BY `time` DESC limit $start,$limit");
+        //$query = $this->db->query("SELECT * FROM problem limit $start,$limit");
+        $problemlist = array();
+        while ($problem = $this->db->fetch_array($query)) {
+            $problem['format_time'] = tdate($problem['time']);
+            $problem['url'] = url('problem/view/' . $problem['pid'], $problem['url']);
+            $problemlist[] = $problem;
+        }
+        return $problemlist;
+    }
+
+    function get_prob_num_by_cid($cid) {
+        return $this->db->result_first("SELECT COUNT(*) FROM `problem` WHERE `cid`='$cid'");
+        //return $this->db->result_first("SELECT COUNT(*) FROM `problem`");
     }
 
     function get_list($start=0, $limit='') {
@@ -105,7 +118,7 @@ class problemmodel {
     }
 
     // 插入问题到problem表
-    function add($title, $description, $price, $status=PB_STATUS_UNAUDIT) {
+    function add($title, $description, $cid, $price, $status=PB_STATUS_UNAUDIT) {
         $overdue_days = intval($this->base->setting['overdue_days']);
         $creattime = $this->base->time;
         $endtime = $this->base->time + $overdue_days * 86400;
@@ -113,7 +126,7 @@ class problemmodel {
         $username = $uid ? $this->base->user['username'] : $this->base->user['ip'];
         (!strip_tags($description, '<img>')) && $description = '';
 
-        $this->db->query("INSERT INTO problem SET authorid='$uid',author='$username',title='$title',description='$description',price='$price',time='$creattime',endtime='$endtime',status='$status',ip='{$this->base->ip}'");
+        $this->db->query("INSERT INTO problem SET authorid='$uid',author='$username',title='$title',description='$description',cid='$cid',price='$price',time='$creattime',endtime='$endtime',status='$status',ip='{$this->base->ip}'");
         $pid = $this->db->insert_id();
         return $pid;
     }
@@ -222,11 +235,11 @@ class problemmodel {
     }
 
     // 更新求助
-    function update($pid, $title, $description, $price, $status) {
+    function update($pid, $title, $description, $cid, $price, $status) {
         $overdue_days = intval($this->base->setting['overdue_days']);
         $asktime = $this->base->time;
         $endtime = $asktime + $overdue_days * 86400;
-        $this->db->query("UPDATE `problem` SET title='$title',description='$description',price='$price',`status`=$status,`time`= $asktime,endtime='$endtime' WHERE `pid` = $pid");
+        $this->db->query("UPDATE `problem` SET title='$title',description='$description',cid='$cid',price='$price',`status`=$status,`time`= $asktime,endtime='$endtime' WHERE `pid` = $pid");
         if ($this->base->setting['xunsearch_open']) { // 更新索引
             $problem = array();
             $problem['pid'] = $pid;

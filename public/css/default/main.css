@@ -1,5 +1,4 @@
-.line_split {border-top:1px solid rgb(222,222,222);padding-top:5px;padding-bottom:5px;} 
-
+.line_split {border-top:1px solid rgb(222,222,222);padding-top:5px;padding-bottom:5px;}
 .choose-box-wrapper{
     width: 652px;
     background-color:#000;
@@ -25,7 +24,6 @@
 .choose-box-title span{
     font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
 }
-
 .choose-a-province, .choose-a-school{
     margin:5px 8px 10px 8px;
     border: 1px solid #C3C3C3;
@@ -43,20 +41,19 @@
     text-align: center;
 }
 .choose-a-province a:hover{
-    text-decoration:underline;
     cursor:pointer;
 }
 .choose-a-province .choosen{
     background-color: #005EAC;
     color:white;
 }
-
 .choose-a-school{
     overflow-x: hidden;
     overflow-y: auto;
     height: 200px;
 }
 .choose-a-school a{
+    display:inline-block;
     height: 18px;
     line-height: 18px;
     color:#005EAC;
@@ -70,11 +67,11 @@
     background:url(2012072500060712.gif) no-repeat 0 9px;
 }
 .choose-a-school a:hover{
+    text-decoration: none;
     background-color:#005EAC;
     color:white;
     cursor:pointer;
 }
-
 .choose-box-bottom{
     background: #F0F5F8;
     padding: 8px;

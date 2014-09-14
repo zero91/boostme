@@ -34,7 +34,14 @@ class demandmodel {
     }
 
     function get_accept_demand($pid) {
-        return $this->db->result_first("SELECT * FROM `demand` WHERE pid=$pid AND `resul`t=" . DEMAND_STATUS_ACCEPT);
+        $query = $this->db->query("SELECT * FROM `demand` WHERE pid=$pid AND `result`=" . DEMAND_STATUS_ACCEPT);
+
+        $accept_list = array();
+        while ($accept = $this->db->fetch_array($query)) {
+            $accept_list[] = $accept;
+            break;
+        }
+        return $accept_list;
     }
 
     function list_by_uid($uid) {

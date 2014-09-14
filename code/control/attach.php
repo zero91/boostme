@@ -12,7 +12,7 @@ class attachcontrol extends base {
     function onupload() {
         //上传配置
         $config = array(
-            "uploadPath" => "data/attach/", //保存路径
+            "uploadPath" => "public/data/attach/", //保存路径
             "fileType" => array(".rar", ".doc", ".docx", ".zip", ".pdf", ".txt", ".swf", ".wmv", "xsl"), //文件允许格式
             "fileSize" => 10 //文件大小限制，单位MB
         );
@@ -54,7 +54,7 @@ class attachcontrol extends base {
     function onuploadimage() {
         //上传配置
         $config = array(
-            "uploadPath" => "data/attach/", //保存路径
+            "uploadPath" => "public/data/attach/", //保存路径
             "fileType" => array(".gif", ".png", ".jpg", ".jpeg", ".bmp"),
             "fileSize" => 2048
         );

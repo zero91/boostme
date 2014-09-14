@@ -25,6 +25,7 @@ class problemcontrol extends base {
             $description = $this->post['description'];
             $tags = trim($this->post["ptags"]);
             $price = intval($this->post["price"]);
+            $cid = trim($this->post['category_id']);
 
             $this->setting['code_problem'] && $this->checkcode(); //检查验证码
 
@@ -42,7 +43,7 @@ class problemcontrol extends base {
             2 == $descarray[0] && $this->message("求助描述包含非法关键词，发布失败!", 'BACK');
             $description = $descarray[1];
 
-            $pid = $_ENV['problem']->add($title, $description, $price);
+            $pid = $_ENV['problem']->add($title, $description, $cid, $price);
             $_ENV['problem']->update_status($pid, $status);
             $_ENV['user']->update_problem_num($this->user['uid'], 1);
 
@@ -333,6 +334,7 @@ class problemcontrol extends base {
         if (isset($this->post['submit'])) {
             $title = htmlspecialchars($this->post['title']);
             $description = $this->post['description'];
+            $cid = $this->post['category_id'];
             $tags = trim($this->post["ptags"]);
             $price = intval($this->post["price"]);
 
@@ -352,7 +354,7 @@ class problemcontrol extends base {
             2 == $descarray[0] && $this->message("求助描述包含非法关键词，发布失败!", 'BACK');
             $description = $descarray[1];
 
-            $_ENV['problem']->update($pid, $title, $description, $price, $status); 
+            $_ENV['problem']->update($pid, $title, $description, $cid, $price, $status); 
 
             // 插入标签
             !empty($tags) && $taglist = explode(" ", $tags);

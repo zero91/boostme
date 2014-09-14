@@ -1,9 +1,9 @@
 <?php 
 
 define('DB_HOST', 'localhost');
-define('DB_USER', 'boostme');
-define('DB_PW', 'boostme');
-define('DB_NAME', 'boostme_online');
+define('DB_USER', 'boostme_alpha');
+define('DB_PW', 'boostme_alpha');
+define('DB_NAME', 'boostme_alpha');
 define('DB_CHARSET', 'utf8');
 define('DB_CONNECT', 0);
 define('WEB_CHARSET', 'UTF-8');
