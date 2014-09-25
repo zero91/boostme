@@ -307,8 +307,8 @@ INSERT INTO setting VALUES ('mailsend', '1');
 INSERT INTO setting VALUES ('mailserver', 'smtp.domain.com');
 INSERT INTO setting VALUES ('mailport', '25');
 INSERT INTO setting VALUES ('mailauth', '0');
-INSERT INTO setting VALUES ('mailfrom', 'tipask <tipask@domain.com>');
-INSERT INTO setting VALUES ('mailauth_username', 'tipask@domain.com');
+INSERT INTO setting VALUES ('mailfrom', 'boostme <boostme@boostme.cn>');
+INSERT INTO setting VALUES ('mailauth_username', 'boostme@boostme.cn');
 INSERT INTO setting VALUES ('mailauth_password', '');
 INSERT INTO setting VALUES ('maildelimiter', '0');
 INSERT INTO setting VALUES ('mailusername', '1');
@@ -616,8 +616,8 @@ INSERT INTO category VALUES ('S900024','贵州师范大学','西南考研院校�
 INSERT INTO category VALUES ('S900025','西藏大学','西南考研院校（四川 | 重庆 | 云南 | 贵州 | 西藏）');
 
 INSERT INTO category VALUES ('C100001','政治','公共课');
-INSERT INTO category VALUES ('C100002','英语','公共课');
-INSERT INTO category VALUES ('C100003','英语','公共课');
+INSERT INTO category VALUES ('C100002','英语1','公共课');
+INSERT INTO category VALUES ('C100003','英语2','公共课');
 INSERT INTO category VALUES ('C100004','数学','公共课');
 INSERT INTO category VALUES ('C200001','计算机与软件','统考/联考科目');
 INSERT INTO category VALUES ('C200002','历史学','统考/联考科目');
@@ -700,3 +700,90 @@ INSERT INTO category VALUES ('C300070','图书情报与档案管理','专业课'
 INSERT INTO category VALUES ('C300071','农林经济管理','专业课');
 INSERT INTO category VALUES ('C300072','艺术学','专业课');
 
+/* DROP TABLE IF EXISTS discuss; */
+CREATE TABLE discuss (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `from` varchar(15) NOT NULL DEFAULT '',
+  `fromuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `subject` varchar(75) NOT NULL DEFAULT '',
+  `ip` varchar(20) DEFAULT NULL,
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `content` text NOT NULL, 
+
+  PRIMARY KEY (`id`),
+  KEY `fromuid` (`fromuid`),
+  KEY time (`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS question;
+CREATE TABLE question (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `cid1` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `cid2` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `cid3` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `price` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `author` char(15) NOT NULL DEFAULT '',
+  `authorid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `title` char(50) NOT NULL,
+  `description` text NOT NULL,
+  `supply` text NOT NULL,
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `endtime` int(10) unsigned NOT NULL DEFAULT '0',
+  `hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `answers` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `attentions` int(10) NOT NULL DEFAULT '0',
+  `goods` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `ip` varchar(20) DEFAULT NULL COMMENT 'ipåœ°å€',
+  `views` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY cid1 (cid1),
+  KEY cid2 (cid2),
+  KEY cid3 (cid3),
+  KEY `time` (`time`),
+  KEY price (price),
+  KEY answers (answers),
+  KEY authorid (authorid)
+) ENGINE=MyISAM;
+
+DROP TABLE IF EXISTS answer;
+CREATE TABLE answer (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `qid` int(10) unsigned NOT NULL DEFAULT '0',
+  `title` char(50) NOT NULL,
+  `author` varchar(15) NOT NULL DEFAULT '',
+  `authorid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `adopttime` int(10) unsigned NOT NULL DEFAULT '0',
+  `content` mediumtext NOT NULL,
+  `comments` int(10) NOT NULL,
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `ip` varchar(20) DEFAULT NULL,
+  `tag` text NOT NULL COMMENT '追问',
+  `supports` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `qid` (`qid`),
+  KEY `authorid` (`authorid`),
+  KEY `adopttime` (`adopttime`),
+  KEY `time` (`time`)
+) ENGINE=MyISAM;
+
+DROP TABLE IF EXISTS answer_comment;
+CREATE TABLE answer_comment (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `aid` int(10) NOT NULL,
+  `authorid` int(10) NOT NULL,
+  `author` char(18) NOT NULL,
+  `content` varchar(100) NOT NULL,
+  `time` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM;
+
+DROP TABLE IF EXISTS answer_support;
+CREATE TABLE answer_support (
+  `sid` char(16) NOT NULL,
+  `aid` int(10) NOT NULL,
+  `time` int(10) NOT NULL,
+  PRIMARY KEY (`sid`,`aid`)
+) ENGINE=MyISAM;

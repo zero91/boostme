@@ -1,0 +1,189 @@
+<!--{template header}-->
+<link rel="stylesheet" href="{SITE_URL}public/js/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.all.js"></script> 
+<style type="text/css">
+    /*
+  .photo {position: absolute; top: 20px; left: 10px; }
+  .action {position: absolute; right: 50px; bottom: 20px;}
+  .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
+  .mypanel {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px;}
+  .arrow {left:76px;top:40px;position:absolute;}
+  .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
+  .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
+  .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}*/
+    .avatar {position: absolute; top: 20px; left: 10px; }
+    .msg_content {margin: 0 10px 0 95px !important; padding: 10px; line-height: 26px;}
+    .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
+    .arrow {left:96px;top:40px;position:absolute;}
+    .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
+    .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
+    .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
+    .msg_content img {max-width:200px;max-height:200px;}
+</style>
+
+<script type="text/javascript">
+$(function(){
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      if (e.target.id == "all_prob") {
+        location.href = "{url index/default}";
+      } else if (e.target.id == "school") {
+        location.href = "{url category/school/master}";
+      } else if (e.target.id == "course") {
+        location.href = "{url category/course/master}";
+      } else if (e.target.id == "discuss") {
+        location.href = "{url discuss/view}";
+      } 
+    });
+    $("#menu_profile").addClass("active");
+    $("#birthday").datepicker({
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '-60:+0',
+        dateFormat: 'yy-mm-dd'
+    });
+})
+</script>
+
+<div class="container" style="margin-top:23px;">
+  <div class="col-sm-9">
+    <ul class="nav nav-tabs" role="tablist">
+      <li><a href="#all_prob" id="all_prob" role="tab" data-toggle="tab">全部求助</a></li>
+      <li><a href="#school" id="school" role="tab" data-toggle="tab">考研院校</a></li>
+      <li><a href="#course" id="course" role="tab" data-toggle="tab">考研课程</a></li>
+      <li class="active"><a href="#discuss" id="discuss" role="tab" data-toggle="tab">答疑区</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane" id="all_prob"></div>
+      <div class="tab-pane" id="school"></div>
+      <div class="tab-pane" id="course"></div>
+      <div class="tab-pane active" id="discuss">
+        <div class="list-group">
+          <!--{loop $messagelist $message}-->
+          <div class="list-group-item">
+            <div class="avatar" style="max-width:60px;">
+              <a href="{url user/space/$message['fromuid']}" title="supermustang" target="_blank">
+                <img class="img-circle" width="60px" height="60px;" alt="{$message['from']}" src="{eval echo get_avatar_dir($message['fromuid'])}"/>
+              </a>
+            </div>
+            <div class="panel panel-default msg_content">
+              <!--{if $this->user['isadmin']}-->
+              <div class="pull-right">
+                <a type="button" name="delete_{$message['mid']}" class="glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey;cursor:pointer;"></a>
+              </div>
+            <!--{/if}--> 
+              <p><a href="{url user/space/$message['fromuid']}">{$message['from']}</a> : {$message['subject']}</p>
+              <p>{$message['content']}</p>
+
+              <div style="position:absolute;right:30px;bottom:10px;">
+                <span>{$message['format_time']}</span>
+              </div>
+            </div>
+            <span class="arrow"></span>
+          </div>
+          <!--{/loop}-->
+          <center><div class="pages">{$departstr}</div></center>
+          <div class="list-group-item">
+            <form name="commentform" action="{url message/send}" method="POST"
+                  onsubmit="return check_form();">
+              <div class="avatar" style="max-width:60px;">
+                <img class="img-circle" width="60px" height="60px;" alt="{$user['username']}" src="{$user['avatar']}"/>
+              </div>
+              <div class="msg_content">
+                <script type="text/plain" id="content" name="content" style="height: 122px;"></script>
+                <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+                <div style="margin-top:15px;">
+                  <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
+                  <img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode">
+                  <a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+                  <span id="codetip"></span>
+                  <input type="hidden" name="username" value="{$fromuser['username']}" />
+                  <input type="submit" value="提&nbsp;交" class="btn btn-primary pull-right" name="submit">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div> <!-- tab-pane -->
+      </div><!-- tab-content -->
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <ul class="list-group" style="font-size:13px;">
+      <li class="list-group-item">
+        <div class="panel panel-info">
+          <div class="panel-heading">找学长学姐</div>
+          <div class="panel-body">
+            <p>考研路，问题多，思来思去难奈何！</p>
+            <p>亲，想找名校的牛掰学长学姐来给你答疑解惑吗？</p>
+            <p>这就说明清楚自己的情况，寻找你心仪的学长学姐吧！</p>
+            <a href="{url problem/add}">点击进入</a>
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item">
+        <div class="panel panel-info">
+          <div class="panel-heading">找家教兼职</div>
+          <div class="panel-body">
+            <p>考研路，坑满地，我们帮你跳过去！</p>
+            <p>Boostme聚集了一大批985名校的牛掰学生，</p>
+            <p>如果您是985名校的学生，欢迎你的加入！</p>
+            <p>这就填写资料申请加入吧！&nbsp;<a href="{url user/resume}">进入</a></p>
+          </div>
+        </div>
+      </li>
+    </ul>
+    <span style="color:blue">可以通过QQ群：32480019联系我们</span>
+  </div><!--col-sm-3-->
+</div><!-- container end -->
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+    <!--{if $this->user['isadmin']}-->
+    $(".glyphicon").click(function() {
+        if (confirm('确定删除与该用户的私信?') === false) {
+            return false;
+        }
+        msgid = $(this).attr("id");
+        grandparent = $(this).parent().parent().parent();
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "message/remove/" + msgid,
+            cache: false,
+            success: function(succeed) {
+                if (succeed == '1') {
+                    grandparent.hide();
+                } else if (succeed == '-1') {
+                    alert("删除失败，请重试！");
+                }
+            }
+        });
+    });
+    <!--{/if}-->
+
+    $(".msg_content img").each(function(i) {
+        var img = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{SITE_URL}index.php?index/ajaxchkimg",
+            async: true,
+            data: "imgsrc=" + img.attr("src"),
+            success: function(status) {
+                if ('1' == status) {
+                    img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
+                }
+            }
+        });
+    }); 
+});
+
+function check_form() {
+    if ($.trim(UE.getEditor('content').getPlainTxt()) == '') {
+        alert("内容不能为空!");
+        return false;
+    }
+    return check_code();
+}
+</script>
+<!--{template footer}-->

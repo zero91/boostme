@@ -19,6 +19,8 @@ $(function(){
         location.href = "{url category/school/master}";
       } else if (e.target.id == "course") {
         location.href = "{url category/course/master}";
+      } else if (e.target.id == "discuss") {
+        location.href = "{url discuss/view}";
       }
     });
     $("#menu_profile").addClass("active");
@@ -37,6 +39,7 @@ $(function(){
       <li><a href="#all_prob" id="all_prob" role="tab" data-toggle="tab">全部求助</a></li>
       <li class="active"><a href="#school" id="school" role="tab" data-toggle="tab">考研院校</a></li>
       <li><a href="#course" id="course" role="tab" data-toggle="tab">考研课程</a></li>
+      <li><a href="#discuss" id="discuss" role="tab" data-toggle="tab">答疑区</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane" id="all_prob"></div>
