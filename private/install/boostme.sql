@@ -17,6 +17,7 @@ CREATE TABLE user (
   `authstr` varchar(100) DEFAULT NULL,
   `signature` mediumtext,
   `problems` int(10) unsigned NOT NULL DEFAULT '0', /* 提交的需求数量 */
+  `questions` int(10) unsigned NOT NULL DEFAULT '0', /* 发帖数量 */
   `solved` int(10) unsigned NOT NULL DEFAULT '0', /* 解决的需求数量 */
   `failed` int(10) unsigned NOT NULL DEFAULT '0', /* 未抢到的需求数量 */
   `can_teach` tinyint(3) unsigned NOT NULL DEFAULT '0', /* 是否可以教别人，获取抢单的资格 */
@@ -701,7 +702,7 @@ INSERT INTO category VALUES ('C300071','农林经济管理','专业课');
 INSERT INTO category VALUES ('C300072','艺术学','专业课');
 
 /* DROP TABLE IF EXISTS discuss; */
-CREATE TABLE discuss (
+/* CREATE TABLE discuss (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `from` varchar(15) NOT NULL DEFAULT '',
   `fromuid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -714,38 +715,38 @@ CREATE TABLE discuss (
   KEY `fromuid` (`fromuid`),
   KEY time (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/
 
 DROP TABLE IF EXISTS question;
 CREATE TABLE question (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `cid` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `cid1` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `cid2` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `cid3` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `price` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `qid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `author` char(15) NOT NULL DEFAULT '',
   `authorid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `title` char(50) NOT NULL,
   `description` text NOT NULL,
-  `supply` text NOT NULL,
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  `endtime` int(10) unsigned NOT NULL DEFAULT '0',
-  `hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `answers` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `attentions` int(10) NOT NULL DEFAULT '0',
+  `attentions` int(10) unsigned NOT NULL DEFAULT '0',
   `goods` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `status` tinyint(1) unsigned NOT NULL DEFAULT '1',
-  `ip` varchar(20) DEFAULT NULL COMMENT 'ipåœ°å€',
+  `ip` varchar(20) DEFAULT NULL,
   `views` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY cid1 (cid1),
-  KEY cid2 (cid2),
-  KEY cid3 (cid3),
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`qid`),
   KEY `time` (`time`),
-  KEY price (price),
   KEY answers (answers),
   KEY authorid (authorid)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS question_attention;
+CREATE TABLE question_attention (
+  `qid` int(10) NOT NULL,
+  `followerid` int(10) unsigned NOT NULL,
+  `follower` char(18) NOT NULL,
+  `time` int(10) NOT NULL,
+  PRIMARY KEY (`qid`,`followerid`),
+  KEY `followerid`(`followerid`),
+  KEY `qid`(`qid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS answer;
 CREATE TABLE answer (
@@ -753,37 +754,35 @@ CREATE TABLE answer (
   `qid` int(10) unsigned NOT NULL DEFAULT '0',
   `title` char(50) NOT NULL,
   `author` varchar(15) NOT NULL DEFAULT '',
-  `authorid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `authorid` int(10) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
-  `adopttime` int(10) unsigned NOT NULL DEFAULT '0',
   `content` mediumtext NOT NULL,
   `comments` int(10) NOT NULL,
-  `status` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `ip` varchar(20) DEFAULT NULL,
-  `tag` text NOT NULL COMMENT '追问',
   `supports` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `qid` (`qid`),
   KEY `authorid` (`authorid`),
-  KEY `adopttime` (`adopttime`),
   KEY `time` (`time`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS answer_comment;
 CREATE TABLE answer_comment (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `aid` int(10) NOT NULL,
-  `authorid` int(10) NOT NULL,
+  `authorid` int(10) unsigned NOT NULL,
   `author` char(18) NOT NULL,
   `content` varchar(100) NOT NULL,
   `time` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM;
+  PRIMARY KEY (`id`),
+  KEY `aid`(`aid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS answer_support;
 CREATE TABLE answer_support (
-  `sid` char(16) NOT NULL,
+  `uid` int(10) unsigned NOT NULL,
   `aid` int(10) NOT NULL,
   `time` int(10) NOT NULL,
-  PRIMARY KEY (`sid`,`aid`)
-) ENGINE=MyISAM;
+  PRIMARY KEY (`uid`,`aid`),
+  KEY `uid`(`uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 

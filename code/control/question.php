@@ -1,48 +1,32 @@
 <?php
 
-!defined('IN_TIPASK') && exit('Access Denied');
+!defined('IN_SITE') && exit('Access Denied');
 
 //0、未审核 1、待解决、2、已解决 4、悬赏的 9、 已关闭问题
-
 class questioncontrol extends base {
-
     function questioncontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load("question");
-        $this->load("category");
         $this->load("answer");
-        $this->load("expert");
-        $this->load("tag");
         $this->load("userlog");
     }
 
-    /* 提交问题 */
-
+    // 提交问题
     function onadd() {
-        $navtitle = "提出问题";
         if (isset($this->post['submit'])) {
+            echo "FUCK";
             $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $cid1 = $this->post['cid1'];
-            $cid2 = $this->post['cid2'];
-            $cid3 = $this->post['cid3'];
-            $cid = $this->post['cid'];
-            $hidanswer = intval($this->post['hidanswer']) ? 1 : 0;
-            $price = intval($this->post['givescore']);
+            $content = $this->post['content'];
             $askfromuid = $this->post['askfromuid'];
-            //检查魅力值
-            //if($this->user['credit3']<$this->user)
             $this->setting['code_ask'] && $this->checkcode(); //检查验证码
             $offerscore = $price;
-            ($hidanswer) && $offerscore+=10;
-            (intval($this->user['credit2']) < $offerscore) && $this->message("财富值不够!", 'BACK');
             //检查审核和内容外部URL过滤
             $status = intval(1 != (1 & $this->setting['verify_question']));
             $allow = $this->setting['allow_outer'];
-            if (3 != $allow && has_outer($description)) {
+            if (3 != $allow && has_outer($content)) {
                 0 == $allow && $this->message("内容包含外部链接，发布失败!", 'BACK');
                 1 == $allow && $status = 0;
-                2 == $allow && $description = filter_outer($description);
+                2 == $allow && $content = filter_outer($content);
             }
             //检查标题违禁词
             $contentarray = checkwords($title);
@@ -51,193 +35,87 @@ class questioncontrol extends base {
             $title = $contentarray[1];
 
             //检查问题描述违禁词
-            $descarray = checkwords($description);
+            $descarray = checkwords($content);
             1 == $descarray[0] && $status = 0;
             2 == $descarray[0] && $this->message("问题描述包含非法关键词，发布失败!", 'BACK');
-            $description = $descarray[1];
+            $content = $descarray[1];
 
-            /* 检查提问数是否超过组设置 */
+            // 检查提问数是否超过组设置
             ($this->user['questionlimits'] && ($_ENV['userlog']->rownum_by_time('ask') >= $this->user['questionlimits'])) &&
                     $this->message("你已超过每小时最大提问数" . $this->user['questionlimits'] . ',请稍后再试！', 'BACK');
 
-            $qid = $_ENV['question']->add($title, $description, $hidanswer, $price, $cid, $cid1, $cid2, $cid3, $status);
+            $qid = $_ENV['question']->add($title, $content, $status);
 
-            //增加用户积分，扣除用户悬赏的财富
-            if ($this->user['uid']) {
-                $this->credit($this->user['uid'], 0, -$offerscore, 0, 'offer');
-                $this->credit($this->user['uid'], $this->setting['credit1_ask'], $this->setting['credit2_ask']);
-            }
-            $viewurl = urlmap('question/view/' . $qid, 2);
-            /* 如果是向别人提问，则需要发个消息给别人 */
-            if ($askfromuid) {
-                $this->load("message");
-                $this->load("user");
-                $touser = $_ENV['user']->get_by_uid($askfromuid);
-                $_ENV['message']->add($this->user['username'], $this->user['uid'], $touser['uid'], '问题求助:' . $title, $description . '<br /> <a href="' . SITE_URL . $this->setting['seo_prefix'] . $viewurl . $this->setting['seo_suffix'] . '">点击查看问题</a>');
-                sendmail($touser, '问题求助:' . $title, $description . '<br /> <a href="' . SITE_URL . $this->setting['seo_prefix'] . $viewurl . $this->setting['seo_suffix'] . '">点击查看问题</a>');
-            }
-            //如果ucenter开启，则postfeed
-            if ($this->setting["ucenter_open"] && $this->setting["ucenter_ask"]) {
-                $this->load('ucenter');
-                $_ENV['ucenter']->ask_feed($qid, $title, $description);
-            }
             $_ENV['userlog']->add('ask');
             if (0 == $status) {
-                $this->message('问题发布成功！为了确保问答的质量，我们会对您的提问内容进行审核。请耐心等待......', 'BACK');
+                $this->message('问题发布成功！为了确保问答的质量', 'BACK');
             } else {
-                $this->message("问题发布成功!", $viewurl);
+                $this->message("问题发布成功!", 'forum/view');
             }
-        } else {
-            if (0 == $this->user['uid']) {
-                $this->setting["ucenter_open"] && $this->message("UCenter开启后游客不能提问!", 'BACK');
-            }
-            $categoryjs = $_ENV['category']->get_js();
-            $word = $this->post['word'];
-            $askfromuid = intval($this->get['2']);
-            if ($askfromuid)
-                $touser = $_ENV['user']->get_by_uid($askfromuid);
-            include template('ask');
         }
     }
-
-    /* 浏览问题 */
 
     function onview() {
         $this->setting['stopcopy_on'] && $_ENV['question']->stopcopy(); //是否开启了防采集功能
         $qid = $this->get[2]; //接收qid参数
-        $_ENV['question']->add_views($qid); //更新问题浏览次数
         $question = $_ENV['question']->get($qid);
         empty($question) && $this->message('问题已经被删除！');
-        (0 == $question['status']) && $this->message('问题正在审核中，请耐心等待！');
-        /* 问题过期处理 */
-        if ($question['endtime'] < $this->time && ($question['status'] == 1 || $question['status'] == 4)) {
-            $question['status'] = 9;
-            $_ENV['question']->update_status($qid, 9);
-            $this->send($question['authorid'], $question['id'], 2);
-        }
+        ($question['status'] == 2) && $this->message('帖子为通过审核，您看看其他的帖子吧！');
+
         $asktime = tdate($question['time']);
-        $endtime = timeLength($question['endtime'] - $this->time);
-        $solvetime = tdate($question['endtime']);
-        $supplylist = $_ENV['question']->get_supply($question['id']);
         if (isset($this->get[3]) && $this->get[3] == 1) {
-            $ordertype = 2;
-            $ordertitle = '倒序查看回答';
-        } else {
             $ordertype = 1;
-            $ordertitle = '正序查看回答';
+            $ordertitle = '正序查看回复';
+        } else {
+            $ordertype = 2;
+            $ordertitle = '倒序查看回复';
         }
-        //回答分页        
+
+        $is_followed = $_ENV['question']->is_followed($qid, $this->user['uid']);
+
+        //回答分页
         @$page = max(1, intval($this->get[4]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
-        $rownum = $this->db->fetch_total("answer", " qid=$qid AND status>0 AND adopttime =0");
-        $answerlistarray = $_ENV['answer']->list_by_qid($qid, $this->get[3], $rownum, $startindex, $pagesize);
+        $rownum = $this->db->fetch_total("answer", " qid=$qid ");
+        $answerlist = $_ENV['answer']->list_by_qid($qid, $ordertype, $rownum, $startindex, $pagesize);
         $departstr = page($rownum, $pagesize, $page, "question/view/$qid/" . $this->get[3]);
-        $answerlist = $answerlistarray[0];
-        $already = $answerlistarray[1];
-        $solvelist = $_ENV['question']->list_by_cfield_cvalue_status('cid', $question['cid'], 2);
-        $nosolvelist = $_ENV['question']->list_by_cfield_cvalue_status('cid', $question['cid'], 1);
-        $navlist = $_ENV['category']->get_navigation($question['cid'], true);
-        $expertlist = $_ENV['expert']->get_by_cid($question['cid']);
-        $typearray = array('1' => 'nosolve', '2' => 'solve', '4' => 'nosolve', '6' => 'solve', '9' => 'close');
-        $typedescarray = array('1' => '待解决', '2' => '已解决', '4' => '高悬赏', '6' => '已推荐', '9' => '已关闭');
         $navtitle = $question['title'];
-        $dirction = $typearray[$question['status']];
-        ('solve' == $dirction) && $bestanswer = $_ENV['answer']->get_best($qid);
-        $categoryjs = $_ENV['category']->get_js();
-        $taglist = $_ENV['tag']->get_by_qid($qid);
-        $expertlist = $_ENV['expert']->get_by_cid($question['cid']);
-        /* SEO */
-        $curnavname = $navlist[count($navlist) - 1]['name'];
-        if (!$bestanswer) {
-            $bestanswer = array();
-            $bestanswer['content'] = '';
-        }
-        if ($this->setting['seo_question_title']) {
-            $seo_title = str_replace("{wzmc}", $this->setting['site_name'], $this->setting['seo_question_title']);
-            $seo_title = str_replace("{wtbt}", $question['title'], $seo_title);
-            $seo_title = str_replace("{wtzt}", $typedescarray[$question['status']], $seo_title);
-            $seo_title = str_replace("{flmc}", $curnavname, $seo_title);
-        }
-        if ($this->setting['seo_question_description']) {
-            $seo_description = str_replace("{wzmc}", $this->setting['site_name'], $this->setting['seo_question_description']);
-            $seo_description = str_replace("{wtbt}", $question['title'], $seo_description);
-            $seo_description = str_replace("{wtzt}", $typedescarray[$question['status']], $seo_description);
-            $seo_description = str_replace("{flmc}", $curnavname, $seo_description);
-            $seo_description = str_replace("{wtms}", $question['description'], $seo_description);
-            $seo_description = str_replace("{zjda}", strip_tags($bestanswer['content']), $seo_description);
-        }
-        if ($this->setting['seo_question_keywords']) {
-            $seo_keywords = str_replace("{wzmc}", $this->setting['site_name'], $this->setting['seo_question_keywords']);
-            $seo_keywords = str_replace("{wtbt}", $question['title'], $seo_keywords);
-            $seo_keywords = str_replace("{wtzt}", $typedescarray[$question['status']], $seo_keywords);
-            $seo_keywords = str_replace("{flmc}", $curnavname, $seo_keywords);
-            $seo_keywords = str_replace("{wtbq}", implode(",", $taglist), $seo_keywords);
-            $seo_description = str_replace("{description}", $question['description'], $seo_keywords);
-            $seo_keywords = str_replace("{zjda}", strip_tags($bestanswer['content']), $seo_keywords);
-        }
-        include template($dirction);
+        include template("question");
     }
 
-    /* 提交回答 */
-
+    // 提交回答
     function onanswer() {
-        //只允许专家回答问题
-        if (isset($this->setting['allow_expert']) && $this->setting['allow_expert'] && !$this->user['expert']) {
-            $this->message('站点已设置为只允许专家回答问题，如有疑问请联系站长.');
-        }
         $qid = $this->post['qid'];
         $question = $_ENV['question']->get($qid);
         if (!$question) {
-            $this->message('提交回答失败,问题不存在!');
+            $this->message('提交回答失败,帖子不存在!');
         }
-        if ($this->user['uid'] == $question['authorid']) {
-            $this->message('提交回答失败，不能自问自答！', 'question/view/' . $qid);
-        }
-        $this->setting['code_ask'] && $this->checkcode(); //检查验证码
-        $already = $_ENV['question']->already($qid, $this->user['uid']);
-        $already && $this->message('不能重复回答同一个问题，可以修改自己的回答！', 'question/view/' . $qid);
+
+        $this->setting['code_reply'] && $this->checkcode(); //检查验证码
         $title = $this->post['title'];
         $content = $this->post['content'];
-        //检查审核和内容外部URL过滤
-        $status = intval(2 != (2 & $this->setting['verify_question']));
-        $allow = $this->setting['allow_outer'];
-        if (3 != $allow && has_outer($content)) {
-            0 == $allow && $this->message("内容包含外部链接，发布失败!", 'BACK');
-            1 == $allow && $status = 0;
-            2 == $allow && $content = filter_outer($content);
-        }
+
         //检查违禁词
         $contentarray = checkwords($content);
-        1 == $contentarray[0] && $status = 0;
         2 == $contentarray[0] && $this->message("内容包含非法关键词，发布失败!", 'BACK');
         $content = $contentarray[1];
 
-        /* 检查提问数是否超过组设置 */
+        // 检查提问数是否超过组设置
         ($this->user['answerlimits'] && ($_ENV['userlog']->rownum_by_time('answer') >= $this->user['answerlimits'])) &&
                 $this->message("你已超过每小时最大回答数" . $this->user['answerlimits'] . ',请稍后再试！', 'BACK');
 
-        $_ENV['answer']->add($qid, $title, $content, $status);
-        //回答问题，添加积分
-        $this->credit($this->user['uid'], $this->setting['credit1_answer'], $this->setting['credit2_answer']);
+        $_ENV['answer']->add($qid, $title, $content);
+
         //给提问者发送通知
-        $this->send($question['authorid'], $question['id'], 0);
-        //如果ucenter开启，则postfeed
-        if ($this->setting["ucenter_open"] && $this->setting["ucenter_answer"]) {
-            $this->load('ucenter');
-            $_ENV['ucenter']->answer_feed($question, $content);
-        }
+        //$this->send($question['authorid'], $question['qid'], 0);
+
         $viewurl = urlmap('question/view/' . $qid, 2);
         $_ENV['userlog']->add('answer');
-        if (0 == $status) {
-            $this->message('提交回答成功！为了确保问答的质量，我们会对您的回答内容进行审核。请耐心等待......', 'BACK');
-        } else {
-            $this->message('提交回答成功！', $viewurl);
-        }
+        $this->message('提交回答成功！', $viewurl);
     }
 
-    /* 采纳答案 */
-
+    // 采纳答案
     function onadopt() {
         $qid = intval($this->post['qid']);
         $aid = intval($this->post['aid']);
@@ -530,7 +408,29 @@ class questioncontrol extends base {
         $_ENV['answer']->change_to_verify($aid);
         $this->message("回答审核完成!", $viewurl);
     }
+    
+    //问题关注
+    function onattentto() {
+        $qid = intval($this->post['qid']);
+        if (!$qid) {
+            exit('error');
+        }
 
+        $is_followed = $_ENV['question']->is_followed($qid, $this->user['uid']);
+        if ($is_followed) {
+            $_ENV['user']->unfollow($qid, $this->user['uid']);
+        } else {
+            $_ENV['user']->follow_question($qid, $this->user['uid'], $this->user['username']);
+
+            $question = taddslashes($_ENV['question']->get($qid), 1);
+            $msgfrom = $this->setting['site_name'] . '管理员';
+            $username = taddslashes($this->user['username']);
+            $this->load("message");
+            $viewurl = url("question/view/$qid", 1);
+            //$_ENV['message']->add($msgfrom, 0, $question['authorid'], $username . "刚刚关注了您的问题", '<a target="_blank" href="' . url('user/space/' . $this->user['uid'], 1) . '">' . $username . '</a> 刚刚关注了您的问题' . $question['title'] . '"<br /> <a href="' . $viewurl . '">点击查看</a>');
+        }
+        exit('ok');
+    }
 }
 
 ?>

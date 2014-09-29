@@ -67,12 +67,9 @@ function check_code() {
                 $('#codetip').attr('class', 'input_error');
                 return false;
             }
-
         }
     });
 }
-
-
 
 function bytes(str)
 {

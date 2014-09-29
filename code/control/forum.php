@@ -2,24 +2,26 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-class discusscontrol extends base {
+class forumcontrol extends base {
 
-    function discusscontrol(& $get, & $post) {
+    function forumcontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load('user');
-        $this->load("discuss");
+        $this->load("question");
     }
 
     // 私人消息
     function onview() {
-        $navtitle = '互动区';
+        $navtitle = '考研帮';
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
-        $discuss_list = $_ENV['discuss']->get_discuss_list($startindex, $pagesize);
-        $discuss_num = $_ENV['discuss']->get_total_num();
-        $departstr = page($discuss_num, $pagesize, $page, "discuss/view");
-        include template("viewdiscuss");
+
+        $user_num = $_ENV['user']->rownum_alluser();
+        $question_num = $_ENV['question']->get_total_num();
+        $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
+        $departstr = page($question_num, $pagesize, $page, "forum/view");
+        include template("forum");
     }
 
     // 发消息

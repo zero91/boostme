@@ -19,6 +19,7 @@ function urlmap($var, $direction = 1) {
     $replaces = array(
         'p-' => 'problem/view/',
         'u-' => 'user/space/',
+        'q-' => 'question/view/',
     );
     (2 == $direction) && $replaces = array_flip($replaces);
     return str_replace(array_keys($replaces), array_values($replaces), $var);
@@ -377,6 +378,50 @@ function page($num, $perpage, $curpage, $operation, $ajax = 0) {
     }
     return $multipage;
 }
+
+// 翻页函数,for comments list
+function page_ajax($num, $perpage, $curpage, $answerid, $ajax = 0) {
+    global $setting;
+    $multipage = '';
+    $operation = urlmap($operation, 2);
+
+    $mpurl = SITE_URL . $setting['seo_prefix'] . $operation . '/';
+    ('admin' == substr($operation, 0, 5)) && ($mpurl = 'index.php?' . $operation . '/');
+
+    if ($num > $perpage) {
+        $page = 8;
+        $offset = 2;
+        $pages = @ceil($num / $perpage);
+        if ($page > $pages) {
+            $from = 1;
+            $to = $pages;
+        } else {
+            $from = $curpage - $offset;
+            $to = $from + $page - 1;
+            if ($from < 1) {
+                $to = $curpage + 1 - $from; //这块实现逻辑比较奇怪，这个值就是$offset + 1
+                $from = 1;
+                if ($to - $from < $page) {
+                    $to = $page;
+                }
+            } elseif ($to > $pages) {
+                $from = $pages - $page + 1;
+                $to = $pages;
+            }
+        }
+
+        $multipage = ($curpage - $offset > 1 && $pages > $page ? '<a onclick="show_comment(\'' . $answerid . '\', 1);" href="javascript:void(0)">首页</a>' . "\n" : '') .
+                ($curpage > 1 ? '<a onclick="show_comment(\'' . $answerid . '\',' . ($curpage - 1) . ');" href="javascript:void(0)">上一页</a>' . "\n" : '');
+        for ($i = $from; $i <= $to; $i++) {
+            $multipage .= $i == $curpage ? "<strong>$i</strong>\n" : 
+                    '<a onclick="show_comment(\'' . $answerid . '\',' . $i . ');" href="javascript:void(0)">' . $i . '</a>' . "\n";
+        }
+        $multipage .= ( $curpage < $pages ? '<a onclick="show_comment(\'' . $answerid . '\',' . ($curpage + 1) . ');" href="javascript:void(0)">下一页</a>' . "\n": '') .
+                ($to < $pages ? '<a onclick="show_comment(\'' . $answerid . '\',' . $pages. ');" href="javascript:void(0)">最后一页</a>' . "\n" : '');
+    }
+    return $multipage;
+}
+
 
 // 发送邮件
 function sendmail($tousername, $toemail, $subject, $message, $from = '') {

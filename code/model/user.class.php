@@ -298,6 +298,38 @@ class usermodel {
     function update_authstr($uid, $authstr) {
         $this->db->query("UPDATE user SET `authstr`='$authstr' WHERE `uid`=$uid");
     }
+
+    // 关注帖子
+    function follow_question($qid, $followerid, $follower) {
+        $this->db->query("INSERT INTO question_attention(qid,followerid,follower,time) VALUES ($qid,$followerid,'$follower',{$this->base->time})");
+        $this->db->query("UPDATE question SET attentions=attentions+1 WHERE `qid`=$qid");
+    }
+
+    // 关注
+    function follow($sourceid, $followerid, $follower, $type = 'question') {
+        $sourcefield = 'qid';
+        ($type != 'question') && $sourcefield = 'uid';
+        $this->db->query("INSERT INTO $type" . "_attention($sourcefield,followerid,follower,time) VALUES ($sourceid,$followerid,'$follower',{$this->base->time})");
+        if ($type == 'question') {
+            $this->db->query("UPDATE question SET attentions=attentions+1 WHERE `id`=$sourceid");
+        } else if ($type == 'user') {
+            $this->db->query("UPDATE user SET followers=followers+1 WHERE `uid`=$sourceid");
+            $this->db->query("UPDATE user SET attentions=attentions+1 WHERE `uid`=$followerid");
+        }
+    }
+
+    // 取消关注
+    function unfollow($sourceid, $followerid, $type = 'question') {
+        $sourcefield = 'qid';
+        ($type != 'question') && $sourcefield = 'uid';
+        $this->db->query("DELETE FROM " . $type . "_attention WHERE $sourcefield=$sourceid AND followerid=$followerid");
+        if ($type == 'question') {
+            $this->db->query("UPDATE question SET attentions=attentions-1 WHERE `id`=$sourceid");
+        } else if ($type == 'user') {
+            $this->db->query("UPDATE user SET followers=followers-1 WHERE `uid`=$sourceid");
+            $this->db->query("UPDATE user SET attentions=attentions-1 WHERE `uid`=$followerid");
+        }
+    }
 }
 
 ?>

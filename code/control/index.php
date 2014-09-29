@@ -27,7 +27,7 @@ class indexcontrol extends base {
     // 查询图片是否需要点击放大
     function onajaxchkimg() {
         list($width, $height, $type, $attr) = getimagesize($this->post['imgsrc']);
-        ($width > 300) && exit('1');
+        ($width > 200) && exit('1');
         exit('-1');
     }
 }
