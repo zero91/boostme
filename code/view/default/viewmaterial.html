@@ -1,0 +1,332 @@
+<!--{template header}-->
+<div style="height:29px;"></div>
+<link rel="stylesheet" href="{SITE_URL}public/js/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/lightbox/lightbox.js"></script>
+<style type="text/css">
+.pro_tags {margin: 10px 65px;}
+.pro_tags a {margin-right: 10px; padding: 3px 7px;}
+h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
+
+.photo {position: absolute; top: 15px; left: 15px; }
+.action {position: absolute; right: 5px; top: 15px;}
+.mypanel_for_action {margin: 0 70px 0 60px !important; padding: 0px 10px; line-height: 26px;}
+.mypanel {margin: 0 0 0 65px !important; padding: 0px 10px; line-height: 26px; min-height: 90px;}
+.panel-body {position: relative;}
+
+#description img {max-width:200px;max-height:200px;}
+</style>
+<style type="text/css">
+.input_ok {background: url("{SITE_URL}public/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
+.input_error {background: url("{SITE_URL}public/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
+
+<!--{if $problem['authorid'] != 0 && ($problem['authorid'] == $user['uid']) && (PB_STATUS_SOLVED == $problem['status'])}-->
+.star-rating {list-style:none; margin: 0px; padding:0px; width: 190px; height: 19px;position: relative; background: url("{SITE_URL}public/css/default/heart.png") top left repeat-x; }
+.star-rating li {padding:0px; margin:0px; float: left;position:relative;}
+.star-rating li a{ display:block; width:19px; height:19px; text-decoration: none; text-indent: -9000px; z-index: 20; position: absolute; padding: 0px; }
+.star-rating li a:hover{background: url("{SITE_URL}public/css/default/heart.png") left bottom; z-index: 1; left: 0px;}
+.star-rating a.star1{left: 0px;}
+.star-rating a.star1:hover{width:19px;}
+.star-rating a.stars2{left:19px;}
+.star-rating a.stars2:hover{width:38px;}
+.star-rating a.stars3{left:38px;}
+.star-rating a.stars3:hover{width:57px;}
+.star-rating a.stars4{left:57px; }
+.star-rating a.stars4:hover{width:76px;}
+.star-rating a.stars5{left:76px; }
+.star-rating a.stars5:hover{width:95px;}
+.star-rating a.stars6{left:95px; }
+.star-rating a.stars6:hover{width:114px;}
+.star-rating a.stars7{left:114px; }
+.star-rating a.stars7:hover{width:133px;}
+.star-rating a.stars8{left:133px; }
+.star-rating a.stars8:hover{width:152px;}
+.star-rating a.stars9{left:152px; }
+.star-rating a.stars9:hover{width:171px;}
+.star-rating a.stars10{left:171px; }
+.star-rating a.stars10:hover{width:190px;}
+<!--{/if}-->
+
+.rmb {font-family: arial;font-weight: 400;margin-right:4px;}
+.rmb_num {font-size:16px;font-weight:bold;font-family: verdana,arial;}
+.minfo_ul {list-style: none;padding:0px;margin-top:5px;}
+
+.minfo_ul li {padding:10px;}
+.price_info {background-color:#FFF2E8;line-height:30px;}
+.li_text_info {width:60px;float:left;}
+
+.buy_btn {width:150px;font-size:16px;}
+
+</style>
+
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <div class="col-sm-4" style="height:300px;border:1px solid red;">
+            </div>
+            <div class="col-sm-8">
+                <form method="POST" action="{url order/buy_now}" name="material_form"
+                      id="material_form" onsubmit="return check_form();" class="form-horizontal">
+                    <!--{eval $title="";}-->
+                    <!--{loop $material['cid_list'] $cid}-->
+                    <!--{eval $title .= "【" . $category[$cid]['name'] . "】"}-->
+                    <!--{/loop}-->
+                    <!--{eval $title .= $material['title']}-->
+                    <input type="hidden" name="title" id="title" value="{$title}"/>
+                    <input type="hidden" name="mid" id="mid" value="{$mid}"/>
+                    <h5>{$title}</h5>
+                    <ul class="minfo_ul">
+                        <li class="price_info">
+                            <span class="li_text_info">价格</span>
+                            <span style="color:red">
+                                <span class="rmb">¥</span>
+                                <span class="rmb_num">{$material['price']}</span>
+                                <input type="hidden" name="price" id="price" value="{$material['price']}"/>
+                            </span>
+                        </li>
+
+                        <li class="line-height:28px;">
+                            <span class="li_text_info" style="margin-top:2px;">数量</span>
+                            <input type="number" id="quantity" name="quantity" step="1" min="1" max="10000" value="1"/>
+                        </li>
+                        <li><button type="submit" class="btn btn-danger buy_btn">立即购买</button></li>
+                    </ul>
+                </form>
+            </div>
+        </div><!-- problem sub panel end -->
+    </div>
+    <div class="panel panel-info">
+        <div class="" id="description" style="margin-top:13px;">{$material['description']}</div>
+    </div>
+</div>
+
+<div class="modal fade" id="eval_score" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">对该用户进行评价</h4>
+      </div>
+      <form name="edittagForm" action="{url problem/evaluser}" method="post" onsubmit="return check_score();">
+      <div class="modal-body"> 
+        <textarea class="form-control" name="solverdesc" id="solverdesc" rows="5" placeholder="您觉得该用户的水平怎么样？您的收获大不大？"></textarea>
+        <input type="hidden" name="pid" value="{$problem['pid']}">
+        <input type="hidden" name="score" id="user_score" value="0">
+        <div style="margin-top:15px;">最终评分：<span id="star_tip"></span><span id="star_info_tip"></span></div>
+        <div>
+        <ul class="star-rating">
+          <li><a id="star1" title="1" class="star1">1</a></li>
+          <li><a id="star2" title="2" class="stars2">2</a></li>
+          <li><a id="star3" title="3" class="stars3">3</a></li>
+          <li><a id="star4" title="4" class="stars4">4</a></li>
+          <li><a id="star5" title="5" class="stars5">5</a></li>
+          <li><a id="star6" title="6" class="stars6">6</a></li>
+          <li><a id="star7" title="7" class="stars7">7</a></li>
+          <li><a id="star8" title="8" class="stars8">8</a></li>
+          <li><a id="star9" title="9" class="stars9">9</a></li>
+          <li><a id="star10" title="10" class="stars10">10</a></li>
+        </ul>
+            &nbsp;&nbsp;1&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;10
+        </div>
+      </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary" value="确&nbsp;认"/></div>
+      </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="demandModal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">附加信息</h4>
+      </div>
+      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
+        <div class="modal-body">
+          <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
+          <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
+        </div>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
+        </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div style="height:29px;"></div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $("#description img").each(function(i) {
+        var img = $(this);
+        $.ajax({
+            type: "POST",
+            url: "{SITE_URL}index.php?index/ajaxchkimg",
+            async: true,
+            data: "imgsrc=" + img.attr("src"),
+            success: function(status) {
+                if ('1' == status) {
+                    img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
+                }
+            }
+        });
+    }); 
+
+    $(".prob_demand_btn").click(function() {
+        var pid = $(this).attr("id");
+        $("#dialog_pid").val(pid);
+        $("#demandModal").modal('show');
+    });
+
+    $(".star-rating").click(function(e) {
+        var parentOffset = $(this).parent().offset(); 
+        var relX = e.pageX - parentOffset.left;
+        var relY = e.pageY - parentOffset.top;
+        $(".star-rating>li>a").width(19);
+        var elem_id = Math.ceil(relX / 19);
+        $("#star_tip").html(elem_id + "分");
+        $("#star" + elem_id).width(elem_id * 19);
+        $("#user_score").val(elem_id);
+        $("#star" + elem_id).css({"background":"url(\"{SITE_URL}public/css/default/heart.png\") left bottom","z-index":"1","left":"0"});
+        $('#star_info_tip').html("&nbsp;");
+        $('#star_info_tip').removeClass('input_error');
+    });
+
+    $(".prob_cancel_btn").click(function(){
+        if ({$user['uid']} == 0) {
+            alert("您还未登录，请先登录");
+            window.location.href = "{SITE_URL}index.php" + query + "user/login";
+        }
+
+        if (confirm('确定撤销请求?') === false) {
+            return false;
+        }
+
+        var supportobj = $(this);
+        var pid = $(this).attr("id");
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxcancel/" + pid,
+            cache: false,
+            success: function(succeed){
+                if (succeed == '-1') {
+                    alert("您还未登录，请先登录");
+                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
+                } else if (succeed == '0') {
+                    alert("操作失败，请刷新页面重试");
+                } else if (succeed == '1') {
+                    supportobj.html("我要帮忙");
+                } else if (succeed == '2') {
+                    alert("您还没有发出过申请!");
+                }
+            }
+        });
+    });
+
+    <!--{if PB_STATUS_CLOSED != $problem['status'] && 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
+    //关闭求助
+    $("#close_problem").click(function() {
+        if (confirm('确定关闭该求助?') === true) {
+            document.location.href = "{SITE_URL}?problem/close/{$problem['pid']}.html";
+        }
+    });
+    
+    //删除求助
+    $("#delete_question").click(function() {
+        if (confirm('确定删除求助？该操作不可返回！') === true) {
+            document.location.href = "{SITE_URL}?problem/delete/{$problem['pid']}.html";
+        }
+    });
+    <!--{/if}-->
+    
+    $(".bm_demand_accept_btn").click(function(){
+        var supportobj = $(this);
+        uid = $(this).attr("id");
+
+        if (confirm('确定选择该用户?') === false) {
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxaccept/" + uid + "/{$problem['pid']}",
+            cache: false,
+            success: function(succeed){
+                if (succeed == '0') {
+                    alert("交易失败，请刷新页面重试！");
+                } else if (succeed == '1') {
+                    window.location.reload();
+                } else if (succeed == '2') {
+                    alert("您还没有填写任何联系方式！");
+                    document.location.href = "{SITE_URL}?user/profile.html";
+                } else {
+                    alert("发生异常!");
+                }
+            }
+        });
+    }); 
+
+    $(".bm_demand_denied_btn").click(function(){
+        var supportobj = $(this);
+        var grandparentobj = $(this).parent().parent(); 
+        uid = $(this).attr("id");
+
+        if (confirm("确定该用户不满足您的需求?") === false) {
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php" + query + "problem/ajaxdenied/" + uid + "/{$problem['pid']}",
+            cache: false,
+            success: function(succeed){
+                if (succeed == '1') {
+                    grandparentobj.hide();
+                } else {
+                    alert("发生异常!");
+                }
+            }
+        });
+    });
+
+    SyntaxHighlighter.all();
+});
+
+function hide_all_user_btn()
+{
+    $(".bm_demand_accept_btn").hide();
+    $(".bm_demand_denied_btn").hide();
+}
+
+<!--{if PB_STATUS_CLOSED != $problem['status'] && 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
+function edittag() {
+    $("#dialog_tag").dialog({
+        autoOpen: false,
+        width: 500,
+        modal: true,
+        resizable: false
+    });
+    $("#dialog_tag").dialog("open");
+}
+
+function check_score() {
+    var score = $('#user_score').val();
+    if (score >= 1 && score <= 10) {
+        $('#star_info_tip').html("&nbsp;");
+        $('#star_info_tip').attr('class', 'input_ok');
+        $('#user_eval_tip').hide();
+        return true;
+    } else {
+        $('#star_info_tip').html("请选择评分");
+        $('#star_info_tip').attr('class', 'input_error');
+        return false;
+    }
+}
+
+<!--{/if}-->
+
+</script>
+<!--{template footer}-->

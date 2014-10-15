@@ -18,6 +18,7 @@ $(function(){
 <div class="container">
   <ol class="breadcrumb">
     <li><a href="{SITE_URL}">首页</a></li>
+    <!--
     <!--{if $type == "school"}-->
     <li><a href="{SITE_URL}?category/school/master">考研院校</a></li>
     <!--{elseif $type == "course"}-->
@@ -25,6 +26,8 @@ $(function(){
     <!--{else}-->
     <li><a href="{SITE_URL}?category/view/{$cid}">{$category_desc}</a></li>
     <!--{/if}-->
+    -->
+    <li><a href="{SITE_URL}?material/view">考研资料</a></li>
     <li class="active">{$category_name}</li>
   </ol>
   <div class="col-sm-9">

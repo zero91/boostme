@@ -8,6 +8,8 @@
             location.href = "{url admin_user/default}";
           } else if (e.target.id == "jump2") {
             location.href = "{url admin_user/apply}";
+          } else if (e.target.id == "jump3") {
+            location.href = "{url admin_user/accepted}";
           }
         })
     })
@@ -46,6 +48,16 @@
         <!--{else}-->
         <li>
             <a href="#no_content" id="jump2" role="tab" data-toggle="tab">申请用户</a>
+        </li>
+        <!--{/if}-->
+
+        <!--{if $type =="user/accepted"}-->
+        <li class="active">
+            <a href="javascript:void(0)" role="tab" data-toggle="tab">已获取资格</a>
+        </li>
+        <!--{else}-->
+        <li>
+            <a href="#no_content" id="jump3" role="tab" data-toggle="tab">已获取资格</a>
         </li>
         <!--{/if}-->
     </ul>

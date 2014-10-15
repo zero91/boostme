@@ -11,24 +11,6 @@ class problemmodel {
     var $prob_status_table;
     var $prob_order_table;
 
-    var $statustable = array(
-        'all' => ' AND status<>0 ',
-        '0' => ' AND STATUS=0',
-        '1' => ' AND STATUS=1',
-        '2' => ' AND STATUS=2',
-        '4' => ' AND STATUS=4',
-        '8' => ' AND STATUS=8'
-    );
-
-    var $ordertable = array(
-        'all' => ' AND status<>0 ORDER BY time DESC',
-        '0' => ' AND STATUS=0 ORDER BY time DESC',
-        '1' => ' AND STATUS=1 ORDER BY time DESC, price DESC',
-        '2' => ' AND STATUS=2 ORDER BY time DESC',
-        '4' => ' AND STATUS=4 ORDER BY time DESC',
-        '8' => ' AND STATUS=8 ORDER BY time DESC'
-    );
-
     function problemmodel(&$base) {
         $this->prob_status_table = array(
             'all' => ' AND status<>' .  PB_STATUS_INVALID,

@@ -1,0 +1,82 @@
+<!--{template header}-->
+
+<style type="text/css">
+a:link { color: #003399; }
+.px12 { font-size: 12px; }
+a:visited { color: #003399; }
+a:hover { color: #FF6600; }
+.px14 { font-size: 14px; }
+.px12hui { font-size: 12px; color: #999999; }
+.STYLE2 {font-size: 14px; font-weight: bold; }
+
+
+.list-group-item {border:0px;}
+
+.tenpay_btn {background: url("{SITE_URL}public/image/tenpay/cft.gif") left bottom;width:180px; height:81px; border:0px;}
+</style>
+
+<div class="container">
+  <div style="margin:30px;">
+    <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;">
+      <tr style="background-color:#f2f7ff;">
+        <th width="60%" style="text-align:center;">资料名称</th>
+        <th width="15%" style="text-align:center;">价格</th>
+        <th width="10%" style="text-align:center;">数量</th>
+        <th width="15%" style="text-align:center;">小结（元）</th>
+      </tr>
+      <tr>
+        <td>{$title}</td>
+        <td>{$price}</td>
+        <td>{$quantity}</td>
+        <td style="color:red;font-weight:bold;">{eval echo $quantity*$price}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel panel-info">
+    <div class="panel-heading"><img src="public/image/tenpay/arrow_02_01.gif">选择支付方式</div>
+    <div class="panel-body">
+      <div class="list-group">
+        <div class="list-group-item">
+          <div class="col-sm-3">
+            <form method="POST" action="{url ebank/tenpaytransfer}" class="form-horizontal">
+              <input type="hidden" name="product_name" id="tenpay_product_name" value="{eval echo cutstr($title, 32, '');}">
+              <input type="hidden" name="order_price" id="tenpay_order_price" value="{eval echo $price*$quantity}"/>
+              <input type="hidden" name="trade_mode" id="tenpay_trade_mode" value="1"/>
+              <button type="submit" name="submit" class="tenpay_btn"></button>
+            </form>
+          </div>
+          <div class="col-sm-9">
+            <TABLE width=760 border=0 cellPadding=0 cellSpacing=4 class="px12">
+              <TBODY>
+                <TR>
+                  <TD width="81" rowSpan=2 align="center" noWrap bgcolor="#CCCCCC" class=box-note>
+                    <FONT class=note-help>财付通支持下列<FONT class=note-help>银行 </FONT></FONT>
+                  </TD>
+                  <TD width="14" rowSpan=2></TD>
+                  <TD width="120"><IMG alt=中国工商银行 
+                      src="public/image/tenpay/icon_zggsyh_s.gif" border=0> </TD>
+                  <TD width="142"><IMG alt=中国建设银行 src="public/image/tenpay/icon_ccb_s.gif" border=0> </TD>
+                  <TD width="108"><IMG alt=上海浦东发展银行 src="public/image/tenpay/icon_spdb_s.gif" 
+                      border=0> </TD>
+                  <TD width="142"><IMG alt=招商银行 src="public/image/tenpay/icon_zsyh_s.gif" border=0>    </TD>
+                  <TD width="141"><IMG alt=中国民生银行 src="public/image/tenpay/icon_cmbc_s.gif" 
+                      border=0></TD>
+                </TR>
+                <TR>
+                  <TD> <DIV align=left><IMG alt=中国农业银行 src="public/image/tenpay/icon_abc_s.gif" border=0> </DIV></TD>
+                  <TD><IMG alt=广东发展银行 src="public/image/tenpay/icon_gdb_s.gif" border=0> </TD>
+                  <TD><IMG alt=兴业银行 src="public/image/tenpay/index_38.gif" border=0> </TD>
+                  <TD> <DIV align=left><IMG alt=深圳发展银行 src="public/image/tenpay/icon_sdb_s.gif" border=0> </DIV></TD>
+                  <TD><IMG alt=VISA src="public/image/tenpay/icon_visa_s.gif" border=0> </TD>
+                </TR>
+              </TBODY>
+            </TABLE>
+          </div>
+          <!-- <HR width=760 SIZE=1> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--{template footer}--> 

@@ -6,11 +6,12 @@
             location.href = "{url admin_main/default}";
           } else if (e.target.id == "jump2") {
             location.href = "{url admin_main/user}";
+          } else if (e.target.id == "jump3") {
+            location.href = "{url admin_main/accepted}";
           }
         })
     })
 </script>
-
 
 <style type="text/css">
     .mybadge_div {margin-top: 10px; margin-bottom: 10px;}
@@ -26,51 +27,11 @@
 </style>
 
 <div class="container">
-  <div class="col-md-3"><!--{template leftmenu,'admin'}--></div>
+  <div class="col-md-2"><!--{template leftmenu,'admin'}--></div>
   <div class="col-md-9">
-    <ul class="nav nav-tabs" role="tablist" style="font-size:13px;">
-        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">所有求助</a></li>
-
-        <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">系统消息</a></li>
-          <li><a href="#my_prob" role="tab" data-toggle="tab">已解决求助</a></li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <div class="tab-pane active" id="all_prob">
-        <div class="list-group">
-            <!--{loop $problemlist $problem}-->
-            <div id="{$problem['pid']}" class="list-group-item">
-                <div class="photo" style="max-width:60px">
-                    <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
-                    <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
-                </div>
-                <div class="panel panel-default mypanel">
-                    <p style="font-size:14px">{$problem['title']}</p>
-                    <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
-                    <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢</span>
-                    <div class="action" style="font-size:12px">
-                        <!--{if $problem['authorid'] != $user['uid']}-->
-                        <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
-                        <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
-                        <!--{else}-->
-                        <a class="prob_demand last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">我要帮忙</a>
-                        <!--{/if}-->
-                        <!--{else}-->
-                        <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
-                        <!--{/if}-->
-                    </div>
-                    <span class="arrow"></span>
-                </div>
-                <div class="clearfix"></div>
-            </div>   
-            <!--{/loop}-->
-        </div>    
-        <ul class="pagination">{$departstr}</ul>
-      </div><!-- existing problems tab end -->
-      <div class="tab-pane" id="my_prob"></div>
-      <div class="tab-pane" id="sys_sugg"></div>
-    </div>
+    <div class="list-group">
+      <h4>已注册用户数量：{$statistics['all_user_num']}</h4>
+    </div>    
   </div>
 </div><!-- container end -->
 
