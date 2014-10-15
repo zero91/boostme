@@ -717,7 +717,7 @@ INSERT INTO category VALUES ('C300072','艺术学','专业课');
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 */
 
-DROP TABLE IF EXISTS question;
+/* DROP TABLE IF EXISTS question; */
 CREATE TABLE question (
   `qid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `author` char(15) NOT NULL DEFAULT '',
@@ -737,7 +737,7 @@ CREATE TABLE question (
   KEY authorid (authorid)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS question_attention;
+/* DROP TABLE IF EXISTS question_attention; */
 CREATE TABLE question_attention (
   `qid` int(10) NOT NULL,
   `followerid` int(10) unsigned NOT NULL,
@@ -748,7 +748,7 @@ CREATE TABLE question_attention (
   KEY `qid`(`qid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS answer;
+/* DROP TABLE IF EXISTS answer; */
 CREATE TABLE answer (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `qid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -766,7 +766,7 @@ CREATE TABLE answer (
   KEY `time` (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS answer_comment;
+/* DROP TABLE IF EXISTS answer_comment; */
 CREATE TABLE answer_comment (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `aid` int(10) NOT NULL,
@@ -778,7 +778,7 @@ CREATE TABLE answer_comment (
   KEY `aid`(`aid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS answer_support;
+/* DROP TABLE IF EXISTS answer_support; */
 CREATE TABLE answer_support (
   `uid` int(10) unsigned NOT NULL,
   `aid` int(10) NOT NULL,
@@ -786,3 +786,59 @@ CREATE TABLE answer_support (
   PRIMARY KEY (`uid`,`aid`),
   KEY `uid`(`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+
+DROP TABLE IF EXISTS material;
+CREATE TABLE material (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `username` char(18) NOT NULL DEFAULT '',
+  `title` char(200) NOT NULL,
+  `description` text DEFAULT NULL,
+  `price` DOUBLE NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `status` tinyint(3) unsigned NOT NULL DEFAULT '1', /* 默认为未审核 */
+  `avg_score` DOUBLE NOT NULL DEFAULT '0', /* 平均评价得分 */
+  `sold_num` mediumint(8) unsigned NOT NULL DEFAULT '0', /* 卖出多少份 */
+  `comment_num` mediumint(8) unsigned NOT NULL DEFAULT '0',
+
+  PRIMARY KEY (`id`),
+  KEY `uid`(`uid`),
+  KEY time (`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS material_category;
+CREATE TABLE material_category (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `material_id` int(10) unsigned NOT NULL,
+  `cid` varchar(32) NOT NULL,
+
+  PRIMARY KEY(`id`),
+  UNIQUE KEY `mid_cid`(`material_id`,`cid`),
+  KEY `mid`(`material_id`),
+  KEY `cid`(`cid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS material_comment;
+CREATE TABLE material_comment (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `mid` int(10) NOT NULL,
+  `authorid` int(10) unsigned NOT NULL,
+  `author` char(18) NOT NULL,
+  `content` text NOT NULL,
+  `time` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `mid`(`mid`),
+  KEY `authorid`(`authorid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS material_score ;
+CREATE TABLE material_score (
+  `uid` int(10) unsigned NOT NULL,
+  `mid` int(10) NOT NULL,
+  `score` smallint(3) NOT NULL,
+  `time` int(10) NOT NULL,
+  PRIMARY KEY (`uid`,`mid`),
+  KEY `uid`(`uid`),
+  KEY `mid`(`mid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+

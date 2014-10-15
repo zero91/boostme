@@ -34,6 +34,17 @@ class admin_usercontrol extends base {
         include template('user', 'admin');
     }
 
+    function onaccepted() {
+        $type = "user/accepted";
+
+        $page = max(1, intval($this->get[2]));
+        $pagesize = $this->setting['admin_user_page_size'];
+        $apply_num = $_ENV['userresume']->get_apply_num();
+        $userlist = $_ENV['user']->get_apply_list(($page - 1) * $pagesize, $pagesize);
+        $departstr = page($apply_num, $pagesize, $page, "admin_user/apply");
+        include template('user', 'admin');
+    }
+
     // 接受用户请求
     function onaccept_apply() {
         $uid = intval($this->get[2]);

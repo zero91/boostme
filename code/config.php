@@ -34,6 +34,11 @@ define('CHARGING_STATUS_DEAL', 1);    // 达成交易，但尚未付款。发生
 define('CHARGING_STATUS_SUCCEED', 2); // 达成交易，并付款
 define('CHARGING_STATUS_INVALID', 4); // 交易无效
 
+// material
+define('MATERIAL_STATUS_APPLY', 1);   // 申请中的资料，暂时未通过审核
+define('MATERIAL_STATUS_PUBLISH', 2); // 资料通过了审核，并得到发布
+define('MATERIAL_STATUS_DENIED', 3);  // 资料未通过审核
+
 // index page
 define('INDEX_PROBLEM_LIST_SIZE', 10); // 首页单页求助数量
 
@@ -56,5 +61,4 @@ define('RESUME_DENIED', 3);   // 获取资格失败
 define('FB_NEW', 1);   // 新用户反馈
 define('FB_DONE', 2);  // 已处理反馈
 define('FB_DELAY', 3); // 延迟处理用户反馈
-
 

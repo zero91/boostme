@@ -101,7 +101,7 @@ class usercontrol extends base {
     function onajaxlogin() {
         $username = $this->post['username'];
         if (WEB_CHARSET == 'GBK') {
-            require_once(WEB_ROOT . '/lib/iconv.func.php');
+            require_once(WEB_ROOT . '/code/lib/iconv.func.php');
             $username = utf8_to_gbk($username);
         }
         $password = md5($this->post['password']);
@@ -116,7 +116,7 @@ class usercontrol extends base {
     function onajaxusername() {
         $username = $this->post['username'];
         if (WEB_CHARSET == 'GBK') {
-            require_once(WEB_ROOT . '/lib/iconv.func.php');
+            require_once(WEB_ROOT . '/code/lib/iconv.func.php');
             $username = utf8_to_gbk($username);
         }
         $user = $_ENV['user']->get_by_username($username);
