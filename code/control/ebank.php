@@ -20,32 +20,28 @@ class ebankcontrol extends base {
 
     // 财付通转账
     function ontenpaytransfer() {
-        if (isset($this->post['submit'])) {
-            if (!$this->user['uid']) {
-                $this->message("您无权执行该操作!", "STOP");
-                exit;
-            }
-
-            //$out_trade_no = $this->post["order_no"];        // 获取提交的订单号
-            $product_name = $this->post["product_name"];    // 获取提交的商品名称
-            $order_price = $this->post["order_price"];      // 获取提交的商品价格
-            $trade_mode = $this->post["trade_mode"];        // 支付方式
-
-            $out_trade_no = "123321";
-
-            $total_fee = $order_price * 100; // 商品价格（包含运费），以分为单位
-
-            $desc = "商品：$product_name"; // 商品名称
-
-            $_ENV['ebank']->tenpaytransfer($out_trade_no, $total_fee, $desc, $trade_mode);
+        if (!$this->user['uid']) {
+            $this->message("您无权执行该操作!", "STOP");
+            exit;
         }
+
+        $out_trade_no = $this->post["order_no"];        // 获取提交的订单号
+        $product_name = $this->post["product_name"];    // 获取提交的商品名称
+        $order_price = $this->post["order_price"];      // 获取提交的商品价格
+        $trade_mode = $this->post["trade_mode"];        // 支付方式
+
+        $out_trade_no = "123321";
+
+        $total_fee = $order_price * 100; // 商品价格（包含运费），以分为单位
+
+        $desc = "$product_name"; // 商品名称
+        $desc = cutstr($desc, 32, '');
+
+        $_ENV['ebank']->tenpaytransfer($out_trade_no, $total_fee, $desc, $trade_mode);
     }
 
     // 财付通回调
     function ontenpayreturn() {
-
-
-
 
     }
 

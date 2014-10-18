@@ -62,3 +62,11 @@ define('FB_NEW', 1);   // 新用户反馈
 define('FB_DONE', 2);  // 已处理反馈
 define('FB_DELAY', 3); // 延迟处理用户反馈
 
+// trade
+define('TRADE_STATUS_UNPAID', 1);       // 已生成订单，但订单尚未付款
+define('TRADE_STATUS_PAID_SUCCEED', 2); // 订单付款成功，一般指钱款已经达到了财付通
+define('TRADE_STATUS_PAID_FAILED', 3);  // 用户产生了付款的行为，但最终付款失败
+define('TRADE_STATUS_DONE', 4);         // 订单交易已经结束
+
+
+

@@ -13,6 +13,8 @@ class materialcontrol extends base {
     }
 
     function oncategorylist() {
+        $school_id = $this->get[2];
+
         include template('material_category_list');
     }
 
@@ -55,36 +57,27 @@ class materialcontrol extends base {
             $description = $this->post['description'];
             $price = doubleval($this->post["price"]);
             $cid = trim($this->post['category_id']);
+            $picture_tmp_url = $this->post['picture_tmp_url'];
 
             $this->setting['code_material_add'] && $this->checkcode(); //检查验证码 
 
-            /*
-            $pid = $_ENV['problem']->add($title, $description, $cid, $price);
-            $_ENV['problem']->update_status($pid, $status);
-            $_ENV['user']->update_problem_num($this->user['uid'], 1);
+            /*$_ENV['userlog']->add('problem', "回报: $price"); */
+            $picture_fname = end(explode("/", $picture_tmp_url));
+            $picture_tmp_path = "/public/data/tmp/" . $picture_fname;
+            $target_path = "/public/data/material/" . $picture_fname;
 
-            // 插入标签
-            !empty($tags) && $taglist = explode(" ", $tags);
-            $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
-
-            $viewurl = urlmap("problem/view/$pid", 2);
-            $_ENV['userlog']->add('problem', "回报: $price");
-            if (PB_STATUS_UNAUDIT == $status) {
-                $this->message('求助发布成功！为了确保求助的合法性，我们会对您提的求助进行审核。请耐心等待......', 'BACK');
-            } else {
-                $this->message("求助发布成功!", $viewurl);
+            if (file_exists(WEB_ROOT . $picture_tmp_path)) {
+                rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
             }
-            */
 
-            $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $title, $description, $price);
+            $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $target_path, $title, $description, $price);
 
             $cid_list = array();
             foreach (explode(",", $cid) as $t_cid) {
-                if (array_key_exists($t_cid, $this->category)) {
+                //if (array_key_exists($t_cid, $this->category)) {
                     $cid_list[] = $t_cid;
-                }
+                //}
             }
-
             $_ENV['material_category']->multi_add($mid, $cid_list);
 
             $this->message('我们已经接到您资料的申请，将在第一时间内给您答复', "material/view/$mid");
@@ -93,6 +86,25 @@ class materialcontrol extends base {
                 $this->message("请先登录!", "user/login");
             }
             include template('addmaterial');
+        }
+    }
+
+    function onupload_picture() {
+        $session_id = $this->post['session_id'];
+        $random_num = random(2);
+
+        $output_dir = "/public/data/tmp";
+        $extname = extname($_FILES["picture"]["name"]);
+
+        $file_web_path = $output_dir . "/{$session_id}{$random_num}.{$extname}";
+
+        $upload_target_fname = WEB_ROOT . $file_web_path;
+        if (file_exists($upload_target_fname)) {
+            unlink($upload_target_fname);
+        }
+
+        if (move_uploaded_file($_FILES["picture"]["tmp_name"], $upload_target_fname)) {
+            echo SITE_URL . substr($file_web_path, 1);
         }
     }
 

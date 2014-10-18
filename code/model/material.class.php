@@ -58,8 +58,8 @@ class materialmodel {
         return $material_list;
     }
 
-    function add($uid, $username, $title, $description, $price, $status=MATERIAL_STATUS_APPLY) {
-        $this->db->query("INSERT INTO material SET uid='$uid',username='$username',title='$title',description='$description',price='$price',time='{$this->base->time}',status='$status'");
+    function add($uid, $username, $picture, $title, $description, $price, $status=MATERIAL_STATUS_APPLY) {
+        $this->db->query("INSERT INTO material SET uid='$uid',username='$username',picture='$picture',title='$title',description='$description',price='$price',time='{$this->base->time}',status='$status'");
         return $this->db->insert_id();
     }
 

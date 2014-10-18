@@ -17,20 +17,32 @@ a:hover { color: #FF6600; }
 
 <div class="container">
   <div style="margin:30px;">
-    <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;">
-      <tr style="background-color:#f2f7ff;">
-        <th width="60%" style="text-align:center;">资料名称</th>
-        <th width="15%" style="text-align:center;">价格</th>
-        <th width="10%" style="text-align:center;">数量</th>
-        <th width="15%" style="text-align:center;">小结（元）</th>
-      </tr>
-      <tr>
-        <td>{$title}</td>
-        <td>{$price}</td>
-        <td>{$quantity}</td>
-        <td style="color:red;font-weight:bold;">{eval echo $quantity*$price}</td>
-      </tr>
-    </table>
+    <form method="POST" action="{url ebank/tenpaytransfer}" name="trade_form" id="trade_form" class="form-horizontal">
+      <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;">
+        <tr style="background-color:#f2f7ff;">
+          <th width="60%" style="text-align:center;">资料名称</th>
+          <th width="15%" style="text-align:center;">价格</th>
+          <th width="10%" style="text-align:center;">数量</th>
+          <th width="15%" style="text-align:center;">小结（元）</th>
+        </tr>
+        <!--{loop $trade_info_list $trade_info}-->
+        <tr>
+          <td><a href="{SITE_URL}?material/view/{$trade_info['mid']}">{$trade_info['title']}</a></td>
+          <td>{$trade_info['price']}</td>
+          <td>{$trade_info['buy_num']}</td>
+          <td style="color:red;font-weight:bold;">{eval echo $trade_info['price'] * $trade_info['buy_num']}</td>
+        </tr>
+        <!--{/loop}-->
+      </table>
+      <div style="margin-left:78%; margin-top:10px;font-weight:bold;">
+        <span style="font-size:20px;">总计：</span>
+        <span style="font-size:26px;color:red;">¥&nbsp;{$trade['tot_price']}</span>
+      </div>
+      <input type="hidden" name="trade_no" id="trade_no" value="{$trade['trade_no']}">
+      <input type="hidden" name="product_name" id="product_name" value="Boostme考研资料">
+      <input type="hidden" name="order_price" id="order_price" value="{$trade['tot_price']}"/>
+      <input type="hidden" name="trade_mode" id="trade_mode" value="1"/>
+    </form>
   </div>
 
   <div class="panel panel-info">
@@ -39,12 +51,7 @@ a:hover { color: #FF6600; }
       <div class="list-group">
         <div class="list-group-item">
           <div class="col-sm-3">
-            <form method="POST" action="{url ebank/tenpaytransfer}" class="form-horizontal">
-              <input type="hidden" name="product_name" id="tenpay_product_name" value="{$title}">
-              <input type="hidden" name="order_price" id="tenpay_order_price" value="{eval echo $price*$quantity}"/>
-              <input type="hidden" name="trade_mode" id="tenpay_trade_mode" value="1"/>
-              <button type="submit" name="submit" class="tenpay_btn"></button>
-            </form>
+            <input type="button" id="tenpay_btn" name="tenpay_btn" class="tenpay_btn" onclick="pay_action(this.name)"></a>
           </div>
           <div class="col-sm-9">
             <TABLE width=760 border=0 cellPadding=0 cellSpacing=4 class="px12">
@@ -79,4 +86,22 @@ a:hover { color: #FF6600; }
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $(".prob_demand").click(function() {
+    });
+});
+
+function pay_action(pay_type) {
+    if (pay_type == "tenpay_btn") {
+        $("#trade_mode").val("1");
+        $("#trade_form").action = "{url ebank/tenpaytransfer}";
+        $("#trade_form").submit();
+    }
+}
+
+</script>
+
 <!--{template footer}--> 

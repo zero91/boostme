@@ -44,7 +44,11 @@ $(function(){
 
         <div class="list-group">
           <li class="list-group-item">
-            <!--{template material_category_html_list}-->
+            <!--{if empty($school_id)}-->
+                <!--{template material_category_html_list}-->
+            <!--{else}-->
+                <!--{template material_major_html_list}-->
+            <!--{/if}-->
           </li>
         </div> <!-- list-group -->
       </div> <!-- tab-pane -->

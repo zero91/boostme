@@ -12,6 +12,9 @@
 
 <script type="text/javascript">
 $(function(){
+    var school_id = m_major_dict['{$cid}']['school'];
+    $(".breadcrumb").append("<li><a href=\"{SITE_URL}?material/categorylist/" + school_id + "\">" + m_school_dict[school_id]['name'] + "</a></li>");
+    $(".breadcrumb").append("<li class=\"active\">" + m_major_dict['{$cid}']['name'] + "</li>");
 })
 </script>
 
@@ -19,8 +22,10 @@ $(function(){
   <ol class="breadcrumb">
     <li><a href="{SITE_URL}">首页</a></li>
     <li><a href="{SITE_URL}?material/categorylist">考研资料</a></li>
-    <li class="active">{$category_name}</li>
   </ol>
+
+  <div id="test_school"></div>
+
   <div class="col-sm-9">
     <div class="tab-content">
       <div class="tab-pane active" id="all_prob">
@@ -34,7 +39,6 @@ $(function(){
           <div id="{$material['id']}" class="list-group-item">
             <!-- <div class="panel panel-default"> -->
             <p style="font-size:14px">
-              <!--{loop $material['cid_list'] $cid}-->【{$category[$cid]['name']}】<!--{/loop}-->
               <a href="{url material/view/$material['id']}">{$material['title']}</a>
             </p>
             <!-- </div> -->
@@ -145,4 +149,6 @@ $(document).ready(function() {
 });
 
 </script>
+
+<script type="text/javascript" src="{SITE_URL}public/js/school_info_list.js"></script> 
 <!--{template footer}-->

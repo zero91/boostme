@@ -61,16 +61,13 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 <div class="container">
     <div class="panel panel-info">
         <div class="panel-body">
-            <div class="col-sm-4" style="height:300px;border:1px solid red;">
+            <div class="col-sm-4" style="height:300px;left:-20px;">
+              <img src="{$material['picture']}" width="350px;" height="300px" style="left:-100px;">
             </div>
             <div class="col-sm-8">
-                <form method="POST" action="{url order/buy_now}" name="material_form"
+                <form method="POST" action="{url trade/buy_now}" name="material_form"
                       id="material_form" onsubmit="return check_form();" class="form-horizontal">
-                    <!--{eval $title="";}-->
-                    <!--{loop $material['cid_list'] $cid}-->
-                    <!--{eval $title .= "【" . $category[$cid]['name'] . "】"}-->
-                    <!--{/loop}-->
-                    <!--{eval $title .= $material['title']}-->
+                    <!--{eval $title = $material['title']}-->
                     <input type="hidden" name="title" id="title" value="{$title}"/>
                     <input type="hidden" name="mid" id="mid" value="{$mid}"/>
                     <h5>{$title}</h5>
@@ -88,14 +85,22 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                             <span class="li_text_info" style="margin-top:2px;">数量</span>
                             <input type="number" id="quantity" name="quantity" step="1" min="1" max="10000" value="1"/>
                         </li>
-                        <li><button type="submit" class="btn btn-danger buy_btn">立即购买</button></li>
+                        <li><button type="submit" name="submit" class="btn btn-danger buy_btn">立即购买</button></li>
                     </ul>
                 </form>
             </div>
-        </div><!-- problem sub panel end -->
+        </div>
     </div>
-    <div class="panel panel-info">
-        <div class="" id="description" style="margin-top:13px;">{$material['description']}</div>
+
+    <div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="active"><a href="#desc_tab" role="tab" data-toggle="tab">详细描述</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="desc_tab">
+                <div class="" id="description" style="margin-top:13px;">{$material['description']}</div>
+            </div>
+        </div>
     </div>
 </div>
 

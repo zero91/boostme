@@ -787,11 +787,12 @@ CREATE TABLE answer_support (
   KEY `uid`(`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
-DROP TABLE IF EXISTS material;
+/* DROP TABLE IF EXISTS material; */
 CREATE TABLE material (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL,
   `username` char(18) NOT NULL DEFAULT '',
+  `picture` varchar(100) DEFAULT NULL, /* 资料封面图片 */
   `title` char(200) NOT NULL,
   `description` text DEFAULT NULL,
   `price` DOUBLE NOT NULL DEFAULT '0',
@@ -800,13 +801,14 @@ CREATE TABLE material (
   `avg_score` DOUBLE NOT NULL DEFAULT '0', /* 平均评价得分 */
   `sold_num` mediumint(8) unsigned NOT NULL DEFAULT '0', /* 卖出多少份 */
   `comment_num` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `view_num` int(10) unsigned NOT NULL DEFAULT '0',
 
   PRIMARY KEY (`id`),
   KEY `uid`(`uid`),
   KEY time (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS material_category;
+/* DROP TABLE IF EXISTS material_category; */
 CREATE TABLE material_category (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `material_id` int(10) unsigned NOT NULL,
@@ -818,7 +820,7 @@ CREATE TABLE material_category (
   KEY `cid`(`cid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS material_comment;
+/* DROP TABLE IF EXISTS material_comment; */
 CREATE TABLE material_comment (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `mid` int(10) NOT NULL,
@@ -831,7 +833,7 @@ CREATE TABLE material_comment (
   KEY `authorid`(`authorid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS material_score ;
+/* DROP TABLE IF EXISTS material_score; */
 CREATE TABLE material_score (
   `uid` int(10) unsigned NOT NULL,
   `mid` int(10) NOT NULL,
@@ -841,4 +843,33 @@ CREATE TABLE material_score (
   KEY `uid`(`uid`),
   KEY `mid`(`mid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+
+DROP TABLE IF EXISTS trade;
+CREATE TABLE trade (
+  `trade_no` varchar(32) NOT NULL,
+  `uid` int(10) unsigned NOT NULL,
+  `username` char(18) NOT NULL,
+  `tot_price` double NOT NULL,
+  `status` smallint(3) NOT NULL,
+  `goods_num` mediumint(8) NOT NULL, 
+  `time` int(10) NOT NULL,
+
+  PRIMARY KEY (`trade_no`),
+  KEY `uid`(`uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+
+DROP TABLE IF EXISTS trade_info;
+CREATE TABLE trade_info (
+  `trade_no` varchar(32) NOT NULL,
+  `mid` int(10) unsigned NOT NULL,
+  `title` char(200) NOT NULL,
+  `price` double NOT NULL,
+  `buy_num` mediumint(8) NOT NULL,
+  `time` int(10) NOT NULL,
+
+  PRIMARY KEY (`trade_no`, `mid`),
+  KEY (`trade_no`),
+  KEY (`mid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+
 
