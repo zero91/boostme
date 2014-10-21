@@ -17,6 +17,7 @@ class indexcontrol extends base {
         $total = count($indexshowprob);
         $page_indexshowprob = array_slice($indexshowprob, ($page - 1) * $pagesize, $pagesize);
         $departstr = page($total, $pagesize, $page, "index/default");
+
         include template('index');
     }
 

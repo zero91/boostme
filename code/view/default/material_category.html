@@ -29,24 +29,48 @@ $(function(){
   <div class="col-sm-9">
     <div class="tab-content">
       <div class="tab-pane active" id="all_prob">
-        <div class="list-group">
           <!--{if count($material_list) == 0}-->
           <h5>暂没有相关资料，如果您需要相关资料，可以在系统中登记</h5>
 
           <!--{else}-->
 
+          <!--{eval $m_num = count($material_list);}-->
+          <!--{eval $index_list = range(0, $m_num);}-->
+          <!--{eval array_pop($index_list);}-->
+          <table class="table">
+            <!--{loop $index_list $index}-->
+              <!--{if $index % 3 == 0}--><tr><!--{/if}-->
+                <td width="33%" height="250px;" style="padding:20px;">
+                  <!--{eval $mid = $material_list[$index]['id'];}-->
+                  <p style="font-size:14px"><a href="{url material/view/$mid}">{$material_list[$index]['title']}</a></p>
+                  <div>
+                    <a href="{url material/view/$mid}"><img src="{$material_list[$index]['picture']}" style="max-width:90%;max-height:90%;"></a>
+                  </div>
+                </td>
+              <!--{if $index % 3 == 2}--></tr><!--{/if}-->
+            <!--{/loop}-->
+
+            <!--{if $m_num % 3 == 1}-->
+            <td width=""></td><td width=""></td></tr>
+            <!--{elseif $m_num % 3 == 2}-->
+            <td></td></tr>
+            <!--{/if}-->
+          </table>
+
+        <!--{/if}-->
+
+        <!--
+        <div class="list-group">
           <!--{loop $material_list $material}-->
           <div id="{$material['id']}" class="list-group-item">
-            <!-- <div class="panel panel-default"> -->
-            <p style="font-size:14px">
-              <a href="{url material/view/$material['id']}">{$material['title']}</a>
-            </p>
-            <!-- </div> -->
+            <p style="font-size:14px"><a href="{url material/view/$material['id']}">{$material['title']}</a></p>
+            <img src="{$material['picture']}" style="left:-100px;max-width:30%;max-height:200px;">
           </div>   
           <!--{/loop}-->
-
           <!--{/if}-->
-        </div> <!-- list-group -->
+        </div>
+        -->
+
         <center><ul class="pagination">{$departstr}</ul></center>
       </div> <!-- tab-pane -->
     </div><!-- tab-content -->

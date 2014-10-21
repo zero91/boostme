@@ -47,7 +47,6 @@ class attachcontrol extends base {
             }
         }
         //向浏览器返回数据json数据
-        print_r($attach);
         echo '{"state":"' . $state . '","url":"' . $targetfile . '","fileType":"' . $current_type . '","original":"' . $clientFile["name"] . '"}';
     }
 

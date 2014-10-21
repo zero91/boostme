@@ -802,6 +802,8 @@ CREATE TABLE material (
   `sold_num` mediumint(8) unsigned NOT NULL DEFAULT '0', /* 卖出多少份 */
   `comment_num` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `view_num` int(10) unsigned NOT NULL DEFAULT '0',
+  `site_url` text DEFAULT NULL,
+  `access_code` varchar(200) DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `uid`(`uid`),
@@ -852,8 +854,12 @@ CREATE TABLE trade (
   `tot_price` double NOT NULL,
   `status` smallint(3) NOT NULL,
   `goods_num` mediumint(8) NOT NULL, 
+  `trade_total_fee` double DEFAULT NULL,
+  `trade_discount` double DEFAULT NULL,
+  `trade_type` enum('tenpay', 'alipay', 'other') DEFAULT NULL,
+  `trade_mode` smallint(2) NOT NULL,
+  `transaction_id` varchar(32) DEFAULT NULL,
   `time` int(10) NOT NULL,
-
   PRIMARY KEY (`trade_no`),
   KEY `uid`(`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 

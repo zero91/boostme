@@ -27,6 +27,31 @@ class base {
 
         $this->checkcode();
         $this->banned();
+
+        $this->auto_send_goods();
+    }
+
+    // 临时解决方案
+    function auto_send_goods() {
+        $this->load('trade');
+        $this->load('ebank');
+        $trade_list = $_ENV['trade']->get_trade_by_status(TRADE_STATUS_WAIT_SELLER_SEND_GOODS);
+
+        foreach ($trade_list as $trade) {
+            $transaction_id = $trade['transaction_id'];
+            $logistics_name = "Boostme物流";
+            $invoice_no     = "Boostme物流编号";
+            $transport_type = 'EXPRESS'; // POST（平邮）、EXPRESS（快递）、EMS（EMS）
+
+            $send_goods_result = $_ENV['ebank']->alipay_send_goods($transaction_id, $logistics_name, $invoice_no, $transport_type);
+
+            if ($send_goods_result['is_success'] == 'T') {
+                $_ENV['trade']->update_trade_status($trade['trade_no'], TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS);
+                runlog('alipay', "[INFO] Auto send goods succeed! trade_no=[" . $trade['trade_no'] . "],new_status=[" . TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS . "]", 0);
+            } else {
+                runlog('alipay', "[INFO] Auto send goods failed!", 0);
+            }
+        }
     }
 
     function init_db() {
@@ -175,6 +200,15 @@ class base {
         $tpldir = (0 === strpos($this->get[0], 'admin')) ? 'admin' : 'default';
         include template('tip', $tpldir);
         exit;
+    }
+
+    function jump($url, $full=0) {
+        if ($full) {
+            $jump_url = $url;
+        } else {
+            $jump_url = SITE_URL . $this->setting['seo_prefix'] . $url . $this->setting['seo_suffix'];
+        }
+        header("Location: $jump_url");
     }
 
     function send($from, $fromuid, $touid, $subject, $content) {

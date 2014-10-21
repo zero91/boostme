@@ -3,6 +3,9 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class materialmodel {
+    /* `site_url` text DEFAULT NULL,
+     * `access_code` varchar(200) DEFAULT NULL, */
+
     var $db;
     var $base;
     var $search;
@@ -58,8 +61,8 @@ class materialmodel {
         return $material_list;
     }
 
-    function add($uid, $username, $picture, $title, $description, $price, $status=MATERIAL_STATUS_APPLY) {
-        $this->db->query("INSERT INTO material SET uid='$uid',username='$username',picture='$picture',title='$title',description='$description',price='$price',time='{$this->base->time}',status='$status'");
+    function add($uid, $username, $picture, $title, $description, $price, $site_url, $access_code, $status=MATERIAL_STATUS_APPLY) {
+        $this->db->query("INSERT INTO material SET uid='$uid',username='$username',picture='$picture',title='$title',description='$description',price='$price',site_url='$site_url',access_code='$access_code',time='{$this->base->time}',status='$status'");
         return $this->db->insert_id();
     }
 
@@ -71,7 +74,10 @@ class materialmodel {
         $this->db->query("UPDATE `material` SET `sold_num`=`sold_num`+($delta) WHERE `id`=$mid");
     }
 
-    // 我的所有求助，用户中心
+    function update_access($mid, $site_url, $access_code) {
+        $this->db->query("UPDATE `material` SET `site_url`='$site_url',`access_code`='$access_code' WHERE `id`=$mid");
+    }
+
     function list_by_uid($uid, $start=0, $limit=10) {
         $material_list = array();
         $sql = "SELECT * FROM material WHERE `uid`=$uid ORDER BY `time` DESC LIMIT $start,$limit";
@@ -83,7 +89,6 @@ class materialmodel {
         return $material_list;
     }
 
-    // 更新求助
     function update($mid, $title, $description, $price, $status) {
         $this->db->query("UPDATE `material` SET `title`='$title',`description`='$description',`price`='$price',`status`=$status,`time`={$this->base->time} WHERE `id`=$mid");
         if ($this->base->setting['xunsearch_open']) { // 更新索引

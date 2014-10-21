@@ -604,6 +604,42 @@ function get_url_source($forward = "") {
     return substr($refer, 0, strrpos($refer, "."));
 }
 
+// 日志记录
+function runlog($file, $message, $halt = 0) {
+    $nowurl = $_SERVER['REQUEST_URI'] ? $_SERVER['REQUEST_URI'] : ($_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME']);
+    $log = date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . "\t" . $_SERVER['REMOTE_ADDR'] . "\t{$nowurl}\t" . str_replace(array("\r", "\n"), array(' ', ' '), trim($message)) . "\n";
+
+    $yearmonth = gmdate('Ym', $_SERVER['REQUEST_TIME']);
+    $logdir = WEB_ROOT . '/private/logs/';
+    if (!is_dir($logdir)) {
+        mkdir($logdir, 0777);
+    }
+
+    $logfile = $logdir . $yearmonth . '_' . $file . '.php';
+    if (@filesize($logfile) > 2048000) {
+        $dir = opendir($logdir);
+        $length = strlen($file);
+        $maxid = $id = 0;
+        while ($entry = readdir($dir)) {
+            if (strstr($entry, $yearmonth . '_' . $file)) {
+                $id = intval(substr($entry, $length + 8, -4));
+                $id > $maxid && $maxid = $id;
+            }
+        }
+        closedir($dir);
+        $logfilebak = $logdir . $yearmonth . '_' . $file . '_' . ($maxid + 1) . '.php';
+        @rename($logfile, $logfilebak);
+    }
+    if ($fp = @fopen($logfile, 'a')) {
+        @flock($fp, 2);
+        fwrite($fp, "<?PHP exit;?>\t" . str_replace(array('<?', '?>', "\r", "\n"), '', $log) . "\n");
+        fclose($fp);
+    }
+    if ($halt) {
+        exit();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 function cutstr($string, $length, $dot = ' ...') {
@@ -737,38 +773,6 @@ function tstripslashes($string) {
         $string = stripslashes($string);
     }
     return $string;
-}
-
-// 日志记录
-function runlog($file, $message, $halt = 0) {
-    $nowurl = $_SERVER['REQUEST_URI'] ? $_SERVER['REQUEST_URI'] : ($_SERVER['PHP_SELF'] ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME']);
-    $log = date($_SERVER['REQUEST_TIME'], 'Y-m-d H:i:s') . "\t" . $_SERVER['REMOTE_ADDR'] . "\t{$nowurl}\t" . str_replace(array("\r", "\n"), array(' ', ' '), trim($message)) . "\n";
-    $yearmonth = gmdate('Ym', $_SERVER['REQUEST_TIME']);
-    $logdir = WEB_ROOT . '/private/logs/';
-    if (!is_dir($logdir))
-        mkdir($logdir, 0777);
-    $logfile = $logdir . $yearmonth . '_' . $file . '.php';
-    if (@filesize($logfile) > 2048000) {
-        $dir = opendir($logdir);
-        $length = strlen($file);
-        $maxid = $id = 0;
-        while ($entry = readdir($dir)) {
-            if (strstr($entry, $yearmonth . '_' . $file)) {
-                $id = intval(substr($entry, $length + 8, -4));
-                $id > $maxid && $maxid = $id;
-            }
-        }
-        closedir($dir);
-        $logfilebak = $logdir . $yearmonth . '_' . $file . '_' . ($maxid + 1) . '.php';
-        @rename($logfile, $logfilebak);
-    }
-    if ($fp = @fopen($logfile, 'a')) {
-        @flock($fp, 2);
-        fwrite($fp, "<?PHP exit;?>\t" . str_replace(array('<?', '?>', "\r", "\n"), '', $log) . "\n");
-        fclose($fp);
-    }
-    if ($halt)
-        exit();
 }
 
 // http请求

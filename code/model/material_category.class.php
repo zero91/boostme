@@ -52,7 +52,7 @@ class material_categorymodel {
     }
 
     function multi_add($mid, $cid_list) {
-        print_r($cid_list);
+        //print_r($cid_list);
         if (empty($cid_list)) {
             return false;
         }

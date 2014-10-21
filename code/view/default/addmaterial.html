@@ -26,22 +26,6 @@
 
         <div class="row">
           <div class="col-sm-6">
-            <div class="row">
-              <div class="form-group">
-                <label class="col-sm-2 control-label"><span style="color:red">*</span>分类：</label>
-                <div class="col-sm-10">
-                  <input type="hidden" class="form-control" name="category_id" readonly style="cursor:pointer;" id="category_id"/>
-                  <input type="text" class="form-control" name="category" readonly style="cursor:pointer;" id="category"/>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="form-group">
-                <label class="col-sm-2 control-label"><span style="color:red">*</span>价格：</label>
-                <div class="col-sm-4"><input class="form-control" id="price" name="price" value=""/></div>
-                <div class="col-sm-4 info_tip">*单位：元</div>
-              </div>
-            </div>
 
             <div class="row">
               <div class="form-group">
@@ -52,6 +36,43 @@
                 <div class="col-sm-4 info_tip">.bmp .png .jpg .gif</div>
               </div>
             </div>
+
+            <div class="row">
+              <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color:red">*</span>链接：</label>
+                <div class="col-sm-4"><input class="form-control" id="site_url" name="site_url" value=""/></div>
+                <div class="col-sm-4 info_tip">*资料获取的链接地址</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color:red">*</span>密码：</label>
+                <div class="col-sm-4"><input class="form-control" id="access_code" name="access_code" value=""/></div>
+                <div class="col-sm-4 info_tip">*资料的提取密码</div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color:red">*</span>价格：</label>
+                <div class="col-sm-4"><input class="form-control" id="price" name="price" value=""/></div>
+                <div class="col-sm-4 info_tip">*单位：元</div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color:red">*</span>分类：</label>
+                <div class="col-sm-10">
+                  <input type="hidden" class="form-control" name="category_id" readonly style="cursor:pointer;" id="category_id"/>
+                  <input type="text" class="form-control" name="category" readonly style="cursor:pointer;" id="category"/>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div class="col-sm-4" style="margin-left:60px;">
@@ -85,7 +106,7 @@
               <!--{else}-->
               <div class="col-sm-1"></div>
               <!--{/if}-->
-              <div class="col-sm-2"><button type="submit" class="btn btn-primary" name="submit">提交求助</button></div>
+              <div class="col-sm-2"><button type="submit" class="btn btn-primary" name="submit">提&nbsp;交</button></div>
           </div>
         </div>
       </form>

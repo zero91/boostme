@@ -58,6 +58,8 @@ class materialcontrol extends base {
             $price = doubleval($this->post["price"]);
             $cid = trim($this->post['category_id']);
             $picture_tmp_url = $this->post['picture_tmp_url'];
+            $site_url = $this->post['site_url'];
+            $access_code = $this->post['access_code'];
 
             $this->setting['code_material_add'] && $this->checkcode(); //检查验证码 
 
@@ -70,7 +72,7 @@ class materialcontrol extends base {
                 rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
             }
 
-            $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $target_path, $title, $description, $price);
+            $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $target_path, $title, $description, $price, $site_url, $access_code);
 
             $cid_list = array();
             foreach (explode(",", $cid) as $t_cid) {

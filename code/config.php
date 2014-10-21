@@ -1,9 +1,9 @@
 <?php 
 
 define('DB_HOST', 'localhost');
-define('DB_USER', 'boostme');
-define('DB_PW', 'boostme');
-define('DB_NAME', 'boostme_online');
+define('DB_USER', 'boostme_alpha');
+define('DB_PW', 'boostme_alpha');
+define('DB_NAME', 'boostme_alpha');
 define('DB_CHARSET', 'utf8');
 define('DB_CONNECT', 0);
 define('WEB_CHARSET', 'UTF-8');
@@ -63,10 +63,14 @@ define('FB_DONE', 2);  // 已处理反馈
 define('FB_DELAY', 3); // 延迟处理用户反馈
 
 // trade
-define('TRADE_STATUS_UNPAID', 1);       // 已生成订单，但订单尚未付款
-define('TRADE_STATUS_PAID_SUCCEED', 2); // 订单付款成功，一般指钱款已经达到了财付通
-define('TRADE_STATUS_PAID_FAILED', 3);  // 用户产生了付款的行为，但最终付款失败
-define('TRADE_STATUS_DONE', 4);         // 订单交易已经结束
+define('TRADE_STATUS_WAIT_BUYER_PAY', 1);           // 等待买家付款
+define('TRADE_STATUS_WAIT_SELLER_SEND_GOODS', 2);   // 买家已付款,等待卖家发货
+define('TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS', 3); // 卖家已发货,等待买家确认
+define('TRADE_STATUS_FINISHED', 4);                 // 交易成功结束
+define('TRADE_STATUS_CLOSED', 5);                   // 交易中途关闭(已结束,未成功完成)
 
-
+define('TRADE_STATUS_UNPAID', 10);       // 已生成订单，但订单尚未付款
+define('TRADE_STATUS_PAID_SUCCEED', 11); // 订单付款成功，一般指钱款已经达到了财付通
+define('TRADE_STATUS_PAID_FAILED', 12);  // 用户产生了付款的行为，但最终付款失败
+define('TRADE_STATUS_DONE', 13);         // 订单交易已经结束
 
