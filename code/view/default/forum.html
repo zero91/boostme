@@ -48,7 +48,7 @@ $(function(){
             </div>
             <div class="msg_content">
               <a href="{url question/view/$question['qid']}">{$question['title']}</a>
-              <div style="font-size:12px !important;">{$question['description']}</div>
+              <!-- <div style="font-size:12px !important;">{eval echo cutstr($question['description'], 100, "");}</div> -->
               <div style="position:absolute;right:20px;bottom:5px;font-size:12px;color:grey;">
                 <span>{$question['format_time']}</span>
               </div>
@@ -60,7 +60,7 @@ $(function(){
 
         <div style="background: url({SITE_URL}public/css/default/forum_editor.jpg) repeat;">
           <div style="padding:10px;">
-            共有贴子<span style="color:red">{$question_num}</span>篇，考研小伙伴<span style="color:red">{$user_num}</span>枚
+            共有贴子<span style="color:red">{$question_num}</span>篇，考研小伙伴<span style="color:red">{eval echo $user_num + 888}</span>枚
           </div>
           <form name="questionform" action="{url question/add}" method="POST" onsubmit="return check_form();">
             <div class="msg_content">

@@ -810,16 +810,60 @@ CREATE TABLE material (
   KEY time (`time`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS register_material;
+CREATE TABLE register_material (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `username` char(18) NOT NULL,
+  `description` text NOT NULL,
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `existed` smallint(1) NOT NULL DEFAULT '0',
+
+  PRIMARY KEY (`id`),
+  KEY `uid`(`uid`),
+  KEY `time`(`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/* DROP TABLE IF EXISTS material_category_info; */
+CREATE TABLE material_category_info (
+  `region_id` varchar(32) NOT NULL,
+  `region_name` varchar(32) NOT NULL,
+  `school_id` varchar(32) NOT NULL,
+  `school_name` varchar(128) NOT NULL,
+  `dept_id` varchar(128) NOT NULL,
+  `dept_name` varchar(128) NOT NULL,
+  `major_id` varchar(128) NOT NULL,
+  `major_name` varchar(128) NOT NULL,
+
+  KEY `region_id`(`region_id`),
+  KEY `region_name`(`region_name`),
+  KEY `school_id`(`school_id`),
+  KEY `school_name`(`school_name`),
+  KEY `dept_id`(`dept_id`),
+  KEY `dept_name`(`dept_name`),
+  UNIQUE KEY `major_id`(`major_id`),
+  KEY `major_name`(`major_name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 /* DROP TABLE IF EXISTS material_category; */
 CREATE TABLE material_category (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `material_id` int(10) unsigned NOT NULL,
   `cid` varchar(32) NOT NULL,
 
+  `region_id` varchar(32) NOT NULL,
+  `school_id` varchar(32) NOT NULL,
+  `dept_id` varchar(128) NOT NULL,
+  `major_id` varchar(128) NOT NULL,
+
   PRIMARY KEY(`id`),
-  UNIQUE KEY `mid_cid`(`material_id`,`cid`),
+  UNIQUE KEY `mid_majorid`(`material_id`,`major_id`),
   KEY `mid`(`material_id`),
-  KEY `cid`(`cid`)
+  KEY `region_id`(`region_id`),
+  KEY `school_id`(`school_id`),
+  KEY `dept_id`(`dept_id`),
+  KEY `major_id`(`major_id`)
+
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /* DROP TABLE IF EXISTS material_comment; */

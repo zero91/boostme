@@ -10,6 +10,7 @@ class materialcontrol extends base {
         $this->load('material_category');
         $this->load('material_comment');
         $this->load('material_score');
+        $this->load('register_material');
     }
 
     function oncategorylist() {
@@ -153,6 +154,19 @@ class materialcontrol extends base {
         $problemlist = $_ENV['problem']->list_by_tag($tag, $pstatus, $startindex, $pagesize);
         $departstr = page($rownum, $pagesize, $page, "problem/tag/$tag/$status");
         include template('problem_search');
+    }
+
+    function onreg() {
+        if (0 == $this->user['uid']) {
+            $this->message("请先登录!", "user/login");
+        }
+
+        if (isset($this->post['submit'])) {
+            $description = $this->post['description'];
+
+            $id = $_ENV['register_material']->add($description);
+            $this->message('您想要的资料我们已经收到，我们会尽快帮您找到这份资料', "BACK");
+        }
     }
 }
 

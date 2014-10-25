@@ -90,7 +90,8 @@ $(function(){
         <div class="panel panel-info">
           <div class="panel-heading">我要资料</div>
           <div class="panel-body">
-            <p>没有找到你想要的资料，这就登记吧！<a href="{url problem/add}">开始登记</a></p>
+            <p>没有找到你想要的资料，这就登记吧！<a data-toggle="modal" id="reg_material" data-target="#reg_materialModal">开始登记</a>
+            <!-- <a href="{url material/reg}">开始登记</a></p> -->
           </div>
         </div>
       </li>
@@ -99,25 +100,28 @@ $(function(){
   </div><!--col-sm-3-->
 </div><!-- container end -->
 
-<div class="modal fade" id="demandModal" role="dialog">
+<div class="modal fade" id="reg_materialModal" tabindex="-1" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">附加信息</h4>
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Close</span>
+        </button>
+        <h4 class="modal-title">填写您想要的资料信息</h4>
       </div>
-      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
-        <div class="modal-body">
-          <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
-          <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
+      <form name="reg_form" action="{SITE_URL}?material/reg.html" method="post" id="reg_dialog">
+        <div class="modal-body" id="reg_body">
+          <p>详细描述您的资料需求，我们会尽最大努力帮你找到这份资料</p>
+          <textarea class="form-control" name="description" id="reg_desc" rows="5" required></textarea>
         </div>
         <div class="modal-footer">
-          <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
+          <input type="submit" class="btn btn-primary" id="submit_reg" name="submit" value="提&nbsp;交" />
         </div>
       </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
 var timer;
