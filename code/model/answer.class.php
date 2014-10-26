@@ -20,9 +20,7 @@ class answermodel {
         $uid = $this->base->user['uid'];
         $username = $this->base->user['username'];
         $this->db->query("INSERT INTO answer SET qid='$qid',title='$title',author='$username',authorid='$uid',time='{$this->base->time}',content='$content',ip='{$this->base->ip}'");
-        $aid = $this->db->insert_id();
-        $this->db->query("UPDATE question SET answers=answers+1 WHERE qid=$qid");
-        return $aid;
+        return $this->db->insert_id();
     }
 
     // 根据qid获取答案的列表，用于在浏览一个问题的时候显示用

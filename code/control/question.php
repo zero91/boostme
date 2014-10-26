@@ -14,7 +14,6 @@ class questioncontrol extends base {
     // 提交问题
     function onadd() {
         if (isset($this->post['submit'])) {
-            echo "FUCK";
             $title = htmlspecialchars($this->post['title']);
             $content = $this->post['content'];
             $askfromuid = $this->post['askfromuid'];
@@ -106,6 +105,7 @@ class questioncontrol extends base {
                 $this->message("你已超过每小时最大回答数" . $this->user['answerlimits'] . ',请稍后再试！', 'BACK');
 
         $_ENV['answer']->add($qid, $title, $content);
+        $_ENV['question']->update_answers($qid);
 
         //给提问者发送通知
         //$this->send($question['authorid'], $question['qid'], 0);

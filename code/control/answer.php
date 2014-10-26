@@ -58,6 +58,7 @@ class answercontrol extends base {
             $answerid = intval($this->post['answerid']);
             $answer = $_ENV['answer']->get($answerid);
             $_ENV['answer_comment']->add($answerid, $content, $this->user['uid'], $this->user['username']);
+            $_ENV['question']->update_answers($answer['qid']);
 
             if ($answer['authorid'] != $this->user['uid']) {
                 $_ENV['message']->add($this->user['username'], $this->user['uid'], $answer['authorid'], '您的回答有了新评论', '您对于问题 "' . $answer['title'] . '" 的回答 "' . $answer['content'] . '" 有了新评论 "' . $content . '"<br /> <a href="' . url('question/view/' . $answer['qid'], 1) . '">点击查看</a>');

@@ -25,12 +25,13 @@ CREATE TABLE user (
   `credit` smallint(5) NOT NULL DEFAULT '0', /* 用户信用等级 */
   `paid` DOUBLE NOT NULL DEFAULT '0', /* 总共付费 */
   `earned` DOUBLE NOT NULL DEFAULT '0', /* 总共收入 */
+  `balance` DOUBLE NOT NULL DEFAULT '0', /* 账户余额 */
   
   PRIMARY KEY (`uid`),
   KEY username(username),
   KEY email(email)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/* alter table `user` add column `balance` int(10) NOT NULL DEFAULT '0'; */
+/* alter table `user` add column `balance` DOUBLE NOT NULL DEFAULT '0'; */
 
 /* DROP TABLE IF EXISTS user_skill; */
 CREATE TABLE user_skill (
@@ -725,6 +726,7 @@ CREATE TABLE question (
   `title` char(50) NOT NULL,
   `description` text NOT NULL,
   `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0',
   `answers` smallint(5) unsigned NOT NULL DEFAULT '0',
   `attentions` int(10) unsigned NOT NULL DEFAULT '0',
   `goods` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -849,7 +851,6 @@ CREATE TABLE material_category_info (
 CREATE TABLE material_category (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `material_id` int(10) unsigned NOT NULL,
-  `cid` varchar(32) NOT NULL,
 
   `region_id` varchar(32) NOT NULL,
   `school_id` varchar(32) NOT NULL,

@@ -465,7 +465,6 @@ class usercontrol extends base {
             $this->message("请先登录!", "user/login");
         }
          */
-
         if (isset($_FILES["userimage"])) {
             $uid = intval($this->get[2]);
             $avatardir = "/public/data/avatar/";

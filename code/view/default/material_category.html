@@ -12,9 +12,18 @@
 
 <script type="text/javascript">
 $(function(){
+    <!--{if substr($cid,0,1) == 'M'}-->
     var school_id = m_major_dict['{$cid}']['school'];
     $(".breadcrumb").append("<li><a href=\"{SITE_URL}?material/categorylist/" + school_id + "\">" + m_school_dict[school_id]['name'] + "</a></li>");
     $(".breadcrumb").append("<li class=\"active\">" + m_major_dict['{$cid}']['name'] + "</li>");
+
+    <!--{else}-->
+
+    var school_id = m_dept_dict['{$cid}']['school'];
+    $(".breadcrumb").append("<li><a href=\"{SITE_URL}?material/categorylist/" + school_id + "\">" + m_school_dict[school_id]['name'] + "</a></li>");
+    $(".breadcrumb").append("<li class=\"active\">" + m_dept_dict['{$cid}']['name'] + "</li>");
+
+    <!--{/if}-->
 })
 </script>
 
@@ -43,8 +52,9 @@ $(function(){
                 <td width="33%" height="250px;" style="padding:20px;">
                   <!--{eval $mid = $material_list[$index]['id'];}-->
                   <p style="font-size:14px"><a href="{url material/view/$mid}">{$material_list[$index]['title']}</a></p>
-                  <div>
-                    <a href="{url material/view/$mid}"><img src="{$material_list[$index]['picture']}" style="max-width:90%;max-height:90%;"></a>
+                  <div><a href="{url material/view/$mid}"><img src="{$material_list[$index]['picture']}" style="max-width:90%;max-height:90%;"></a></div>
+                  <div style="margin-top:10px;">
+                      <center><span>{$material_list[$index]['view_num']}次浏览&nbsp;&nbsp;|&nbsp;&nbsp;{$material_list[$index]['sold_num']}人付款</span></center>
                   </div>
                 </td>
               <!--{if $index % 3 == 2}--></tr><!--{/if}-->

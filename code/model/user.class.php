@@ -163,48 +163,64 @@ class usermodel {
     function uppass($uid, $password) {
         $password = md5($password);
         $this->db->query("UPDATE user SET `password`='$password' WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     // 更新用户信息
     function update($uid, $gender, $bday, $phone, $qq, $wechat, $signature) {
         $this->db->query("UPDATE user SET `gender`='$gender',`bday`='$bday',`phone`='$phone',`qq`='$qq',`wechat`='$wechat',`signature`='$signature' WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_contact_info($uid, $phone, $qq, $wechat) {
         $this->db->query("UPDATE user SET `phone`='$phone',`qq`='$qq',`wechat`='$wechat' WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_email($uid, $email) {
         $this->db->query("UPDATE user SET `email`='$email' WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_problem_num($uid, $delta=1) {
         $this->db->query("UPDATE user SET `problems`=`problems`+($delta) WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_paid($uid, $price) {
         $this->db->query("UPDATE user SET `paid`=`paid`+$price WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     // 用户解决了一个求助
     function solve_problem($uid, $earned) {
         $this->db->query("UPDATE user SET `solved`=`solved`+1,`earned`=`earned`+$earned WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_solved_num($uid, $delta=1) {
         $this->db->query("UPDATE user SET `solved`=`solved`+($delta) WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_earned($uid, $delta) {
         $this->db->query("UPDATE user SET `earned`=`earned`+($delta) WHERE `uid`=$uid");
+        return $this->db->affected_rows();
+    }
+
+    function update_balance($uid, $delta) {
+        $this->db->query("UPDATE user SET `balance`=`balance`+($delta) WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_failed($uid, $delta=1) {
         $this->db->query("UPDATE user SET `failed`=`failed`+($delta) WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     function update_can_teach($uid, $can_teach) {
         $this->db->query("UPDATE user SET `can_teach`='$can_teach' WHERE `uid`=$uid");
+        return $this->db->affected_rows();
     }
 
     // 删除用户

@@ -13,13 +13,13 @@
   <div class="panel panel-info">
     <div class="panel-heading">填写资料信息</div>
     <div class="panel-body">
-      <form method="POST" action="{url material/add}" name="material_form"
-          id="material_form" onsubmit="return check_form();" class="form-horizontal">
+      <form method="POST" <!--{if $op_type == "add"}-->action="{url material/add}" <!--{else}-->action="{url material/edit/$mid}" <!--{/if}-->
+          name="material_form" id="material_form" onsubmit="return check_form();" class="form-horizontal">
 
         <div id="prob_title" class="row">
           <div class="form-group">
             <label class="col-sm-1 control-label"><span style="color:red">*</span>标题：</label>
-            <div class="col-sm-9"><input type="text" class="form-control" name="title" id="title" /></div>
+            <div class="col-sm-9"><input type="text" class="form-control" name="title" id="title" value="{$material['title']}"/></div>
             还可以输入<span id="title_tip" style="color:red;">50</span>字
           </div>
         </div>
@@ -40,35 +40,46 @@
             <div class="row">
               <div class="form-group">
                 <label class="col-sm-2 control-label"><span style="color:red">*</span>链接：</label>
-                <div class="col-sm-4"><input class="form-control" id="site_url" name="site_url" value=""/></div>
-                <div class="col-sm-4 info_tip">*资料获取的链接地址</div>
+                <div class="col-sm-7"><input class="form-control" id="site_url" name="site_url" value="{$material['site_url']}"/></div>
+                <div class="col-sm-3 info_tip">*资料获取链接</div>
               </div>
             </div>
 
             <div class="row">
               <div class="form-group">
                 <label class="col-sm-2 control-label"><span style="color:red">*</span>密码：</label>
-                <div class="col-sm-4"><input class="form-control" id="access_code" name="access_code" value=""/></div>
+                <div class="col-sm-4"><input class="form-control" id="access_code" name="access_code" value="{$material['access_code']}"/></div>
                 <div class="col-sm-4 info_tip">*资料的提取密码</div>
               </div>
             </div>
 
-
             <div class="row">
               <div class="form-group">
                 <label class="col-sm-2 control-label"><span style="color:red">*</span>价格：</label>
-                <div class="col-sm-4"><input class="form-control" id="price" name="price" value=""/></div>
+                <div class="col-sm-4"><input class="form-control" id="price" name="price" value="{$material['price']}"/></div>
                 <div class="col-sm-4 info_tip">*单位：元</div>
               </div>
             </div>
 
-
             <div class="row">
               <div class="form-group">
+                <!--{if $op_type == "add"}-->
                 <label class="col-sm-2 control-label"><span style="color:red">*</span>分类：</label>
+                <!--{elseif $op_type == "edit"}-->
+                <label class="col-sm-2 control-label"><span style="color:red">*</span>增加分类：</label>
+                <!--{/if}-->
                 <div class="col-sm-10">
                   <input type="hidden" class="form-control" name="category_id" readonly style="cursor:pointer;" id="category_id"/>
                   <input type="text" class="form-control" name="category" readonly style="cursor:pointer;" id="category"/>
+                  <!--{if $op_type == "edit"}-->
+                    <p>现有分类：</p>
+                    <!--{loop $category_list $category}-->
+                    <p>
+                      {$category['region_name']}/{$category['school_name']}/{$category['dept_name']}/{$category['major_name']}
+                      <a type="button" name="" class="glyphicon glyphicon-trash" id="{$category['major_id']}" style="color:grey;cursor:pointer;"></a>
+                    </p>
+                    <!--{/loop}-->
+                  <!--{/if}-->
                 </div>
               </div>
             </div>
@@ -77,7 +88,7 @@
 
           <div class="col-sm-4" style="margin-left:60px;">
             <center><p style="color:grey;">封面预览</p></center>
-            <img width="350px" height="300px" id="picture_preview">
+            <img height="300px" id="picture_preview" src="{$material['picture']}">
             <input type="hidden" name="picture_tmp_url" id="picture_tmp_url"/>
           </div>
         </div>
@@ -87,7 +98,7 @@
             <label class="col-sm-1 control-label"><span style="color:red">*</span>详细描述：</label>
             <div class="col-sm-9" id="description"> 
               <script type="text/plain" id="editor" name="description" style="height: 520px;"></script>
-              <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+              <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]], initialContent:"{eval echo taddslashes($material['description'])}"}));</script>
             </div>
           </div>
         </div>
@@ -106,7 +117,12 @@
               <!--{else}-->
               <div class="col-sm-1"></div>
               <!--{/if}-->
+
+              <!--{if $op_type == 'add'}-->
               <div class="col-sm-2"><button type="submit" class="btn btn-primary" name="submit">提&nbsp;交</button></div>
+              <!--{else}-->
+              <div class="col-sm-2"><button type="submit" class="btn btn-primary" name="submit">保&nbsp;存</button></div>
+              <!--{/if}-->
           </div>
         </div>
       </form>
@@ -262,6 +278,31 @@ $(document).ready(function() {
             $(".uploadify-queue").hide();
         }
     });
+
+    <!--{if $op_type == 'edit'}-->
+    $('.glyphicon-trash').click(function() {
+        /*
+        if (confirm('确定撤销该分类?') === false) {
+            return false;
+        }
+        */
+        var target = $(this).parent();
+        var major_id = $(this).attr("id");
+
+        $.ajax({
+          type: "GET",
+          url:"{SITE_URL}?material/ajaxrm_material_category/{$mid}/" + major_id,
+          cache: false,
+          success: function(succeed){
+                if (succeed == '-1') {
+                    alert("操作失败");
+                } else if (succeed == '1') {
+                    target.hide();
+                }
+            }
+        });
+    });
+    <!--{/if}-->
 });
 
 function index_sort_func(x, y) {
@@ -388,21 +429,13 @@ function check_form() {
         $("#title").focus();
         return false;
     }
+    <!--{if $op_type == "add"}-->
     if ($("#category_id").val().length == 0) {
         alert("您还没有添加分类信息哦！");
         $("#category").click();
         return false;
     }
-    if ($("#ptags").val().length == 0) {
-        alert("您还没有添加任何标签哦！");
-        $("#ptags").focus();
-        return false;
-    }
-    if ($("#price").val().length == 0) {
-        alert("您还没有填写回报哦！");
-        $("#price").focus();
-        return false;
-    }
+    <!--{/if}-->
     return true;
 }
 </script>

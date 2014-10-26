@@ -46,6 +46,18 @@ class materialmodel {
         return $material_list;
     }
 
+    function get_by_mids($mids) {
+        $sql = "SELECT * FROM `material` WHERE id IN ('" . implode("','", $mids) . "')";
+
+        $material_list = array();
+        $query = $this->db->query($sql);
+        while ($material = $this->db->fetch_array($query)) {
+            $material['format_time'] = tdate($material['time']);
+            $material_list[] = $material;
+        }
+        return $material_list;
+    }
+
     function get_all_material_num() {
         return $this->db->fetch_total('material');
     }
@@ -68,19 +80,32 @@ class materialmodel {
 
     function update_avg_score($mid, $avg_score) {
         $this->db->query("UPDATE `material` SET `avg_score`='$avg_score' WHERE `id`=$mid");
+        return $this->db->affected_rows();
     }
 
     function update_sold_num($mid, $delta=1) {
         $this->db->query("UPDATE `material` SET `sold_num`=`sold_num`+($delta) WHERE `id`=$mid");
+        return $this->db->affected_rows();
+    }
+
+    function update_view_num($mid, $delta=1) {
+        $this->db->query("UPDATE `material` SET `view_num`=`view_num`+($delta) WHERE `id`=$mid");
+        return $this->db->affected_rows();
     }
 
     function update_access($mid, $site_url, $access_code) {
         $this->db->query("UPDATE `material` SET `site_url`='$site_url',`access_code`='$access_code' WHERE `id`=$mid");
+        return $this->db->affected_rows();
+    }
+
+    function get_user_total_materials($uid) {
+        return $this->db->fetch_total("material", " `uid`='$uid' " );
     }
 
     function list_by_uid($uid, $start=0, $limit=10) {
         $material_list = array();
         $sql = "SELECT * FROM material WHERE `uid`=$uid ORDER BY `time` DESC LIMIT $start,$limit";
+
         $query = $this->db->query($sql);
         while ($material = $this->db->fetch_array($query)) {
             $material['format_time'] = tdate($material['time']);
@@ -89,23 +114,21 @@ class materialmodel {
         return $material_list;
     }
 
-    function update($mid, $title, $description, $price, $status) {
-        $this->db->query("UPDATE `material` SET `title`='$title',`description`='$description',`price`='$price',`status`=$status,`time`={$this->base->time} WHERE `id`=$mid");
-        if ($this->base->setting['xunsearch_open']) { // 更新索引
-            $problem = array();
-            $problem['pid'] = $pid;
-            $problem['status'] = $status;
-            $problem['title'] = $title;
-            $problem['description'] = $description;
-            $doc = new XSDocument;
-            $doc->setFields($problem);
-            $this->index->update($doc);
-        }
+    function update($mid, $title, $description, $price, $site_url, $access_code) {
+        $this->db->query("UPDATE `material` SET `title`='$title',`description`='$description',`price`='$price',`site_url`='$site_url',`access_code`='$access_code',`time`={$this->base->time} WHERE `id`=$mid");
+
+        return $this->db->affected_rows();
+    }
+
+    function update_picture($mid, $picture) {
+        $this->db->query("UPDATE `material` set `picture`='$picture' WHERE `id`=$mid");
+        return $this->db->affected_rows();
     }
 
     // 更新求助状态
     function update_status($mid, $status) {
         $this->db->query("UPDATE `material` set `status`=$status WHERE `id`=$mid");
+        return $this->db->affected_rows();
     }
 
     function makeindex() {

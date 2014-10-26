@@ -66,7 +66,13 @@ class tradecontrol extends base {
     }
 
     function onhistory() {
-        $trade_list = $_ENV['trade']->get_detailed_trade_by_uid($this->user['uid']);
+        $page = max(1, intval($this->get[2]));
+        $total_trade_num = $_ENV['trade']->get_history_trade_num_by_uid($this->user['uid']);
+
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+        $trade_list = $_ENV['trade']->get_detailed_trade_by_uid($this->user['uid'], $start, $pagesize);
+        $departstr = page($total_trade_num, $pagesize, $page, "trade/history");
         include template('trade_history');
     }
 

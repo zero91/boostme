@@ -24,9 +24,9 @@ class questionmodel {
 
     function get_list($start=0, $limit=10) {
         $questionlist = array();
-        $query = $this->db->query("SELECT * FROM `question` WHERE 1=1 ORDER BY time DESC limit $start,$limit");
+        $query = $this->db->query("SELECT * FROM `question` WHERE 1=1 ORDER BY `update_time` DESC limit $start,$limit");
         while ($question = $this->db->fetch_array($query)) {
-            $question['format_time'] = tdate($question['time']);
+            $question['format_time'] = tdate($question['update_time']);
             $question['url'] = url('question/view/' . $question['qid'], $question['url']);
             $questionlist[] = $question;
         }
@@ -89,7 +89,7 @@ class questionmodel {
         $username = $uid ? $this->base->user['username'] : $this->base->user['ip'];
         (!strip_tags($description, '<img>')) && $description = '';
 
-        $this->db->query("INSERT INTO question SET authorid='$uid',author='$username',title='$title',description='$description',time='$creattime',ip='{$this->base->ip}'");
+        $this->db->query("INSERT INTO question SET authorid='$uid',author='$username',title='$title',description='$description',time='$creattime',update_time='$creattime',ip='{$this->base->ip}'");
         $qid = $this->db->insert_id();
         $this->db->query("UPDATE user SET questions=questions+1 WHERE uid=$uid");
         return $qid;
@@ -97,23 +97,38 @@ class questionmodel {
 
     function update($qid, $title, $description, $status=0) {
         $time = $this->base->time;
-        $this->db->query("UPDATE `question` SET title='$title',description='$description',`status`=$status,`time`= $time WHERE `qid`=$qid");
+        $this->db->query("UPDATE `question` SET title='$title',description='$description',`status`=$status,`time`='$time',`update_time`='$time' WHERE `qid`=$qid");
+        return $this->db->affected_rows();
+    }
+
+    function update_answers($qid, $delta=1) {
+        $this->db->query("UPDATE `question` SET `answers`=`answers`+($delta),`update_time`='{$this->base->time}' WHERE `qid`=$qid");
+        return $this->db->affected_rows();
+    }
+
+    // 设置qid的更新时间
+    function update_time($qid) {
+        $this->db->query("UPDATE `question` SET `update_time`='{$this->base->time}' WHERE `qid`='$qid'");
+        return $this->db->affected_rows();
     }
 
     // 更新问题状态
     // 0: 通过审核；1:问题置顶；2:未通过审核
     function update_status($qid, $status=1) {
         $this->db->query("UPDATE `question` set status=$status WHERE `qid`=$qid");
+        return $this->db->affected_rows();
     }
 
     //添加查看次数
     function add_views($qid, $num=1) {
         $this->db->query("UPDATE `question` SET views=views+($num) WHERE `qid`=$qid");
+        return $this->db->affected_rows();
     }
 
     // 更新问题顶
     function add_goods($qid, $num=1) {
         $this->db->query("UPDATE `question` set goods=goods+($num) WHERE `qid`=$qid");
+        return $this->db->affected_rows();
     }
 
     //根据标题搜索问题

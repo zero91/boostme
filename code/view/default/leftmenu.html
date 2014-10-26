@@ -1,6 +1,6 @@
 <style type="text/css">
     .avatar {position: absolute; top:5px; left:5px;}
-    .userinfo {margin: 0 10px 0 80px !important; padding: 15px; line-height: 26px;}
+    .userinfo {margin: 0 10px 0 80px !important; padding: 5px; line-height: 26px;}
 
     .nav-sidebar > .active > a, .nav-sidebar > .active > a:hover, .nav-sidebar > .active > a:focus {
       color: #fff;
@@ -22,7 +22,10 @@
 <div class="sidebar">
   <div class="panel" style="position:relative;">
     <img class="img-circle avatar" src="{$user['avatar']}" width="70px" height="70px">
-    <div class="userinfo" style="font-size:13px;height:80px;"><h5>{$user['username']}</h5></div>
+    <div class="userinfo" style="font-size:13px;height:90px;">
+      <h5>{$user['username']}</h5>
+      <span>账户余额：¥ {$user['balance']}</span>
+    </div>
   </div>
 
   <ul class="list-unstyled" style="font-size:13px;">
@@ -35,6 +38,13 @@
     <ul class="nav nav-sidebar">
       <li id="menu_problem_all" <!--{if $type == "user/problem/all"}--> class="active"<!--{/if}--> > <a href="{url user/problem/all}">我的求助</a> </li>
       <li id="menu_problem_solved" <!--{if $type == "user/problem/solved"}--> class="active"<!--{/if}--> > <a href="{url user/problem/solved}">解决求助</a> </li>
+    </ul>
+
+    <li><h5>我的资料</h5></li>
+    <ul class="nav nav-sidebar">
+      <li id="menu_material_sold" <!--{if $type == "material/user/sold"}--> class="active"<!--{/if}--> > <a href="{url material/user/sold}">上传资料</a> </li>
+      <li id="menu_material_buy" <!--{if $type == "material/user/buy"}--> class="active"<!--{/if}--> > <a href="{url material/user/buy}">购买资料</a> </li>
+      <li id="menu_trade_history" <!--{if $type == "trade/history"}--> class="active"<!--{/if}--> > <a href="{url trade/history}">历史订单</a> </li>
     </ul>
 
     <li><h5>个人信息</h5></li>

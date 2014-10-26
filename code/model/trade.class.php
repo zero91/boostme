@@ -30,8 +30,12 @@ class trademodel {
         return $trade_list;
     }
 
-    function get_detailed_trade_by_uid($uid) {
-        $query = $this->db->query("SELECT * FROM `trade` WHERE `uid`='$uid' ORDER BY `time` DESC");
+    function get_history_trade_num_by_uid($uid) {
+        return $this->db->result_first("SELECT COUNT(*) FROM `trade` WHERE `uid`='$uid'");
+    }
+
+    function get_detailed_trade_by_uid($uid, $start=0, $limit=10) {
+        $query = $this->db->query("SELECT * FROM `trade` WHERE `uid`='$uid' ORDER BY `time` DESC LIMIT $start,$limit");
         $trade_list = array();
         while ($trade = $this->db->fetch_array($query)) {
             $trade['format_time'] = tdate($trade['time']);
@@ -101,10 +105,12 @@ class trademodel {
 
     function update_trade($trade_no, $tot_price, $goods_num, $status=TRADE_STATUS_WAIT_BUYER_PAY) {
         $this->db->query("UPDATE `trade` SET `tot_price`='$tot_price',`goods_num`='$goods_num',`status`='$status' WHERE `trade_no`='$trade_no'");
+        return $this->db->affected_rows();
     }
 
     function update_trade_tot_price($trade_no, $tot_price) {
         $this->db->query("UPDATE `trade` SET `tot_price`='$tot_price' WHERE `trade_no`='$trade_no'");
+        return $this->db->affected_rows();
     }
 
     function update_trade_status($trade_no, $status) {
@@ -145,6 +151,15 @@ class trademodel {
     function remove_trade_info_by_trade_no($trade_no) {
         $this->db->query("DELETE FROM `trade_info` WHERE `trade_no`='$trade_no'");
         return $this->db->affected_rows();
+    }
+
+    function get_user_mid_list($uid) {
+        $query = $this->db->query("SELECT DISTINCT(trade_info.mid) FROM `trade_info`,`trade` WHERE trade.uid='$uid' AND trade.trade_no=trade_info.trade_no AND trade.status IN (" . TRADE_STATUS_WAIT_SELLER_SEND_GOODS . "," . TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS . "," . TRADE_STATUS_FINISHED . ")"); 
+        $mid_list = array();
+        while ($mid = $this->db->fetch_array($query)) {
+            $mid_list[] = $mid['mid'];
+        }
+        return $mid_list;
     }
 }
 

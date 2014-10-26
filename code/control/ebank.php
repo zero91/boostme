@@ -9,6 +9,7 @@ class ebankcontrol extends base {
         $this->load('ebank');
         $this->load('trade');
         $this->load('material');
+        $this->load('user');
     }
 
     // 财付通回调
@@ -104,7 +105,12 @@ class ebankcontrol extends base {
                 if ($affected_rows > 0) {
                     $this->send_msg($result['trade_no'], $result['trade_status']);
                 }
-
+                $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($result['trade_no']);
+                foreach ($trade_info_list as $trade_info) {
+                    $_ENV['material']->update_sold_num($trade_info['mid'], $trade_info['buy_num']);
+                    $material = $_ENV['material']->get($trade_info['mid']);
+                    $_ENV['user']->update_balance($material['uid'], $trade_info['buy_num'] * $trade_info['price']);
+                }
             } else if ($result['trade_status'] == 'TRADE_CLOSED') {
                 $_ENV['trade']->update_trade_status($result['trade_no'], TRADE_STATUS_CLOSED);
                 $this->message("付款失败，请重试", "trade/buy_now");
@@ -171,11 +177,17 @@ class ebankcontrol extends base {
                 if ($affected_rows > 0) {
                     $this->send_msg($result['trade_no'], $result['trade_status']);
                 }
+
+                $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($result['trade_no']);
+                foreach ($trade_info_list as $trade_info) {
+                    $_ENV['material']->update_sold_num($trade_info['mid'], $trade_info['buy_num']);
+                    $material = $_ENV['material']->get($trade_info['mid']);
+                    $_ENV['user']->update_balance($material['uid'], $trade_info['buy_num'] * $trade_info['price']);
+                }
         
                 //判断该笔订单是否在商户网站中已经做过处理
                 //如果没有做过处理，根据订单号（out_trade_no）在商户网站的订单系统中查到该笔订单的详细，并执行商户的业务程序
                 //如果有做过处理，不执行商户的业务程序
-			
                 echo "success";		//请不要修改或删除
                 //调试用，写文本函数记录程序运行情况是否正常
                 //logResult("这里写入想要调试的代码变量值，或其他运行的结果记录");

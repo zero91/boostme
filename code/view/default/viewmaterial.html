@@ -65,6 +65,9 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
               <img src="{$material['picture']}" style="left:-100px;max-width:350px;max-height:300px;">
             </div>
             <div class="col-sm-8">
+                <!--{if $user['uid'] == $material['uid']}-->
+                <a href="{url material/edit/$material['id']}" class="glyphicon glyphicon-pencil pull-right">编辑</a>
+                <!--{/if}-->
                 <form method="POST" action="{url trade/buy_now}" name="material_form"
                       id="material_form" onsubmit="return check_form();" class="form-horizontal">
                     <!--{eval $title = $material['title']}-->
@@ -79,13 +82,23 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                                 <span class="rmb_num">{$material['price']}</span>
                                 <input type="hidden" name="price" id="price" value="{$material['price']}"/>
                             </span>
+                            <span class="pull-right">
+                                浏览&nbsp;{$material['view_num']}&nbsp;次&nbsp;&nbsp;|&nbsp;&nbsp;交易量&nbsp;{$material['sold_num']}&nbsp;
+                            </span>
                         </li>
 
                         <li class="line-height:28px;">
                             <span class="li_text_info" style="margin-top:2px;">数量</span>
-                            <input type="number" id="quantity" name="quantity" step="1" min="1" max="10000" value="1"/>
+                            <input type="number" id="quantity" name="quantity" step="1" min="1" max="10000" value="1" readonly />
                         </li>
-                        <li><button type="submit" name="submit" class="btn btn-danger buy_btn">立即购买</button></li>
+                        <li><button type="submit" name="submit" class="btn btn-danger buy_btn" id="submit_btn">立即购买</button></li>
+
+                        <!--{if $user['uid'] > 0 && empty($material['price'])}-->
+                        <div style="display:none;" id="access_div">
+                            <li>链接：<a href="{$material['site_url']}" target="_blank">{$material['site_url']}</a></li>
+                            <li>密码：{$material['access_code']}</li>
+                        </div>
+                        <!--{/if}-->
                     </ul>
                 </form>
             </div>
@@ -141,27 +154,6 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div class="modal fade" id="demandModal" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">附加信息</h4>
-      </div>
-      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
-        <div class="modal-body">
-          <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
-          <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
-        </div>
-        <div class="modal-footer">
-          <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
-        </div>
-      </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
 <div style="height:29px;"></div>
 
 <script type="text/javascript">
@@ -182,10 +174,8 @@ $(document).ready(function() {
         });
     }); 
 
-    $(".prob_demand_btn").click(function() {
-        var pid = $(this).attr("id");
-        $("#dialog_pid").val(pid);
-        $("#demandModal").modal('show');
+    $("#submit_btn").click(function() {
+        $("#access_div").show();
     });
 
     $(".star-rating").click(function(e) {
@@ -202,120 +192,8 @@ $(document).ready(function() {
         $('#star_info_tip').removeClass('input_error');
     });
 
-    $(".prob_cancel_btn").click(function(){
-        if ({$user['uid']} == 0) {
-            alert("您还未登录，请先登录");
-            window.location.href = "{SITE_URL}index.php" + query + "user/login";
-        }
-
-        if (confirm('确定撤销请求?') === false) {
-            return false;
-        }
-
-        var supportobj = $(this);
-        var pid = $(this).attr("id");
-        $.ajax({
-            type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxcancel/" + pid,
-            cache: false,
-            success: function(succeed){
-                if (succeed == '-1') {
-                    alert("您还未登录，请先登录");
-                    window.location.href = "{SITE_URL}index.php" + query + "user/login";
-                } else if (succeed == '0') {
-                    alert("操作失败，请刷新页面重试");
-                } else if (succeed == '1') {
-                    supportobj.html("我要帮忙");
-                } else if (succeed == '2') {
-                    alert("您还没有发出过申请!");
-                }
-            }
-        });
-    });
-
-    <!--{if PB_STATUS_CLOSED != $problem['status'] && 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
-    //关闭求助
-    $("#close_problem").click(function() {
-        if (confirm('确定关闭该求助?') === true) {
-            document.location.href = "{SITE_URL}?problem/close/{$problem['pid']}.html";
-        }
-    });
-    
-    //删除求助
-    $("#delete_question").click(function() {
-        if (confirm('确定删除求助？该操作不可返回！') === true) {
-            document.location.href = "{SITE_URL}?problem/delete/{$problem['pid']}.html";
-        }
-    });
-    <!--{/if}-->
-    
-    $(".bm_demand_accept_btn").click(function(){
-        var supportobj = $(this);
-        uid = $(this).attr("id");
-
-        if (confirm('确定选择该用户?') === false) {
-            return false;
-        }
-        $.ajax({
-            type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxaccept/" + uid + "/{$problem['pid']}",
-            cache: false,
-            success: function(succeed){
-                if (succeed == '0') {
-                    alert("交易失败，请刷新页面重试！");
-                } else if (succeed == '1') {
-                    window.location.reload();
-                } else if (succeed == '2') {
-                    alert("您还没有填写任何联系方式！");
-                    document.location.href = "{SITE_URL}?user/profile.html";
-                } else {
-                    alert("发生异常!");
-                }
-            }
-        });
-    }); 
-
-    $(".bm_demand_denied_btn").click(function(){
-        var supportobj = $(this);
-        var grandparentobj = $(this).parent().parent(); 
-        uid = $(this).attr("id");
-
-        if (confirm("确定该用户不满足您的需求?") === false) {
-            return false;
-        }
-        $.ajax({
-            type: "GET",
-            url:"{SITE_URL}index.php" + query + "problem/ajaxdenied/" + uid + "/{$problem['pid']}",
-            cache: false,
-            success: function(succeed){
-                if (succeed == '1') {
-                    grandparentobj.hide();
-                } else {
-                    alert("发生异常!");
-                }
-            }
-        });
-    });
-
     SyntaxHighlighter.all();
 });
-
-function hide_all_user_btn()
-{
-    $(".bm_demand_accept_btn").hide();
-    $(".bm_demand_denied_btn").hide();
-}
-
-<!--{if PB_STATUS_CLOSED != $problem['status'] && 0!=$problem['authorid'] && ($problem['authorid']==$user['uid'])}-->
-function edittag() {
-    $("#dialog_tag").dialog({
-        autoOpen: false,
-        width: 500,
-        modal: true,
-        resizable: false
-    });
-    $("#dialog_tag").dialog("open");
-}
 
 function check_score() {
     var score = $('#user_score').val();
@@ -331,7 +209,13 @@ function check_score() {
     }
 }
 
-<!--{/if}-->
+function check_form() {
+    <!--{if empty($material['price'])}-->
+    return false;
+    <!--{else}-->
+    return true;
+    <!--{/if}-->
+}
 
 </script>
 <!--{template footer}-->

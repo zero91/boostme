@@ -1,0 +1,81 @@
+<!--{template header}-->
+ <style type="text/css">
+  .avatar {position: absolute; top: 20px; left: 10px;}
+  .msg_content {margin: 0 10px 0 55px !important; padding: 10px; line-height: 26px;}
+  .price {color:red;font-weight:bold;font-family: verdana,arial;}
+</style>
+
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "jump1") {
+            location.href = "{url material/user/sold}";
+          } else if (e.target.id == "jump2") {
+            location.href = "{url material/user/buy}";
+          } else if (e.target.id == "history_trade") {
+            location.href = "{url trade/history}";
+          }
+        })
+    })
+</script>
+
+<div class="container" style="margin-top:5px;">
+  <div class="col-md-3"><!--{template leftmenu}--></div>
+  <div class="col-md-9">
+    <h5 style="float:left;">我的资料</h5>
+    <div class="clearfix"></div> 
+    <ul class="nav nav-tabs" role="tablist" style="font-size:13px;">
+      <!--{if $op_type =="sold"}-->
+      <script type="text/javascript">$("#menu_material_sold").addClass("active");</script>
+      <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">上传资料</a></li>
+      <!--{else}-->
+      <li><a href="#no_content" id="jump1" role="tab" data-toggle="tab">上传资料</a></li>
+      <!--{/if}-->
+
+      <!--{if $op_type =="buy"}-->
+      <script type="text/javascript">
+        $("#menu_material_buy").addClass("active");
+      </script>
+      <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">购买资料</a></li>
+      <!--{else}-->
+      <li><a href="#no_content" id="jump2" role="tab" data-toggle="tab">购买资料</a></li>
+      <!--{/if}-->
+
+      <li><a href="#history_trade" id="history_trade" role="tab" data-toggle="tab">历史订单</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane active">
+        <table class="table">
+          <!--{loop $material_list $material}-->
+            <!--{if $op_type == "sold"}-->
+            <tr style="height:75px;">
+              <td>
+                <a href="{url material/view/$material['id']}">{$material['title']}</a>&nbsp;&nbsp;
+              </td>
+              <td style="font-size:12px;" width="17%">
+                <span style="color:grey;">价格：</span><span class="price">¥{$material['price']}</span><br/>
+                <span style="color:grey;">购买量：</span><span style="color:green;">{$material['sold_num']}</span><br/>
+                <span style="color:grey;">上传时间：{$material['format_time']}</span>
+              </td>
+              <td width="8%">
+                <a href="{url material/edit/$material['id']}" class="glyphicon glyphicon-pencil" style="font-size:12px;">编辑</a>
+              </td>
+            </tr>
+            <!--{else}-->
+            <tr style="height:55px;">
+              <td><a href="{url material/view/$material['id']}">{$material['title']}</a></td>
+              <td>链接：<a href="{$material['site_url']}">{$material['site_url']}</a></td>
+              <td>密码：{$material['access_code']}</td>
+            </tr>
+            <!--{/if}-->
+          <!--{/loop}-->
+        </table>
+        <center>{$departstr}</center>
+      </div>
+      <div class="tab-pane" id="no_content"></div>
+    </div>
+  </div>
+</div>
+
+<!--{template footer}-->
