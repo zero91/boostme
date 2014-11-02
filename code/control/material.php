@@ -14,6 +14,7 @@ class materialcontrol extends base {
         $this->load('trade');
     }
 
+    /*
     function onupdate_data() {
         $category_list = $_ENV['material_category']->get_list();
 
@@ -29,6 +30,7 @@ class materialcontrol extends base {
 
         echo "SUCCEED";
     }
+     */
 
     function oncategorylist() {
         $school_id = $this->get[2];

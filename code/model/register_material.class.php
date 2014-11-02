@@ -22,7 +22,7 @@ class register_materialmodel {
         return $reg_list;
     }
 
-    function get_list($existed="0", $start=0, $limit=10) {
+    function get_list($start=0, $limit=10, $existed="0") {
         $query = $this->db->query("SELECT * FROM `register_material` WHERE `existed` IN ($existed) ORDER BY `time` ASC limit $start,$limit");
 
         $reg_list = array();
@@ -45,14 +45,17 @@ class register_materialmodel {
 
     function update_material_existed($id, $existed=1) {
         $this->db->query("UPDATE `register_material` SET `existed`=$existed WHERE `id`='$id'");
+        return $this->db->affected_rows();
     }
 
     function remove_by_ids($ids) {
         $this->db->query("DELETE FROM `register_material` WHERE `id` IN ($ids)");
+        return $this->db->affected_rows();
     }
 
     function remove_by_uids($uids) {
         $this->db->query("DELETE FROM `register_material` WHERE `uid` IN ($uids)");
+        return $this->db->affected_rows();
     }
 }
 

@@ -7,9 +7,24 @@ class indexcontrol extends base {
     function indexcontrol(& $get, & $post) {
         $this->base($get, $post);
         $this->load('demand');
+        $this->load('user');
+        $this->load("question");
     }
 
     function ondefault() {
+        $navtitle = '考研帮';
+        $page = max(1, intval($this->get[2]));
+        $pagesize = $this->setting['list_default'];
+        $startindex = ($page - 1) * $pagesize;
+
+        $user_num = $_ENV['user']->rownum_alluser();
+        $question_num = $_ENV['question']->get_total_num();
+        $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
+        $departstr = page($question_num, $pagesize, $page, "forum/view");
+        include template("forum");
+    }
+
+    function ontutor() {
         $page = max(1, intval($this->get[2]));
         $pagesize = intval($this->setting['list_index_per_page']);
 
