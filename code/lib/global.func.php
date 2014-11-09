@@ -58,6 +58,7 @@ function template($file, $tpldir = '') {
 }
 
 function getip() {
+    $ip = '';
     if (getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
         $ip = getenv('HTTP_CLIENT_IP');
     } else if (getenv('HTTP_X_FORWARDED_FOR') && strcasecmp(getenv('HTTP_X_FORWARDED_FOR'), 'unknown')) {
@@ -68,7 +69,7 @@ function getip() {
         $ip = $_SERVER['REMOTE_ADDR'];
     }
     preg_match("/[\d\.]{7,15}/", $ip, $temp);
-    $ip = $temp[0] ? $temp[0] : 'unknown';
+    $ip = isset($temp[0]) ? $temp[0] : 'unknown';
     unset($temp);
     return $ip;
 }
@@ -237,7 +238,7 @@ function formatip($ip, $type = 1) {
 // 伪静态和html纯静态可以同时存在
 function url($var, $url = '') {
     global $setting;
-    $location = '?' . $var . $setting['seo_suffix'];
+    $location = '' . $var . $setting['seo_suffix'];
     if ($setting['seo_on']) {
         $location = $var . $setting['seo_suffix'];
     }
@@ -637,6 +638,36 @@ function runlog($file, $message, $halt = 0) {
     }
     if ($halt) {
         exit();
+    }
+}
+
+// 检测用户名合法性
+function check_usernamecensor($username) {
+    global $setting;
+    $censorusername = $setting['censor_username'];
+    $censorexp = '/^(' . str_replace(array('\\*', "\r\n", ' '), array('.*', '|', ''), preg_quote(($censorusername = trim($censorusername)), '/')) . ')$/i';
+    if ($censorusername && preg_match($censorexp, $username)) {
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
+// 检测邮件地址合法性
+function check_emailaccess($email) {
+    global $setting;
+    $accessemail = $setting['access_email'];
+    $censoremail = $setting['censor_email'];
+    $accessexp = '/(' . str_replace("\r\n", '|', preg_quote(trim($accessemail), '/')) . ')$/i';
+    $censorexp = '/(' . str_replace("\r\n", '|', preg_quote(trim($censoremail), '/')) . ')$/i';
+    if ($accessemail || $censoremail) {
+        if (($accessemail && !preg_match($accessexp, $email)) || ($censoremail && preg_match($censorexp, $email))) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    } else {
+        return TRUE;
     }
 }
 

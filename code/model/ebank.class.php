@@ -8,12 +8,8 @@ require(WEB_ROOT . '/code/lib/tenpay/RequestHandler.class.php');
 require(WEB_ROOT . '/code/lib/tenpay/ResponseHandler.class.php');
 
 class ebankmodel {
-    var $db;
-    var $base;
-
-    function ebankmodel(&$base) {
-        $this->base = $base;
-        $this->db = $base->db;
+    public function __construct(&$db) {
+        $this->db = & $db;
     }
 
     function tenpaytransfer($out_trade_no, $total_fee, $desc, $trade_mode) {
@@ -320,16 +316,6 @@ class ebankmodel {
         echo $html_text;
     }
 
-    /**
-     * 针对return_url验证消息是否是支付宝发出的合法消息
-     * @return 验证结果
-     */
-    function alipayverifyreturn() {
-        $alipay_config = include WEB_ROOT . '/code/conf/alipay/alipay.config.php';
-        $alipayNotify = new AlipayNotify($alipay_config, $this->base->get, $this->base->post);
-        return $alipayNotify->verifyReturn();
-    }
-
     function alipayreturn() {
         require_once(WEB_ROOT . '/code/conf/alipay/alipay.config.php');
         require_once(WEB_ROOT . '/code/lib/alipay/alipay_notify.class.php');
@@ -417,6 +403,8 @@ class ebankmodel {
         }
         return $result;
     }
+
+    private $db;
 }
 
 ?>

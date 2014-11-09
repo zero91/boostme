@@ -1,70 +1,71 @@
 <?php
 
 class cache { 
-    var $db;
-    var $cachefile;
-
-    function cache(&$db) {
+    public function __construct(&$db) {
         $this->db = $db;
     }
 
-    function getfile($cachename) {
-        $this->cachefile = WEB_ROOT . '/private/cache/' . $cachename . '.php';
-    }
-
-    function isvalid($cachename, $cachetime) {
-        if (0 == $cachetime)
-            return true;
-
-        $this->getfile($cachename);
-        if (!is_readable($this->cachefile) || $cachetime < 0) {
-            return false;
-        }
-        clearstatcache();
-        return (time() - filemtime($this->cachefile)) < $cachetime;
-    }
-
-    function read($cachename, $cachetime=0) {
-        $this->getfile($cachename);
-        if ($this->isvalid($cachename, $cachetime)) {
-            return @include $this->cachefile;
-        }
-        return false;
-    }
-
-    function write($cachename, $arraydata) {
-        $this->getfile($cachename);
-        if (!is_array($arraydata))
-            return false;
-        $strdata = "<?php\nreturn " . var_export($arraydata, true) . ";\n?>";
-        $bytes = writetofile($this->cachefile, $strdata);
-        return $bytes;
-    }
-
-    function remove($cachename) {
-        $this->getfile($cachename);
-        if (file_exists($this->cachefile)) {
-            unlink($this->cachefile);
-        }
-    }
-
-    function load($cachename, $id='id', $orderby='') {
+    // 加载数据，如缓存中无此数据，则从数据库中查出相应数据，并做缓存
+    public function load($cachename, $id='', $orderby='') {
         $arraydata = $this->read($cachename);
         if (!$arraydata) {
             $sql = "SELECT * FROM $cachename";
-            $orderby && $sql.=" ORDER BY $orderby ASC";
-            $query = $this->db->query($sql);
-            while ($item = $this->db->fetch_array($query)) {
-                if (isset($item['k'])) {
-                    $arraydata[$item['k']] = $item['v'];
-                } else {
-                    $arraydata[$item[$id]] = $item;
-                }
-            }
+            $orderby && $sql .= " ORDER BY $orderby ASC";
+
+            $arraydata = $this->db->fetch_all($sql, $id);
             $this->write($cachename, $arraydata);
         }
         return $arraydata;
     }
+
+    // 读取缓存文件，若缓存文件不存在或无效，则返回false
+    public function read($cachename, $cachetime=0) {
+        $cachefile = $this->getfile($cachename);
+        if ($this->isvalid($cachename, $cachetime)) {
+            return @include $cachefile;
+        }
+        return false;
+    }
+
+    public function write($cachename, $arraydata) {
+        $cachefile = $this->getfile($cachename);
+        if (!is_array($arraydata)) {
+            return false;
+        }
+
+        $strdata = "<?php\nreturn " . var_export($arraydata, true) . ";\n?>";
+        $bytes = writetofile($cachefile, $strdata);
+        return $bytes;
+    }
+
+    public function remove($cachename) {
+        $cachefile = $this->getfile($cachename);
+        if (file_exists($cachefile)) {
+            unlink($cachefile);
+        }
+    }
+
+    // 根据缓存数据名称，获取缓存文件详细路径
+    private function getfile($cachename) {
+        return WEB_ROOT . '/private/cache/' . $cachename . '.php';
+    }
+
+    // 判断缓存文件是否有效
+    private function isvalid($cachename, $cachetime) {
+        if ($cachetime == 0) {
+            return true;
+        }
+
+        $cachefile = $this->getfile($cachename);
+        if (!is_readable($cachefile) || $cachetime < 0) {
+            return false;
+        }
+
+        clearstatcache();
+        return (time() - filemtime($cachefile)) < $cachetime;
+    }
+
+    private $db;
 }
 
 ?>

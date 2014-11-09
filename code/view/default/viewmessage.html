@@ -101,7 +101,7 @@ $(document).ready(function() {
         var img = $(this);
         $.ajax({
             type: "POST",
-            url: "{SITE_URL}index.php?index/ajaxchkimg",
+            url: "index/ajaxchkimg",
             async: true,
             data: "imgsrc=" + img.attr("src"),
             success: function(status) {

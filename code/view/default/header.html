@@ -50,19 +50,19 @@
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-          <form class="navbar-form navbar-left" id="search_form" role="search" action="{url problem/search}" method="post">
+          <form class="navbar-form navbar-left" id="search_form" role="search" action="problem/search" method="post">
             <div class="form-group">
               <input type="text" class="form-control" style="width:300px" id="search-kw" name="word" placeholder="搜索求助" value="{$word}">
               <span class="glyphicon glyphicon-search" style="margin-left:-30px;cursor:pointer;" onclick="search_form.submit();"></span>
             </div>
           </form>
         </li>
-        <li><a type="button" href="{url problem/add}" class="btn btn-primary" style="background-color:#0e78e7 !important;font-size:13px;">找人辅导</a></li>
+        <li><a type="button" href="problem/add" class="btn btn-primary" style="background-color:#0e78e7 !important;font-size:13px;">找人辅导</a></li>
         <li><a target="_blank" href="http://jingyan.baidu.com/article/49ad8bce69f8285835d8fa4d.html" class="btn btn-link" style="font-size:12px;">使用帮助</a></li>
       </ul> 
       <!--{if $user['uid'] != 0}-->
       <ul class="nav navbar-nav navbar-right">
-        <li><a class="btn btn-link" href="{url user/space/{$user['uid']}}" style="font-size:13px;">{$user['username']}</a></li>
+        <li><a class="btn btn-link" href="user/space/{$user['uid']}" style="font-size:13px;">{$user['username']}</a></li>
         <li class="dropdown">
           <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" style="font-size:13px;">
             收件箱
@@ -72,27 +72,27 @@
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="{url message/personal}">私人消息<!--{if $user['msg_personal']>0}--><span class="badge alert-info">{$user['msg_personal']}</span><!--{/if}--></a></li>
-            <li><a href="{url message/system}">系统消息<!--{if $user['msg_system']>0}--><span class="badge alert-info">{$user['msg_system']}</span><!--{/if}--></a></li>
+            <li><a href="message/personal">私人消息<!--{if $user['msg_personal']>0}--><span class="badge alert-info">{$user['msg_personal']}</span><!--{/if}--></a></li>
+            <li><a href="message/system">系统消息<!--{if $user['msg_system']>0}--><span class="badge alert-info">{$user['msg_system']}</span><!--{/if}--></a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a type="button" class="dropdown-toggle btn dropdown-toggle" data-toggle="dropdown" style="font-size:13px;">账号<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a target="_blank" href="{url user/profile}">修改资料</a></li>
-            <li><a target="_blank" href="{url trade/buy_now}">购物车</a></li>
+            <li><a target="_blank" href="user/profile">修改资料</a></li>
+            <li><a target="_blank" href="trade/buy_now">购物车</a></li>
             <li class="divider"></li>
-            <li><a href="{url user/logout}">退出</a></li>
+            <li><a href="user/logout">退出</a></li>
           </ul>
         </li>
         <!--{if $this->user['isadmin']}-->
-        <li><a class="btn btn-link" href="{url admin_main/default}" style="font-size:13px;">后台管理</a></li>
+        <li><a class="btn btn-link" href="admin_main/default" style="font-size:13px;">后台管理</a></li>
         <!--{/if}-->
       </ul>
       <!--{else}-->
       <ul class="nav navbar-nav navbar-right">
         <li><a class="btn btn-link" data-toggle="modal" id="login_link" data-target="#loginModal" style="color:#EEE;font-size:13px;">登录</a></li>
-        <li><a class="btn btn-link" href="{url user/register}" style="color:#EEE;font-size:13px;">注册</a></li>
+        <li><a class="btn btn-link" href="user/register" style="color:#EEE;font-size:13px;">注册</a></li>
       </ul>
       <!--{/if}-->
     </div>
@@ -118,7 +118,7 @@
 <script type="text/javascript">
 $(function() {
   if ($("#login_link")) {
-    $("#login_body").load("{SITE_URL}?user/ajaxpoplogin");
+    $("#login_body").load("{SITE_URL}user/ajaxpoplogin");
   }
 });
 </script> 

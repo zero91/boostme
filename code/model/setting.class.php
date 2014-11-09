@@ -3,19 +3,14 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class settingmodel {
-    var $db;
-    var $base;
-
-    function settingmodel(&$base) {
-        $this->base = $base;
-        $this->db = $base->db;
+    public function __construct(&$db) {
+        $this->db = & $db;
     }
 
-    function update($setting) {
+    public function update($setting) {
         foreach ($setting as $key => $value) {
             $this->db->query("REPLACE INTO setting (k,v) VALUES ('$key','$value')");
         }
-        $this->base->cache->remove('setting');
     }
 
     // 用户问题回答数目校正
@@ -42,6 +37,8 @@ class settingmodel {
     //    }
     //    return serialize($wordslist);
     //}
+
+    private $db;
 }
 
 ?>

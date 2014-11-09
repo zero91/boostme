@@ -5,7 +5,7 @@
 class materialcontrol extends base {
 
     function materialcontrol(& $get, & $post) {
-        $this->base($get, $post);
+        parent::__construct($get, $post);
         $this->load('material');
         $this->load('material_category');
         $this->load('material_comment');

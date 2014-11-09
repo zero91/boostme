@@ -3,66 +3,85 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class userskillmodel {
-    var $db;
-    var $base;
-
-    function userskillmodel(&$base) {
-        $this->base = $base;
-        $this->db = $base->db;
+    public function __construct(&$db) {
+        $this->db = & $db;
     }
 
-    function get_by_uid($uid, $limit='') {
-        $sql = "SELECT DISTINCT skill FROM `user_skill` WHERE uid=$uid ORDER BY `time` ASC";
+    public function get_by_uid($uid, $limit='') {
+        $sql = "SELECT DISTINCT skill FROM `user_skill` WHERE `uid`='$uid' ORDER BY `time` ASC";
         !empty($limit) && $sql .= " LIMIT 0,$limit ";
 
-        $query = $this->db->query($sql);
+        $skill_array = $this->db->fetch_all($sql);
         $skill_list = array();
-        while ($skill = $this->db->fetch_array($query)) {
+        foreach ($skill_array as $skill) {
             $skill_list[] = $skill['skill'];
         }
         return $skill_list;
     }
 
-    function list_by_skill($skill) {
-        $query = $this->db->query("SELECT * FROM `user_skill` WHERE `skill`='$skill'");
+    public function list_by_skill($skill) {
+        $skill_array = $this->db->fetch_all("SELECT * FROM `user_skill` WHERE `skill`='$skill'");
+
         $uidlist = array();
-        while ($skill = $this->db->fetch_array($query)) {
+        foreach ($skill_array as $skill) {
             $uidlist[] = $skill['uid'];
         }
         return $uidlist;
     }
 
-    function get_list($start=0, $limit=10) {
-        $skill_list = array();
-        $query = $this->db->query("SELECT count(uid) as user,skill FROM user_skill GROUP BY skill ORDER BY user DESC LIMIT $start,$limit");
-        while ($skill = $this->db->fetch_array($query)) {
-            $skill_list[] = $skill;
-        }
-        return $skill_list;
+    public function get_list($start=0, $limit=10) {
+        return $this->db->fetch_all("SELECT count(uid) as user,skill FROM user_skill GROUP BY skill ORDER BY user DESC LIMIT $start,$limit");
     }
 
-    function rownum() {
-        $query = $this->db->query("SELECT count(skill) FROM user_skill GROUP BY skill");
-        return $this->db->num_rows($query);
+    // 系统用户总共拥有技能数量
+    public function rownum() {
+        return $this->db->result_first("SELECT COUNT(DISTINCT skill) FROM user_skill");
     }
 
-    function multi_add($skill_list, $uid) {
+    public function remove_user_skill($skill_list, $uid) {
         if (empty($skill_list)) {
             return false;
         }
-        $this->db->query("DELETE FROM user_skill WHERE uid=$uid");
-        $insertsql = "INSERT INTO user_skill(`uid`,`skill`,`time`) VALUES ";
-        
-        foreach ($skill_list as $skill) {
-            $insertsql .= "($uid,'$skill',{$this->base->time}),";
-        }
-        $this->db->query(substr($insertsql, 0, -1));
+
+        $skillstr = "'" . implode("','", $skill_list) . "'";
+        $this->db->query("DELETE FROM user_skill WHERE `uid`='$uid' AND `skill` IN ($skillstr)");
+
+        return $this->db->affected_rows();
     }
 
-    function remove_by_skill($skills) {
-        $skillstr = "'" . implode("','", $skills) . "'";
-        $this->db->query("DELETE FROM user_skill WHERE `skills` IN ($skillstr)");
+    public function multi_add($skill_list, $uid, $keep_old=true) {
+        if (empty($skill_list)) {
+            return false;
+        }
+
+        $old_skill_list = array();
+        if ($keep_old) {
+            $old_skill_list = $this->get_by_uid($uid);
+        } else {
+            $this->db->query("DELETE FROM `user_skill` WHERE `uid`='$uid'");
+        }
+
+        $insertsql = "INSERT INTO user_skill(`uid`,`skill`,`time`) VALUES ";
+        $add_num = 0;
+        foreach ($skill_list as $skill) {
+            if (!in_array($skill, $old_skill_list)) {
+                $insertsql .= "($uid,'$skill'," . time() . "),";
+                $add_num += 1;
+            }
+        }
+
+        if ($add_num > 0) {
+            $this->db->query(substr($insertsql, 0, -1));
+        }
+        return $add_num;
     }
+
+    public function remove_by_skill($skill_list) {
+        $skillstr = "'" . implode("','", $skill_list) . "'";
+        $this->db->query("DELETE FROM user_skill WHERE `skill` IN ($skillstr)");
+    }
+
+    private $db;
 }
 
 ?>

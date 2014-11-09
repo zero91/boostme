@@ -3,39 +3,42 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class answer_commentmodel {
-    var $db;
-    var $base;
-
-    function answer_commentmodel(&$base) {
-        $this->base = $base;
-        $this->db = $base->db;
+    public function __construct(&$db) {
+        $this->db = & $db;
     }
 
-    function get_by_aid($aid, $start=0, $limit=10) {
-        $commentlist = array();
-        $query = $this->db->query("SELECT * FROM `answer_comment` WHERE aid=$aid ORDER BY `time` ASC limit $start,$limit");
-        while ($comment = $this->db->fetch_array($query)) {
-            $comment['avatar'] = get_avatar_dir($comment['authorid']);
-            $comment['format_time'] = tdate($comment['time']);
-            $commentlist[] = $comment;
-        }
-        return $commentlist;
+    public function get_by_aid($aid, $start=0, $limit=10) {
+        return $this->db->fetch_all("SELECT * FROM `answer_comment` WHERE aid=$aid ORDER BY `time` ASC limit $start,$limit");
     }
 
-    function add($answerid, $conmment, $authorid, $author) {
-        $this->db->query("INSERT INTO `answer_comment`(`aid`,`authorid`,`author`,`content`,`time`) values ('$answerid','$authorid','$author','$conmment','{$this->base->time}')");
-        $this->db->query("UPDATE answer SET comments=comments+1 WHERE `id`=$answerid");
+    public function add($aid, $content, $authorid, $author) {
+        $time = time();
+        $answer = $this->db->fetch_first("SELECT * FROM answer WHERE id='$aid'");
+
+        $this->db->query("INSERT INTO `answer_comment`(`aid`,`authorid`,`author`,`content`,`time`) values ('$aid','$authorid','$author','$content','$time')");
+        $id = $this->db->insert_id();
+
+        $this->db->query("UPDATE answer SET comments=comments+1 WHERE `id`='$aid'");
+        $this->db->query("UPDATE `question` SET `answers`=`answers`+1,`update_time`='$time' WHERE `qid`={$answer['qid']}");
+
+        return $id;
     }
 
-    function remove($commentids, $answerid) {
+    public function remove($commentids, $aid) {
         $commentcount = 1;
         if (is_array($commentids)) {
             $commentcount = count($commentids);
             $commentids = implode(",", $commentids);
         }
         $this->db->query("DELETE FROM answer_comment WHERE `id` IN ($commentids)");
-        $this->db->query("UPDATE answer SET comments=comments-$commentcount WHERE `id`=$answerid");
+
+        $answer = $this->db->fetch_first("SELECT * FROM answer WHERE id='$aid'");
+        $this->db->query("UPDATE answer SET comments=comments-$commentcount WHERE `id`='$aid'");
+        $this->db->query("UPDATE question SET answers=answers-$commentcount WHERE `qid`='{$answer['qid']}'");
+        return $this->db->affected_rows();
     }
+
+    private $db;
 }
 
 ?>

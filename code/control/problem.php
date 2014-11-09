@@ -5,7 +5,8 @@
 class problemcontrol extends base {
 
     function problemcontrol(& $get, & $post) {
-        $this->base($get, $post);
+        //$this->base($get, $post);
+        parent::__construct($get, $post);
         $this->load("problem");
         $this->load("tag");
         $this->load("userlog");

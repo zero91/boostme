@@ -4,8 +4,8 @@
 
 class indexcontrol extends base {
 
-    function indexcontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('demand');
         $this->load('user');
         $this->load("question");
@@ -20,6 +20,7 @@ class indexcontrol extends base {
         $user_num = $_ENV['user']->rownum_alluser();
         $question_num = $_ENV['question']->get_total_num();
         $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
+
         $departstr = page($question_num, $pagesize, $page, "forum/view");
         include template("forum");
     }

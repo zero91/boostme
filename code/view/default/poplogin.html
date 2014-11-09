@@ -1,4 +1,4 @@
-<form class="form-horizontal" onsubmit="return checkform();" role="form" name="loginform" action="{url user/login}" method="post">
+<form class="form-horizontal" onsubmit="return checkform();" role="form" name="loginform" action="user/login" method="post">
   <div class="alert alert-danger col-sm-offset-2 col-sm-8" role="alert" id="user_error" style="display:none"></div>
   <div class="form-group">
     <label for="popusername" class="col-sm-3 control-label">用&nbsp;户&nbsp;名</label>
@@ -19,7 +19,7 @@
       <input type="text" class="form-control" id="login_code" name="code" onblur="check_login_code();" />
     </div>
     <div class="col-sm-5">
-      <span class="verifycode"><img  src="{url user/code}" onclick="refresh_code();" id="verifylogincode"></span><a class="changecode" href="javascript:refresh_code();">&nbsp;看不清?</a>
+      <span class="verifycode"><img  src="user/code" onclick="refresh_code();" id="verifylogincode"></span><a class="changecode" href="javascript:refresh_code();">&nbsp;看不清?</a>
     </div>
   </div>
   <!-- {/if} -->
@@ -37,11 +37,11 @@
     </div>
     <!-- 
     <div class="col-sm-2">
-        <a href="{url user/getpass}" class="btn btn-info">忘记密码?</a>
+        <a href="user/getpass" class="btn btn-info">忘记密码?</a>
     </div>
     -->
     <div class="col-sm-3">
-        <a href="{url user/register}" class="btn btn-info">注册新账号</a>
+        <a href="user/register" class="btn btn-info">注册新账号</a>
     </div>
   </div>
 </form>
@@ -75,7 +75,7 @@
             type: "POST",
             async: false,
             cache: false,
-            url: "{SITE_URL}index.php?user/ajaxlogin",
+            url: "user/ajaxlogin",
             data: "username=" + $.trim(username) + "&password=" + password,
             success: function(ret) {
                 if (ret == '-1') {
@@ -95,7 +95,8 @@
 
     }
     function refresh_code() {
-        var img = g_site_url + "index.php" + query + "user/code/" + Math.random();
+        // var img = g_site_url + "index.php" + query + "user/code/" + Math.random();
+        var img = "user/code/" + Math.random();
         $('#verifylogincode').attr("src", img);
     }
     function check_login_code() {
@@ -109,7 +110,7 @@
             type: "POST",
             async: false,
             cache: false,
-            url: "{SITE_URL}index.php?user/ajaxcode/"+code,
+            url: "user/ajaxcode/"+code,
             success: function(flag) {                   
                 if (1 == flag) {
                     $('#logincodetip').html("&nbsp;");

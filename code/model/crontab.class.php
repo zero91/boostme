@@ -4,18 +4,14 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class crontabmodel {
-    var $db;
-    var $base;
-
-    function crontabmodel(&$base) {
-        $this->base = $base;
-        $this->db = $base->db;
+    public function __construct(&$db) {
+        $this->db = & $db;
     }
 
     /* 统计所有分类下的问题数目 */
     /*
     function sum_category_question($crontab, $force=0) {
-        $curtime = $this->base->time;
+        $curtime = time();
         if (($crontab['lastrun'] + $crontab['minute'] * 60) < $curtime || $force) {
             // 第一步：统计每个分类下的问题数目
             $query = $this->db->query("SELECT c.id,c.pid,count(*) as num FROM " . DB_TABLEPRE . "question as q," . DB_TABLEPRE . "category as c WHERE c.id=q.cid AND q.status !=0 GROUP BY c.id");
@@ -34,6 +30,8 @@ class crontabmodel {
         }
     }
      */
+
+    private $db;
 }
 
 ?>

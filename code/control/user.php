@@ -3,9 +3,9 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class usercontrol extends base {
-
-    function usercontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
+        //$this->base($get, $post);
         $this->load('user');
         $this->load('userskill');
         $this->load('problem');
@@ -544,8 +544,10 @@ class usercontrol extends base {
     }
 
     function onajaxpoplogin() {
+        echo "FUCK";
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        include template("poplogin");
+        exit(0);
+        //include template("poplogin");
     }
 
     // 用户查看下详细信息 
