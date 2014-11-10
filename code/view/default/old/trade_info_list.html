@@ -1,0 +1,228 @@
+<!--{template header}-->
+
+<style type="text/css">
+a:link { color: #003399; }
+.px12 { font-size: 12px; }
+a:visited { color: #003399; }
+a:hover { color: #FF6600; }
+.px14 { font-size: 14px; }
+.px12hui { font-size: 12px; color: #999999; }
+.STYLE2 {font-size: 14px; font-weight: bold; }
+
+.list-group-item {border:0px;}
+.tenpay_btn {background: url("{SITE_URL}public/image/tenpay/cft.gif") left bottom;width:180px; height:71px; border:0px; background-size:cover;}
+.alipay_btn {background: url("{SITE_URL}public/image/alipay/alipay.gif") left bottom;width:180px; height:61px; border:0px;background-size:cover;}
+
+.summary {color:red; font-weight:bold;}
+
+</style>
+
+<script type="text/javascript">
+$(function() {
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        if (e.target.id == "history_trade") {
+            location.href = "{url trade/history}";
+        }
+    });
+})
+</script>
+
+<div class="container" style="margin-top:20px;">
+  <div class="tab-content">
+    <div class="tab-pane active" id="shopping_cart">
+      <div style="margin:30px;">
+      <!--{if $trade['status'] ==TRADE_STATUS_WAIT_BUYER_PAY}-->
+      <h4>等待付款</h4>
+      <!--{/if}-->
+      <!--{if count($trade_info_list) > 0}-->
+        <form method="POST" action="{url ebank/tenpaytransfer}" name="trade_form" id="trade_form" class="form-horizontal">
+          <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;">
+            <tr style="background-color:#f2f7ff;">
+              <th width="60%" style="text-align:center;">资料名称</th>
+              <th width="15%" style="text-align:center;">价格</th>
+              <th width="10%" style="text-align:center;">数量</th>
+              <th width="15%" style="text-align:center;">小结（元）</th>
+            </tr>
+            <!--{loop $trade_info_list $trade_info}-->
+            <tr id="{$trade_info['mid']}">
+              <td>
+                <div>
+                  <a href="{SITE_URL}?material/view/{$trade_info['mid']}">{$trade_info['title']}</a>
+                  <span class="glyphicon glyphicon-trash pull-right"></span>
+                </div>
+              </td>
+              <td>{$trade_info['price']}</td>
+              <td>
+                <span class="glyphicon glyphicon-minus-sign"></span>
+                <input type="text" value="{$trade_info['buy_num']}" style="width:40px;text-align:center;" readonly>
+                <span class="glyphicon glyphicon-plus-sign"></span>
+              </td>
+              <td class="summary">{eval echo $trade_info['price'] * $trade_info['buy_num']}</td>
+            </tr>
+            <!--{/loop}-->
+          </table>
+          <div style="margin-left:78%; margin-top:10px;font-weight:bold;">
+            <span style="font-size:20px;">总计：</span>
+            <span class="summary" id="total_price" style="font-size:26px;">¥&nbsp;{$trade['tot_price']}</span>
+          </div>
+          <input type="hidden" name="trade_no" id="trade_no" value="{$trade['trade_no']}">
+          <input type="hidden" name="product_name" id="product_name" value="Boostme考研资料">
+          <input type="hidden" name="order_price" id="order_price" value="{$trade['tot_price']}"/>
+          <input type="hidden" name="trade_mode" id="trade_mode" value="1"/>
+        </form>
+      <!--{else}-->
+      <h4>购物车还没有任何资料，现在就去购买想要的考研资料&nbsp;&nbsp;&nbsp;&nbsp;<a href="{url material/categorylist}">进入</a></h4>
+      <!--{/if}-->
+      </div>
+
+      <div class="panel panel-info">
+        <div class="panel-heading"><img src="public/image/tenpay/arrow_02_01.gif">现在就购买</div>
+        <div class="panel-body">
+          <ul class="list-group">
+            <li class="list-group-item">
+              <div class="col-sm-12">
+                <input type="button" id="alipay_btn" name="alipay_btn" class="alipay_btn" onclick="pay_action(this.name)">
+              </div>
+            </li>
+            <!--
+            <li class="list-group-item" style="margin-top:100px;">
+              <div class="col-sm-3">
+                <input type="button" id="tenpay_btn" name="tenpay_btn" class="tenpay_btn" onclick="pay_action(this.name)">
+              </div>
+              <div class="col-sm-9">
+                <TABLE width=760 border=0 cellPadding=0 cellSpacing=4 class="px12">
+                  <TBODY>
+                    <TR>
+                      <TD width="81" rowSpan=2 align="center" noWrap bgcolor="#CCCCCC" class=box-note>
+                        <FONT class=note-help>财付通支持下列<FONT class=note-help>银行 </FONT></FONT>
+                      </TD>
+                      <TD width="14" rowSpan=2></TD>
+                      <TD width="120"><IMG alt=中国工商银行 
+                          src="public/image/tenpay/icon_zggsyh_s.gif" border=0> </TD>
+                      <TD width="142"><IMG alt=中国建设银行 src="public/image/tenpay/icon_ccb_s.gif" border=0> </TD>
+                      <TD width="108"><IMG alt=上海浦东发展银行 src="public/image/tenpay/icon_spdb_s.gif" 
+                          border=0> </TD>
+                      <TD width="142"><IMG alt=招商银行 src="public/image/tenpay/icon_zsyh_s.gif" border=0>    </TD>
+                      <TD width="141"><IMG alt=中国民生银行 src="public/image/tenpay/icon_cmbc_s.gif" 
+                          border=0></TD>
+                    </TR>
+                    <TR>
+                      <TD> <DIV align=left><IMG alt=中国农业银行 src="public/image/tenpay/icon_abc_s.gif" border=0> </DIV></TD>
+                      <TD><IMG alt=广东发展银行 src="public/image/tenpay/icon_gdb_s.gif" border=0> </TD>
+                      <TD><IMG alt=兴业银行 src="public/image/tenpay/index_38.gif" border=0> </TD>
+                      <TD> <DIV align=left><IMG alt=深圳发展银行 src="public/image/tenpay/icon_sdb_s.gif" border=0> </DIV></TD>
+                      <TD><IMG alt=VISA src="public/image/tenpay/icon_visa_s.gif" border=0> </TD>
+                    </TR>
+                  </TBODY>
+                </TABLE>
+              </div>
+              <HR width=760 SIZE=1>
+            </li>
+            -->
+          </ul>
+        </div>
+      </div>
+    </div> <!-- END shooping_cart tab -->
+  </div> <!-- END tab-content -->
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    $(".glyphicon-trash").click(function() {
+        parent_target = $(this).parent().parent().parent();
+        mid = parent_target.attr('id');
+
+        price = parseFloat($(this).parent().parent().next().html());
+        buy_now = parseInt($(this).parent().parent().next().next().children('input').val());
+        order_price = parseFloat($("#order_price").val());
+        new_order_price = order_price - price * buy_now;
+
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}?trade/ajaxdelete_material/{$trade['trade_no']}/" + mid,
+            cache: false,
+            success: function(succeed){
+                if (succeed == '1') {
+                    parent_target.hide();
+                    $("#order_price").val(new_order_price.toFixed(2));
+                    $("#total_price").html("¥&nbsp;" + new_order_price.toFixed(2));
+                }
+            }
+        });
+    });
+
+    $(".glyphicon-minus-sign").click(function() {
+        mid = $(this).parent().parent().attr('id');
+
+        buy_num = parseInt($(this).next().val());
+        if (buy_num > 1) {
+            buy_num -= 1;
+            $(this).next().val(buy_num);
+
+            price = parseFloat($(this).parent().prev().html()).toFixed(2);
+            tot_price = price * buy_num;
+            $(this).parent().next().html(tot_price.toFixed(2));
+
+            order_price = parseFloat($("#order_price").val()).toFixed(2);
+            new_order_price = order_price - price;
+            $("#order_price").val(new_order_price.toFixed(2));
+            $("#total_price").html("¥&nbsp;" + new_order_price.toFixed(2));
+
+            $.ajax({
+                type: "GET",
+                url:"{SITE_URL}?trade/ajaxupdate_quantity/{$trade['trade_no']}/" + mid + "/" + buy_num,
+                cache: false,
+                success: function(succeed){
+                    if (succeed != '1') {
+                        window.top.location.reload();
+                    }
+                }
+            });
+        }
+    });
+
+    $(".glyphicon-plus-sign").click(function() {
+        mid = $(this).parent().parent().attr('id');
+
+        buy_num = parseInt($(this).prev().val());
+        buy_num += 1;
+        $(this).prev().val(buy_num);
+
+        price = parseFloat($(this).parent().prev().html());
+        tot_price = price * buy_num;
+        $(this).parent().next().html(tot_price.toFixed(2));
+
+        order_price = parseFloat($("#order_price").val());
+        new_order_price = order_price + price;
+        $("#order_price").val(new_order_price.toFixed(2));
+        $("#total_price").html("¥&nbsp;" + new_order_price.toFixed(2));
+
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}?trade/ajaxupdate_quantity/{$trade['trade_no']}/" + mid + "/" + buy_num,
+            cache: false,
+            success: function(succeed){
+                if (succeed != '1') {
+                    window.top.location.reload();
+                }
+            }
+        });
+
+    });
+});
+
+function pay_action(pay_type) {
+    if (pay_type == "tenpay_btn") {
+        $("#trade_mode").val("1");
+        $("#trade_form").attr("action", "{url ebank/tenpaytransfer}");
+        $("#trade_form").submit();
+    } else if (pay_type == 'alipay_btn') {
+        $("#trade_form").attr("action", "{url ebank/alipaytransfer}");
+        $("#trade_form").submit();
+    }
+}
+
+</script>
+
+<!--{template footer}--> 

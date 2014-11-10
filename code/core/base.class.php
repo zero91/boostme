@@ -20,6 +20,7 @@ class base {
 
     // 权限检测
     public function checkable($url) {
+        $this->regular = $url;
         if ('admin' == substr($url, 0, 5)) {
             return $this->user['isadmin'] == 1;
         }
@@ -272,6 +273,7 @@ class base {
     protected $time;
     protected $db;
     protected $cache;
+    protected $regular; // 访问路径
     protected $user = array();
     protected $setting = array();
     protected $category = array();

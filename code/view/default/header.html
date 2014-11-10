@@ -1,124 +1,100 @@
 <!DOCTYPE html>
-<html>
-<head>
   <!--{eval
   $user = $this->user;
   $setting = $this->setting;
-  $category = $this->category;
+  $regular = $this->regular;
   $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
   }-->
-  <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
-  <title><!--{if $navtitle}-->{$navtitle} - <!--{/if}-->{$setting['site_name']}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="keywords" content="考研，家教，找人辅导，高校，名校" />
-  <meta name="description" content="找名校学生做家教，找兼职" />
-  <meta name="robots" content="index, follow">
-  <script src="{SITE_URL}public/js/jquery.js" type="text/javascript"></script>
-  <link rel="stylesheet" type="text/css" href="{SITE_URL}public/css/default/main.css" />
-  <link rel="stylesheet" type="text/css" href="{SITE_URL}public/js/jquery-ui/jquery-ui.css" />
-  <link rel="stylesheet" type="text/css" href="{SITE_URL}public/bootstrap/css/bootstrap.min.css" />
-  <link rel="stylesheet" type="text/css" href="{SITE_URL}public/bootstrap/css/docs.min.css" />
-  <link rel="shortcut icon" href="{SITE_URL}public/css/default/icon.png" />
-  <script src="{SITE_URL}public/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    var g_site_url = "{SITE_URL}";
-  </script>
-  <style type="text/css">
-    html,body {font-family: "Microsoft Yahei";height: 100%;}
-    .header {position: relative;}
-    .header>a {padding: 6px 12px !important;  margin: 8px 3px !important; }
-    .navbar-nav>li>button, .navbar-nav>li>a {padding: 6px 12px !important;  margin: 8px 3px !important; }
-    .navbar-nav>li>a {background:#0066CC !important; color:#EEE !important;}
-    .navbar-nav>li>a:hover {background:#0066CC !important; color:#FFF !important;}
-    .align_center {text-align: center;}
-    h4, h5, h6 { line-height: 26px; }
-    .container { width: 1100px !important;}
-    .logo {width:200px;height:50px;font-size: 38px;} 
-    .input_ok {background: url("{SITE_URL}public/css/default/input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
-    .input_error {background: url("{SITE_URL}public/css/default/input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}
-  </style>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><!--{if $navtitle}-->{$navtitle} - <!--{/if}-->{$setting['site_name']}</title>
+    <meta name="description" content="找名校学生做家教，找兼职" />
+    <meta name="author" content="{$setting['site_name']}">
+    <link rel="stylesheet" type="text/css" href="public/js/jquery-ui/jquery-ui.css" />
+    <link rel="shortcut icon" href="public/images/icon.png" />
+    <link href="public/css/plugin/font-awesome.min.css" rel="stylesheet">
+    <link href="public/js/plugin/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="public/css/default/common.css" rel="stylesheet">
+
+    <script src="public/js/plugin/jquery.min.js"></script>
+    <script src="public/js/plugin/jquery-ui/jquery-ui.min.js"></script>
+    <script src="public/js/plugin/bootstrap/js/bootstrap.min.js"></script>
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
 </head>
-
 <body>
-<div style="min-height:92%;height:auto !important;"> <!-- fix the foot -->
-
-<div class="navbar navbar-fixed-top" role="navigation" style="background:#0066CC;">
-  <div class="container">
-    <div class="navbar-header" style="width:175px;height:50px;">
-      <a href="{SITE_URL}" style="width:100%;height:100%"><img src="{SITE_URL}public/css/default/logo.png" /></a>
-    </div>
-    <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        <li>
-          <form class="navbar-form navbar-left" id="search_form" role="search" action="problem/search" method="post">
-            <div class="form-group">
-              <input type="text" class="form-control" style="width:300px" id="search-kw" name="word" placeholder="搜索求助" value="{$word}">
-              <span class="glyphicon glyphicon-search" style="margin-left:-30px;cursor:pointer;" onclick="search_form.submit();"></span>
+<div id="mobile_menu">
+    <ul class="nav nav-pills nav-stacked">
+        <li><a href="{SITE_URL}"><i class="glyphicon glyphicon-home"></i> &nbsp;首页</a></li>
+        <li><a href="index/tutor"><i class="glyphicon glyphicon-briefcase"></i> &nbsp;找辅导</a></li>
+        <li><a href="material/categorylist"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
+        <li><a href="forum/view"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
+        <li><a href="index/help"><i class="glyphicon glyphicon-phone-alt"></i> &nbsp;帮助</a></li>
+    </ul>
+</div>
+<div class="container_wapper">
+    <div id="nav_menu">
+        <div class="container-fluid">
+            <div class="col-xs-3 nav_menu_logo">
+                <a rel="nofollow" href="{SITE_URL}">
+                    <!-- <img src="public/images/logo.png" id="logo_img" alt="dragonfruit free html5 template" /> -->
+                	<h1 id="logo_text">boost<span>me</span></h1>
+                </a>
             </div>
-          </form>
-        </li>
-        <li><a type="button" href="problem/add" class="btn btn-primary" style="background-color:#0e78e7 !important;font-size:13px;">找人辅导</a></li>
-        <li><a target="_blank" href="http://jingyan.baidu.com/article/49ad8bce69f8285835d8fa4d.html" class="btn btn-link" style="font-size:12px;">使用帮助</a></li>
-      </ul> 
-      <!--{if $user['uid'] != 0}-->
-      <ul class="nav navbar-nav navbar-right">
-        <li><a class="btn btn-link" href="user/space/{$user['uid']}" style="font-size:13px;">{$user['username']}</a></li>
-        <li class="dropdown">
-          <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" style="font-size:13px;">
-            收件箱
-            <!--{if ($user['msg_system'] + $user['msg_personal']) > 0}-->
-            <span class="badge alert-info">{eval echo $user['msg_system'] + $user['msg_personal']}</span>
-            <!--{/if}-->
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="message/personal">私人消息<!--{if $user['msg_personal']>0}--><span class="badge alert-info">{$user['msg_personal']}</span><!--{/if}--></a></li>
-            <li><a href="message/system">系统消息<!--{if $user['msg_system']>0}--><span class="badge alert-info">{$user['msg_system']}</span><!--{/if}--></a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a type="button" class="dropdown-toggle btn dropdown-toggle" data-toggle="dropdown" style="font-size:13px;">账号<span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a target="_blank" href="user/profile">修改资料</a></li>
-            <li><a target="_blank" href="trade/buy_now">购物车</a></li>
-            <li class="divider"></li>
-            <li><a href="user/logout">退出</a></li>
-          </ul>
-        </li>
-        <!--{if $this->user['isadmin']}-->
-        <li><a class="btn btn-link" href="admin_main/default" style="font-size:13px;">后台管理</a></li>
-        <!--{/if}-->
-      </ul>
-      <!--{else}-->
-      <ul class="nav navbar-nav navbar-right">
-        <li><a class="btn btn-link" data-toggle="modal" id="login_link" data-target="#loginModal" style="color:#EEE;font-size:13px;">登录</a></li>
-        <li><a class="btn btn-link" href="user/register" style="color:#EEE;font-size:13px;">注册</a></li>
-      </ul>
-      <!--{/if}-->
+            <div class="col-sm-9 hidden-xs">
+                <!-- <ul class="nav nav-justified"> -->
+                <div class="col-sm-8">
+                    <ul class="nav nav-justified" id="nav_menu_link">
+                        <li <!--{if $regular == "index/default"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="{SITE_URL}">首页</a>
+                        </li>
+
+                        <li <!--{if $regular == "index/tutor"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="index/tutor">找辅导</a>
+                        </li>
+
+                        <li <!--{if $regular == "material/categorylist"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="material/categorylist">资料区</a>
+                        </li>
+
+                        <li <!--{if $regular == "forum/view"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="forum/view">交流区</a>
+                        </li>
+
+                        <li <!--{if $regular == "index/help"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="index/help">帮助</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-4" id="nav_menu_right">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a class="user-tip" id="user-tip" data-toggle="popover" data-placement="bottom" data-container="#user-tip" data-html="true" data-content="<div class='nav-user-basic'><a class='home' href=''>个人主页</a><span class='coin'>财富值：65</span></div>">
+                                <span onclick="gotoFun(13552)">张健</span>
+                                <span class="badge" id="msg-alert"></span>
+                            </a>
+                        </li>
+                        <li><a href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="消息"><i class="fa fa-comments-o"></i></a></li>
+                        <li><a href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="退出"><i class="fa fa-sign-out"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-9 visible-xs">
+                <a href="#" id="mobile_menu"><span class="glyphicon glyphicon-th-list"></span></a>
+           </div>
+        </div>
     </div>
-  </div>
 </div>
 
-<div style="height:51px;"></div>
-
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-        </button>
-        <h4 class="modal-title">欢迎登录Boostme</h4>
-      </div>
-      <div class="modal-body" id="login_body"></div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
 <script type="text/javascript">
-$(function() {
-  if ($("#login_link")) {
-    $("#login_body").load("{SITE_URL}user/ajaxpoplogin");
-  }
+$(function(){
+    $('.tip').tooltip({animation:true, trigger:'hover'});
 });
-</script> 
+</script>

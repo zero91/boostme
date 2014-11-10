@@ -38,7 +38,7 @@ class boostme {
 
         $access_path = $_GET['access_path'];
         $pos = strpos($access_path, '.');
-        if (pos !== false) {
+        if ($pos !== false) {
             $access_path = substr($access_path, 0, $pos);
         }
 

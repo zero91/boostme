@@ -1,0 +1,246 @@
+<!--{template header}-->
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/editor/ueditor.all.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/category.js"></script>
+<style type="text/css">
+  .panel {position: relative; padding: 15px;}
+  .tips { color: grey; float: right; margin: 0px; }
+  #ptitle {margin: 10px 0;}
+</style>
+
+<div class="container">
+  <!--{if $op_type == "add"}-->
+  <h4>发布求助</h4>
+  <!--{else}-->
+  <h4>编辑求助</h4>
+  <!--{/if}-->
+  <form enctype="multipart/form-data" method="POST" 
+    <!--{if $op_type=="add"}-->action="{url problem/add}" <!--{else}-->action="{url problem/edit/$problem['pid']}"<!--{/if}-->
+      name="askform" id="askform" onsubmit="return check_form();" class="form-horizontal">
+    <div class="panel panel-info">
+      <div id="prob_title" class="row">
+        <div class="col-sm-10">
+          <h4 style="display:inline;"><span style="color:red">*</span>请详细描述您的求助信息：</h4>
+          <h4 id="limitNum" class="tips">还可输入 <mark><span>140</span></mark> 字</h4>
+          <!--{if $op_type == "add"}-->
+          <textarea class="form-control" name="title" id="ptitle" rows="5">{$word}</textarea>
+          <!--{else}-->
+          <textarea class="form-control" name="title" id="ptitle" rows="5">{$problem['title']}</textarea>
+          <!--{/if}-->
+        </div>
+        <div class="col-sm-2" style="padding-top:30px;">
+          <span style="color:grey;font-size:12px;">*详细描述您的需求，越详细的描述，就能够让师兄师姐们更加明确的知道你需要得到什么样的帮助，成功率越高哦！</span>
+        </div>
+      </div>
+
+      <div id="prob_desc" class="row">
+        <div class="col-sm-10">
+          <h4>求助补充:</h4>
+          <div id="introContent"> 
+            <script type="text/plain" id="editor" name="description" style="height: 220px;"></script>
+            <!--{if $op_type == "add"}-->
+            <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+            <!--{else}-->
+            <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]], initialContent:"{eval echo taddslashes($problem['description'])}"}));</script>
+            <!--{/if}-->
+          </div>
+        </div>
+        <div class="col-sm-2" style="padding-top:70px;">
+          <span style="color:grey;font-size:12px;">*上面无法描述清楚您的需求，还可以在这里补充哦，可以上传照片、附件等等，更加详细的描述您的需求！</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="form-group">
+          <label class="col-sm-1 control-label"><span style="color:red">*</span>分类：</label>
+          <div class="col-sm-5">
+            <!--{if $op_type == "add"}-->
+            <input type="hidden" class="form-control" name="category_id" readonly style="cursor:pointer;" id="category_id"/>
+            <input type="text" class="form-control" name="category" readonly style="cursor:pointer;" id="category"/>
+            <!--{else}-->
+            <input type="hidden" class="form-control" name="category_id" readonly style="cursor:pointer;" id="category_id" value="{$problem['cid']}"/>
+            <input type="text" class="form-control" name="category" readonly style="cursor:pointer;" id="category" value="{$category[$problem['cid']]['name']}"/>
+            <!--{/if}-->
+          </div>
+          <div class="col-sm-5">
+            <span style="color:grey;font-size:12px;">*合适的分类能够更快的帮你找到你要找的师兄师姐哦！</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label class="col-sm-1 control-label"><span style="color:red">*</span>标签：</label>
+          <div class="col-sm-5">
+            <!--{if $op_type == "add"}-->
+            <input type="text" class="form-control" placeholder="多个标签请以空格隔开" name="ptags" id="ptags"/>
+            <!--{else}-->
+            <input type="text" class="form-control" placeholder="多个标签请以空格隔开" name="ptags" id="ptags" value="{eval echo implode(' ',$taglist)}"/>
+            <!--{/if}-->
+          </div>
+          <div class="col-sm-5">
+            <span style="color:grey;font-size:12px;">*选择合适的标签，师兄师姐们能够通过这些标签找到你的求助哦！</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label class="col-sm-1 control-label"><span style="color:red">*</span>回报：</label>
+          <div class="col-sm-2">
+            <!--{if $op_type == "add"}-->
+            <input type="number" class="form-control" id="price" name="price" step="1" value="" min="0" max="10000"/>
+            <!--{else}-->
+            <input type="number" class="form-control" id="price" name="price" step="1" value="{$problem['price']}" min="0" max="10000"/>
+            <!--{/if}-->
+          </div>
+          <div class="col-sm-1 btn">元/小时</div>
+          <div class="col-sm-5">
+            <span style="color:grey;font-size:12px;">
+              *师兄师姐们辛苦的帮助您，总得给一点回报吧！再说，师兄师姐们每天面对那么多求助，一点回报，能够使得师兄师姐们以更快的速度帮助你哦。不过，回报也请量力而为啦！回报单位仅仅做一个参考，如果您求资料，仍可以填写，忽略单位就好了。
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!--{if $setting['code_ask']}-->
+      <div class="row">
+        <div class="form-group">
+            <label for="login_code" class="col-sm-1 control-label">验证码：</label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="code" name="code" onblur="check_code()">
+            </div>
+            <div class="col-sm-3">
+              <span class="verifycode"><img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span>
+              <a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+            </div>
+        </div>
+      </div>
+      <!--{/if}-->
+
+      <!--{if $op_type == "add"}-->
+      <button type="submit" class="btn btn-primary" name="submit" style="float:right">发布求助</button>
+      <!--{else}-->
+      <button type="submit" class="btn btn-primary" name="submit" style="float:right">保存修改</button>
+      <!--{/if}-->
+      <div class="clearfix"></div>
+    </div>
+  </form>
+</div>
+
+<div class="modal fade" id="categoryModal" role="dialog">
+  <div class="modal-dialog" style="width:750px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">分类选择</h4>
+      </div>
+      <div class="modal-body">
+        <table>
+          <tr valign="top">
+            <td style="width:105px;">
+              <select id="category1" size="11" name="category1" style="width:100%;">
+                <option value='考研院校'>考研院校</option>
+                <option value='考研课程'>考研课程</option>
+              </select>
+            </td>
+            <td align="center" valign="middle" width="20px"><div style="" id="arrow1">>></div></td>
+            <td width="350px">
+              <select id="category2" size="11" name="category2" style="width:100%;">
+              </select>
+            </td>
+            <td align="center" valign="middle" width="25px"><div style="" id="arrow2">>>&nbsp;</div></td>
+            <td width="170px">
+              <select id="category3" size="11" name="category3" style="width:100%;">
+              </select>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <input type="button" class="btn btn-primary" data-dismiss="modal" value="确&nbsp;认" id="category_btn" disabled="true"/>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#ptitle").keyup(function() {
+        var pbyte = bytes($.trim($(this).val()));
+        var limit = 280 - pbyte;
+        if (limit % 2 == 0) {
+            $("#limitNum span").html((limit / 2));
+        } else {
+            $("#limitNum span").html(((limit + 1) / 2));
+        }
+    });
+
+    $("#category").click(function() {
+        $("#categoryModal").modal('show');
+    });
+
+    $("#category1").change(function() {
+        $("#category2").html("");
+        var cid = $("#category1 option:selected").val();
+        var optionhtml = '';
+        for (var i = 0; i < category[cid].length; ++i) {
+            optionhtml += "<option value='" + category[cid][i]['region'] + "'>" + category[cid][i]['region'] + "</option>";
+        }
+        $("#category2").html(optionhtml);
+        $("#category3").html("");
+        $("#category_id").val("");
+        $("#category").val("");
+        $("#category_btn").attr('disabled', 'disabled');
+    }); 
+    $("#category2").change(function() {
+        $("#category3").html("");
+        var cid1 = $("#category1 option:selected").val();
+        var cid2 = $("#category2 option:selected").val();
+        var optionhtml = '';
+        for (var i = 0; i < category[cid1].length; ++i) {
+            if (category[cid1][i]['region'] == cid2) {
+                for (var j = 0; j < category[cid1][i]['item'].length; ++j) {
+                    optionhtml += "<option value='" + category[cid1][i]['item'][j]['id'] + "'>" + category[cid1][i]['item'][j]['name'] + "</option>";
+                }
+                break;
+            }
+        }
+        $("#category3").html(optionhtml);
+        $("#category_id").val("");
+        $("#category").val("");
+        $("#category_btn").attr('disabled', 'disabled');
+    }); 
+    $("#category3").change(function() {
+        $("#category_id").val($("#category3").val());
+
+        var show_val = $("#category1 option:selected").val();
+        show_val += " > " + $("#category3 option:selected").html();
+        $("#category").val(show_val);
+        $("#category_btn").removeAttr('disabled');
+    }); 
+});
+
+function check_form() {
+    var ptitle = $("#ptitle").val();
+    if (bytes($.trim(ptitle)) < 20 || bytes($.trim(ptitle)) > 280) {
+        alert("问题标题长度不得少于10个字，不能超过140字！");
+        $("#ptitle").focus();
+        return false;
+    }
+    if ($("#category_id").val().length == 0) {
+        alert("您还没有添加分类信息哦！");
+        $("#category").click();
+        return false;
+    }
+    if ($("#ptags").val().length == 0) {
+        alert("您还没有添加任何标签哦！");
+        $("#ptags").focus();
+        return false;
+    }
+    if ($("#price").val().length == 0) {
+        alert("您还没有填写回报哦！");
+        $("#price").focus();
+        return false;
+    }
+    return true;
+}
+</script>
+<!--{template footer}--> 

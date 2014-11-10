@@ -11,8 +11,8 @@ class indexcontrol extends base {
         $this->load("question");
     }
 
-    function ondefault() {
-        $navtitle = '考研帮';
+    public function ondefault() {
+        /*
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
@@ -20,9 +20,9 @@ class indexcontrol extends base {
         $user_num = $_ENV['user']->rownum_alluser();
         $question_num = $_ENV['question']->get_total_num();
         $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
-
         $departstr = page($question_num, $pagesize, $page, "forum/view");
-        include template("forum");
+         */
+        include template("index");
     }
 
     function ontutor() {

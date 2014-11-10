@@ -1,182 +1,108 @@
 <!--{template header}-->
-<style type="text/css">
-  .photo {position: absolute; top: 20px; left: 10px; }
-  .action {position: absolute; right: 50px; bottom: 20px;}
-  .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
-  .mypanel {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px;}
-  .arrow {left:76px;top:40px;position:absolute;}
-  .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
-  .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
-  .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
-</style>
+<!-- <link href="public/css/default/camera.css" rel="stylesheet"> -->
+<link href="public/css/default/index.css" rel="stylesheet">
 
-<script type="text/javascript">
-$(function(){
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-      if (e.target.id == "all_prob") {
-        location.href = "{url index/tutor}";
-      } else if (e.target.id == "forum") {
-        location.href = "{url forum/view}";
-      } else if (e.target.id == "material") {
-        location.href = "{url material/categorylist}";
-      }
-    });
-    $("#menu_profile").addClass("active");
-    $("#birthday").datepicker({
-        changeYear: true,
-        changeMonth: true,
-        yearRange: '-60:+0',
-        dateFormat: 'yy-mm-dd'
-    });
-})
-</script>
-
-<div class="container" style="margin-top:23px;">
-  <div class="col-sm-9">
-    <ul class="nav nav-tabs" role="tablist">
-      <li><a href="#forum" id="forum" role="tab" data-toggle="tab">考研帮</a></li>
-      <li><a href="#material" id="material" role="tab" data-toggle="tab">考研资料</a></li>
-      <li class="active"><a href="#all_prob" role="tab" data-toggle="tab">找人辅导</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="all_prob">
-        <div class="list-group">
-          <!--{loop $page_indexshowprob $problem}-->
-          <div id="{$problem['pid']}" class="list-group-item">
-            <div class="photo" style="max-width:60px">
-              <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($problem['authorid']);}>
+<div class="banner" id="banner_slide">
+    <ul>
+        <li class="banner_slide_01">
+            <div class="slide_caption">
+                <h1>Responsive Design</h1>
+                <p>Boostme</p>
             </div>
-            <div class="panel panel-default mypanel">
-              <a href="{url user/space/$problem['authorid']}" class="trigger_btn align_center" >{$problem['author']}</a>
-              <p style="font-size:14px">【{$category[$problem['cid']]['name']}】{$problem['title']}</p>
-              <a href="{url problem/view/$problem['pid']}" style="font-size:12px" target="_blank">查看详细信息</a>
-              <span style="font-size:12px">&nbsp;&nbsp;回报：¥{$problem['price']}元/小时&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['demands']}人在抢&nbsp;&nbsp;|&nbsp;&nbsp;{$problem['format_time']}</span>
-
-              <div class="action" style="font-size:12px">
-                <!--{if $problem['solverid'] != 0}-->
-                <span class="last" id="{$problem['pid']}" style="color:red;">已成功</span>
-                <!--{else}-->
-                  <!--{if $problem['authorid'] != $user['uid']}-->
-                    <!--{if $_ENV['demand']->already_demand($problem['pid'])}-->
-                    <a class="prob_cancel last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">撤销请求</a>
-                    <!--{else}-->
-                    <a class="prob_demand last" id="{$problem['pid']}" href="#" onclick="javascript:return false;">我要帮忙</a>
-                    <!--{/if}-->
-                  <!--{else}-->
-                  <a href="{url problem/view/$problem['pid']}" class="last" target="_blank">查看</a>
-                  <!--{/if}-->
-                <!--{/if}-->
-              </div>
+        </li>
+        <li class="banner_slide_02">
+            <div class="slide_caption">
+                <h1>Free HTML5 Template</h1>
+                <p>Boostme</p>
             </div>
-            <span class="arrow"></span>
-          </div>   
-          <!--{/loop}-->
-        </div> <!-- list-group -->
-        <center><ul class="pagination">{$departstr}</ul></center>
-      </div> <!-- tab-pane -->
-    </div><!-- tab-content -->
-  </div>
-  <div class="col-sm-3">
-    <ul class="list-group" style="font-size:13px;">
-      <li class="list-group-item">
-        <div class="panel panel-info">
-          <div class="panel-heading">找学长学姐</div>
-          <div class="panel-body">
-            <p>考研路，问题多，思来思去难奈何！</p>
-            <p>亲，想找名校的牛掰学长学姐来给你答疑解惑吗？</p>
-            <p>这就说明清楚自己的情况，寻找你心仪的学长学姐吧！</p>
-            <a href="{url problem/add}">点击进入</a>
-          </div>
-        </div>
-      </li>
-      <li class="list-group-item">
-        <div class="panel panel-info">
-          <div class="panel-heading">找家教兼职</div>
-          <div class="panel-body">
-            <p>考研路，坑满地，我们帮你跳过去！</p>
-            <p>Boostme聚集了一大批985名校的牛掰学生，</p>
-            <p>如果您是985名校的学生，欢迎你的加入！</p>
-            <p>这就填写资料申请加入吧！&nbsp;<a href="{url user/resume}">进入</a></p>
-          </div>
-        </div>
-      </li>
+        </li>
+        <li class="banner_slide_03">
+            <div class="slide_caption">
+                <h1>Mobile Ready</h1>
+                <p>Boostme</p>
+            </div>
+        </li>
     </ul>
-    <span style="color:blue">可以通过QQ群：32480019联系我们</span>
-  </div><!--col-sm-3-->
-</div><!-- container end -->
+</div>
 
-<div class="modal fade" id="demandModal" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">附加信息</h4>
-      </div>
-      <form name="edit_message" action="{SITE_URL}?problem/demand.html" method="post" id="dialog_form">
-        <div class="modal-body">
-          <input type="hidden" value="" name="dialog_pid" id="dialog_pid"/>
-          <input type="text" placeholder="请输入简短的请求信息" class="form-control" name="demand_message" id="demand_message"/>
+<div id="index_about" class="container_wapper">
+    <div class="container-fluid">
+        <h1>About Our Organization</h1>
+        <div class="col-sm-6 col-md-3 about_icon">
+            <div class="imgwap mission"><i class="fa fa-rocket"></i></div>
+            <h2>Revenues</h2>
+            <p>Boostme</p>
         </div>
-        <div class="modal-footer">
-          <input type="submit" class="btn btn-primary" value="确&nbsp;认" />
+        <div class="col-sm-6 col-md-3 about_icon">
+            <div class="imgwap product"><i class="fa fa-cubes"></i></div>
+            <h2>Opportunities</h2>
+            <p>Boostme</p>
         </div>
-      </form>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        <div class="col-sm-6 col-md-3 about_icon">
+            <div class="imgwap testimonial"><i class="fa fa-bar-chart-o"></i></div>
+            <h2>Growth</h2>
+            <p>Boostme</p>
+        </div>
+        <div class="col-sm-6 col-md-3 about_icon">
+            <div class="imgwap statistic"><i class="fa fa-comments"></i></div>
+            <h2>Social Media</h2>
+            <p>Boostme</p>
+        </div>
+        <div class="clearfix testimonial_top_bottom_spacer"></div>
+        <div class="col-xs-1 pre_next_wap" id="prev_testimonial">
+            <a href="#"><span class="glyphicon glyphicon-chevron-left pre_next"></span></a>
+        </div>
+        
+        <div id="testimonial_text_wap" class="col-xs-9 col-sm-10">
+            <div class="testimonial_text">
+                <div class="col-sm-3">
+                    <img src="public/images/images/templatemo_member_01.jpg" class="img-responsive" alt="Business Development Manager" />
+                </div>
+                <div class="col-sm-9">
+                    <h2>Tracy Mya</h2>
+                    <h3>Business Development Manager</h3>
+                    <p>Boostme</p>
+                </div>
+            </div>
+            <div class="testimonial_text">
+                <div class="col-sm-3">
+                    <img src="public/images/images/templatemo_member_02.jpg" class="img-responsive" alt="Chief Public Relation Officer" />
+                </div>
+                <div class="col-sm-9">
+                    <h2>Mary Kas</h2>
+                    <h3>Chief Public Relation Officer</h3>
+                    <p>Boostme</p>
+                </div>
+            </div><!--.testimonial_text-->
+            <div class="testimonial_text">
+                <div class="col-sm-3">
+                    <img src="public/images/images/templatemo_member_03.jpg" class="img-responsive" alt="Marketing Executive" />
+                </div>
+                <div class="col-sm-9">
+                    <h2>Julia Pan</h2>
+                    <h3>Marketing Executive</h3>
+                    <p>Boostme</p>
+                </div>
+            </div><!--.testimonial_text-->
+            <div class="testimonial_text">
+                <div class="col-sm-3">
+                    <img src="public/images/images/templatemo_member_04.jpg" class="img-responsive" alt="Chief Executive Officer" />
+                </div>
+                <div class="col-sm-9">
+                    <h2>Linda Von</h2>
+                    <h3>Chief Executive Officer</h3>
+                    <p>Boostme</p>
+                </div>
+            </div><!--.testimonial_text-->
+        </div>
+        <div class="col-xs-1 pre_next_wap" id="next_testimonial">
+            <a href="#"><span class="glyphicon glyphicon-chevron-right pre_next"></span></a>
+        </div>
+        <div class="clearfix testimonial_top_bottom_spacer"></div>
+    </div>
+</div>
 
-<script type="text/javascript">
-var timer;
-$(document).ready(function() {
-  $(".prob_demand").click(function() {
-    <!--{if $user['uid']}-->
-      <!--{if $user['can_teach']}-->
-      var pid = $(this).attr("id");
-      $("#dialog_pid").val(pid);
-      $("#demandModal").modal('show');
-      <!--{else}-->
-      alert("您还没有获得资格，现在就去填写资料申请吧");
-      window.location.href = "{SITE_URL}?user/resume";
-      <!--{/if}-->
-    <!--{else}-->
-      alert("您还未登录，请先登录");
-      window.location.href = "{SITE_URL}?user/login";
-    <!--{/if}-->
-  });
+<script src="public/js/unslider.min.js"></script>
+<script src="public/js/index.js"></script>
 
-  $(".prob_cancel").click(function(){
-    <!--{if $user['uid']}-->
-    if (confirm('确定撤销请求?') === false) {
-      return false;
-    }
-    var supportobj = $(this);
-    var pid = $(this).attr("id");
-    $.ajax({
-      type: "GET",
-      url:"{SITE_URL}?problem/ajaxcancel/" + pid,
-      cache: false,
-      success: function(succeed){
-        if (succeed == '-1') {
-          alert("您还未登录，请先登录");
-          window.location.href = "{SITE_URL}?user/login";
-
-        } else if (succeed == '0') {
-          alert("操作失败，请刷新页面重试");
-
-        } else if (succeed == '1') {
-          supportobj.html("我要帮忙");
-
-        } else if (succeed == '2') {
-          alert("您还没有发出过申请!");
-        }
-      }
-    });
-    <!--{else}-->
-    alert("您还未登录，请先登录");
-    window.location.href = "{SITE_URL}?user/login";
-    <!--{/if}-->
-  });
-});
-
-</script>
 <!--{template footer}-->

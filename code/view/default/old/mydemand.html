@@ -1,0 +1,41 @@
+<!--{template header}-->
+<div class="wrapper mt10 clearfix">
+    <div class="user-content">
+        <div class="my-answerbox">
+            <div class="title">我的提问</div>
+            <div id="qa-tabcard">
+                <ul>
+                    <li<!--{if $status==1}--> class="on"<!--{/if}-->><!--{if $status==1}-->待解决<!--{else}--><a href="{url user/demand/1}">待解决</a><!--{/if}--></li>
+                    <li<!--{if $status==2}--> class="on"<!--{/if}-->><!--{if $status==2}-->已解决<!--{else}--><a href="{url user/demand/2}">已解决</a><!--{/if}--></li>
+                    <li<!--{if $status==0}--> class="on"<!--{/if}-->><!--{if $status==0}-->审核中<!--{else}--><a href="{url user/demand/0}">审核中</a><!--{/if}--></li>
+                    <li<!--{if $status==8}--> class="on"<!--{/if}-->><!--{if $status==8}-->已过期<!--{else}--><a href="{url user/demand/8}">已过期</a><!--{/if}--></li>
+                </ul>
+            </div>
+            <div class="bd">
+                <div class="cls-qa-table">
+                    <table>
+                        <tbody>
+                            <tr><th class="s0">标题</th><th class="s1">浏览</th><th class="s2">时间</th></tr>
+                            <!--{loop $problemlist $problem}-->
+                            <tr>
+                                <td class="title">
+                                    <div class="tit-full">
+                                        <div class="wrap">
+                                            <span class="gold"><img src="{SITE_URL}public/css/default/gold.gif">¥$problem['price']</span>
+                                            <a href="{url problem/view/$problem['pid']}" target="_blank" title="{$problem['title']}">{eval echo cutstr($problem['title'],54)}</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{$problem['views']}</td>
+                                <td>{$problem['format_time']}</td>
+                            </tr>                   
+                            <!--{/loop}-->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pages">{$departstr}</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--{template footer}-->
