@@ -157,7 +157,7 @@ function makecode($code, $width = 80, $height = 28, $quality = 3) {
 }
 
 // 根据用户UID获得用户头像地址
-function get_avatar_dir($uid) {
+function get_avatar_dir($uid, $type="small") {
     global $setting;
     if ($setting['ucenter_open']) {
         return $setting['ucenter_url'] . '/avatar.php?uid=' . $uid . '&size=middle';
@@ -166,7 +166,7 @@ function get_avatar_dir($uid) {
         $dir1 = substr($uid, 0, 3);
         $dir2 = substr($uid, 3, 3);
         $dir3 = substr($uid, 6, 2);
-        $avatar_dir = "public/data/avatar/" . $dir1 . '/' . $dir2 . '/' . $dir3 . "/small_" . $uid;
+        $avatar_dir = "public/data/avatar/" . $dir1 . '/' . $dir2 . '/' . $dir3 . '/' . $type . "_" . $uid;
 
         if (file_exists($avatar_dir . ".jpg"))
             return SITE_URL . $avatar_dir . ".jpg";
@@ -336,10 +336,10 @@ function timeLength($time) {
 function page($num, $perpage, $curpage, $operation, $ajax = 0) {
     global $setting;
     $multipage = '';
-    $operation = urlmap($operation, 2);
+    //$operation = urlmap($operation, 2);
 
-    $mpurl = SITE_URL . $setting['seo_prefix'] . $operation . '/';
-    ('admin' == substr($operation, 0, 5)) && ($mpurl = 'index.php?' . $operation . '/');
+    $mpurl = SITE_URL . $operation . '/';
+    //('admin' == substr($operation, 0, 5)) && ($mpurl = 'index.php?' . $operation . '/');
 
     if ($num > $perpage) {
         $page = 8;
@@ -961,25 +961,72 @@ function isimage($extname) {
     return in_array($extname, array('jpg', 'jpeg', 'png', 'gif', 'bmp'));
 }
 
-function image_resize($src, $dst, $width, $height, $crop = 0) {
-    if (!list($w, $h) = getimagesize($src))
-        return "Unsupported picture type!";
-
-    $type = strtolower(substr(strrchr($src, "."), 1));
-    if ($type == 'jpeg')
-        $type = 'jpg';
-    switch ($type) {
-        case 'bmp': $img = imagecreatefromwbmp($src);
-            break;
-        case 'gif': $img = imagecreatefromgif($src);
-            break;
-        case 'jpg': $img = imagecreatefromjpeg($src);
-            break;
-        case 'png': $img = imagecreatefrompng($src);
-            break;
-        default : return false;
+// 获取image的类型
+function get_image_type($url) {
+    $size = @getimagesize($url);
+    switch ($size['mime']) {
+        case 'image/bmp' : return 'bmp';
+        case 'image/jpeg': return 'jpg';
+        case 'image/gif' : return 'gif';
+        case 'image/png' : return 'png';
+        default: return false;
     }
-// resize
+}
+
+// 初始化图片
+function get_image_hander($url) {
+    $size = @getimagesize($url);
+    switch ($size['mime']) {
+        case 'image/bmp' : $im = imagecreatefromwbmp($url); break;
+        case 'image/jpeg': $im = imagecreatefromjpeg($url); break;
+        case 'image/gif' : $im = imagecreatefromgif($url); break;
+        case 'image/png' : $im = imagecreatefrompng($url); break;
+        default: $im = false; break;
+    }
+    return $im;
+}
+
+// saves an image from the given image.
+function save_image($src, $dst) {
+    $size = @getimagesize($src);
+    switch ($size['mime']) {
+        case 'image/bmp' : imagewbmp($src, $dst); break;
+        case 'image/jpeg': imagejpeg($src, $dst); break;
+        case 'image/gif' : imagegif($src, $dst); break;
+        case 'image/png' : imagepng($src, $dst); break;
+        default: break;
+    }
+}
+
+// 裁剪图片
+function image_crop($src, $dst, $x, $y, $w, $h, $rm_src=true) {
+    // 创建图片
+    $src_pic = get_image_hander($src);
+
+    $dst_pic = imagecreatetruecolor($w, $h);
+    imagecopyresampled($dst_pic, $src_pic, 0, 0, $x, $y, $w, $h, $w, $h);
+    runlog("test007", "x = $x, y = $y, w = $w, h = $h");
+    imagejpeg($dst_pic, $dst);
+    imagedestroy($src_pic);
+    imagedestroy($dst_pic);
+        
+    // 删除已上传未裁切的图片
+    if ($rm_src && file_exists($src)) {
+        unlink($src);
+    }
+    // 返回新图片的位置
+    return $dst;
+}
+
+function image_resize($src, $dst, $width, $height, $crop = 0) {
+    if (!list($w, $h) = getimagesize($src)) {
+        return "Unsupported picture type!";
+    }
+
+    $img = get_image_hander($src);
+    if (!$img) return false;
+
+    // resize
     if ($crop) {
         if ($w < $width or $h < $height) {
             rename($src, $dst);
@@ -1000,7 +1047,9 @@ function image_resize($src, $dst, $width, $height, $crop = 0) {
         $x = 0;
     }
     $new = imagecreatetruecolor($width, $height);
-// preserve transparency
+
+    $type = get_image_type($src);
+    // preserve transparency
     if ($type == "gif" or $type == "png") {
         imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
         imagealphablending($new, false);
@@ -1010,14 +1059,10 @@ function image_resize($src, $dst, $width, $height, $crop = 0) {
     imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h);
 
     switch ($type) {
-        case 'bmp': imagewbmp($new, $dst);
-            break;
-        case 'gif': imagegif($new, $dst);
-            break;
-        case 'jpg': imagejpeg($new, $dst);
-            break;
-        case 'png': imagepng($new, $dst);
-            break;
+        case 'bmp': imagewbmp($new, $dst); break;
+        case 'gif': imagegif($new, $dst); break;
+        case 'jpg': imagejpeg($new, $dst); break;
+        case 'png': imagepng($new, $dst); break;
     }
     return true;
 }

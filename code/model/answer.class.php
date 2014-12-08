@@ -66,11 +66,15 @@ class answermodel {
     public function add_support($uid, $aid) {
         $time = time();
         $this->db->query("INSERT INTO answer_support(uid,aid,time) VALUES ('$uid','$aid','$time')");
-        if ($this->db->insert_id() > 0) {
+        //if ($this->db->insert_id() > 0) {
             $this->db->query("UPDATE `answer` SET `supports`=supports+1 WHERE `id`=$aid");
-        }
+        //}
         return $this->db->affected_rows();
     }
+
+    public function get_support_by_uid_aid($uid, $aid) {
+        return $this->db->fetch_total("answer_support", " uid='$uid' AND aid=$aid ");
+    } 
 
     private $db;
 }

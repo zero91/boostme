@@ -1,0 +1,121 @@
+<!--{template header}-->
+<!--{template common_link}-->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="col-md-7 col-sm-6 setting-content">
+                <form class="form-horizontal" role="form" name="creator">
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2 control-label">邮箱</label>
+                        <div class="col-sm-10">
+                            <input name="email" id="email" class="form-control" value="{$user['email']}">
+                            <span class="help-block">Boostme会将对您最重要的信息发送到这个邮箱</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender" class="col-sm-2 control-label">性别</label>
+                        <div class="col-sm-10">
+                            <select name="sex" id="gender" class="form-control">
+                                <option value="0" <!--{if $user['gender'] == "0"}-->selected="selected"<!--{/if}-->>男生</option>
+                                <option value="1" <!--{if $user['gender'] == "1"}-->selected="selected"<!--{/if}-->>女生</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="col-sm-2 control-label">手机</label>
+                        <div class="col-sm-10">
+                            <input name="phone" id="phone" class="form-control" value="{$user['phone']}">
+                            <span class="help-block">如果您是研究生，想提供服务或者您是考研同学，想要获得服务，此项是必填项</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="qq" class="col-sm-2 control-label">QQ</label>
+                        <div class="col-sm-10">
+                            <input name="qq" id="qq" class="form-control" value="{$user['qq']}">
+                            <span class="help-block">同"手机"项，作为联系你的备选项</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="wechat" class="col-sm-2 control-label">微信</label>
+                        <div class="col-sm-10">
+                            <input name="wechat" id="wechat" class="form-control" value="{$user['wechat']}">
+                            <span class="help-block">同"手机"项，作为联系你的备选项</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bday" class="col-sm-2 control-label">生日</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="bday" id="bday" readonly class="form-control datepicker" value="{$user['bday']}" style="cursor:pointer;"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signature" class="col-sm-2 control-label">个人简介</label>
+                        <div class="col-sm-10">
+                            <textarea name="signature" id="signature" maxlength="70" class="form-control" style="height:130px;padding:5px;">{$user['signature']}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+                        <div class="col-sm-10 jsk-setting-submit">
+                            <input type="button" id="submit-btn" class="btn btn-success jsk-submit-btn" style="float:left" value="确认信息">
+                            <span class="jsk-setting-success word-success">信息已经成功修改</span>
+                        </div>
+                    </div>
+                </form>
+            </ul>
+            <div class="col-md-5 col-sm-6 gd" style="overflow:hidden">
+                <!-- <iframe src="{SITE_URL}user/upload_avatar" style="border:none;" width="520px" height="300px;" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no" ></iframe> -->
+                <iframe src="{SITE_URL}user/editimg" style="border:none;" width="520px" height="300px;" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no" ></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $("#bday").datepicker({
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '-60:+0',
+        dateFormat: 'yy-mm-dd'
+    });
+
+    $('#submit-btn').click(function(){
+        $.ajax({
+            url: '{SITE_URL}user/ajax_profile',
+            type: 'POST',
+            data:{email:$('#email').val(), gender:$('#gender').val(), phone:$('#phone').val(), qq:$('#qq').val(), wechat:$('#wechat').val(), bday:$("#bday").val(), signature:$('#signature').val()},
+            dataType: 'json',
+            timeout: 8000,
+            error: function() {
+                alert('提交超时！');
+            },
+            success: function(data){
+                var target;
+                if (typeof(data.success) == 'undefined') {
+                    if (data.error == '101') {
+                        $(".jsk-setting-success").html('请先登陆');
+
+                    } else if (data.error == '102') {
+                        $(".jsk-setting-success").html('邮件格式不正确或已被占用');
+
+                    } else {
+                        $(".jsk-setting-success").html('发生意外错误');
+                    }
+                } else {
+                    $(".jsk-setting-success").html('信息已经成功修改');
+                }
+                $(".jsk-setting-success").fadeIn(800);
+                $(".jsk-setting-success").fadeOut(1500);
+            }
+        });
+        return false;
+    });
+});
+
+var where = new Array(35);
+$("#main").height($(window).height()-45);
+</script>
+
+<!--{template footer}-->

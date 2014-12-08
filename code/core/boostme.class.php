@@ -18,7 +18,7 @@ class boostme {
         $control = new $controlname($this->get, $this->post);
         $method = 'on' . $this->get[1];
 
-        runlog('debug', "controlname = $controlname, method = $method", 0);
+        runlog('test007', "controlname = $controlname, method = $method", 0);
 
         if (method_exists($control, $method)) {
             $regular = $this->get[0] . '/' . $this->get[1];
@@ -37,6 +37,10 @@ class boostme {
         header('Content-type: text/html; charset=' . WEB_CHARSET);
 
         $access_path = $_GET['access_path'];
+
+        runlog("test007", "access_path = " . $access_path);
+        runlog("test007", "_GET = " . var_export($_GET, true));
+        runlog("test007", "_POST= " . var_export($_POST, true));
         $pos = strpos($access_path, '.');
         if ($pos !== false) {
             $access_path = substr($access_path, 0, $pos);
@@ -44,7 +48,7 @@ class boostme {
 
         $this->get = explode('/', $access_path);
         if (empty($this->get[0])) {
-            $this->get[0] = 'index';
+            $this->get[0] = 'main';
         }
 
         if (empty($this->get[1])) {
@@ -54,6 +58,7 @@ class boostme {
         if (count($this->get) < 2) {
             exit('Access Denied !');
         }
+
         unset($GLOBALS, $_ENV, $HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS, $HTTP_SERVER_VARS, $HTTP_ENV_VARS);
 
         $this->get = taddslashes($this->get, 1);

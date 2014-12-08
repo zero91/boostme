@@ -6,13 +6,13 @@ class cache {
     }
 
     // 加载数据，如缓存中无此数据，则从数据库中查出相应数据，并做缓存
-    public function load($cachename, $id='', $orderby='') {
+    public function load($cachename, $key='', $val='', $orderby='') {
         $arraydata = $this->read($cachename);
         if (!$arraydata) {
             $sql = "SELECT * FROM $cachename";
             $orderby && $sql .= " ORDER BY $orderby ASC";
 
-            $arraydata = $this->db->fetch_all($sql, $id);
+            $arraydata = $this->db->fetch_all($sql, $key, $val);
             $this->write($cachename, $arraydata);
         }
         return $arraydata;

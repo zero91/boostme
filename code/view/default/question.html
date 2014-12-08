@@ -1,0 +1,217 @@
+<!--{template header}-->
+<style type="text/css">
+  .avatar {position: absolute; top: 20px; left: 10px; }
+  .content {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px; min-height:100px;}
+  .content img {max-width:300px;max-height:400px;}
+  .button_agree {background: url("{SITE_URL}public/css/default/btn_agree.png") repeat-x scroll 0 0 transparent;border:0;width:67px;line-height: 25px;height:25px;font-size:12px;color:#DB4F1F;font-weight: bold;padding-left:21px; text-align: center;cursor: pointer;}
+  .comments {margin-top:15px;margin-left:45%;background:#FAFAFA;}
+
+  .comments .list-group .list-group-item {background:#FAFAFA;border-left:0px;border-right:0px;font-size:12px;min-height:70px;}
+</style>
+
+<link rel="stylesheet" href="{SITE_URL}public/js/plugin/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.all.js"></script> 
+
+<div style="margin-top:104px;"></div>
+<div class="container">
+  <div class="col-sm-11">
+    <div style="margin-bottom:10px;">
+      <span style="font-size:16px;">{$question['title']}</span>
+      <!--{if $is_followed}-->
+      <input type="button" class="btn btn-sm btn-success pull-right" id="attenttoquestion" value="取消关注" onclick="attentto_question({$question['qid']})"/>
+      <!--{else}-->
+      <input type="button" class="btn btn-sm btn-info pull-right" id="attenttoquestion" value="关注此贴" onclick="attentto_question({$question['qid']})"/>
+      <!--{/if}-->
+
+    </div>
+    <div class="list-group">
+      <div id="" class="list-group-item">
+        <div class="avatar" style="max-width:60px">
+          <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($question['authorid']);}>
+          <span>{$question['author']}</span>
+        </div>
+        <div class="content">
+          <div class="">{$question['description']}</div> 
+          <div style="font-size:12px; padding:6px 0 10px;">
+            <span style="float:right" id="{$answer['id']}">
+              {eval echo tdate($question['time'])}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div> <!-- list-group -->
+
+    <!--{loop $answerlist $answer}-->
+    <div id="{$answer[id]}" class="list-group-item">
+      <div class="avatar" style="max-width:60px">
+        <img class="img-circle" width="60px" height="60px" src={eval echo get_avatar_dir($answer['authorid']);}>
+        <p>{$answer['author']}</p>
+      </div>
+      <div class="content">{$answer['content']}</div>
+      <div>
+        <div style="font-size:12px; padding:6px 0 10px; height:24px; line-height:24px;">
+          <div style="float:right" id="{$answer['id']}">
+            <span>{eval echo tdate($answer['time'])}</span>&nbsp;&nbsp;|&nbsp;&nbsp;
+            <span>
+                <a id="show_{$answer['id']}" onclick="show_comment('{$answer['id']}', 1);" href="javascript:void(0)">回复</a>({$answer['comments']})
+            </span>&nbsp;&nbsp;|&nbsp;&nbsp;
+            <input type="button" class="button_agree" value="{$answer['supports']}"/>
+          </div>
+        </div>
+        <div style="display:none;" class="comments" id="comment_{$answer['id']}">
+          <div class="list-group">
+            <div style="text-align:center;">
+              <img src='{SITE_URL}public/css/default/loading.gif' align='absmiddle' />
+              &nbsp;加载中...
+            </div>
+          </div>
+          <div style="padding-top:30px;">
+            <span style="margin-left:5%;">我也说一句</span>
+            <textarea name="content" class="form-control" maxlength="90" style="height:70px;width:90%;margin-left:5%;margin-bottom:10px;resize:none;"></textarea>
+            <input type="button" value="发&nbsp;表" class="btn btn-sm btn-primary" name="submit" onclick="addcomment({$answer['id']});" style="margin-left:85%;"/>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!--{/loop}-->
+    <center><ul class="pagination">{$departstr}</ul></center>
+    <div id="reply_area" style="background: url({SITE_URL}public/css/default/forum_editor.jpg) repeat;height:280px;">
+        <form name="reply_form" action="{SITE_URL}question/answer" method="post" onsubmit="return check_form();">
+        <div class="content">
+          <h4>发表回复</h4>
+          <input type="hidden" value="{$question['qid']}" name="qid">
+          <input type="hidden" value="{$question['title']}" name="title">
+          <div>
+            <script type="text/plain" id="reply_content" name="content" style="height: 122px;"></script>
+            <script type="text/javascript">UE.getEditor('reply_content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+          </div>
+          <div style="margin-top:15px;">
+            <!--{if $setting['code_reply']}-->
+            <span>验证码：</span>
+            <input type="text" onblur="check_code()" name="code" id="code">&nbsp;
+            <span class="verifycode">
+                <img id="verifycode" onclick="javascript:updatecode();" src="{SITE_URL}user/code">
+            </span>
+            <a class="changecode" href="javascript:updatecode();">&nbsp;换一个</a>
+            <span id="codetip"></span>
+            <!--{/if}-->
+            <input type="submit" name="submit" class="btn btn-primary pull-right" value="发&nbsp;表">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="{SITE_URL}public/js/plugin/editor/third-party/SyntaxHighlighter/shCoreDefault.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/third-party/SyntaxHighlighter/shCore.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/forum.js"></script>
+<script type="text/javascript">
+var g_forum = new Forum("{SITE_URL}");
+
+$(document).ready(function() {
+    g_forum.start_img_light($(".content img"));
+    g_forum.agree_answer($(".button_agree"));
+    g_forum.agree_click($(".button_agree"));
+    SyntaxHighlighter.all();
+});
+
+function show_comment(answerid, page) {
+    if ($("#comment_" + answerid).css("display") === "none") {
+        //$("#show_" + answerid).removeAttr('onclick');
+        $("#show_" + answerid).attr('onclick', "hide_comment(" + answerid + ");");
+        $("#show_" + answerid).html("收起回复");
+    }
+    load_comment(answerid, page);
+    $("#comment_" + answerid).slideDown();
+}
+
+function hide_comment(answerid) {
+    $("#comment_" + answerid).slideUp();
+    $("#show_" + answerid).attr('onclick', "show_comment(" + answerid + ", 1);");
+    $("#show_" + answerid).html("回复");
+}
+
+//添加评论
+function addcomment(answerid) {
+    <!--{if empty($user['uid'])}-->
+        login();
+        return false;
+    <--{else}-->
+
+    var content = $("#comment_" + answerid + " textarea[name='content']").val();
+    if (bytes($.trim(content)) < 5){
+        alert("评论内容不能少于5字");
+        return false;
+    }
+    g_forum.add_comment(answerid, content, function(data) {
+        if (data == '1') {
+            $("#comment_" + answerid + " textarea[name='content']").val("");
+            load_comment(answerid, 1);
+        }
+    });
+    <!--{/if}-->
+}
+
+//删除评论
+function deletecomment(commentid, answerid) {
+    if (!confirm("确认删除该评论?")) {
+        return false;
+    }
+
+    g_forum.delete_comment(answerid, commentid, function(data) {
+        if (data == '1') {
+            load_comment(answerid, 1);
+        }
+    });
+}
+
+function load_comment(answerid, page) {
+    g_forum.load_comment(answerid, page, function(comments) {
+        $("#comment_" + answerid + " .list-group").html(comments);
+    });
+}
+
+function check_form() {
+    <!--{if empty($user['uid'])}-->
+        login();
+        return false;
+    <!--{/if}-->
+
+    if ($.trim(UE.getEditor('reply_content').getPlainTxt()) == '') {
+        alert("内容不能为空!");
+        return false;
+    }
+    <!--{if $setting['code_reply']}-->
+    return check_code();
+    <!--{else}-->
+    return true;
+    <!--{/if}-->
+}
+
+// 关注问题
+function attentto_question(qid) {
+    <!--{if empty($user['uid'])}-->
+    login();
+    return false;
+    <!--{/if}-->
+    g_forum.attention_2_question(qid, function(msg) {
+        if (msg == 'ok') {
+            if ($("#attenttoquestion").hasClass("btn-info")) {
+                $("#attenttoquestion").removeClass("btn-info");
+                $("#attenttoquestion").addClass("btn-success");
+                $("#attenttoquestion").val("取消关注");
+            } else {
+                $("#attenttoquestion").removeClass("btn-success");
+                $("#attenttoquestion").addClass("btn-info");
+                $("#attenttoquestion").val("关注此贴");
+            }
+        }
+    });
+}
+
+</script>
+<!--{template footer}-->

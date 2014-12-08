@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>头像上传成功</title>
+    <link href="{SITE_URL}public/css/default/service_picture.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
+    <link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="views">
+        <ul>
+            <li><div><img width="200px" height="200px" src="{SITE_URL}{$picture}?time={eval echo random(10)}" /></div></li>
+        </ul>
+    </div>
+    <div class="cut">
+        <!--{if $success}-->
+        <a href="{SITE_URL}service/upload_picture" class="btn btn-success btn-sm">返回重设</a>
+        <span>更改成功！</span>
+        <!--{else}-->
+        <a href="{SITE_URL}service/upload_picture" class="btn btn-success btn-sm">重设</a>
+        <!--{/if}-->
+    </div>
+</body>
+</html>

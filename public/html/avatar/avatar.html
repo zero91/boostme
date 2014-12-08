@@ -1,0 +1,122 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<title>上传头像</title>
+<link href="/public/html/avatar/avatar.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="/public/js/plugin/jquery.min.js" language="javascript" charset="utf-8"></script>
+<script type="text/javascript" src="/public/js/plugin/Jcrop/js/jquery.Jcrop.min.js" language="javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
+<link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript">
+
+var uploaded = 0;
+$(document).ready(function(){
+    $("#target").Jcrop({
+        aspectRatio:1,
+        onChange:showCoords,
+        onSelect:showCoords
+    }); 
+    //响应自onChange,onSelect事件
+    function showCoords(obj){
+        $("#x").val(obj.x);
+        $("#y").val(obj.y);
+        $("#w").val(obj.w);
+        $("#h").val(obj.h);
+        if(parseInt(obj.w) > 0){
+            //计算预览区域图片缩放的比例
+            var rx = $("#preview_box").width() / obj.w; 
+            var ry = $("#preview_box").height() / obj.h;
+            //通过比例值控制图片的样式与显示
+            $("#preview").css({
+                width:Math.round(rx * $("#target").width()) + "px", //预览图片宽度为计算比例值与原图片宽度的乘积
+                height:Math.round(rx * $("#target").height()) + "px",   //预览图片高度为计算比例值与原图片高度的乘积
+                marginLeft:"-" + Math.round(rx * obj.x) + "px",
+                marginTop:"-" + Math.round(ry * obj.y) + "px"
+            });
+        }
+    }
+    $("#crop_submit").click(function(){
+        if(parseInt($("#x").val())>=0){
+            $("#crop_form").submit();   
+        }else{
+            alert("要先在图片上划一个选区再单击确认剪裁的按钮！");  
+        }
+    });
+    $(".pic").click(function(){
+        if(uploaded == 0){
+            $("#takepic").click();
+            uploaded = 1;
+        }
+    });
+
+    $("#userimage").change(function() {
+        $("#upload_form").ajaxSubmit({
+            dataType:  'json',
+            beforeSend: function() {
+            },
+            uploadProgress: function(event, position, total, percentComplete) {
+                var percentVal = percentComplete + '%'; // 获得进度
+                bar.width(percentVal);                  // 上传进度条宽度变宽
+                percent.html(percentVal);               // 显示上传进度百分比
+            },
+            success: function(data) { // 成功
+                // 获得后台返回的json数据，显示文件名，大小，以及删除按钮
+                files.html("<b>"+data.name+"("+data.size+"k)</b> <span id='delimg' class='btn btn-primary' rel='"+data.pic+"'>删除</span>");
+                // 显示上传后的图片
+                var img = data.pic;
+                // 判断上传图片的大小 然后设置图片的高与宽的固定宽
+                showimg.html("<img src='" + img + "' id='cropbox' />");
+                $("#preview_box").html("<img src='" + img + "' id='preview_pic' />");
+                //传给php页面，进行保存的图片值
+                $("#src").val(img);
+                //截取图片的js
+                $('#cropbox').Jcrop({
+                    aspectRatio: 1,
+                    onSelect: updateCoords,
+                    minSize:[180,180],
+                    maxSize:[180,180],
+                    allowSelect:false, //允许选择
+                    allowResize:false, //是否允许调整大小
+                    setSelect: [ 0, 0, 240, 240 ]
+                });
+                btn.html("上传图片");	//上传按钮还原
+                progress.hide();
+                $("#picture").val("");
+            },
+            error:function(xhr){	//上传失败
+                btn.html("上传失败");
+                bar.width('0')
+                files.html(xhr.responseText);	//返回失败信息
+            }
+        });
+    });
+});
+</script>
+</head>
+<body>
+<form action="/user/editimg" method="post" id="crop_form">
+    <input type="hidden" id="x" name="x" />
+    <input type="hidden" id="y" name="y" />
+    <input type="hidden" id="w" name="w" />
+    <input type="hidden" id="h" name="h" />
+    <div id="head">
+        <div class="pic">
+            <div style="margin:14px;">在这里设置你的头像……<br/>请使用2M以内的jpg、gif、png图片。</div>
+        </div>
+        <div class="preview">
+            <div id="preview_box"></div>
+            <div class="quote">头像预览</div>
+        </div>
+    </div>
+</form>
+<div class="upload" id="upload">
+    <form action="" id="upload_form" enctype="multipart/form-data" method="post" name="upform">
+        <!-- <input name="userimage" type="file" id="userimage" onchange="$('#submit').trigger('click')"> -->
+        <input name="userimage" type="file" id="userimage">
+        <! -- <input type="submit" id="submit" value="上传" style="display:none"> -->
+    </form>
+</div>
+</body>
+</html>

@@ -12,10 +12,8 @@ class materialmodel {
     }
 
     public function get_list($start=0, $limit='') {
-        $sql = "SELECT * FROM `material` WHERE 1=1 ";
+        $sql = "SELECT * FROM `material` WHERE 1=1 ORDER BY `time` DESC";
         !empty($limit) && $sql.=" LIMIT $start,$limit";
-        $sql .= " ORDER BY `time` DESC";
-
         return $this->db->fetch_all($sql);
     }
 

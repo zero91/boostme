@@ -8,28 +8,33 @@ class crontabmodel {
         $this->db = & $db;
     }
 
-    /* 统计所有分类下的问题数目 */
-    /*
-    function sum_category_question($crontab, $force=0) {
+    public function auto_send_goods($crontab, $force=0) {
         $curtime = time();
         if (($crontab['lastrun'] + $crontab['minute'] * 60) < $curtime || $force) {
-            // 第一步：统计每个分类下的问题数目
-            $query = $this->db->query("SELECT c.id,c.pid,count(*) as num FROM " . DB_TABLEPRE . "question as q," . DB_TABLEPRE . "category as c WHERE c.id=q.cid AND q.status !=0 GROUP BY c.id");
-            //第二步:依次更新所有分类的问题数目
-            while ($category = $this->db->fetch_array($query)) {
-                $this->db->query("UPDATE " . DB_TABLEPRE . "category SET questions=" . $category['num'] . " WHERE `id`=" . $category['id']);
+            $trade_list = $_ENV['trade']->get_trade_by_status(TRADE_STATUS_WAIT_SELLER_SEND_GOODS);
+
+            foreach ($trade_list as $trade) {
+                $transaction_id = $trade['transaction_id'];
+                $logistics_name = "Boostme物流";
+                $invoice_no     = "Boostme物流编号";
+                $transport_type = 'EXPRESS'; // POST（平邮）、EXPRESS（快递）、EMS（EMS）
+
+                $send_goods_result = $_ENV['ebank']->alipay_send_goods($transaction_id, $logistics_name, $invoice_no, $transport_type);
+
+                if ($send_goods_result['is_success'] == 'T') {
+                    $_ENV['trade']->update_trade_status($trade['trade_no'], TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS);
+                    runlog('alipay', "[INFO] Auto send goods succeed! trade_no=[" . $trade['trade_no'] . "],new_status=[" . TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS . "]", 0);
+                } else {
+                    runlog('alipay', "[INFO] Auto send goods failed!", 0);
+                }
             }
+
             if ($crontab) {
                 $nextrun = $curtime + $crontab['minute'] * 60;
-                $this->db->query("UPDATE " . DB_TABLEPRE . "crontab SET lastrun=$curtime,nextrun=$nextrun WHERE id=" . $crontab['id']);
+                $this->db->query("UPDATE crontab SET lastrun=$curtime,nextrun=$nextrun WHERE id=" . $crontab['id']);
             }
-            //第三步:更新缓存文件
-            @unlink(WEB_ROOT . "/data/cache/categorylist.php");
-            @unlink(WEB_ROOT . "/data/cache/category.php");
-            @unlink(WEB_ROOT . "/data/cache/crontab.php");
         }
     }
-     */
 
     private $db;
 }

@@ -1,0 +1,256 @@
+<!--{template header}-->
+
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.all.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/category.js"></script>
+<style type="text/css">
+    .info_tip {margin-top:8px;color:grey;font-size:12px;}
+    .pdh0 {padding-left:0px;padding-right:0px;}
+    #img_preview img {max-height:250px;min-height:250px;max-width:350px;}
+</style>
+
+<div class="container">
+    <h2>上传资料</h2>
+    <hr style="border-color: #DFE2E6">
+    
+    <form method="POST" <!--{if $op_type == "add"}-->action="{SITE_URL}material/add" <!--{else}-->action="{SITE_URL}material/edit/{$mid}" <!--{/if}-->
+          onsubmit="return check_form();" class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-1 control-label">标题：</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" name="title" id="title" value="{$material['title']}"/>
+            </div>
+            还可以输入<span id="title_tip" style="color:red;">50</span>字
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">封面：</label>
+                    <div class="col-sm-3">
+                        <input id="picture" name="picture" type="file" class="btn btn-primary form-control">
+                    </div>
+                    <div class="col-sm-4 info_tip">.bmp .png .jpg .gif</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">链接：</label>
+                    <div class="col-sm-7">
+                        <input class="form-control" id="site_url" name="site_url" value="{$material['site_url']}"/>
+                    </div>
+                    <div class="col-sm-3 info_tip">*资料获取链接</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">密码：</label>
+                    <div class="col-sm-4">
+                        <input class="form-control" id="access_code" name="access_code" value="{$material['access_code']}"/>
+                    </div>
+                    <div class="col-sm-4 info_tip">*资料的提取密码</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">价格：</label>
+                    <div class="col-sm-4">
+                        <input class="form-control" id="price" name="price" value="{$material['price']}"/>
+                    </div>
+                    <div class="col-sm-4 info_tip">*单位：元</div>
+                </div>
+
+                <div class="form-group">
+                    <!--{if $op_type == "add"}-->
+                    <label class="col-sm-2 control-label">分类：</label>
+                    <!--{elseif $op_type == "edit"}-->
+                    <label class="col-sm-2 control-label">增加分类：</label>
+                    <!--{/if}-->
+                    <div class="col-sm-10">
+                        <div class="col-md-2 pdh0" style="padding-right:0px;">
+                            <select class="selectpicker form-control" id="select_region"></select>
+                        </div> 
+                        <div class="col-md-3 pdh0">
+                            <select class="selectpicker form-control" id="select_school" disabled="disabled"></select>
+                        </div>
+                        <div class="col-md-3 pdh0">
+                            <select class="selectpicker form-control" id="select_dept" disabled="disabled"></select>
+                        </div> 
+                        <div class="col-md-4 pdh0">
+                            <div class="pull-right" style="padding-top:4%;">
+                                <a id="add_category" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加分类">
+                                    <small class="glyphicon glyphicon-plus-sign"></small>
+                                </a>
+                            </div>
+                            <div style="width:90%">
+                                <select class="selectpicker form-control" id="select_major" disabled="disabled"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="div_category_list">
+                    <label class="col-sm-2 control-label"></label>
+                    <div id="category_list" class="col-sm-10">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" style="margin-left:60px;background:url({SITE_URL}public/css/default/bg.jpg);" id="img_preview">
+                <center><p style="color:grey;">封面预览</p></center>
+                <img id="picture_preview" src="{$material['picture']}">
+                <input type="hidden" name="picture_tmp_url" id="picture_tmp_url"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-1 control-label">描述：</label>
+            <div class="col-sm-10" id="description"> 
+            <script type="text/plain" id="editor" name="description" style="height: 520px;"></script>
+            <script type="text/javascript">UE.getEditor('editor', UE.utils.extend({toolbars:[[{$toolbars}]], initialContent:"{eval echo taddslashes($material['description'])}"}));</script>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <!--{if $setting['code_material_add']}-->
+            <label for="code" class="col-sm-1 control-label">验证码：</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="code" name="code" onblur="check_code()">
+            </div>
+            <div class="col-sm-5">
+                <span class="verifycode"><img src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span>
+                <a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+            </div>
+            <!--{else}-->
+            <div class="col-sm-1"></div>
+            <!--{/if}-->
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label"></label>
+            <div class="col-sm-10">
+                <!--{if $op_type == 'add'}-->
+                <button type="submit" class="btn btn-primary col-sm-5" name="submit">提&nbsp;交</button>
+                <!--{else}-->
+                <button type="submit" class="btn btn-primary col-sm-5" name="submit">保&nbsp;存</button>
+                <!--{/if}-->
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+var g_category_num = 0;
+
+<!--{if $op_type == "edit"}-->
+var t_category_info;
+<!--{loop $category_list $category}-->
+t_category_info = {};
+t_category_info['category'] = {};
+t_category_info['category']['region_id'] = "{$category['region_id']}";
+t_category_info['category']['school_id'] = "{$category['school_id']}";
+t_category_info['category']['dept_id'] = "{$category['dept_id']}";
+t_category_info['category']['major_id'] = "{$category['major_id']}";
+t_category_info['show_val'] = fetch_name_by_all("{$category['region_id']}", "{$category['school_id']}", "{$category['dept_id']}", "{$category['major_id']}");
+add_category(t_category_info);
+<!--{/loop}-->
+<!--{/if}-->
+
+$(document).ready(function() {
+    $("#title").keyup(function() {
+        var pbyte = bytes($.trim($(this).val()));
+        var limit = 100 - pbyte;
+        if (limit % 2 == 0) {
+            $("#title_tip").html((limit / 2));
+        } else {
+            $("#title_tip").html(((limit + 1) / 2));
+        }
+    });
+
+    $("#add_category").click(function() {
+        var category_info = get_select_category();
+        var category = category_info['category'];
+        if (!category['region_id']) {
+            alert("所添加的分类为空");
+            return false;
+        }
+        add_category(category_info);
+    });
+
+    $('#picture').uploadify({
+        'swf': '{SITE_URL}public/js/plugin/uploadify/uploadify.swf',
+        'uploader': "{SITE_URL}material/upload_picture",
+        'formData': { "session_id" : "{$user['sid']}" },
+        'auto': true,
+        'buttonText' : "上传资料封面",
+        'buttonClass' : "btn btn-primary",
+        'fileObjName': 'picture',
+        'height': '40px',
+        'multi': false,
+        'fileSizeLimit': "7MB",
+        'fileTypeExts': '*.bmp;*.png;*.jpg;*.gif',
+        'fileTypeDesc': 'User (.bmp, .png, .jpg, .gif)',
+        'onUploadSuccess': function(file, picture_url, response) {
+            $("#picture_preview").attr("src", picture_url);
+            $("#picture_tmp_url").val(picture_url);
+            $(".uploadify-queue").hide();
+        }
+    });
+
+    $("body").on('click', '.glyphicon-trash', function() {
+        $(this).parent().remove();
+    });
+
+    <!--{if $op_type == 'edit'}-->
+    $('.glyphicon-trash').click(function() {
+        var target = $(this).parent();
+        var major_id = $(this).attr("id");
+
+        $.ajax({
+          type: "GET",
+          url:"{SITE_URL}?material/ajaxrm_material_category/{$mid}/" + major_id,
+          cache: false,
+          success: function(succeed){
+                if (succeed == '-1') {
+                    alert("操作失败");
+                } else if (succeed == '1') {
+                    target.hide();
+                }
+            }
+        });
+    });
+    <!--{/if}-->
+});
+
+function add_category(category_info) {
+    var category = category_info['category'];
+    var show_val = category_info['show_val'];
+
+    var input_html = "";
+    if (category['region_id']) {
+        input_html += '<input type="hidden" name="category[' + g_category_num + '][region_id]" value="' + category['region_id'] + '"/>';
+    }
+    if (category['school_id']) {
+        input_html += '<input type="hidden" name="category[' + g_category_num + '][school_id]" value="' + category['school_id'] + '"/>';
+    }
+    if (category['dept_id']) {
+        input_html += '<input type="hidden" name="category[' + g_category_num + '][dept_id]" value="' + category['dept_id'] + '"/>';
+    }
+    if (category['major_id']) {
+        input_html += '<input type="hidden" name="category[' + g_category_num + '][major_id]" value="' + category['major_id'] + '"/>';
+    }
+    $("#category_list").append("<p>" + show_val + '<a class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a>' + input_html + "</p>");
+    g_category_num += 1;
+    clear_select_state();
+}
+
+function check_form() {
+    if ($.trim($("#select_region option:selected").val())) {
+        add_category(get_select_category());
+    }
+    return true;
+}
+
+</script>
+
+<link href="{SITE_URL}public/js/plugin/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    document.write("<script type='text/javascript' src='{SITE_URL}public/js/plugin/uploadify/jquery.uploadify.js?" + (new Date()).getTime()  + "'></s" + "cript>"); 
+</script>
+<script src="{SITE_URL}public/js/choose_category.js"></script>
+<!--{template footer}--> 

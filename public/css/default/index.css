@@ -1,7 +1,6 @@
 .banner { 
     width: 100%;
     height: 500px;
-    margin-top: 64px;
     position: relative; 
     overflow: hidden;
 }

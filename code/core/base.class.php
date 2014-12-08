@@ -15,7 +15,7 @@ class base {
         $this->init_user();
 
         $this->banned();
-        $this->checkcode();
+        //$this->checkcode();
     } 
 
     // 权限检测
@@ -56,11 +56,15 @@ class base {
             break;
         case 'statistics'://首页统计，包含已解决、待解决
             $this->load('problem');
+            $this->load('material');
+            $this->load('service');
             $cachedata = array();
             $cachedata['solves'] = $this->db->fetch_total('problem', 'status IN (' . PB_STATUS_SOLVED . ')');   //已解决问题数
             $cachedata['nosolves'] = $this->db->fetch_total('problem', 'status=' . PB_STATUS_UNSOLVED); //待解决问题数
             $cachedata['all_prob_num'] = $_ENV['problem']->get_all_prob_num(); // 全部求助数量
             $cachedata['all_user_num'] = $_ENV['user']->rownum_alluser();
+            $cachedata['all_material_num'] = $_ENV['material']->get_all_material_num();
+            $cachedata['all_service_num'] = $_ENV['service']->get_service_num();
             break;
         case 'onlineusernum':
             $this->load('user');
@@ -90,7 +94,7 @@ class base {
     protected function checkcode() {
         $this->load('user');
         if (isset($this->post['code'])
-            && (strtolower(trim($this->post['code'])) != $_ENV['user']->get_code())) {
+            && (strtolower(trim($this->post['code'])) != $_ENV['user']->get_code($this->user['sid']))) {
             $this->message("验证码错误!", 'BACK');
         }
     }
@@ -103,7 +107,7 @@ class base {
         } else if ($url == 'BACK' || $url == 'STOP') {
             $redirect = $url;
         } else {
-            $redirect = SITE_URL . $this->setting['seo_prefix'] . $url . $this->setting['seo_suffix'];
+            $redirect = SITE_URL . "/" . $url . $this->setting['seo_suffix'];
         }
         $tpldir = (0 === strpos($this->get[0], 'admin')) ? 'admin' : 'default';
         include template('tip', $tpldir);
@@ -114,9 +118,18 @@ class base {
     protected function jump($url, $full=false) {
         $jump_url = $url;
         if (!$full) {
-            $jump_url = SITE_URL . $this->setting['seo_prefix'] . $url . $this->setting['seo_suffix'];
+            $jump_url = SITE_URL . $url . $this->setting['seo_suffix'];
         }
         header("Location: $jump_url");
+    }
+
+    // 判断用户是否登录
+    protected function check_login() {
+        if ($this->user['uid'] > 0) {
+            return true;
+        }
+        $this->jump("user/login");
+        return false;
     }
 
     // 给用户发送消息和邮件
@@ -143,7 +156,7 @@ class base {
 
         $this->user = $_ENV['user']->get_by_uid($uid);
         $_ENV['user']->update_lastlogin($uid);
-        $_ENV['user']->update_session($sid, $uid, $islogin, $this->ip);
+        //$_ENV['user']->update_session($sid, $uid, $islogin, $this->ip);
 
         $password = $this->user['password'];
         $auth = strcode("$uid\t$password", $setting['auth_key'], 'ENCODE');
@@ -162,7 +175,7 @@ class base {
     private function init_cache() {
         global $setting, $badword;
         $this->cache = new cache($this->db);
-        $setting = $this->setting = $this->cache->load('setting');
+        $setting = $this->setting = $this->cache->load('setting', 'k', 'v');
         $badword = $this->cache->load('badword', 'find');
     }
 
@@ -203,6 +216,8 @@ class base {
     // 初始化定时任务，并调用定时任务的方法
     private function init_crontab() {
         $this->load('crontab');
+        $this->load('trade');
+        $this->load('ebank');
         $crontablist = $this->cache->load("crontab");
         foreach ($crontablist as $crontab) {
             $crontab['available'] && $_ENV['crontab']->$crontab['method']($crontab);
@@ -231,6 +246,9 @@ class base {
         if (!$user) {
             $user['uid'] = 0;
         } else {
+            $this->load('message');
+            $user['new_msg_num'] = $_ENV['message']->get_new_msg_num($user['uid']);
+
             // To Be Done: 初始化用户个人message信息
             //$user['msg_system'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid=0 AND status<>" . MSG_STATUS_TO_DELETED);
             //$user['msg_personal'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid<>0 AND status<>" . MSG_STATUS_TO_DELETED);

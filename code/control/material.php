@@ -3,8 +3,7 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class materialcontrol extends base {
-
-    function materialcontrol(& $get, & $post) {
+    public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
         $this->load('material');
         $this->load('material_category');
@@ -12,6 +11,115 @@ class materialcontrol extends base {
         $this->load('material_score');
         $this->load('register_material');
         $this->load('trade');
+    }
+
+    public function ondefault() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+
+        $material_list = $_ENV['material_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+
+        $this->load('easy_access');
+        $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "material");
+        foreach ($user_access_list as &$t_user_access) {
+            $param = "";
+            !empty($t_user_access['region_id']) && $param .= "region_id=" . $t_user_access['region_id'];
+            !empty($t_user_access['school_id']) && $param .= "&school_id=" . $t_user_access['school_id'];
+            !empty($t_user_access['dept_id']) && $param .= "&dept_id=" . $t_user_access['dept_id'];
+            !empty($t_user_access['major_id']) && $param .= "&major_id=" . $t_user_access['major_id'];
+
+            $t_user_access['param'] = $param;
+        }
+        include template('material');
+    }
+
+    // 获取material列表
+    public function onfetch_list() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+
+        $material_list = $_ENV['material_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+
+        foreach ($material_list as &$material) {
+            $material['format_time'] = tdate($material['time']);
+        }
+        echo json_encode($material_list);
+    }
+
+    public function onview() {
+        $mid = $this->get[2];
+        if (empty($mid)) {
+            $this->message("非法链接，缺少参数!", 'STOP');
+        }
+
+        $_ENV['material']->update_view_num($mid);
+        $material = $_ENV['material']->get($mid);
+        $material['cid_list'] = $_ENV['material_category']->get_by_mid($mid);
+
+        $page = max(1, intval($this->get[3]));
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+
+        $tot_comment_num = $_ENV['material_comment']->get_comment_num_by_mid($mid);
+        $comment_list = $_ENV['material_comment']->get_full_by_mid($mid, $start, $pagesize);
+        $user_comment = $_ENV['material_comment']->get_user_comment($this->user['uid'], $mid);
+
+        $departstr = page($tot_comment_num, $pagesize, $page, "material/view/$mid");
+        include template('viewmaterial');
+    }
+
+    // 用户对资料进行评价
+    public function oncomment() {
+        if ($this->user['uid'] > 0) {
+            $mid = $this->post['mid'];
+            $score = $this->post['score'];
+            $content = $this->post['content'];
+
+            // 先添加分数，后面计算平均分需要使用到
+            $_ENV['material_score']->add($this->user['uid'], $mid, $score);
+            $comment_id = $_ENV['material_comment']->add($mid, $content, $this->user['uid'], $this->user['username']);
+            if ($comment_id > 0) {
+                exit("1");
+            }
+            exit("-1");
+        }
+        exit('0');
+    }
+
+    public function oncomment_support(){
+        if ($this->user['uid'] > 0) {
+            $comment_id = $this->get[2];
+            $thumbs_type = $this->get[3];
+
+            if (empty($comment_id)) {
+                exit('-1');
+            }
+            $user_support = $_ENV['material_comment']->get_user_support($this->user['uid'], $comment_id);
+            if (!empty($user_support)) {
+                exit('-2');
+            }
+            $_ENV['material_comment']->add_support($this->user['uid'], $comment_id, $thumbs_type);
+            $comment = $_ENV['material_comment']->get_comment($comment_id);
+
+            if ($thumbs_type == '0') {
+                exit("{$comment['up']}");
+            } else {
+                exit("{$comment['down']}");
+            }
+        }
+        exit('0');
     }
 
     /*
@@ -36,6 +144,7 @@ class materialcontrol extends base {
         $school_id = $this->get[2];
 
         include template('material_category_list');
+        //include template('material_category_list');
     }
 
     // 浏览求助
@@ -63,56 +172,37 @@ class materialcontrol extends base {
         include template('material_category');
     }
 
-    function onview() {
-        $mid = $this->get[2];
-        if (empty($mid)) {
-            $this->message("非法链接，缺少参数!", 'STOP');
-        }
-
-        $_ENV['material']->update_view_num($mid);
-        $material = $_ENV['material']->get($mid);
-        $material['cid_list'] = $_ENV['material_category']->get_by_mid($mid);
-        include template('viewmaterial');
-    }
-
-    function onadd() {
+    public function onadd() {
+        $this->check_login();
         $navtitle = "申请发布资料";
         $op_type = "add";
-        if (isset($this->post['submit'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $title = htmlspecialchars($this->post['title']);
             $description = $this->post['description'];
             $price = doubleval($this->post["price"]);
-            $cid = trim($this->post['category_id']);
+            $category = $this->post['category'];
             $picture_tmp_url = $this->post['picture_tmp_url'];
             $site_url = $this->post['site_url'];
             $access_code = $this->post['access_code'];
 
             $this->setting['code_material_add'] && $this->checkcode(); //检查验证码 
 
-            /* $_ENV['userlog']->add('problem', "回报: $price"); */
-            $picture_fname = end(explode("/", $picture_tmp_url));
-            $picture_tmp_path = "/public/data/tmp/" . $picture_fname;
+            $type = get_image_type(WEB_ROOT . $picture_tmp_url);
+            $picture_fname = date("YmdHis") . random(3) . "." . $type;
             $target_path = "/public/data/material/" . $picture_fname;
 
-            if (file_exists(WEB_ROOT . $picture_tmp_path)) {
-                // rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
-                image_resize(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path, 400, 400);
+            if (file_exists(WEB_ROOT . $picture_tmp_url)) {
+                image_resize(WEB_ROOT . $picture_tmp_url, WEB_ROOT . $target_path, 375, 525);
             }
-
             $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $target_path, $title, $description, $price, $site_url, $access_code);
-
-            $cid_list = array();
-            foreach (explode(",", $cid) as $t_cid) {
-                $cid_list[] = $t_cid;
-            }
-            $cid_info_list = $_ENV['material_category']->get_majorid_info($cid_list);
-            $_ENV['material_category']->multi_add($mid, $cid_info_list);
-
-            $this->message('我们已经接到您资料的申请，将在第一时间内给您答复', "material/view/$mid");
+            $_ENV['material_category']->multi_add($mid, $category, false);
+            $this->jump("material/view/$mid");
         } else {
+            /*
             if (0 == $this->user['uid']) {
                 $this->message("请先登录!", "user/login");
             }
+             */
             include template('addmaterial');
         }
     }
@@ -125,13 +215,11 @@ class materialcontrol extends base {
         if (empty($mid)) {
             $this->message("无效参数!", "STOP");
         }
-
-        if (isset($this->post['submit'])) {
-
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $title = htmlspecialchars($this->post['title']);
             $description = $this->post['description'];
             $price = doubleval($this->post["price"]);
-            $cid = trim($this->post['category_id']);
+            $category = $this->post['category'];
             $picture_tmp_url = $this->post['picture_tmp_url'];
             $site_url = $this->post['site_url'];
             $access_code = $this->post['access_code'];
@@ -152,14 +240,8 @@ class materialcontrol extends base {
 
             $affected_rows = $_ENV['material']->update($mid, $title, $description, $price, $site_url, $access_code);
 
-            $cid_list = array();
-            foreach (explode(",", $cid) as $t_cid) {
-                $cid_list[] = $t_cid;
-            }
-            $cid_info_list = $_ENV['material_category']->get_majorid_info($cid_list);
-            $_ENV['material_category']->multi_add($mid, $cid_info_list, 0);
-
-            $this->message('资料更改成功', "material/view/$mid");
+            $_ENV['material_category']->multi_add($mid, $category, false);
+            $this->jump("material/view/$mid");
         } else {
             if (0 == $this->user['uid']) {
                 $this->message("请先登录!", "user/login");
@@ -170,13 +252,7 @@ class materialcontrol extends base {
                 $this->message("您无权执行此操作!", "STOP");
             }
 
-            $cid_list = $_ENV['material_category']->get_by_mid($mid);
-            $category_list = array();
-            foreach ($cid_list as $cid) {
-                $category_list[] = $cid['major_id'];
-            }
-
-            $category_list = $_ENV['material_category']->get_majorid_info($category_list);
+            $category_list = $_ENV['material_category']->get_by_mid($mid);
             include template('addmaterial');
         }
     }
@@ -212,7 +288,7 @@ class materialcontrol extends base {
         }
 
         if (move_uploaded_file($_FILES["picture"]["tmp_name"], $upload_target_fname)) {
-            echo SITE_URL . substr($file_web_path, 1);
+            echo $file_web_path;
         }
     }
 

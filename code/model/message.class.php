@@ -44,17 +44,19 @@ class messagemodel {
     }
 
     // 得到新消息总数
-    public function get_num($uid) {
+    public function get_new_msg_num($uid) {
         return $this->db->fetch_total("message", "touid='$uid' AND touid>0 AND `new`=1");
     }
 
     public function remove($uid, $msgids) {
         $messageid = ($msgids && is_array($msgids)) ? implode(",", $msgids) : $msgids;
+
         $this->db->query("DELETE FROM message WHERE fromuid=0 AND touid=" . $uid ." AND `mid` IN ($messageid)");
         $this->db->query("DELETE FROM message WHERE touid=" . $uid ." AND status=" . MSG_STATUS_FROM_DELETED . " AND `mid` IN ($messageid)");
         $this->db->query("DELETE FROM message WHERE fromuid=" . $uid . " AND status= " . MSG_STATUS_TO_DELETED . " AND `mid` IN ($messageid)");
         $this->db->query("UPDATE message SET status=" . MSG_STATUS_TO_DELETED ." WHERE touid=". $uid . " AND status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
         $this->db->query("UPDATE message SET status=" . MSG_STATUS_FROM_DELETED . " WHERE fromuid=" . $uid . " AND status=" . MSG_STATUS_NODELETED . " AND `mid` IN ($messageid)");
+        return $this->db->affected_rows();
     }
 
     // 根据发件人删除整个对话
@@ -70,6 +72,11 @@ class messagemodel {
     // 更新消息为已读状态
     public function read_by_fromuid($fromuid) {
         $this->db->query("UPDATE `message` set new=0  WHERE `fromuid`=$fromuid");
+        return $this->db->affected_rows();
+    }
+
+    public function read_by_mid($mid) {
+        $this->db->query("UPDATE `message` set new=0  WHERE `mid`='$mid'");
         return $this->db->affected_rows();
     }
 

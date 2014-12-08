@@ -126,11 +126,15 @@ class db {
     }
 
     // @brief 获取sql查询结果，若指定了key，则数组的键为key列对应的数值
-    public function fetch_all($sql, $id = '') {
+    public function fetch_all($sql, $key = '', $val = '') {
         $arr = array();
         $query = $this->query($sql);
         while ($data = $this->fetch_array($query)) {
-            $id ? $arr[$data[$id]] = $data : $arr[] = $data;
+            if (empty($val)) {
+                $key ? $arr[$data[$key]] = $data : $arr[] = $data;
+            } else {
+                $key ? $arr[$data[$key]] = $data[$val] : $arr[] = $data[$val];
+            }
         }
         return $arr;
     }

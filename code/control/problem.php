@@ -4,29 +4,76 @@
 
 class problemcontrol extends base {
 
-    function problemcontrol(& $get, & $post) {
-        //$this->base($get, $post);
+    public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
         $this->load("problem");
         $this->load("tag");
-        $this->load("userlog");
         $this->load("demand");
         $this->load('userresume');
         $this->load('userskill');
         $this->load('education');
         $this->load('user');
+
+        $this->load('problem_category');
+    }
+
+    public function ondefault() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = 10;
+        $start = ($page - 1) * $pagesize;
+
+        $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+
+        $this->load('easy_access');
+        $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "problem");
+        foreach ($user_access_list as &$t_user_access) {
+            $param = "";
+            !empty($t_user_access['region_id']) && $param .= "region_id=" . $t_user_access['region_id'];
+            !empty($t_user_access['school_id']) && $param .= "&school_id=" . $t_user_access['school_id'];
+            !empty($t_user_access['dept_id']) && $param .= "&dept_id=" . $t_user_access['dept_id'];
+            !empty($t_user_access['major_id']) && $param .= "&major_id=" . $t_user_access['major_id'];
+
+            $t_user_access['param'] = $param;
+        }
+        include template("problem");
+    }
+
+    public function onfetch_list() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+        $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+
+        foreach ($problem_list as &$t_problem) {
+            $t_problem['format_time'] = tdate($t_problem['time']);
+            $t_problem['author_avatar'] = get_avatar_dir($this->user['uid'], 'large');
+        }
+        echo json_encode($problem_list);
     }
 
     // 发布求助
-    function onadd() {
+    public function onadd() {
+        $this->check_login();
         $op_type = "add"; // 操作类型：增加求助
         $navtitle = "发布求助";
-        if (isset($this->post['submit'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $tags = trim($this->post["ptags"]);
-            $price = intval($this->post["price"]);
-            $cid = trim($this->post['category_id']);
+            $price = $this->post["price"];
+            $category = $this->post['category'];
+            $phone = trim($this->post['phone']);
+            $qq = trim($this->post['qq']);
+            $wechat = trim($this->post['wechat']);
+            $_ENV['user']->update_contact_info($this->user['uid'], $phone, $qq, $wechat);
 
             $this->setting['code_problem'] && $this->checkcode(); //检查验证码
 
@@ -38,33 +85,16 @@ class problemcontrol extends base {
             2 == $contentarray[0] && $this->message("求助包含非法关键词，发布失败!", 'BACK');
             $title = $contentarray[1];
 
-            //检查问题描述违禁词
-            $descarray = checkwords($description);
-            1 == $descarray[0] && $status = PB_STATUS_UNAUDIT;
-            2 == $descarray[0] && $this->message("求助描述包含非法关键词，发布失败!", 'BACK');
-            $description = $descarray[1];
-
-            $pid = $_ENV['problem']->add($title, $description, $cid, $price);
-            $_ENV['problem']->update_status($pid, $status);
+            $pid = $_ENV['problem']->add($this->user['uid'], $this->user['username'], $title, $price, $status);
+            $_ENV['problem_category']->multi_add($pid, $category);
             $_ENV['user']->update_problem_num($this->user['uid'], 1);
 
-            // 插入标签
-            !empty($tags) && $taglist = explode(" ", $tags);
-            $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
-
-            $viewurl = urlmap("problem/view/$pid", 2);
-            $_ENV['userlog']->add('problem', "回报: $price");
-            if (PB_STATUS_UNAUDIT == $status) {
-                $this->message('求助发布成功！为了确保求助的合法性，我们会对您提的求助进行审核。请耐心等待......', 'BACK');
-            } else {
-                $this->message("求助发布成功!", $viewurl);
-            }
+            $this->jump("problem/default");
         } else {
             if (0 == $this->user['uid']) {
                 $this->message("请先登录!", "user/login");
             }
-            $word = $this->post['word'];
-            include template('problem');
+            include template('addproblem');
         }
     }
 
@@ -200,7 +230,7 @@ class problemcontrol extends base {
     }
 
     // 浏览求助
-    function onview() {
+    public function onview() {
         $this->setting['stopcopy_on'] && $_ENV['problem']->stopcopy(); //是否开启了防采集功能
         $pid = $this->get[2]; //接收pid参数
         $_ENV['problem']->add_views($pid); //更新求助浏览次数

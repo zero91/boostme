@@ -26,7 +26,7 @@ h1 {
     height: 100%;
     background: #f9f9f9;
     position: fixed;
-    z-index: 5500;
+    z-index: 1049;
     right: -1500px;
     display: none;
     overflow: auto;
@@ -48,7 +48,7 @@ h1 {
     border-bottom: 1px solid #f15556;
     position: fixed;
     top: 0;
-    z-index: 5000;
+    z-index: 1049;
 }
 #nav_menu #logo_img {
     max-height: 60px;
@@ -131,3 +131,6 @@ h1 {
 /*  Large devices (large desktops, 1200px and up)  */
 @media (min-width: 1200px ) {
 } 
+
+.input_ok {background: url("input_ok.png") no-repeat scroll 6px 5px transparent;line-height: 30px;padding: 7px 6px 5px 28px;}
+.input_error {background: url("input_error.png") no-repeat scroll 6px 7px;font-size: 13px;color:red;line-height:30px;padding:6px 6px 7px 28px;}

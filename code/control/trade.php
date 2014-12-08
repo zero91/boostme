@@ -3,77 +3,114 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class tradecontrol extends base {
-
-    function tradecontrol(&$get, &$post) {
+    public function __construct(&$get, &$post) {
         parent::__construct($get, $post);
         $this->load('trade');
         $this->load('material');
+        $this->load('service');
     }
 
-    // 财付通转账
-    function onbuy_now() {
+    public function onbuy_now() {
         if (!$this->user['uid']) {
-            $this->message("请先登录!", "user/login");
+            $this->jump("user/login");
         }
-
-        if (isset($this->post['submit'])) {
-            $mid = $this->post['mid'];
-            $title = $this->post['title'];
-            $price = $this->post['price'];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $target_id = $this->post['target_id'];
+            $type = $this->post['type'];
             $quantity = $this->post['quantity'];
 
-            $trade_list = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
-            if (count($trade_list) > 0) {
-                $trade = $trade_list[0];
-            } else {
-                $trade = false;
-            }
-
-            $trade_no = cutstr($this->user['sid'] . "{$this->base->time}" . random(32), 32, '');
-
-            if ($trade) {
+            $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
+            if (!empty($trade)) {
                 $trade_no = $trade['trade_no'];
-                $trade_info = $_ENV['trade']->get_trade_info_by_trade_no_mid($trade_no, $mid);
-
-                if ($trade_info) {
-                    $_ENV['trade']->update_trade_info($trade_no, $mid, $title, $price, $quantity + $trade_info['buy_num']);
-
-                    // 资料价格有可能已经变动了
-                    $tot_price = $trade['tot_price'] + ($price - $trade_info['price']) * $trade_info['buy_num'] + $price * $quantity;
-                    $_ENV['trade']->update_trade($trade_no, $tot_price, $trade['goods_num']);
-                } else {
-                    $_ENV['trade']->add_trade_info($trade_no, $mid, $title, $price, $quantity);
-                    $_ENV['trade']->update_trade($trade_no, $trade['tot_price'] + $price * $quantity, $trade['goods_num'] + 1);
-                }
+                $_ENV['trade']->add_trade_info($this->user['uid'], $this->user['username'], $trade_no, $target_id, $type, $quantity);
             } else {
-                $tot_price = $price * $quantity;
-                $_ENV['trade']->add_trade_info($trade_no, $mid, $title, $price, $quantity);
-                $_ENV['trade']->add_trade($trade_no, $this->user['uid'], $this->user['username'], $tot_price, 1);
+                $trade_no = $_ENV['trade']->create_trade_no($this->user['sid']);
+                $_ENV['trade']->add_trade_info($this->user['uid'], $this->user['username'], $trade_no, $target_id, $type, $quantity);
+                $_ENV['trade']->add_trade($trade_no, $this->user['uid'], $this->user['username']);
             }
-            //$this->message("成功加入到购物车", "trade/buy_now");
             $this->jump("trade/buy_now");
         } else {
-            $trade_list = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
-
-            if (count($trade_list) > 0) {
-                $trade = $trade_list[0];
-                $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($trade['trade_no']);
-            } else {
-                $trade_info_list = array();
-            }
+            $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
+            $trade_info_list = $this->get_one_trade_full($trade['trade_no']);
             include template('trade_info_list');
         }
     }
 
-    function onhistory() {
+    // 删除购物车物品
+    public function ondelete_goods() {
+        $trade_no = $this->post['trade_no'];
+        $target_id = $this->post['target_id'];
+        $type = $this->post['type'];
+
+        if (empty($trade_no) || empty($target_id) || empty($type)) {
+            echo json_encode(array("error" => "101")); // 无效参数
+            return;
+        }
+        // check permission
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        if ($trade['uid'] != $this->user['uid']) {
+            echo json_encode(array("error" => "102")); // 无权操作
+            return;
+        }
+
+        $affected_rows = $_ENV['trade']->remove_trade_info($trade_no, $target_id, $type);
+        if ($affected_rows > 0) {
+            echo json_encode(array("success" => true));
+        } else {
+            echo json_encode(array("error" => 103)); // Unknow error
+        }
+    }
+
+    public function onhistory() {
+        $this->check_login();
+
         $page = max(1, intval($this->get[2]));
         $total_trade_num = $_ENV['trade']->get_history_trade_num_by_uid($this->user['uid']);
 
         $pagesize = $this->setting['list_default'];
         $start = ($page - 1) * $pagesize;
-        $trade_list = $_ENV['trade']->get_detailed_trade_by_uid($this->user['uid'], $start, $pagesize);
+        $trade_list = $_ENV['trade']->get_trade_by_uid($this->user['uid'], $start, $pagesize);
+        foreach ($trade_list as &$t_for_trade) {
+            $t_for_trade['trade_info'] = $this->get_one_trade_full($t_for_trade['trade_no']);
+        }
+
         $departstr = page($total_trade_num, $pagesize, $page, "trade/history");
         include template('trade_history');
+    }
+
+    public function onajaxaccess_trade_info() {
+        $trade_no = $this->get[2];
+        if (empty($trade_no)) {
+            exit('-1');
+        }
+
+        $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($trade_no);
+        $html_text = "<table style=\"text-align:center;\" width=\"100%\">";
+        $html_text .= "<tr style=\"background-color:#f2f7ff;\">";
+        $html_text .= "<th width=\"60%\" style=\"text-align:center;\">订单详情</th>";
+        $html_text .= "<th width=\"40%\" style=\"text-align:center;\">信息</th>";
+        $html_text .= "</tr>";
+
+        foreach($trade_info_list as $trade_info) {
+            if ($trade_info['type'] == TRADE_TARGET_MATERIAL) {
+                $material = $_ENV['material']->get($trade_info['target_id']);
+
+                $html_text .= "<tr><td>{$material['title']}</td>";
+                $html_text .= "<td style=\"text-align:left;\"><p>链接：<a href=\"{$material['site_url']}\">{$material['site_url']}</a></p>";
+                $html_text .= "<p>密码：{$material['access_code']}</p></td></tr>";
+            } else if ($trade_info['type'] == TRADE_TARGET_SERVICE) {
+                $service = $_ENV['service']->get_by_id($trade_info['target_id']);
+                $service_user = $_ENV['user']->get_by_uid($service['uid']);
+
+                $html_text .= "<tr><td>{$service['profile']}</td>";
+                $html_text .= "<td style=\"text-align:left;\"><p>手机号：{$service_user['phone']}</p>";
+                $html_text .= "<p>QQ：  {$service_user['qq']}</p>";
+                $html_text .= "<p>微信号：{$service_user['wechat']}</p></td></tr>";
+            }
+        }
+        $html_text .= "</table>";
+        echo $html_text;
+
     }
 
     function onajaxaccess_material() {
@@ -99,62 +136,6 @@ class tradecontrol extends base {
         }
         $html_text .= "</table>";
         echo $html_text;
-    }
-
-    function onajaxdelete_material() {
-        $trade_no = $this->get[2];
-        $mid = $this->get[3];
-        if (empty($trade_no) || empty($mid)) {
-            exit('-1');
-        }
-
-        // check permission
-        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
-        if ($trade['uid'] != $this->user['uid']) {
-            exit('-2');
-        }
-
-        $trade_info = $_ENV['trade']->get_trade_info_by_trade_no_mid($trade_no, $mid);
-
-        $affected_rows = $_ENV['trade']->remove_trade_info($trade_no, $mid);
-        if ($affected_rows > 0) {
-            $new_tot_price = round($trade['tot_price'] - $trade_info['price'] * $trade_info['buy_num'], 2);
-            if ($trade['goods_num'] > 1) {
-                $_ENV['trade']->update_trade($trade_no, $new_tot_price, $trade['goods_num'] - 1);
-            } else {
-                $_ENV['trade']->remove_trade($trade_no);
-            }
-            exit('1');
-        }
-        exit('0');
-    }
-
-    function onajaxupdate_quantity() {
-        $trade_no = $this->get[2];
-        $mid = $this->get[3];
-        $buy_num  = $this->get[4];
-
-        if (empty($trade_no) || empty($mid) || empty($buy_num)) {
-            exit('-1');
-        }
-
-        // check permission
-        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
-        if ($trade['uid'] != $this->user['uid']) {
-            exit('-2');
-        }
-
-        $trade_info = $_ENV['trade']->get_trade_info_by_trade_no_mid($trade_no, $mid);
-
-        $new_tot_price = round($trade['tot_price'] - $trade_info['price'] * $trade_info['buy_num'] + $buy_num * $trade_info['price'], 2);
-
-        $_ENV['trade']->update_trade($trade_no, $new_tot_price, $trade['goods_num']);
-
-        $affected_rows = $_ENV['trade']->update_trade_info_buy_num($trade_no, $mid, $buy_num);
-        if ($affected_rows > 0) {
-            exit('1');
-        }
-        exit('0');
     }
 
     // 支付宝回调
@@ -185,6 +166,19 @@ class tradecontrol extends base {
             }
             $_ENV['ebank']->aliapytransfer($recharge_money);
         }
+    }
+
+    // 获取一次订单的详细信息
+    private function get_one_trade_full($trade_no) {
+        $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($trade_no);
+        foreach ($trade_info_list as &$t_trade_info) {
+            if ($t_trade_info['type'] == TRADE_TARGET_MATERIAL) {
+                $t_trade_info['target_info'] = $_ENV['material']->get($t_trade_info['target_id']);
+            } else if ($t_trade_info['type'] == TRADE_TARGET_SERVICE) {
+                $t_trade_info['target_info'] = $_ENV['service']->get_by_id($t_trade_info['target_id']);
+            }
+        }
+        return $trade_info_list;
     }
 }
 

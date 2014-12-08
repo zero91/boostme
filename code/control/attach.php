@@ -3,9 +3,8 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class attachcontrol extends base {
-
-    function attachcontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('attach');
     }
 

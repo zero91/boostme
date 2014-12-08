@@ -1,0 +1,81 @@
+<!--{template header}-->
+<style type="text/css">
+    .input_desc {padding-top:15px;}
+</style>
+
+<!--{template common_link}-->
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="col-md-9 col-sm-9 setting-content">
+                <!--{loop $messagelist $message}-->
+                <div id="msg{$message['mid']}" class="list-group-item" {if $message['new']}style="background-color:#D1EEEE;"{/if}>
+                    <div class="pull-right">
+                        <a type="button" name="delete_{$message['mid']}" class="del_personal_msg_btn glyphicon glyphicon-trash" id="{$message['mid']}" style="color:grey;cursor:pointer;"></a>
+                    </div>
+
+                    <div style="padding-top:5px;padding-bottom:5px;">
+                        <span class="glyphicon glyphicon-user"></span>
+                        <span style="font-size:14px;"> {$message['subject']} </span><br/>
+                        <span style="font-size:13px;"> {$message['content']} </span>
+                    </div>
+
+                    <div style="position:absolute;bottom:2px;right:1px;">
+                        <span style="color:grey">{eval echo tdate($message['time'])}</span>
+                    </div>
+                </div>
+                <!--{/loop}-->
+                <center><div>{$departstr}</div></center>
+            </ul>
+            <div class="col-md-3 col-sm-3" style="overflow:hidden">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".del_personal_msg_btn").click(function() {
+            <!--{if $type=='personal'}-->
+            if (confirm('确定删除与该用户的私信?') === false) {
+                return false;
+            }
+            fromuid = $(this).attr("id");
+            grandparent = $(this).parent().parent();
+            $.ajax({
+                type: "GET",
+                url:"{SITE_URL}message/removedialog/" + fromuid,
+                cache: false,
+                success: function(succeed) {
+                    if (succeed == '1') {
+                        grandparent.hide();
+                    } else if (succeed == '-1') {
+                        alert("删除失败，请重试！");
+                    }
+                }
+            });
+            <!--{else}-->
+            if (confirm('确定删除该条信息?') === false) {
+                return false;
+            }
+            msg_id = $(this).attr("id");
+            grandparent = $(this).parent().parent();
+            $.ajax({
+                type: "GET",
+                url:"{SITE_URL}message/remove/" + msg_id,
+                cache: false,
+                success: function(succeed) {
+                    if (succeed == '1') {
+                        grandparent.hide();
+                    } else if (succeed == '-1') {
+                        alert("删除失败，请重试！");
+                    }
+                }
+            });
+            <!--{/if}-->
+        });
+    });
+</script>
+
+<!--{template footer}-->

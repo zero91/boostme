@@ -74,3 +74,14 @@ define('TRADE_STATUS_PAID_SUCCEED', 11); // 订单付款成功，一般指钱款
 define('TRADE_STATUS_PAID_FAILED', 12);  // 用户产生了付款的行为，但最终付款失败
 define('TRADE_STATUS_DONE', 13);         // 订单交易已经结束
 
+// 交易商品类型
+define('TRADE_TARGET_MATERIAL', 1); // 交易对象为：资料
+define('TRADE_TARGET_SERVICE', 2);  // 交易对象为：服务
+define('TRADE_TARGET_VERIFY_EBANK', 3); // 交易对象为：验证用户的电子银行、支付宝等的账户
+
+// service状态信息
+define('SERVICE_STATUS_APPLY', 1);    // 申请咨询，但未获取资格
+define('SERVICE_STATUS_ACCEPTED', 2); // 获取咨询资格
+define('SERVICE_STATUS_DENIED', 3);   // 审核不通过
+define('SERVICE_STATUS_CLOSED', 4);   // 关闭咨询，用户暂时不对外提供咨询服务
+

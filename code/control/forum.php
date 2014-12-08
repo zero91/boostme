@@ -3,15 +3,14 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class forumcontrol extends base {
-
-    function forumcontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('user');
         $this->load("question");
     }
 
     // 私人消息
-    function onview() {
+    function ondefault() {
         $navtitle = '考研帮';
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
@@ -20,7 +19,7 @@ class forumcontrol extends base {
         $user_num = $_ENV['user']->rownum_alluser();
         $question_num = $_ENV['question']->get_total_num();
         $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
-        $departstr = page($question_num, $pagesize, $page, "forum/view");
+        $departstr = page($question_num, $pagesize, $page, "forum/default");
         include template("forum");
     }
 

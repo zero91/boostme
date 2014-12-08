@@ -30,8 +30,29 @@ class material_categorymodel {
         return $mid_list;
     }
 
-    public function get_full_by_cid($cid, $type="major_id", $start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM `material` WHERE `id` IN (SELECT `material_id` FROM `material_category` WHERE $type='$cid' LIMIT $start,$limit)");
+    public function get_full($region_id="", $school_id="", $dept_id="", $major_id="", $start=0, $limit=10) {
+        if (!empty($major_id)) {
+            return $this->get_full_by_cid($major_id, "major_id", $start, $limit);
+        }
+        if (!empty($dept_id)) {
+            return $this->get_full_by_cid($dept_id, "dept_id", $start, $limit);
+        }
+        if (!empty($school_id)) {
+            return $this->get_full_by_cid($school_id, "school_id", $start, $limit);
+        }
+        if (!empty($region_id)) {
+            return $this->get_full_by_cid($region_id, "region_id", $start, $limit);
+        }
+        return $this->get_full_by_cid("", "", $start, $limit);
+    }
+
+    public function get_full_by_cid($cid="", $type="major_id", $start=0, $limit=10) {
+        $condition = "$type='$cid'";
+        if (empty($cid)) {
+            $condition = "1";
+        }
+
+        return $this->db->fetch_all("SELECT material.* FROM `material`, (SELECT DISTINCT(`material_id`) FROM `material_category` WHERE $condition) AS mid WHERE material.id=mid.material_id ORDER BY `time` DESC LIMIT $start,$limit");
     }
 
     public function get_cid_material_num($cid, $type="major_id") {
@@ -44,7 +65,7 @@ class material_categorymodel {
         }
 
         if (!$keep_old) {
-            $this->db->query("DELETE FROM material_category WHERE mid=$mid");
+            $this->db->query("DELETE FROM material_category WHERE material_id=$mid");
         }
 
         $insertsql = "INSERT INTO material_category(`material_id`,`region_id`,`school_id`,`dept_id`,`major_id`) VALUES ";
@@ -62,8 +83,8 @@ class material_categorymodel {
         return $this->db->affected_rows();
     }
 
-    public function remove_by_mid_majorid($mid, $major_id) {
-        $this->db->query("DELETE FROM material_category WHERE `material_id`='$mid' AND `major_id`='$major_id'");
+    public function remove_by_id($id) {
+        $this->db->query("DELETE FROM material_category WHERE `id`='$id'");
         return $this->db->affected_rows();
     }
 

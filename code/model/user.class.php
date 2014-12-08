@@ -13,8 +13,16 @@ class usermodel {
         return $user;
     }
 
+    public function is_username_existed($username) {
+        return $this->db->fetch_total("user", "username='$username'") > 0;
+    }
+
     public function get_by_username($username) {
         return $this->db->fetch_first("SELECT * FROM user WHERE username='$username'");
+    }
+
+    public function is_email_existed($email) {
+        return $this->db->fetch_total("user",  "email='$email'") > 0;
     }
 
     public function get_by_email($email) {
@@ -70,18 +78,12 @@ class usermodel {
     }
 
     // 添加用户，返回新用户id
-    public function add($username, $password, $email = '', $uid = 0) {
+    public function add($username, $password, $email = '', $invited_by_uid=0, $remain_times=0) {
         $password = md5($password);
 
-        if ($uid) {
-            $this->db->query("REPLACE INTO user (uid,username,password,email,regip,`lastlogin`)"
-                            .  " VALUES ('$uid','$username','$password','$email','" . getip() . "'," . time() . ")");
-        } else {
-            $this->db->query("INSERT INTO user(username,password,email,regip,regtime,`lastlogin`)"
-                            . " values ('$username','$password','$email','" . getip() . "'," . time() . "," . time() . ")");
-            $uid = $this->db->insert_id();
-        }
-        return $uid;
+        $this->db->query("INSERT INTO user(username,password,email,regip,regtime,`lastlogin`,invited_by_uid,remain_times)"
+                    . " values ('$username','$password','$email','" . getip() . "'," . time() . "," . time() . ",'$invited_by_uid','$remain_times')");
+        return $this->db->insert_id();
     }
 
     //ip地址限制
@@ -169,6 +171,11 @@ class usermodel {
         return $this->db->affected_rows();
     }
 
+    public function update_remain_times($uid, $delta=1) {
+        $this->db->query("UPDATE user SET `remain_times`=`remain_times`-($delta) WHERE `uid`='$uid'");
+        return $this->db->affected_rows();
+    }
+
     public function logout($sid) {
         tcookie('sid', '', 0);
         tcookie('auth', '', 0);
@@ -178,6 +185,7 @@ class usermodel {
     }
 
     public function save_code($uid, $sid, $code) {
+        runlog("test007", "uid = $uid, sid = $sid, code = $code");
         $islogin = $this->db->result_first("SELECT islogin FROM `session` WHERE sid='$sid'");
         $islogin = $islogin ? $islogin : 0;
         $this->db->query("REPLACE INTO session (sid,uid,code,islogin,`time`) VALUES ('$sid',$uid,'$code','$islogin'," . time() . ")");

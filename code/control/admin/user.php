@@ -4,15 +4,17 @@
 
 class admin_usercontrol extends base {
 
-    function admin_usercontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('user');
         $this->load('userresume');
         $this->load('education');
+
+        $this->load('invite_code');
     }
 
-    function ondefault() {
-        $type = "user/default";
+    public function ondefault() {
+        $type = "admin_user/default";
         $statistics = $this->fromcache('statistics');
 
         $page = max(1, intval($this->get[2]));
@@ -21,6 +23,27 @@ class admin_usercontrol extends base {
         $departstr = page($statistics['all_user_num'], $pagesize, $page, "admin_user/default");
 
         include template('user', 'admin');
+    }
+
+    public function ongive_invite_code() {
+        $uid = $this->get[2];
+
+        $res = array();
+        if ($uid > 0) {
+            $c_code = $_ENV['invite_code']->create_code($this->user['sid']);
+            $_ENV['invite_code']->add($c_code, $uid);
+
+            $subject = "系统奖励您邀请码：" . $c_code;
+            $content = "恭喜您获得系统奖励的一枚邀请码，您使用此邀请码邀请您的小伙伴，提供咨询的小伙伴还能够给你带来额外的现金收益哦！";
+            $this->send("", 0, $uid, $subject, $content);
+
+            $res['success'] = true;
+            $res['code'] = $c_code;
+        } else {
+            $res['error'] = 101; //无效用户uid
+        }
+
+        echo json_encode($res);
     }
 
     function onapply() {

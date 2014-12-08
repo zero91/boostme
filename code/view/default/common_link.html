@@ -1,0 +1,41 @@
+<link href="{SITE_URL}public/css/default/new-general.css" rel="stylesheet" type="text/css"/>
+<link href="{SITE_URL}public/css/default/new-setting.css" rel="stylesheet" type="text/css"/>
+
+<div class="jumbotron jsk-setting">
+    <div class="container">
+        <ul class="nav nav-pills" role="tablist">
+            <li <!--{if $regular == "user/basic"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}user/basic">基本资料</a>
+            </li>
+            <li <!--{if $regular == "user/uppass"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}user/uppass">修改密码</a>
+            </li>
+
+            <li <!--{if $regular == "user/resume"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}user/resume">身份认证</a>
+            </li>
+
+            <li <!--{if $regular == "invite/default"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}invite/default">邀请好友</a>
+            </li>
+
+            <li <!--{if $regular == "trade/history"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}trade/history">购买历史</a>
+            </li>
+
+            <li <!--{if $regular == "service/register"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}service/register">提供咨询</a>
+            </li>
+
+            <li <!--{if $regular == "ebank/withdraw"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}ebank/withdraw">余额套现</a>
+            </li>
+
+            <li <!--{if $regular == "message/system"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}message/system">消息通知</a>
+            </li>
+
+        </ul>
+    </div>
+</div>
+

@@ -1,0 +1,127 @@
+<!--{template header}-->
+<!--{template common_link}-->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="col-md-8 col-sm-6 setting-content">
+                <form id="save_form" method="POST" name="upinfoForm" class="form-horizontal">
+                    <div class="form-group">
+                        <label for="oldpwd" class="col-sm-2 control-label">当前密码</label>
+                        <div class="col-sm-5">
+                            <input type="password" class="reg-ipt form-control" id="oldpwd" name="oldpwd">
+                        </div>
+                            <span id="oldpwd_tip"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="newpwd" class="col-sm-2 control-label">新密码:</label>
+                        <div class="col-sm-5">
+                            <input type="password" class="form-control" id="newpwd" name="newpwd">
+                        </div>
+                            <span id="newpwd_tip"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmpwd" class="col-sm-2 control-label">确认密码:</label>
+                        <div class="col-sm-5">
+                            <input type="password" class="form-control"id="confirmpwd" name="confirmpwd">
+                        </div>
+                            <span id="confirmpwd_tip"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login_code" class="col-sm-2 control-label">验证码</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" id="code" name="code" onblur="check_code()">
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="verifycode">
+                                <img src="{SITE_URL}user/code" onclick="javascript:updatecode();" id="verifycode">
+                            </span>
+                            <a href="javascript:updatecode();" class="changecode">&nbsp;换一个</a>
+                            <span id="codetip"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-5">
+                            <input type="button" id="save" class="btn btn-primary btn-block" value="确认提交"/>
+                            <span class="jsk-setting-success word-success">密码已经成功修改</span>
+                        </div>
+                    </div>
+                </form>
+            </ul>
+            <div class="col-md-5 col-sm-6 gd" style="overflow:hidden">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $("#save").click(function() {
+        if (!check_code()) {
+            $("#code").focus();
+            return false;
+        }
+
+        var newpwd = $.trim($("#newpwd").val());
+        if (!newpwd) {
+            $("#newpwd_tip").html("新密码不能为空");
+            $("#newpwd_tip").attr("class", "input_error");
+            $("#newpwd").focus();
+            return false;
+        }
+
+        var confirmpwd = $.trim($("#confirmpwd").val());
+        if (newpwd != confirmpwd) {
+            $("#confirmpwd_tip").html("两次密码输入不一致");
+            $("#confirmpwd_tip").attr("class", "input_error");
+            $("#confirmpwd").focus();
+            return false;
+        }
+        $.ajax({
+            url: '{SITE_URL}user/uppass',
+            type: 'POST',
+            data: {"oldpwd":$('#oldpwd').val(), "newpwd":$("#newpwd").val()},
+            dataType: 'json',
+            timeout: 8000,
+            error: function(){
+                alert('保存失败');
+            },
+            success: function(data){
+                if (typeof(data.success) == 'undefined') {
+                    if (data.error == '101') {
+                        $("#newpwd_tip").html("新密码不能为空");
+                        $("#newpwd_tip").attr("class", "input_error");
+                        $("#newpwd").focus();
+                    } else if (data.error == '102') {
+                        $("#newpwd_tip").html('新密码与旧密码相同');
+                        $("#newpwd_tip").attr("class", "input_error");
+                        $("#newpwd").focus();
+                    } else if (data.error == '103') {
+                        $("#oldpwd_tip").html('旧密码错误');
+                        $("#oldpwd_tip").attr("class", "input_error");
+                        $("#oldpwd").focus();
+                    } else {
+                        $(".jsk-setting-success").html('发生未知错误');
+                    }
+                } else {
+                    $("#oldpwd_tip").html("");
+                    $("#oldpwd_tip").attr("class", "");
+
+                    $("#newpwd_tip").html("");
+                    $("#newpwd_tip").attr("class", "");
+
+                    $("#confirmpwd_tip").html("");
+                    $("#confirmpwd_tip").attr("class", "");
+
+                    $(".jsk-setting-success").html('密码已经成功修改');
+                    document.getElementById("save_form").reset();
+                }
+                $(".jsk-setting-success").fadeIn(800);
+                $(".jsk-setting-success").fadeOut(1500);
+            }
+        });
+    });
+});
+</script>
+
+<!--{template footer}-->

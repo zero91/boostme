@@ -3,14 +3,15 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class resourcecontrol extends base {
-    function resourcecontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('userresume');
     }
 
     function onrequest() {
         $data_type = $this->get[2];
         $uid = intval($this->get[3]);
+        // http://www.boostme.cn:9507/resource/request/stduentID/1
 
         if ($uid != $this->user['uid']) {
             return;

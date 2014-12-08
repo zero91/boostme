@@ -5,29 +5,37 @@
 class usercontrol extends base {
     public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
-        //$this->base($get, $post);
         $this->load('user');
         $this->load('userskill');
         $this->load('problem');
         $this->load('userresume');
         $this->load("education");
+
+        $this->load('easy_access');
+        $this->load('invite_code');
     }
 
-    function ondefault() {
+    public function ondefault() {
         $this->onscore();
     }
 
-    function oncode() {
+    public function onbasic() {
+        $this->check_login();
+        include template('user_basic');
+    }
+
+    public function oncode() {
         ob_clean();
         $code = random(4);
-        $_ENV['user']->save_code(strtolower($code));
+        $_ENV['user']->save_code($this->user['uid'], $this->user['sid'], strtolower($code));
         makecode($code);
     }
 
-    function onregister() {
+    public function onregister() {
         if ($this->user['uid']) {
             header("Location:" . SITE_URL);
         }
+        $invite_code = $this->get[2];
 
         $navtitle = '注册新用户';
         if (!$this->setting['allow_register']) {
@@ -40,7 +48,8 @@ class usercontrol extends base {
         }
 
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        if (isset($this->post['submit'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $invite_code = trim($this->post['invite_code']);
             $username = trim($this->post['username']);
             $password = trim($this->post['password']);
             $email = $this->post['email'];
@@ -49,29 +58,41 @@ class usercontrol extends base {
                 $this->message("用户名或密码不能为空!", 'user/register');
             } else if (!preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $email)) {
                 $this->message("邮件地址不合法!", 'user/register');
-            } else if ($this->db->fetch_total('user', " email='$email' ")) {
+            } else if ($_ENV['user']->is_email_existed($email)) {
                 $this->message("此邮件地址已经注册!", 'user/register');
-            } else if (!$_ENV['user']->check_usernamecensor($username)) {
+            } else if (!check_usernamecensor($username)) {
                 $this->message("用户名不合法!", 'user/register');
             }
-            $this->setting['code_register'] && $this->checkcode(); //检查验证码
+            $this->setting['code_register'] && $this->checkcode($this->user['sid']); //检查验证码
 
             $user = $_ENV['user']->get_by_username($username);
             $user && $this->message("用户名 $username 已经存在!", 'user/register');
 
-            $uid = $_ENV['user']->add($username, $password, $email);
-            $_ENV['user']->refresh($uid);
+            $invited_by_uid = 0;
+            $remain_times = 0;
+            if (!empty($invite_code)) {
+                $invite_code_info = $_ENV['invite_code']->get_by_code($invite_code);
+                $invited_by_uid = $invite_code_info['owner'];
+                $remain_times = $this->setting['invite_give_times'];
+            }
+            $uid = $_ENV['user']->add($username, $password, $email, $invited_by_uid, $remain_times);
+            if ($invited_by_uid > 0) {
+                $_ENV['invite_code']->update_invite_user($invite_code, $uid, $username);
+            }
+
+            $this->refresh($uid);
 
             //发送邮件通知
             $subject = "恭喜您在" . $this->setting['site_name'] . "注册成功！";
             $message = '<p>现在您可以登录<a swaped="true" target="_blank" href="' . SITE_URL . '">' . $this->setting['site_name'] . '</a>，如有困难需要别人帮助，您可以自由发出您的求助信息。祝您使用愉快！</p>';
             sendmail($username, $email, $subject, $message);
+            runlog("test009", "username = $username, email = $email, subject = $subject, message = $message");
             $this->message('恭喜，注册成功！');
         }
         include template('register');
     }
 
-    function onlogin() {
+    public function onlogin() {
         if ($this->user['uid']) {
             header("Location:" . SITE_URL);
         }
@@ -86,8 +107,8 @@ class usercontrol extends base {
             $this->setting['code_login'] && $this->checkcode(); //检查验证码
             $user = $_ENV['user']->get_by_username($username);
             if (is_array($user) && ($password == $user['password'])) {
-                $_ENV['user']->refresh($user['uid'], 1, $cookietime);
-                header("Location:" . $forward);
+                $this->refresh($user['uid'], 1, $cookietime);
+                $this->jump($forward, true);
             } else {
                 $this->message('用户名或密码错误！', 'user/login');
             }
@@ -95,6 +116,37 @@ class usercontrol extends base {
             $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
             include template('login');
         }
+    }
+
+    function onremove_easy_access() {
+        $id = $this->get[2];
+        if (empty($id)) {
+            exit('-1');
+        }
+        $remove_num = $_ENV['easy_access']->remove_by_id($id);
+        if ($remove_num > 0) {
+            exit('0');
+        }
+        exit('-1');
+    }
+
+    public function oneasy_access() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $target_type = $this->post['target_type'];
+
+        $user_num = $_ENV['easy_access']->get_user_access_num($this->user['uid'], $target_type);
+        if ($user_num >= 3) {
+            exit('0');
+        }
+
+        $id = $_ENV['easy_access']->add($this->user['uid'], $region_id, $school_id, $dept_id, $major_id, $target_type);
+        if ($id > 0) {
+            exit("$id");
+        }
+        exit('-1');
     }
 
     // 用于ajax登录
@@ -122,7 +174,7 @@ class usercontrol extends base {
         $user = $_ENV['user']->get_by_username($username);
         if (is_array($user))
             exit('-1');
-        $usernamecensor = $_ENV['user']->check_usernamecensor($username);
+        $usernamecensor = check_usernamecensor($username);
         if (FALSE == $usernamecensor)
             exit('-2');
         exit('1');
@@ -134,27 +186,28 @@ class usercontrol extends base {
         $user = $_ENV['user']->get_by_email($email);
         if (is_array($user))
             exit('-1');
-        $emailaccess = $_ENV['user']->check_emailaccess($email);
+        $emailaccess = check_emailaccess($email);
         if (FALSE == $emailaccess)
             exit('-2');
         exit('1');
     }
 
     // 用于ajax检测验证码是否匹配
-    function onajaxcode() {
+    public function onajaxcode() {
         $code = strtolower(trim($this->get[2]));
-        if ($code == $_ENV['user']->get_code()) {
+        runlog("test007", "code = $code, sid=" . $this->user['sid']);
+        if ($code == $_ENV['user']->get_code($this->user['sid'])) {
             exit('1');
         }
         exit('0');
     }
 
     // 退出系统
-    function onlogout() {
+    public function onlogout() {
         $navtitle = '登出系统';
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        $_ENV['user']->logout();
-        $this->message('成功退出！');
+        $_ENV['user']->logout($this->user['sid']);
+        $this->jump("main/default");
     }
 
     function ondemand() {
@@ -296,59 +349,57 @@ class usercontrol extends base {
     }
 
     // 个人中心修改资料
-    function onprofile() {
-        if (0 == $this->user['uid']) {
-            $this->message("请先登录!", "user/login");
-        }
-        $navtitle = '个人资料';
-        if (isset($this->post['submit'])) {
+    function onajax_profile() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $res = array();
+
+            $email = $this->post['email'];
             $gender = $this->post['gender'];
-            $bday = $this->post['birthday'];
             $phone = $this->post['phone'];
             $qq = $this->post['qq'];
             $wechat = $this->post['wechat'];
+            $bday = $this->post['bday'];
             $signature = $this->post['signature'];
-            if (($this->post['email'] != $this->user['email']) && (!preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $this->post['email']) || $this->db->fetch_total('user', " email='" . $this->post['email'] . "' "))) {
-                $this->message("邮件格式不正确或已被占用!", 'user/profile');
-            }
-            $_ENV['user']->update($this->user['uid'], $gender, $bday, $phone, $qq, $wechat, $signature);
 
-            if (isset($this->post['skills']) ) {
-                $skillstr = trim($this->post['skills']);
-                !empty($skillstr) && $skill_list = explode(" ", $this->post['skills']);
-            }
+            if ($this->user['uid'] == 0) {
+                $res['error'] = 101;  // 用户还未登陆
+            } else if (($this->post['email'] != $this->user['email']) &&
+                (!preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $this->post['email']) ||
+                    $this->db->fetch_total('user', " email='" . $this->post['email'] . "' "))) {
+                $res['error'] = 102;  // 邮件格式不正确或已被占用
+            } else {
+                $_ENV['user']->update($this->user['uid'], $gender, $bday, $phone, $qq, $wechat, $signature);
 
-            $skill_list && $_ENV['userskill']->multi_add(array_unique($skill_list), $this->user['uid']);
-            isset($this->post['email']) && $_ENV['user']->update_email($this->user['uid'], $this->post['email']);
-            $this->message("个人资料更新成功", 'user/profile');
-        } else {
-            $skill_list  = $_ENV['userskill']->get_by_uid($this->user['uid']);
-            $skillstr = implode(" ", $skill_list);
+                isset($email) && $_ENV['user']->update_email($this->user['uid'], $email);
+                $res['success'] = true;
+            }
+            echo json_encode($res);
         }
-        include template('profile');
     }
 
-    function onuppass() {
-        if (0 == $this->user['uid']) {
-            $this->message("请先登录!", "user/login");
-        }
+    public function onuppass() {
+        $this->check_login();
 
-        $navtitle = "修改密码";
-        if (isset($this->post['submit'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $arr = array();
             if (trim($this->post['newpwd']) == '') {
-                $this->message("新密码不能为空！", 'user/uppass');
-            } else if (trim($this->post['newpwd']) != trim($this->post['confirmpwd'])) {
-                $this->message("两次输入不一致", 'user/uppass');
+                $arr['error'] = 101; // 新密码为空
+
             } else if (trim($this->post['oldpwd']) == trim($this->post['newpwd'])) {
-                $this->message('新密码不能跟当前密码重复!', 'user/uppass');
+                $arr['error'] = 102; // 新密码与旧密码相同
+
             } else if (md5(trim($this->post['oldpwd'])) == $this->user['password']) {
                 $_ENV['user']->uppass($this->user['uid'], trim($this->post['newpwd']));
-                $this->message("密码修改成功,请重新登录系统!", 'user/login');
+                $arr['success'] = true;
             } else {
-                $this->message("旧密码错误！", 'user/uppass');
+                $arr['error'] = 103; // 旧密码不对
             }
+            echo json_encode($arr);
+        } else {
+            $navtitle = "修改密码";
+            include template('uppass');
         }
-        include template('uppass');
     }
 
     function onupload_resume() {
@@ -459,58 +510,96 @@ class usercontrol extends base {
         }
     }
 
-    function oneditimg() {
-        /*
-        if (0 == $this->user['uid']) {
-            $this->message("请先登录!", "user/login");
+    public function onupload_avatar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $uid = intval($this->user['uid']);
+            $picname = $_FILES['userimage']['name'];
+            $picsize = $_FILES['userimage']['size'];
+            $extname = extname($picname);
+
+            if (!isimage($extname)) {
+                echo json_encode(array("error" => "101")); //type_error
+                return;
+            }
+            if ($picsize > 2048000) {
+                echo '图片大小不能超过2M';
+                return;
+            }
+
+            $upload_tmp_file = '/public/data/tmp/user_avatar_' . $uid . '.' . $extname;
+            move_uploaded_file($_FILES["userimage"]["tmp_name"], WEB_ROOT . $upload_tmp_file);
+            $size = round($picsize / 1024, 2);
+            $image_size = getimagesize(WEB_ROOT . $upload_tmp_file);
+     
+            $upload_pic = array(
+                'name'   => $picname,
+                'pic'    => $upload_tmp_file,
+                'size'   => $size,
+                'width'  => $image_size[0],
+                'height' => $image_size[1]
+            );
+            runlog("test007", "width = {$image_size[0]}");
+            runlog("test007", "height = {$image_size[1]}");
         }
-         */
-        if (isset($_FILES["userimage"])) {
-            $uid = intval($this->get[2]);
-            $avatardir = "/public/data/avatar/";
-            $extname = extname($_FILES["userimage"]["name"]);
-            if (!isimage($extname))
-                exit('type_error');
-            $upload_tmp_file = WEB_ROOT . '/public/data/tmp/user_avatar_' . $uid . '.' . $extname;
-            $uid = abs($uid);
+        include template("upload_avatar");
+    }
+
+    public function oneditimg() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $x = intval($this->post['x']);
+            $y = intval($this->post['y']);
+            $w = intval($this->post['w']);
+            $h = intval($this->post['h']);
+            $pic = $this->post['src'];
+            $extname = extname($pic);
+
+            $uid = intval($this->user['uid']);
             $uid = sprintf("%010d", $uid);
+            $avatardir = "/public/data/avatar/";
             $dir1 = $avatardir . substr($uid, 0, 3);
             $dir2 = $dir1 . '/' . substr($uid, 3, 3);
             $dir3 = $dir2 . '/' . substr($uid, 6, 2);
             (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
             (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
             (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
+
+            // crop image
+            $crop_img = $dir3 . "/crop_" . $uid . '.' . $extname;
             $smallimg = $dir3 . "/small_" . $uid . '.' . $extname;
-            if (move_uploaded_file($_FILES["userimage"]["tmp_name"], $upload_tmp_file)) {
-                $avatar_dir = glob(WEB_ROOT . $dir3 . "/small_{$uid}.*");
-                foreach ($avatar_dir as $imgfile) {
-                    if (strtolower($extname) != extname($imgfile))
-                        unlink($imgfile);
+            $mediumimg = $dir3 . "/medium_" . $uid . '.' . $extname;
+            $largeimg = $dir3 . "/large_" . $uid . '.' . $extname;
+
+
+            $remove_file = glob(WEB_ROOT . $dir3 . "/crop_{$uid}.*");
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/small_{$uid}.*"));
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/medium_{$uid}.*"));
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/large_{$uid}.*"));
+            runlog("test007", $remove_file);
+            foreach ($remove_file as $imgfile) {
+                if (strtolower($extname) != extname($imgfile)) {
+                    unlink($imgfile);
                 }
-                if (image_resize($upload_tmp_file, WEB_ROOT . $smallimg, 80, 80))
-                    echo 'ok';
             }
-        } else {
-            include template("editimg");
+            image_crop(WEB_ROOT . $pic, WEB_ROOT . $crop_img, $x, $y, $w, $h, false);
+            $success = true;
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $largeimg, 122, 122);
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $mediumimg, 80, 80);
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $smallimg, 50, 50);
         }
+        include template("editimg");
     }
 
     // 维护个人简历
-    function onresume() {
-        if (0 == $this->user['uid']) {
-            $this->message("请先登录!", "user/login");
-        }
+    public function onresume() {
+        $this->check_login();
         $navtitle = "完善简历";
-        if (isset($this->post['submit'])) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $realname = trim($this->post['realname']);
-            $ID = trim($this->post['ID']);
-            $experience = trim($this->post['experience']);
             $phone = trim($this->post['phone']);
             $qq = trim($this->post['qq']);
             $wechat = trim($this->post['wechat']);
 
-
-            $_ENV['userresume']->update($this->user['uid'], $realname, $ID, $experience);
+            $_ENV['userresume']->update_realname($this->user['uid'], $realname);
             $_ENV['user']->update_contact_info($this->user['uid'], $phone, $qq, $wechat);
 
             $edu_num = min(count($this->post['school']), 6);
@@ -526,15 +615,11 @@ class usercontrol extends base {
             $_ENV['education']->remove_by_uid($this->user['uid']);
             $_ENV['education']->multi_add($this->user['uid'], $edu_list);
 
-            if ($_ENV['userresume']->already_id_used($this->user['uid'], $ID)) {
-                $this->message("您填写的身份证号不符合条件，请确认您填写了正确的身份证号", "STOP");
-            }
-
             if ($this->post['operation'] == RESUME_APPLY) {
                 $_ENV['userresume']->update_verify($this->user['uid'], RESUME_APPLY);
                 $this->message("提交请求成功，Boostme将以最快的速度审核您的材料！", 'BACK');
             } else {
-                $this->message("简历更改成功！", 'BACK');
+                $this->jump("user/resume");
             }
         } else {
             $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
@@ -544,7 +629,6 @@ class usercontrol extends base {
     }
 
     function onajaxpoplogin() {
-        echo "FUCK";
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
         exit(0);
         //include template("poplogin");

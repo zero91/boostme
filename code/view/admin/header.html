@@ -1,61 +1,19 @@
 <!DOCTYPE html>
 <html>
-    <!--{eval
-        global $starttime;
-        $mtime = explode(' ', microtime());
-        $setting = $this->setting;
-        $user = $this->user;
-        $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
-        $regular = $this->regular;
-        }-->
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
-    <title><!--{if $navtitle}-->{$navtitle} - <!--{/if}-->{$setting['site_name']}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{$setting['site_name']}" />
-    <meta name="keywords" content="{$seo_keywords}" />
-    <meta name="robots" content="index, follow">
-    <script src="{SITE_URL}public/js/jquery.js" type="text/javascript"></script>
-    <link rel="stylesheet" type="text/css" href="{SITE_URL}public/js/jquery-ui/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" href="{SITE_URL}public/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="{SITE_URL}public/bootstrap/css/docs.min.css" />
-    <script src="{SITE_URL}public/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        var g_site_url = "{SITE_URL}";
-        var g_site_name = "{$setting['site_name']}";
-        var g_uid = {$user['uid']};
-    </script>
-    <style type="text/css">
-    html,body {font-family: "Microsoft Yahei";height: 100%;}
-    /* body {font-family: "Microsoft Yahei"; min-height: 100%; height: auto !important; height: 100%; margin: 0 auto -60px; } */
-
-    .header {position: relative;}
-    .header>a {padding: 6px 12px !important;  margin: 8px 3px !important; }
-    .navbar-nav>li>button, .navbar-nav>li>a {padding: 6px 12px !important;  margin: 8px 3px !important; }
-    .navbar-nav>li>a {background:#0066CC !important; color:#EEE !important;}
-    .navbar-nav>li>a:hover {background:#0066CC !important; color:#FFF !important;}
-    .align_center {text-align: center;}
-    h4, h5, h6 { line-height: 26px; }
-    .container { width: 100% !important;}
-    .logo {
-      width:200px;
-      height:50px;
-      font-size: 38px;
-    } 
-    </style>
+	<meta charset="utf-8">
+	<title>Boostme管理</title>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="robots" content="" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="{SITE_URL}public/admin/css/style.css" media="all" />
+    <!--[if IE]><link rel="stylesheet" href="{SITE_URL}public/admin/css/ie.css" media="all" /><![endif]-->
+    <!--[if lt IE 9]><link rel="stylesheet" href="{SITE_URL}public/admin/css/lt-ie-9.css" media="all" /><![endif]-->
 </head>
-
 <body>
-
-<div style="min-height:92%;height:auto !important;"> <!-- fix the foot -->
-
-<div class="navbar navbar-inverse navbar-nav navbar-fixed-top" role="navigation" style="background:#000000;">
-  <div class="container header">
-    <div class="navbar-header" style="width:175px;height:50px;">
-        <a href="{SITE_URL}" style="width:100%;height:100%"><img src="{SITE_URL}public/css/default/logo.png" /></a>
-    </div>
-  </div>
-</div>
-
-<div style="height:51px;"></div>
-
+<div class="testing">
+<header class="main">
+	<h1><strong>Boostme</strong> 管理界面</h1>
+	<input type="text" value="搜索" />
+</header>

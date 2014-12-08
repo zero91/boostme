@@ -19,6 +19,11 @@ class userresumemodel {
         return $this->db->fetch_all("SELECT * FROM user_resume ORDER BY apply_time DESC LIMIT $start,$limit");
     }
 
+    public function update_realname($uid, $realname) {
+        $this->db->query("INSERT INTO user_resume(`uid`,`realname`) VALUES('$uid','$realname') ON DUPLICATE KEY UPDATE `realname`='$realname'");
+        return $this->db->affected_rows();
+    }
+
     public function update($uid, $realname, $ID, $experience) {
         $this->db->query("INSERT INTO user_resume(`uid`,`realname`,`ID`,`experience`) VALUES('$uid','$realname','$ID','$experience') "
                         . " ON DUPLICATE KEY "

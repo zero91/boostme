@@ -12,20 +12,28 @@ class servicemodel {
     }
 
     public function get_by_uid($uid) {
-        return $this->db->fetch_all("SELECT * FROM service WHERE `uid`='$uid'");
+        return $this->db->fetch_first("SELECT * FROM service WHERE `uid`='$uid'");
+    }
+
+    public function get_by_status($status, $start=0, $limit=10, $order="DESC") {
+        return $this->db->fetch_all("SELECT * FROM service WHERE `status`='$status' ORDER BY `time` $order LIMIT $start,$limit");
+    }
+
+    public function get_status_num($status) {
+        return $this->db->fetch_total("service", "`status`='$status'");
     }
 
     public function get_list($start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM service LIMIT $start,$limit ORDER BY `time` DESC");
+        return $this->db->fetch_all("SELECT * FROM service ORDER BY `time` DESC LIMIT $start,$limit");
     }
 
     public function get_service_num() {
         return $this->db->fetch_total('service');
     }
 
-    public function add($uid, $username, $picture, $price, $profile, $status=0) {
+    public function add($uid, $username, $picture, $price, $profile, $status=SERVICE_STATUS_APPLY) {
         $time = time();
-        $this->db->query("INSERT INTO service SET uid='$uid',username='$username',picture='$picture',price='$price',profile='$profile',status='$status'");
+        $this->db->query("INSERT INTO service SET uid='$uid',username='$username',picture='$picture',price='$price',profile='$profile',status='$status',time='$time'");
         return $this->db->insert_id();
     }
 
@@ -56,6 +64,11 @@ class servicemodel {
 
     public function update_service_num($id) {
         $this->db->query("UPDATE service SET `service_num`=`service_num`+1 WHERE `id`=$id");
+        return $this->db->affected_rows();
+    }
+
+    public function update_view_num($id) {
+        $this->db->query("UPDATE `service` SET `view_num`=`view_num`+1 WHERE `id`=$id");
         return $this->db->affected_rows();
     }
 

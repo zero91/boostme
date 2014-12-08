@@ -4,16 +4,16 @@
 
 //0、未审核 1、待解决、2、已解决 4、悬赏的 9、 已关闭问题
 class questioncontrol extends base {
-    function questioncontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load("question");
         $this->load("answer");
-        $this->load("userlog");
     }
 
     // 提交问题
-    function onadd() {
-        if (isset($this->post['submit'])) {
+    public function onadd() {
+        $this->check_login();
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $title = htmlspecialchars($this->post['title']);
             $content = $this->post['content'];
             $askfromuid = $this->post['askfromuid'];
@@ -43,18 +43,17 @@ class questioncontrol extends base {
             ($this->user['questionlimits'] && ($_ENV['userlog']->rownum_by_time('ask') >= $this->user['questionlimits'])) &&
                     $this->message("你已超过每小时最大提问数" . $this->user['questionlimits'] . ',请稍后再试！', 'BACK');
 
-            $qid = $_ENV['question']->add($title, $content, $status);
+            $qid = $_ENV['question']->add($this->user['uid'], $this->user['username'], $title, $content, $status);
 
-            $_ENV['userlog']->add('ask');
             if (0 == $status) {
                 $this->message('问题发布成功！为了确保问答的质量', 'BACK');
             } else {
-                $this->message("问题发布成功!", 'forum/view');
+                $this->jump("question/view/$qid");
             }
         }
     }
 
-    function onview() {
+    public function onview() {
         $this->setting['stopcopy_on'] && $_ENV['question']->stopcopy(); //是否开启了防采集功能
         $qid = $this->get[2]; //接收qid参数
         $question = $_ENV['question']->get($qid);
@@ -77,14 +76,16 @@ class questioncontrol extends base {
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
         $rownum = $this->db->fetch_total("answer", " qid=$qid ");
-        $answerlist = $_ENV['answer']->list_by_qid($qid, $ordertype, $rownum, $startindex, $pagesize);
+        $answerlist = $_ENV['answer']->list_by_qid($qid, $startindex, $pagesize);
         $departstr = page($rownum, $pagesize, $page, "question/view/$qid/" . $this->get[3]);
         $navtitle = $question['title'];
         include template("question");
     }
 
     // 提交回答
-    function onanswer() {
+    public function onanswer() {
+        $this->check_login();
+
         $qid = $this->post['qid'];
         $question = $_ENV['question']->get($qid);
         if (!$question) {
@@ -104,15 +105,12 @@ class questioncontrol extends base {
         ($this->user['answerlimits'] && ($_ENV['userlog']->rownum_by_time('answer') >= $this->user['answerlimits'])) &&
                 $this->message("你已超过每小时最大回答数" . $this->user['answerlimits'] . ',请稍后再试！', 'BACK');
 
-        $_ENV['answer']->add($qid, $title, $content);
+        $_ENV['answer']->add($this->user['uid'], $this->user['username'], $qid, $title, $content);
         $_ENV['question']->update_answers($qid);
 
         //给提问者发送通知
         //$this->send($question['authorid'], $question['qid'], 0);
-
-        $viewurl = urlmap('question/view/' . $qid, 2);
-        $_ENV['userlog']->add('answer');
-        $this->message('提交回答成功！', $viewurl);
+        $this->jump('question/view/' . $qid);
     }
 
     // 采纳答案

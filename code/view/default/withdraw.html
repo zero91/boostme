@@ -1,0 +1,97 @@
+<!--{template header}-->
+<!--{template common_link}-->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <!-- <ul class="col-md-7 col-sm-6 setting-content"> -->
+            <div class="col-md-7 col-sm-6 setting-content">
+                <form action="{SITE_URL}ebank/withdraw" class="form-horizontal" role="form" method="POST" onsubmit="return check_form();">
+                    <div class="form-group" id="g-name">
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-9">
+                            您当前账户余额为 <strong>¥{$user['balance']}</strong>，可提取现金为 <strong>¥{$user['balance']}</strong>
+                            <!--{if count($ebank_account_list) == 0}-->
+                            <p style="color:grey;">您还未认证过收款支付宝账户，套现的账户是需要认证的哦，现在就去<a href="{SITE_URL}ebank/verify_account">认证</a></p>
+                            <!--{/if}-->
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="g-name">
+                        <label for="ebank_account" class="col-sm-3 control-label">收款支付宝账号</label>
+                        <div class="col-sm-7">
+                            <select name="ebank_account" id="ebank_account" class="form-control">
+                                <!--{loop $ebank_account_list $account}-->
+                                <!--{eval echo $account['ebank_account']}-->
+                                <option value="{$account['ebank_account']}_{$account['ebank_type']}" <!--{if $account['isdefault']}-->selected="selected"<!--{/if}-->>{$account['ebank_account']}</option>
+                                <!--{/loop}-->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="g-name">
+                        <label for="money" class="col-sm-3 control-label">套现金额</label>
+                        <div class="col-sm-7">
+                            <input id="money" name="money" type="text" class="form-control" style="float:left; border-left:none;" value="{$user['balance']}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-7 jsk-setting-submit">
+                            <input type="submit" id="submit-btn" class="btn btn-success jsk-submit-btn" style="float:left" value="申请套现">
+                            <span class="jsk-setting-success word-success">已经成功提交申请</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-5 col-sm-6 gd" style="overflow:hidden">
+                <!--{if count($withdraw_list) > 0}-->
+                <h2>已申请套现订单</h2>
+                <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;">
+                    <tr style="background-color:#f2f7ff;">
+                        <th width="15%" style="text-align:center;">账户类型</th>
+                        <th width="55%" style="text-align:center;">账户账号</th>
+                        <th width="15%" style="text-align:center;">套现金额</th>
+                        <th width="15%" style="text-align:center;">申请时间</th>
+                    </tr>
+                    <!--{loop $withdraw_list $withdraw}-->
+                    <tr id="{$trade_info['target_id']}_{$trade_info['type']}">
+                        <td>
+                            <!--{if $withdraw['ebank_type'] == 'alipay'}-->
+                            支付宝
+                            <!--{else}-->
+                            其它
+                            <!--{/if}-->
+                        </td>
+                        <td>{$withdraw['ebank_account']}</td>
+                        <td>{$withdraw['money']}</td>
+                        <td>{eval echo tdate($withdraw['apply_time'])}</td>
+                    </tr>
+                    <!--{/loop}-->
+                </table>
+                <!--{/if}-->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+function check_form() {
+    <!--{if count($ebank_account_list) == 0}-->
+    alert("您还没有验证您要套现的支付宝账号");
+    return false;
+    <!--{/if}-->
+
+    if (!$.trim($("#ebank_account option:selected").val())) {
+        alert("请选择您要套现的支付宝账号");
+        return false;
+    }
+    var price = parseFloat($("#money").val());
+    if (price > {$user['balance']}) {
+        alert("套现金额应不多于账户余额");
+        return false;
+    }
+    return true;
+}
+</script>
+<!--{template footer}-->

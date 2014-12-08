@@ -3,16 +3,15 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class admin_maincontrol extends base {
-
-    function admin_maincontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('setting');
         $this->load('user');
         $this->load('problem');
     }
 
-    function ondefault() {
-        $type = "default";
+    public function ondefault() {
+        $type = "admin_main/default";
         $statistics = $this->fromcache('statistics');
 
         $page = max(1, intval($this->get[2]));
@@ -22,7 +21,12 @@ class admin_maincontrol extends base {
 
         $departstr = page($statistics['all_prob_num'], $pagesize, $page, "admin_main/default");
 
-        include template('index', 'admin');
+        $all_user_num = $statistics['all_user_num'];
+        $all_material_num = $statistics['all_material_num'];
+        $all_prob_num = $statistics['all_prob_num'];
+        $all_service_num = $statistics['all_service_num'];
+
+        include template('main', 'admin');
     }
 
     function onuser() {

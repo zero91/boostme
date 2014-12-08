@@ -1,0 +1,16 @@
+<!--{template header}-->
+
+<script src="{SITE_URL}public/js/service.js"></script>
+<script type="text/javascript">
+    var service = new Service("{SITE_URL}");
+    var service_list = service.get_service_list({"region_id" : "R01", "school_id" : "S010001"});
+
+    document.write("length = " + service_list.length);
+    for (var k = 0; k < service_list.length; ++k) {
+        document.write("<img src=\"" + service_list[k].picture + "\">");
+    }
+
+</script>
+
+<div style="margin-top:500px;"></div>
+<!--{template footer}-->

@@ -1,0 +1,197 @@
+<!--{template header,'admin'}-->
+<!--{template left_common,'admin'}-->
+
+<section class="alert">
+	<form method="link" action="page-new.html">
+		 <button class="green">Create new blog page</button>
+	</form>
+</section>
+
+<section class="content">
+	<section class="widget">
+		<header>
+			<span class="icon">&#128100;</span>
+			<hgroup>
+                <h1>正在申请咨询的用户({$tot_apply_service_num})</h1>
+                <h2>正在申请咨询，但还未获取资格的用户</h2>
+			</hgroup>
+			<aside>
+				<span>
+					<a href="#">&#9881;</a>
+					<ul class="settings-dd">
+						<li><label>Option a</label><input type="checkbox" /></li>
+						<li><label>Option b</label><input type="checkbox" checked="checked" /></li>
+						<li><label>Option c</label><input type="checkbox" /></li>
+					</ul>
+				</span>
+			</aside>
+		</header>
+        <div class="content">
+			<table id="myTable" border="0" width="100%">
+				<thead>
+					<tr>
+						<th class="avatar">用户名</th>
+						<th>图片</th>
+						<th>联系方式</th>
+						<th>教育经历</th>
+						<th>申请时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+                <tbody>
+                    <!--{loop $apply_service_list $service}-->
+                    <tr id="tr_{$service['id']}">
+                        <td class="avatar"><img src="{eval echo get_avatar_dir($service['uid'])}" alt="" height="40" width="40" /> {$service['username']}</td>
+                        <td><img src="{$service['picture']}" height="100" width="100"></td>
+                        <td>
+                            <p>手机：{$service['user_info']['phone']}</p>
+                            <p>QQ：  {$service['user_info']['qq']}</p>
+                            <p>微信：{$service['user_info']['wechat']}</p>
+                            <p>Email：{$service['user_info']['email']}</p>
+                        </td>
+                        <td>
+                            <!--{loop $service['edu_list'] $edu}-->
+                            <!--{if $edu['edu_type'] == HIGH_SCHOOL}-->
+                            <!--{eval $edu_type = "高中"}-->
+                            <!--{elseif $edu['edu_type'] == BACHELOR}-->
+                            <!--{eval $edu_type = "本科"}-->
+                            <!--{elseif $edu['edu_type'] == MASTER}-->
+                            <!--{eval $edu_type = "硕士"}-->
+                            <!--{elseif $edu['edu_type'] == DOCTOR}-->
+                            <!--{eval $edu_type = "博士"}-->
+                            <!--{elseif $edu['edu_type'] == POST_DOCTOR}-->
+                            <!--{eval $edu_type = "博士后"}-->
+                            <!--{/if}-->
+                            <p>{$edu_type} {$edu['school']} {$edu['department']} {$edu['major']}</p>
+                            <!--{/loop}-->
+                        </td>
+                        <td>{eval echo tdate($service['time'])}</td>
+                        <td>
+                            <input type="button" class="btn btn-sm" id="{$user['uid']}" value="验证通过" onclick="accept_service({$service['id']})"/>
+                            <input type="button" class="btn btn-sm" id="{$user['uid']}" value="不通过" onclick="denied_service({$service['id']})"/>
+                        </td>
+                    </tr>
+                    <!--{/loop}-->
+                </tbody>
+            </table>
+            <center><div>{$apply_departstr}</div></center>
+		</div>
+	</section>
+</section>
+
+<section class="content">
+	<section class="widget">
+		<header>
+			<span class="icon">&#128100;</span>
+			<hgroup>
+                <h1>已经获取咨询资格的用户({$tot_accept_service_num})</h1>
+				<h2>已获取咨询资格，并在咨询区得到展示的用户</h2>
+			</hgroup>
+			<aside>
+				<span>
+					<a href="#">&#9881;</a>
+					<ul class="settings-dd">
+						<li><label>Option a</label><input type="checkbox" /></li>
+						<li><label>Option b</label><input type="checkbox" checked="checked" /></li>
+						<li><label>Option c</label><input type="checkbox" /></li>
+					</ul>
+				</span>
+			</aside>
+		</header>
+        <div class="content">
+			<table id="myTable" border="0" width="100%">
+				<thead>
+					<tr>
+						<th class="avatar">用户名</th>
+						<th>图片</th>
+						<th>联系方式</th>
+						<th>教育经历</th>
+						<th>申请时间</th>
+					</tr>
+				</thead>
+                <tbody>
+                    <!--{loop $accept_service_list $service}-->
+                    <tr id="tr_{$service['id']}">
+                        <td class="avatar"><img src="{eval echo get_avatar_dir($service['uid'])}" alt="" height="40" width="40" /> {$service['username']}</td>
+                        <td><img src="{$service['picture']}" height="100" width="100"></td>
+                        <td>
+                            <p>手机：{$service['user_info']['phone']}</p>
+                            <p>QQ：  {$service['user_info']['qq']}</p>
+                            <p>微信：{$service['user_info']['wechat']}</p>
+                            <p>Email：{$service['user_info']['email']}</p>
+                        </td>
+                        <td>
+                            <!--{loop $service['edu_list'] $edu}-->
+                            <!--{if $edu['edu_type'] == HIGH_SCHOOL}-->
+                            <!--{eval $edu_type = "高中"}-->
+                            <!--{elseif $edu['edu_type'] == BACHELOR}-->
+                            <!--{eval $edu_type = "本科"}-->
+                            <!--{elseif $edu['edu_type'] == MASTER}-->
+                            <!--{eval $edu_type = "硕士"}-->
+                            <!--{elseif $edu['edu_type'] == DOCTOR}-->
+                            <!--{eval $edu_type = "博士"}-->
+                            <!--{elseif $edu['edu_type'] == POST_DOCTOR}-->
+                            <!--{eval $edu_type = "博士后"}-->
+                            <!--{/if}-->
+                            <p>{$edu_type} {$edu['school']} {$edu['department']} {$edu['major']}</p>
+                            <!--{/loop}-->
+                        </td>
+                        <td>{eval echo tdate($service['time'])}</td>
+                    </tr>
+                    <!--{/loop}-->
+                </tbody>
+            </table>
+            <center><div>{$accept_departstr}</div></center>
+		</div>
+	</section>
+</section>
+
+
+
+<script type="text/javascript">
+function denied_service(id) {
+    var message = prompt("请输入不通过的原因：");
+    $.ajax({
+        type: "GET",
+        url:"{SITE_URL}admin_service/denied_service/" + id,
+        cache: false,
+        dataType: 'json',
+        data : {message : message},
+        success: function(data) {
+            if (typeof(data.success) == 'undefined') {
+                if (data.error == '101') {
+                    alert("无效service ID");
+                } else {
+                    alert("发生未知错误！");
+                }
+            } else {
+                alert("已通知用户不通过的相关信息");
+            }
+        }
+    });
+}
+
+function accept_service(id) {
+    var target = $("#tr_" + id);
+
+    $.ajax({
+        type: "GET",
+        url:"{SITE_URL}admin_service/accept_service/" + id,
+        cache: false,
+        dataType: 'json',
+        success: function(data) {
+            if (typeof(data.success) == 'undefined') {
+                if (data.error == '101') {
+                    alert("无效service ID");
+                } else {
+                    alert("发生未知错误！");
+                }
+            } else {
+                target.remove();
+                alert("已通过");
+            }
+        }
+    });
+}
+</script>
+<!--{template footer,'admin'}-->

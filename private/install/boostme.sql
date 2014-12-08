@@ -28,12 +28,46 @@ CREATE TABLE user (
   `paid` DOUBLE NOT NULL DEFAULT '0', /* 总共付费 */
   `earned` DOUBLE NOT NULL DEFAULT '0', /* 总共收入 */
   `balance` DOUBLE NOT NULL DEFAULT '0', /* 账户余额 */
+  `invited_by_uid` int(10) unsigned DEFAULT NULL, /* 邀请此用户的作者 */
+  `remain_times` smallint(3) NOT NULL DEFAULT '0', /* 邀请者剩余的可赚钱次数 */
   
   PRIMARY KEY (`uid`),
   KEY username(username),
   KEY email(email)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /* alter table `user` add column `balance` DOUBLE NOT NULL DEFAULT '0'; */
+
+/* DROP TABLE IF EXISTS invite_code; */
+CREATE TABLE invite_code (
+  `code` varchar(32) NOT NULL, /* 邀请码 */
+  `owner` int(10) unsigned NOT NULL,    /* 拥有者 */
+  `invite_user` int(10) unsigned DEFAULT NULL, /* 使用此邀请码的用户ID */
+  `invite_username` char(18) DEFAULT NULL,
+  `time` int(10) NOT NULL DEFAULT '0',
+
+  PRIMARY KEY (`code`),
+  KEY `owner`(`owner`),
+  KEY `invite_user` (`invite_user`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/* DROP TABLE IF EXISTS withdraw; */
+CREATE TABLE withdraw (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `money` DOUBLE NOT NULL,
+  `ebank_type` varchar(20) NOT NULL, /* 账户类型：支付宝、财付通等 */
+  `ebank_account` varchar(64) NOT NULL, /* 电子账户：支付宝账号、财付通账号等 */
+  `apply_time` int(10) NOT NULL DEFAULT '0', /* 用户申请余额套现时间 */
+  `ispaid` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 是否已完成打款 */
+  `give_time` int(10) NOT NULL DEFAULT '0', /* 打款时间 */
+  `operator_id` int(10) unsigned DEFAULT NULL, /* 打款操作者uid */
+  `operator` char(18) DEFAULT NULL, /* 打款操作者用户名 */
+
+  PRIMARY KEY (`id`),
+  KEY `uid`(`uid`),
+  KEY `ebank_account` (`ebank_account`)
+
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /* DROP TABLE IF EXISTS user_skill; */
 CREATE TABLE user_skill (
@@ -52,6 +86,7 @@ CREATE TABLE user_ebank (
   `uid` int(10) NOT NULL,
   `ebank_type` varchar(20) NOT NULL, /* 账户类型：支付宝、财付通等 */
   `ebank_account` varchar(64) NOT NULL, /* 电子账户：支付宝账号、财付通账号等 */
+  `isdefault` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 是否是默认账户 */
   `time` int(10) NOT NULL DEFAULT '0', /* 绑定时间 */
 
   PRIMARY KEY (`uid`,`ebank_type`,`ebank_account`),
@@ -106,6 +141,8 @@ CREATE TABLE service (
   `avg_score` DOUBLE NOT NULL DEFAULT '0', /* 平均评价得分 */
   `time` int(10) NOT NULL DEFAULT '0',
   `service_num` mediumint(8) NOT NULL DEFAULT '0', /* 共服务人数 */
+  `comment_num` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `view_num` int(10) unsigned NOT NULL DEFAULT '0',
 
   PRIMARY KEY (`id`),
   KEY `uid`(`uid`),
@@ -114,12 +151,20 @@ CREATE TABLE service (
 
 /* DROP TABLE IF EXISTS service_category; */
 CREATE TABLE service_category (
-  `sid` int(10) unsigned NOT NULL,
-  `cid` varchar(128) NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `service_id` int(10) unsigned NOT NULL,
 
-  PRIMARY KEY sid_cid(`sid`,`cid`),
-  KEY `sid`(`sid`),
-  KEY `cid`(`cid`)
+  `region_id` varchar(32) NOT NULL,
+  `school_id` varchar(32) DEFAULT NULL,
+  `dept_id` varchar(128) DEFAULT NULL,
+  `major_id` varchar(128) DEFAULT NULL,
+
+  PRIMARY KEY(`id`),
+  KEY `service_id`(`service_id`),
+  KEY `region_id`(`region_id`),
+  KEY `school_id`(`school_id`),
+  KEY `dept_id`(`dept_id`),
+  KEY `major_id`(`major_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
 /* DROP TABLE IF EXISTS service_comment; */
@@ -128,14 +173,28 @@ CREATE TABLE service_comment (
   `authorid` int(10) unsigned NOT NULL,
   `author` char(18) NOT NULL,
   `sid` int(10) NOT NULL,
-  `score` smallint(3) NOT NULL,
+  `score` DOUBLE NOT NULL,
   `content` text NOT NULL,
   `time` int(10) NOT NULL DEFAULT '0',
+  `up` int(10) unsigned NOT NULL DEFAULT '0',
+  `down` int(10) unsigned NOT NULL DEFAULT '0',
 
   PRIMARY KEY (`id`),
   KEY `authorid`(`authorid`),
   KEY `sid`(`sid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/* DROP TABLE IF EXISTS service_comment_support; */
+CREATE TABLE service_comment_support (
+  `uid` int(10) unsigned NOT NULL,
+  `comment_id` int(10) NOT NULL,
+  `time` int(10) NOT NULL,
+  `sup_type` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 0: 有用； 1: 无用 */
+
+  PRIMARY KEY (`uid`,`comment_id`),
+  KEY `uid`(`uid`),
+  KEY `comment_id`(`comment_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
 /* DROP TABLE IF EXISTS visit; */
 CREATE TABLE visit (
@@ -156,7 +215,7 @@ CREATE TABLE problem (
   `solver` char(18) DEFAULT NULL,
   `solverscore` tinyint(3) DEFAULT NULL,
   `solverdesc` varchar(300) DEFAULT NULL,
-  `price` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `price` varchar(32) NOT NULL DEFAULT '0',
   `title` char(200) NOT NULL,
   `description` text NOT NULL,
   `ip` varchar(20) DEFAULT NULL,
@@ -176,13 +235,21 @@ CREATE TABLE problem (
 
 /* DROP TABLE IF EXISTS problem_category; */
 CREATE TABLE problem_category (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(10) unsigned NOT NULL,
-  `cid` varchar(128) NOT NULL,
 
-  PRIMARY KEY `pid_cid`(`pid`,`cid`),
+  `region_id` varchar(32) NOT NULL,
+  `school_id` varchar(32) DEFAULT NULL,
+  `dept_id` varchar(128) DEFAULT NULL,
+  `major_id` varchar(128) DEFAULT NULL,
+
+  PRIMARY KEY(`id`),
   KEY `pid`(`pid`),
-  KEY `cid`(`cid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `region_id`(`region_id`),
+  KEY `school_id`(`school_id`),
+  KEY `dept_id`(`dept_id`),
+  KEY `major_id`(`major_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
 /*
 ALTER TABLE problem ADD COLUMN cid varchar(32) DEFAULT NULL AFTER description;
@@ -285,6 +352,8 @@ CREATE TABLE crontab (
   KEY `nextrun` (`available`,`nextrun`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+INSERT INTO crontab VALUES('1', '1', 'system', '自动发货', 'auto_send_goods', '0', '0', '0', '0', '0', '0');
+
 /* DROP TABLE IF EXISTS attach; */
 CREATE TABLE attach (
   `aid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -336,9 +405,10 @@ INSERT INTO setting VALUES ('overdue_days', '60'); /* 求助信息有效时间 *
 INSERT INTO setting VALUES ('stopcopy_allowagent', 'webkit\r\nopera\r\nmsie\r\ncompatible\r\nbaiduspider\r\ngoogle\r\nsoso\r\nsogou\r\ngecko\r\nmozilla'); /* 防采集白名单*/
 INSERT INTO setting VALUES ('stopcopy_stopagent', ''); /* 防采集黑名单 */
 INSERT INTO setting VALUES ('stopcopy_maxnum', '60'); /* 1分钟内最大采集量 */
-
-
-
+INSERT INTO setting VALUES ('service_page_size', '12'); /* service每页展示数量 */
+INSERT INTO setting VALUES ('service_give_code_num', '3'); /* service通过后赠送的邀请码个数 */
+INSERT INTO setting VALUES ('invite_give_times', '3'); /* 邀请一个人能够享受的赚钱次数 */
+INSERT INTO setting VALUES ('alipay_fee_rate', '0.024'); /* alipay的手续费比例 */
 
 INSERT INTO setting VALUES ('notify_message', '1');
 INSERT INTO setting VALUES ('notify_mail', '0');
@@ -351,7 +421,7 @@ INSERT INTO setting VALUES ('allow_register', '1');
 INSERT INTO setting VALUES ('code_register', '1');
 INSERT INTO setting VALUES ('code_login', '0');
 INSERT INTO setting VALUES ('code_problem', '0');
-INSERT INTO setting VALUES ('maildefault', 'boostme@qq.com');
+INSERT INTO setting VALUES ('maildefault', 'boostme@boostme.cn');
 INSERT INTO setting VALUES ('list_default', '10');
 INSERT INTO setting VALUES ('verify_problem', '0');
 INSERT INTO setting VALUES ('editor_toolbars', 'bold,forecolor,insertimage,autotypeset,attachment,link,unlink,map,insertcode,fullscreen');
@@ -569,13 +639,32 @@ CREATE TABLE material_category (
   `material_id` int(10) unsigned NOT NULL,
 
   `region_id` varchar(32) NOT NULL,
+  `school_id` varchar(32) DEFAULT NULL,
+  `dept_id` varchar(128) DEFAULT NULL,
+  `major_id` varchar(128) DEFAULT NULL,
+
+  PRIMARY KEY(`id`),
+  KEY `mid`(`material_id`),
+  KEY `region_id`(`region_id`),
+  KEY `school_id`(`school_id`),
+  KEY `dept_id`(`dept_id`),
+  KEY `major_id`(`major_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/* DROP INDEX index_name ON talbe_name */
+
+/* DROP TABLE IF EXISTS easy_access; */
+CREATE TABLE easy_access (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `region_id` varchar(32) NOT NULL,
   `school_id` varchar(32) NOT NULL,
   `dept_id` varchar(128) NOT NULL,
   `major_id` varchar(128) NOT NULL,
+  `time` int(10) NOT NULL DEFAULT '0',
+  `target_type` enum('material','service', 'problem') NOT NULL DEFAULT 'material',
 
   PRIMARY KEY(`id`),
-  UNIQUE KEY `mid_majorid`(`material_id`,`major_id`),
-  KEY `mid`(`material_id`),
+  KEY `uid`(`uid`),
   KEY `region_id`(`region_id`),
   KEY `school_id`(`school_id`),
   KEY `dept_id`(`dept_id`),
@@ -590,6 +679,9 @@ CREATE TABLE material_comment (
   `author` char(18) NOT NULL,
   `content` text NOT NULL,
   `time` int(10) NOT NULL DEFAULT '0',
+  `up` int(10) unsigned NOT NULL DEFAULT '0',
+  `down` int(10) unsigned NOT NULL DEFAULT '0',
+
   PRIMARY KEY (`id`),
   KEY `mid`(`mid`),
   KEY `authorid`(`authorid`)
@@ -599,11 +691,23 @@ CREATE TABLE material_comment (
 CREATE TABLE material_score (
   `uid` int(10) unsigned NOT NULL,
   `mid` int(10) NOT NULL,
-  `score` smallint(3) NOT NULL,
+  `score` DOUBLE NOT NULL,
   `time` int(10) NOT NULL,
   PRIMARY KEY (`uid`,`mid`),
   KEY `uid`(`uid`),
   KEY `mid`(`mid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
+
+/* DROP TABLE IF EXISTS material_comment_support; */
+CREATE TABLE material_comment_support (
+  `uid` int(10) unsigned NOT NULL,
+  `comment_id` int(10) NOT NULL,
+  `time` int(10) NOT NULL,
+  `sup_type` tinyint(1) unsigned NOT NULL DEFAULT '0', /* 0: 有用； 1: 无用 */
+
+  PRIMARY KEY (`uid`,`comment_id`),
+  KEY `uid`(`uid`),
+  KEY `comment_id`(`comment_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
 /* DROP TABLE IF EXISTS trade; */
@@ -619,6 +723,7 @@ CREATE TABLE trade (
   `trade_type` varchar(32) DEFAULT NULL, /* 支付类型：alipay、tenpay等 */
   `trade_mode` smallint(2) NOT NULL, /* 支付方式：即时到账、担保交易等 */
   `transaction_id` varchar(32) DEFAULT NULL,
+  `pay_account` varchar(64) DEFAULT NULL, /* 用户付款账户 */
   `time` int(10) NOT NULL,
   PRIMARY KEY (`trade_no`),
   KEY `uid`(`uid`)
@@ -627,14 +732,17 @@ CREATE TABLE trade (
 /* DROP TABLE IF EXISTS trade_info; */
 CREATE TABLE trade_info (
   `trade_no` varchar(32) NOT NULL,
-  `mid` int(10) unsigned NOT NULL,
-  `title` char(200) NOT NULL,
-  `price` double NOT NULL,
+  `uid` int(10) unsigned NOT NULL,
+  `username` char(18) NOT NULL,
+  `target_id` int(10) unsigned NOT NULL, /* 物品ID号 */
+  `type` mediumint(8) NOT NULL,  /* 商品类型：资料(1)、咨询(2)、验证支付宝账户(3) */
   `buy_num` mediumint(8) NOT NULL,
   `time` int(10) NOT NULL,
 
-  PRIMARY KEY (`trade_no`, `mid`),
+  PRIMARY KEY (`trade_no`, `target_id`, `type`),
   KEY (`trade_no`),
-  KEY (`mid`)
+  KEY (`target_id`),
+  KEY (`target_id`, `type`),
+  KEY `uid`(`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 

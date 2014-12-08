@@ -26,14 +26,14 @@ class problemmodel {
     }
 
     // 插入问题到problem表
-    public function add($uid, $username, $title, $description, $price, $status=PB_STATUS_UNAUDIT) {
+    public function add($uid, $username, $title, $price, $status=PB_STATUS_UNAUDIT) {
         global $setting;
         $overdue_days = intval($setting['overdue_days']);
         $creattime = time();
         $endtime = time() + $overdue_days * 86400;
-        (!strip_tags($description, '<img>')) && $description = '';
+        //(!strip_tags($description, '<img>')) && $description = '';
 
-        $this->db->query("INSERT INTO problem SET authorid='$uid',author='$username',title='$title',description='$description',price='$price',time='$creattime',endtime='$endtime',status='$status',ip='" . getip() . "'");
+        $this->db->query("INSERT INTO problem SET authorid='$uid',author='$username',title='$title',price='$price',time='$creattime',endtime='$endtime',status='$status',ip='" . getip() . "'");
         $pid = $this->db->insert_id();
 
         $this->db->query("UPDATE user SET `problems`=`problems`+1 WHERE `uid`=$uid");

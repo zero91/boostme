@@ -1,0 +1,45 @@
+<!--{template header}-->
+<!--{template common_link}-->
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <!-- <ul class="col-md-7 col-sm-6 setting-content"> -->
+            <div class="col-md-10 col-sm-10 setting-content">
+                <div class="form-horizontal">
+                    <div class="form-group" id="g-name">
+                        <label for="user" class="col-sm-2 control-label"></label>
+                        <div class="col-sm-10">
+                            <p>您当前拥有 <strong>{$tot_code_num}</strong> 个邀请链接，复制并分享给你的好友，在Boostme提供咨询的用户能够给你带来额外的收入哦， <a href="{SITE_URL}main/help">详情</a></p>
+                            <!--{if $tot_code_num == 0}-->
+                            如果您是研究生，可<a href="{SITE_URL}service/register">提供咨询</a>，通过系统验证后，就可以拿到3个邀请码啦
+                            <!--{/if}-->
+                        </div>
+                    </div>
+
+                    <!--{eval $cnt = $startindex}-->
+                    <!--{loop $code_list $code}-->
+                    <!--{eval $cnt += 1;}-->
+                    <div class="form-group" id="g-name">
+                        <label for="user" class="col-sm-2 control-label">邀请链接 {$cnt}</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" style="float:left; border-left:none;cursor:pointer;" value="{SITE_URL}user/register/{$code['code']}" readonly/>
+                        </div>
+                        <div class="col-sm-2">
+                            <!--{if $code['invite_user']}-->
+                            <span style="color:red;">成功邀请<strong>{$code['invite_username']}</strong></span>
+                            <!--{else}-->
+                            <span style="color:green;">未使用</span>
+                            <!--{/if}-->
+                        </div>
+                    </div>
+                    <!--{/loop}-->
+                </div>
+                <center><div>{$departstr}</div></center>
+            </div>
+            <div class="col-md-5 col-sm-6 gd" style="overflow:hidden">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--{template footer}-->

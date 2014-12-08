@@ -4,15 +4,15 @@
 
 class messagecontrol extends base {
 
-    function messagecontrol(& $get, & $post) {
-        $this->base($get, $post);
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
         $this->load('user');
         $this->load("message");
     }
 
     // 私人消息
-    function onpersonal() {
-        $navtitle = '个人消息';
+    public function onpersonal() {
+        $navtitle = '私人消息';
         $type = 'personal';
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
@@ -24,18 +24,31 @@ class messagecontrol extends base {
     }
 
     // 系统消息
-    function onsystem() {
-        $navtitle = '系统消息';
+    public function onsystem() {
+        $this->check_login();
+
+        $navtitle = '通知';
         $type = 'system';
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
         $messagelist = $_ENV['message']->list_by_touid($this->user['uid'], $startindex, $pagesize);
         $messagenum = $this->db->fetch_total('message', 'touid=' . $this->user['uid'] . ' AND fromuid=0 AND status<>'. MSG_STATUS_TO_DELETED);
+
         $departstr = page($messagenum, $pagesize, $page, "message/system");
 
         $_ENV['message']->read_by_fromuid(0);
         include template("message");
+    }
+
+    // 阅读消息
+    public function onread() {
+        $mid = $this->get[2];
+        if (empty($mid)) {
+            exit('-1');
+        }
+        $affected_rows = $_ENV['message']->read_by_mid($mid);
+        exit("$affected_rows");
     }
 
     // 发消息
@@ -53,7 +66,7 @@ class messagecontrol extends base {
     }
 
     // 查看消息
-    function onview() {
+    public function onview() {
         $navtitle = "查看消息";
         $type = ($this->get[2] == 'personal') ? 'personal' : 'system';
         $fromuid = intval($this->get[3]);
@@ -70,10 +83,10 @@ class messagecontrol extends base {
     }
 
     // 删除消息
-    function onremove() {
+    public function onremove() {
         $msgid = intval($this->get[2]);
         if ($msgid > 0) {
-            $_ENV['message']->remove($msgid);
+            $_ENV['message']->remove($this->user['uid'], $msgid);
             exit('1');
         }
         exit('-1');
@@ -84,8 +97,8 @@ class messagecontrol extends base {
         $fromuid = array(intval($this->get[2]));
 
         if ($fromuid > 0) {
-            $_ENV['message']->remove_by_author($fromuid);
-            exit('1');
+            $affected_rows = $_ENV['message']->remove_by_author($fromuid);
+            exit("$affected_rows");
         }
         exit('-1');
     }

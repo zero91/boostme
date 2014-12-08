@@ -1,0 +1,236 @@
+<script type="text/javascript" src="{SITE_URL}public/js/school_major.js"></script>
+
+<div class="modal fade" id="categoryModal" role="dialog">
+  <div class="modal-dialog" style="width:1200px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">分类选择</h4>
+      </div>
+      <div class="modal-body">
+        <table>
+          <tr valign="top">
+            <td style="width:105px;"><select id="region" size="11" name="region" style="width:100%;"></select></td>
+            <td align="center" valign="middle" width="20px"><div style="" id="arrow1">>></div></td>
+
+            <td width="250px"><select id="school" size="11" name="school" style="width:100%;"></select></td>
+            <td align="center" valign="middle" width="25px"><div style="" id="arrow2">>>&nbsp;</div></td>
+
+            <td width="250px"><select id="dept" size="11" name="dept" style="width:100%;"></select></td>
+            <td align="center" valign="middle" width="25px"><div style="" id="arrow2">>>&nbsp;</div></td>
+
+            <td width="250px"><select id="major" size="11" name="major" style="width:100%;"></select></td>
+
+            <td align="center" valign="middle" width="25px">
+              <div style="margin:5px;"><input type="button" class="btn btn-primary" value="添&nbsp;加" id="category_add_btn" disabled="true"/></div>
+              <div style="margin:5px;"><input type="button" class="btn btn-primary" value="删&nbsp;除" id="category_del_btn" disabled="true"/></div>
+            </div>
+
+            <td width="170px">
+              <span>已选择分类：</span>
+              <select id="choose_list" size="10" name="choose_list" style="width:100%;"></select>
+            </td>
+
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <input type="button" class="btn btn-primary" data-dismiss="modal" value="确&nbsp;认" id="category_btn" disabled="true"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+    show_region();
+
+    $("#category").click(function() {
+        $("#categoryModal").modal('show');
+    });
+
+    $("#region").change(function() {
+        $("#school").html("");
+        $("#dept").html("");
+        $("#major").html("");
+
+        var region_id = $("#region option:selected").val();
+        show_school(region_id);
+
+        $("#category_id").val("");
+        $("#category").val("");
+        $("#category_btn").attr('disabled', 'disabled');
+        $("#category_add_btn").attr('disabled', 'disabled');
+    }); 
+
+    $("#school").change(function() {
+        $("#dept").html("");
+        $("#major").html("");
+
+        var school_id = $("#school option:selected").val();
+        show_dept(school_id);
+
+        $("#category_id").val("");
+        $("#category").val("");
+        $("#category_btn").attr('disabled', 'disabled');
+        $("#category_add_btn").attr('disabled', 'disabled');
+    }); 
+
+    $("#dept").change(function() {
+        $("#major").html("");
+
+        var dept_id = $("#dept option:selected").val();
+        show_major(dept_id);
+
+        $("#category_id").val("");
+        $("#category").val("");
+        $("#category_btn").attr('disabled', 'disabled');
+        $("#category_add_btn").attr('disabled', 'disabled');
+    }); 
+
+    $("#major").change(function() {
+        update_category_value();
+    }); 
+
+    $("#category_add_btn").click(function() {
+        $("#choose_list").html($("#choose_list").html() + "<option value='" + $("#major").val() + "'>" + $("#major option:selected").html() + "</option>");
+        $("#category_add_btn").attr('disabled', 'disabled');
+        update_category_value();
+    });
+
+    $("#choose_list").change(function() {
+        if ($("#choose_list option:selected").length > 0) {
+            $("#category_del_btn").removeAttr('disabled');
+        } else {
+            $("#category_del_btn").attr('disabled', 'disabled');
+        }
+    });
+
+    $("#category_del_btn").click(function() {
+        $("#choose_list option:selected").remove();
+
+        update_category_value();
+        $("#category_del_btn").attr('disabled', 'disabled');
+        if ($.trim($("#choose_list").html()) == "") {
+            $("#category_btn").atrr('disabled', 'disabled');
+        }
+    });
+});
+
+function index_sort_func(x, y) {
+    var int_x = parseInt(x['index']);
+    var int_y = parseInt(y['index']);
+
+    if (int_x > int_y) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
+
+function show_region() {
+    var optionhtml = '';
+    var region_index_list = Array();
+    for (var region_id in m_region_dict) {
+        region_index_list.push({'index' : m_region_dict[region_id]['index'], 'id' : region_id});
+    }
+    region_index_list.sort(index_sort_func);
+
+    for (var k = 0; k < region_index_list.length; ++k) {
+        region_id = region_index_list[k]['id'];
+        optionhtml += "<option value='" + region_id + "'>" + m_region_dict[region_id]['name'] + "</option>";
+    }
+    $("#region").html(optionhtml);
+}
+
+function show_school(region_id) {
+    var optionhtml = '';
+    var school_list = m_region_dict[region_id]['school_list'];
+
+    var school_index_list = Array();
+    for (var k = 0; k < school_list.length; ++k) {
+        var school_id = school_list[k];
+        school_index_list.push({'index' : m_school_dict[school_id]['index'], 'id' : school_id});
+    }
+    school_index_list.sort(index_sort_func);
+
+    for (var k = 0; k < school_index_list.length; ++k) {
+        school_id = school_index_list[k]['id'];
+        optionhtml += "<option value='" + school_id + "'>" + m_school_dict[school_id]['name'] + "</option>";
+    }
+    $("#school").html(optionhtml);
+}
+
+function show_dept(school_id) {
+    var optionhtml = '';
+    var dept_list = m_school_dict[school_id]['dept_list'];
+
+    var dept_index_list = Array();
+    for (var k = 0; k < dept_list.length; ++k) {
+        var dept_id = dept_list[k];
+        dept_index_list.push({'index' : m_dept_dict[dept_id]['index'], 'id' : dept_id});
+    }
+    dept_index_list.sort(index_sort_func);
+
+    for (var k = 0; k < dept_index_list.length; ++k) {
+        dept_id = dept_index_list[k]['id'];
+        optionhtml += "<option value='" + dept_id + "'>" + m_dept_dict[dept_id]['name'] + "</option>";
+    }
+    $("#dept").html(optionhtml);
+}
+
+function show_major(dept_id) {
+    var optionhtml = '';
+    var major_list = m_dept_dict[dept_id]['major_list'];
+
+    var major_index_list = Array();
+    for (var k = 0; k < major_list.length; ++k) {
+        var major_id = major_list[k];
+        major_index_list.push({'index' : m_major_dict[major_id]['index'], 'id' : major_id});
+    }
+    major_index_list.sort(index_sort_func);
+
+    for (var k = 0; k < major_index_list.length; ++k) {
+        major_id = major_index_list[k]['id'];
+        optionhtml += "<option value='" + major_id + "'>" + m_major_dict[major_id]['name'] + "</option>";
+    }
+    $("#major").html(optionhtml);
+}
+
+function update_category_value() {
+    var choose_num = $("#choose_list option").length;
+
+    var text_array = new Array();
+    var value_array = new Array();
+    var already_choose = false;
+    for (var i = 0; i < choose_num; ++i) {
+        text_array.push($("#choose_list").get(0).options[i].text);
+        value_array.push($("#choose_list").get(0).options[i].value);
+
+        if ($("#major option:selected").html() == $("#choose_list").get(0).options[i].text) {
+            already_choose = true;
+        }
+    }
+
+    if (already_choose == true || $("#major").length == 0) {
+        $("#category_add_btn").attr('disabled', 'disabled');
+    } else {
+        $("#category_add_btn").removeAttr('disabled');
+    }
+
+    if ($("#choose_list option:selected").length == 0) {
+        $("#category_del_btn").attr('disabled', 'disabled');
+    } else {
+        $("#category_del_btn").removeAttr('disabled');
+    }
+
+    $("#category").val(text_array.join(","));
+    $("#category_id").val(value_array.join(","));
+
+    if (choose_num > 0) {
+        $("#category_btn").removeAttr('disabled');
+    } else {
+        $("#category_btn").attr('disabled', 'disabled');
+    }
+}
+</script>

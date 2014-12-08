@@ -31,16 +31,14 @@ class answercontrol extends base {
 
             //$admin_control = '&nbsp;&nbsp;|&nbsp;&nbsp;<span><a href="javascript:void(0)" onclick="deletecomment({commentid},{answerid});">删除</a></span>';
             foreach ($commentlist as $comment) {
-                $viewurl = urlmap('user/space/' . $comment['authorid'], 2);
-
                 if ($admin_control) {
                     $del_comment = str_replace("{commentid}", $comment['id'], $admin_control);
                     $del_comment = str_replace("{answerid}", $comment['aid'], $del_comment);
                 }
 
-                $commentstr .= "<div class=\"list-group-item\"><div style=\"position:absolute;left:5px;\"><a href=\"?$viewurl\" target=\"_blank\">" .
-                                        "<img class=\"img-circle\" width=\"30\" height=\"30\" src=\"{$comment['avatar']}\"></a>" .
-                                        "<p><a href=\"?$viewurl\" target=\"_blank\">{$comment['author']}</a></p></div>" .
+                $commentstr .= "<div class=\"list-group-item\"><div style=\"position:absolute;left:5px;\">" .
+                                        "<img class=\"img-circle\" width=\"30\" height=\"30\" src=\"" . get_avatar_dir($comment['authorid']) . "\">" .
+                                        "<p>{$comment['author']}</p></div>" .
                                         "<div style=\"margin-left:35px;\">" .
                                         "<div class=\"\">{$comment['content']}</div>" .
                                         "<div style=\"position:absolute;right:25px;bottom:1px;font-size:11px;color:grey;\"><span>{$comment['format_time']}</span>$del_comment</div></div></div>";

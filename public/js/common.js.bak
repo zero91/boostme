@@ -1,0 +1,109 @@
+//验证码
+function updatecode() {
+    var img = g_site_url + "user/code/" + Math.random();
+    $('#verifycode').attr("src", img);
+}
+
+//验证码检测
+function check_code() {
+    var code = $.trim($('#code').val());
+    if ($.trim(code) == '') {
+        $('#codetip').html("验证码错误");
+        $('#codetip').attr('class', 'input_error');
+        return false;
+    }
+    $.ajax({
+        type: "GET",
+        async: false,
+        cache: false,
+        url: g_site_url + "user/ajaxcode/" + code,
+        success: function(flag) {
+            if ("1" == flag) {
+                $('#codetip').html("&nbsp;");
+                $('#codetip').attr('class', 'input_ok');
+                return true;
+            } else {
+                $('#codetip').html("验证码错误");
+                $('#codetip').attr('class', 'input_error');
+                return false;
+            }
+        }
+    });
+}
+
+var query = '/';
+
+function bytes(str) {
+    var len = 0;
+    for (var i = 0; i < str.length; i++) {
+        if (str.charCodeAt(i) > 127) {
+            len++;
+        }
+        len++;
+    }
+    return len;
+}
+
+//问题分类选择函数
+function initcategory(category1) {
+    var selectedcid1 = $("#selectcid1").val();
+    $("#category1").html('');
+    for (var i = 0; i < category1.length; i++) {
+        var selected = '';
+        if (selectedcid1 === category1[i][0]) {
+            selected = ' selected';
+        }
+        $("#category1").append("<option value='" + category1[i][0] + "' " + selected + ">" + category1[i][1] + "</option>");
+    }
+    $("#catedialog").dialog({
+        autoOpen: false,
+        width: 480,
+        modal: true,
+        resizable: false
+    });
+}
+
+//usercard弹出层
+function pop_user_on(popobj, uid, type) {
+    $("#usercard").load(g_site_url + "index.php" + query + "user/ajaxuserinfo/" + uid, {}, function() {
+        var myalign = "left-27 bottom-30";
+        if (type == 'text') {
+            myalign = "left-21 bottom-10";
+        } else if (type == 'image_active') {
+            myalign = "left-40 bottom-43";
+        }
+        if (popusertimer) {
+            clearTimeout(popusertimer);
+        }
+        popusertimer = setTimeout(function() {
+            $("#usercard").show();
+            $("#usercard").position({
+                my: myalign,
+                of: popobj
+            });
+        }, 300);
+
+    });
+}
+function pop_user_out() {
+    if (popusertimer) {
+        clearTimeout(popusertimer);
+    }
+    popusertimer = setTimeout(function() {
+        $("#usercard").hide();
+    }, 600);
+}
+
+function checkall(checkname) {
+    var chkall = $("#chkall:checked").val();
+    if (chkall && (chkall === 'chkall')) {
+        $("input[name^='" + checkname + "']").each(function() {
+            $(this).prop("checked", "checked");
+        });
+    } else {
+        $("input[name^='" + checkname + "']").each(function() {
+            $(this).removeProp("checked");
+        });
+    }
+}
+

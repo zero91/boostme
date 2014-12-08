@@ -1,0 +1,131 @@
+<!--{template header}-->
+<link href="{SITE_URL}public/css/default/forum.css" rel="stylesheet">
+<link rel="stylesheet" href="{SITE_URL}public/js/plugin/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/plugin/editor/ueditor.all.js"></script> 
+<script type="text/javascript" src="{SITE_URL}public/js/forum.js"></script> 
+<style type="text/css">
+    .answer_num {position: absolute; top: 20px; left: 10px; }
+    .msg_content {margin: 0 10px 0 45px !important; padding: 10px; line-height: 26px;}
+    .msg_content img {max-width:150px;max-height:150px;}
+    .list-group-item {border:0px;background-color:#FCFCFC;padding:0px;}
+
+    #description {max-height:100px;max-width:500px;overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+    #description img{max-height:100px;max-width:200px;}
+    a:link {color: #0449be;}
+    a:visited {color: #653096;}
+    a:hover {color: #2d64b3;}
+    a:active {}
+</style>
+
+<div style="margin-top:84px;"></div>
+<div class="container">
+    <div class="col-sm-11">
+        <ul class="list-group">
+            <hr style="border-color: #DFE2E6">
+            <!--{loop $questionlist $question}-->
+            <li class="list-group-item">
+                <table style="width:100%;text-align:left;min-height:66px;">
+                    <tbody>
+                        <tr>
+                            <td width="10%">
+                                <img width="60" height="60" src="{eval echo get_avatar_dir($question['authorid']);}" class="img-circle"/>
+                                <p><small>{$question['author']}</small></p>
+                            </td>
+                            <td width="65%">
+                                <p><a href="{SITE_URL}question/view/{$question['qid']}">{$question['title']}</a></p>
+                                <div id="description">{$question['description']}</div>
+                            </td>
+                            <td width="5%">
+                                <i class="fa fa-comments-o"> {$question['answers']}</i>
+                            </td>
+                            <td width="15%">
+                                <!-- <span class="badge alert-info">{$question['answers']}</span> -->
+                                <!-- <div style="position:absolute;right:20px;bottom:35px;font-size:12px;color:grey;"> -->
+                                <div class="pull-right"><span>{eval echo tdate($question['time'])}</span></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr style="border-color: #DFE2E6">
+            </li>
+            <!--{/loop}-->
+        </ul>
+        <center><div class="pages">{$departstr}</div></center>
+
+        <div style="background: url({SITE_URL}public/css/default/forum_editor.jpg) repeat;">
+          <div style="padding:10px;">
+            共有贴子<span style="color:red">{$question_num}</span>篇，考研小伙伴<span style="color:red">{eval echo $user_num + 888}</span>枚
+          </div>
+          <form name="questionform" action="{SITE_URL}question/add" method="POST" onsubmit="return check_form();">
+            <div class="msg_content">
+              <div id="question_title" style="margin-bottom:15px;">
+                <div id="limit_num" class="pull-right">还可输入<span style="color:red">40</span>字</div>
+                <input type="text" class="form-control" placeholder="请输入主题" name="title" id="title"/>
+              </div>
+              <script type="text/plain" id="content" name="content" style="height: 244px;"></script>
+              <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+              <div style="margin-top:15px;">
+                <span>验证码：</span>
+                <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
+                <img src="{SITE_URL}user/code" onclick="javascript:updatecode();" id="verifycode">
+                <a href="javascript:updatecode();">&nbsp;换一个</a><span id="codetip"></span>
+                <input type="submit" value="发&nbsp;表" class="btn btn-primary pull-right" name="submit">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div> <!-- tab-pane -->
+    </div><!-- tab-content -->
+  </div>
+  <div class="col-sm-3"></div><!--col-sm-3-->
+</div><!-- container end -->
+
+<script type="text/javascript">
+var g_forum = new Forum();
+$(document).ready(function() {
+    g_forum.start_img_light($(".msg_content img"));
+    g_forum.start_img_light($("#description img"));
+
+    $("#title").keyup(function() {
+        var title = $(this).val();
+        var chars_num = 0;
+        for (var i = 0; i < title.length; ++i) {
+            if (title.charCodeAt(i) > 255) {
+                chars_num += 2;
+            } else {
+                ++chars_num;
+            }
+
+            if (chars_num > 80) {
+                title = title.substr(0, i);
+                $(this).val(title);
+                $("#limit_num span").html(0);
+                return false;
+            }
+        }
+        $("#limit_num span").html(Math.floor((80 - chars_num)/2));
+    });
+});
+
+function check_form() {
+    <!--{if empty($user['uid'])}-->
+    alert("您还未登录，请先登录");
+    window.location.href = "/user/login";
+    return false;
+    <!--{/if}-->
+    if ($.trim($("#title").val()) == '') {
+        alert("请输入主题!");
+        return false;
+    }
+    /*
+    if ($.trim(UE.getEditor('content').getPlainTxt()) == '') {
+        alert("内容不能为空!");
+        return false;
+    }
+    */
+    return check_code();
+}
+</script>
+<!--{template footer}-->

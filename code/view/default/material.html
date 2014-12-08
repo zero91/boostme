@@ -1,0 +1,338 @@
+<!--{template header}-->
+<link href="{SITE_URL}public/css/default/material.css" rel="stylesheet">
+<script src="{SITE_URL}public/js/school_major.js"></script>
+
+<header id="top-header" class="top-header jumbotron" style="background-image: url(/public/images/index/banner_slide_03.jpg);">
+    <div class="container">
+        <div class="col-md-8">
+            <h2>考研资料</h2>
+            <h2>师兄有资料？师妹好想要</h2>
+            <h3>考研相关的各类资料！</h3>
+            <div class="features media">
+                <h5 class="media-left">快捷入口：</h5>
+                <div class="media-body" id="easy_access_list"></div>
+            </div>
+        </div>
+        <div class="col-md-4 hidden-sm hidden-xs">
+            <div class="activities-wrap">
+                <div class="activities">
+                    <h2>Boostme登记资料 <i class="fa fa-star"></i></h2>
+                    <p>有一些珍贵的资料，现在就分享给大家！</p>
+                    <p class="text-center">
+                    <!-- <a class="btn btn-default btn-sm" href="{SITE_URL}material/register">缺少登记</a> -->
+                        <a class="btn btn-default btn-sm" href="{SITE_URL}material/add">上传资料</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</header>
+
+<section class="newest-jobs container">
+    <div class="page-header">
+        <h3>最新资料
+            <div class="col-sm-10 pull-right">
+                <select class="selectpicker col-sm-2" id="select_region"><option value=''>地区</option></select>
+                <select class="selectpicker col-sm-3" id="select_school"><option value=''>学校</option></select>
+                <select class="selectpicker col-sm-3" id="select_dept"><option value=''>院系</option></select>
+                <select class="selectpicker col-sm-3" id="select_major"><option value=''>专业</option></select>
+                <a id="easy_access" href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加到快捷入口">
+                    <small class="glyphicon glyphicon-plus-sign"></small>
+                </a>
+            </div>
+        </h3>
+    </div>
+</section>
+
+<section class="job-list">
+    <div class="container">
+        <div class="row" id="material_show">
+            <!--{loop $material_list $material}-->
+            <div class="col-sm-6 col-md-4">
+                <a href="{SITE_URL}material/view/{$material['id']}" class="job-item-wrap" target="_blank">
+                    <div class="job-item">
+                        <div class="job-source light-green">
+                            <img class="img-responsive" src="{$material['picture']}">
+                        </div>
+                        <div class="job-company">{$material['username']}</div>
+                        <div class="job-title">{$material['title']}</div>
+                        <div class="job-salary">价格：¥{eval echo number_format($material['price'],2)}</div>
+                        <div class="job-comments">
+                            <p>
+                                <span class="label label-default">已售{$material['sold_num']}份</span>
+                                <span class="label label-default">浏览{$material['view_num']}次</span>
+                                <span class="label label-default">评论{$material['comment_num']}条</span>
+                                <span class="label label-default">平均{eval echo number_format($material['avg_score'], 2)}分</span>
+                            </p>
+                        </div>
+                        <div class="job-meta">
+                            <span class="job-publish-time">{eval echo tdate($material['time']);}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!--{/loop}-->
+        </div>
+
+        <div class="col-sm-6 col-sm-push-3 col-md-4 col-md-push-4">
+            <p><a id="more" class="btn-load-more btn btn-primary btn-lg btn-block"><i class="fa fa-th"></i>  更多资料</a></p>
+        </div>
+    </div>
+</section>
+
+<script type="text/javascript">
+
+//var g_easy_access_cnt = {eval echo count($user_access_list)};
+var g_easy_access_cnt = 0;
+var g_view_page_num = 1;
+var g_region_id = "{$region_id}";
+var g_school_id = "{$school_id}";
+var g_dept_id = "{$dept_id}";
+var g_major_id = "{$major_id}";
+
+function create_easy_access_link(id, param, region_name, school_name, dept_name, major_name) {
+    var label_color_array = {2 : 'label-warning', 1 : 'label-success', 5 : 'label-default', 3 : 'label-danger', 0 : 'label-primary', 4 : 'label-info'};
+    //var label_color = label_color_array[Math.floor(Math.random() * 4)];
+    var label_color = label_color_array[g_easy_access_cnt];
+    g_easy_access_cnt += 1;
+    var link_html = '<p class="coms"><a class="label ' + label_color + ' " href="{SITE_URL}material/default?' + param + '">';
+    link_html += " " + region_name;
+    link_html += " " + school_name;
+    link_html += " " + dept_name;
+    link_html += " " + major_name;
+    link_html += '</a><a id="' + id + '" href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="删除此快捷入口">';
+    link_html += '<small class="glyphicon glyphicon-minus-sign"></small></a></p>';
+    return link_html;
+}
+
+$(function(){
+
+    var link_html = '';
+    <!--{loop $user_access_list $user_access}-->
+    link_html = create_easy_access_link('{$user_access['id']}', '{$user_access['param']}',
+        <!--{if !empty($user_access['region_id'])}-->m_region_dict['{$user_access['region_id']}']['name']<!--{else}-->""<!--{/if}-->,
+        <!--{if !empty($user_access['school_id'])}--> m_school_dict['{$user_access['school_id']}']['name']<!--{else}-->""<!--{/if}-->,
+        <!--{if !empty($user_access['dept_id'])}-->m_dept_dict['{$user_access['dept_id']}']['name']<!--{else}-->""<!--{/if}-->,
+        <!--{if !empty($user_access['major_id'])}-->m_major_dict['{$user_access['major_id']}']['name']<!--{else}-->""<!--{/if}-->);
+
+    $('#easy_access_list').append(link_html);
+    <!--{/loop}-->
+
+    $(".glyphicon-minus-sign").click(function() {
+        var id = $(this).parent().attr('id');
+        if (confirm('确定删除该快捷入口?') === false) {
+            return false;
+        }
+
+        var target = $(this).parent().parent();
+
+        $.ajax({
+          type: "GET",
+          url:"{SITE_URL}user/remove_easy_access/" + id,
+          cache: false,
+          success: function(succeed) {
+                if (succeed == '0') {
+                    target.remove();
+                } else if (succeed == '-1') {
+                    alert("添加失败");
+                }
+            }
+        });
+    });
+
+    $("#easy_access").click(function() {
+        <!--{if $user['uid'] > 0}-->
+        if (confirm('确定添加该快捷入口?') === false) {
+            return false;
+        }
+        var region_id = $.trim($("#select_region option:selected").val());
+        var school_id = $.trim($("#select_school option:selected").val());
+        var dept_id = $.trim($("#select_dept option:selected").val());
+        var major_id = $.trim($("#select_major option:selected").val());
+
+        var region_name = "";
+        var school_name = "";
+        var dept_name = "";
+        var major_name = "";
+
+        var param = "";
+        if (region_id) {
+            param = "region_id="+region_id;
+            region_name = m_region_dict[region_id]['name'];
+            if (school_id) {
+                param += "&school_id=" + school_id;
+                school_name = m_school_dict[school_id]['name'];
+                if (dept_id) {
+                    param += "&dept_id=" + dept_id;
+                    dept_name = m_dept_dict[dept_id]['name'];
+                    if (major_id) {
+                        param += "&major_id=" + major_id;
+                        major_name = m_major_dict[major_id]['name'];
+                    }
+                }
+            }
+        }
+
+        param += "&target_type=material";
+
+        $.ajax({
+          type: "GET",
+          url:"{SITE_URL}user/easy_access?" + param,
+          cache: false,
+          success: function(succeed) {
+                succeed = parseInt(succeed);
+                if (succeed > 0) {
+                    var link_html = create_easy_access_link(succeed, param, region_name, school_name, dept_name, major_name);
+                    $("#easy_access_list").append(link_html);
+                } else if (succeed == '-1') {
+                    alert("添加失败");
+                } else if (succeed == '0') {
+                    alert("最多只能添加3个快捷入口!");
+                }
+            }
+        });
+        <!--{else}-->
+        alert("请先登录");
+        window.location.href = "{SITE_URL}user/login";
+        <!--{/if}-->
+    });
+
+    $("#select_region").change(function() {
+        var region_id = $("#select_region option:selected").val();
+        $("#select_school").html(fetch_school_optionhtml(m_region_dict, m_school_dict, region_id));
+        $("#select_school").removeAttr('disabled');
+
+        $("#select_dept").html("<option value=''>院系</option>");
+        $("#select_dept").attr('disabled', 'disabled');
+
+        $("#select_major").html("<option value=''>专业</option>");
+        $("#select_major").attr('disabled', 'disabled');
+
+        replace_material_list({"region_id" : region_id});
+        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id);
+        g_region_id = region_id;
+        g_school_id = "";
+        g_dept_id = "";
+        g_major_id = "";
+        $('.selectpicker').selectpicker('refresh');
+    }); 
+
+    $("#select_school").change(function() {
+        var region_id = $("#select_region option:selected").val();
+        var school_id = $("#select_school option:selected").val();
+        $("#select_dept").html(fetch_dept_optionhtml(m_school_dict, m_dept_dict, school_id));
+        $("#select_dept").removeAttr('disabled');
+
+        $("#select_major").html("<option value=''>专业</option>");
+        $("#select_major").attr('disabled', 'disabled');
+
+        replace_material_list({"region_id" : region_id, "school_id" : school_id});
+        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id);
+
+        g_region_id = region_id;
+        g_school_id = school_id;
+        g_dept_id = "";
+        g_major_id = "";
+
+        $('.selectpicker').selectpicker('refresh');
+    }); 
+
+    $("#select_dept").change(function() {
+        var region_id = $("#select_region option:selected").val();
+        var school_id = $("#select_school option:selected").val();
+        var dept_id = $("#select_dept option:selected").val();
+        $("#select_major").html(fetch_major_optionhtml(m_dept_dict, m_major_dict, dept_id));
+        $("#select_major").removeAttr('disabled');
+
+        replace_material_list({"region_id" : region_id, "school_id" : school_id, "dept_id" : dept_id});
+        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id);
+        g_region_id = region_id;
+        g_school_id = school_id;
+        g_dept_id = dept_id;
+        g_major_id = "";
+
+        $('.selectpicker').selectpicker('refresh');
+    });
+
+    $("#select_major").change(function() {
+        var region_id = $("#select_region option:selected").val();
+        var school_id = $("#select_school option:selected").val();
+        var dept_id = $("#select_dept option:selected").val();
+        var major_id = $("#select_major option:selected").val();
+
+        g_region_id = region_id;
+        g_school_id = school_id;
+        g_dept_id = dept_id;
+        g_major_id = major_id;
+
+        replace_material_list({"region_id" : region_id, "school_id" : school_id, "dept_id" : dept_id, "major_id" : major_id});
+        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id + "&major_id=" + major_id);
+    });
+
+    $("#select_region").html(fetch_region_optionhtml(m_region_dict));
+    <!--{if empty($region_id)}-->
+    $("#select_school").attr('disabled', 'disabled');
+    <!--{else}-->
+    $("#select_region").val('$region_id');
+    $("#select_school").html(fetch_school_optionhtml(m_region_dict, m_school_dict, '$region_id'));
+    //$("#select_school").trigger('change');
+    <!--{/if}-->
+
+    <!--{if empty($school_id)}-->
+    $("#select_dept").attr('disabled', 'disabled');
+    <!--{else}-->
+    $("#select_school").val('$school_id');
+    $("#select_dept").html(fetch_dept_optionhtml(m_school_dict, m_dept_dict, '$school_id'));
+    <!--{/if}-->
+
+    <!--{if empty($dept_id)}-->
+    $("#select_major").attr('disabled', 'disabled');
+    <!--{else}-->
+    $("#select_dept").val('$dept_id');
+    $("#select_major").html(fetch_major_optionhtml(m_dept_dict, m_major_dict, '$dept_id'));
+    <!--{/if}-->
+
+    <!--{if !empty($major_id)}-->
+    $("#select_major").val('$major_id');
+    <!--{/if}-->
+
+    $('.selectpicker').selectpicker({'dropupAuto' : false, 'title':'asdf'});
+
+    $("#more").click(function() {
+        g_view_page_num += 1;
+        var material = new Material("{SITE_URL}");
+        var req_data = {"page": g_view_page_num, "region_id" : g_region_id, "school_id" : g_school_id, "dept_id" : g_dept_id, "major_id" : g_major_id};
+
+        var material_list = material.get_material_list(req_data);
+        if (material_list.length == 0) {
+            $("#more").hide();
+            alert("已经没有更多资料了");
+        }
+        for (var k = 0; k < material_list.length; ++k) {
+            $("#material_show").append(material.create_div(material_list[k]));
+        }
+    });
+});
+
+function replace_material_list(req_data) {
+    g_view_page_num = 1;
+    req_data['page'] = g_view_page_num;
+
+    var material = new Material("{SITE_URL}");
+    var material_list = material.get_material_list(req_data);
+    $("#material_show").empty();
+
+    for (var k = 0; k < material_list.length; ++k) {
+        $("#material_show").append(material.create_div(material_list[k]));
+    }
+
+    $("#more").show();
+}
+</script>
+
+<link href="{SITE_URL}public/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+<script src="{SITE_URL}public/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script src="{SITE_URL}public/js/material.js"></script>
+
+<!--{template footer}-->
