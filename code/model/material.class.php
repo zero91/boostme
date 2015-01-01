@@ -11,8 +11,8 @@ class materialmodel {
         return $this->db->fetch_first("SELECT * FROM material WHERE id='$mid'");
     }
 
-    public function get_list($start=0, $limit='') {
-        $sql = "SELECT * FROM `material` WHERE 1=1 ORDER BY `time` DESC";
+    public function get_list($start=0, $limit='', $status=MATERIAL_STATUS_PUBLISH) {
+        $sql = "SELECT * FROM `material` WHERE status='$status' ORDER BY `time` DESC";
         !empty($limit) && $sql.=" LIMIT $start,$limit";
         return $this->db->fetch_all($sql);
     }
@@ -23,6 +23,10 @@ class materialmodel {
 
     public function get_all_material_num() {
         return $this->db->fetch_total('material');
+    }
+
+    public function get_status_num($status) {
+        return $this->db->fetch_total("material", "`status`='$status'");
     }
 
     // 前台问题搜索

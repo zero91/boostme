@@ -24,10 +24,14 @@ class problemcontrol extends base {
         $major_id = $this->post['major_id'];
         $page = max(intval($this->post['page']), 1);
 
-        $pagesize = 10;
+        $pagesize = $this->setting['service_page_size'];
         $start = ($page - 1) * $pagesize;
 
-        $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+        if (empty($region_id)) {
+            $problem_list = $_ENV['problem']->get_list($start, $pagesize);
+        } else {
+            $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+        }
 
         $this->load('easy_access');
         $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "problem");
@@ -52,11 +56,20 @@ class problemcontrol extends base {
 
         $pagesize = $this->setting['service_page_size'];
         $start = ($page - 1) * $pagesize;
-        $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+
+        if (empty($region_id)) {
+            $problem_list = $_ENV['problem']->get_list($start, $pagesize);
+        } else {
+            $problem_list = $_ENV['problem_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+        }
 
         foreach ($problem_list as &$t_problem) {
             $t_problem['format_time'] = tdate($t_problem['time']);
-            $t_problem['author_avatar'] = get_avatar_dir($this->user['uid'], 'large');
+            $t_problem['author_avatar'] = get_avatar_dir($t_problem['authorid'], 'large');
+
+            $t_user = $_ENV['user']->get_by_uid($t_problem['authorid']);
+            $t_problem['phone'] = $t_user['phone'];
+            $t_problem['wechat'] = $t_user['wechat'];
         }
         echo json_encode($problem_list);
     }

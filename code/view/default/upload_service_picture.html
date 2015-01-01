@@ -61,10 +61,10 @@ $(function() {
     });
 
     $(".pic").click(function(){
-        if(uploaded == 0){
-            $("#takepic").click();
-            uploaded = 1;
-        }
+        //if (uploaded == 0) {
+            $("#service_pic").click();
+            //uploaded = 1;
+        //}
     });
 });
 </script>
@@ -88,7 +88,7 @@ $(function() {
             <img src="{$upload_pic['pic']}" id="target">
             <!--{else}-->
             <div style="margin:14px;">
-                在这里设置咨询的展示图片……<br/>请使用5M以内的jpg、gif、png图片。
+                在这里上传个人生活照<span style="color:red;">(必须)</span><br/>请使用5M以内的jpg、gif、png图片。
             </div>
             <!--{/if}-->
         </div>

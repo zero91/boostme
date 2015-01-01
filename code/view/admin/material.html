@@ -1,0 +1,112 @@
+<!--{template header,'admin'}-->
+<!--{template left_common,'admin'}-->
+
+<section class="alert">
+	<form method="link" action="#">
+		 <button class="green">Create new blog page</button>
+	</form>
+</section>
+
+<section class="content">
+	<section class="widget">
+		<header>
+			<span class="icon">&#128100;</span>
+			<hgroup>
+                <h1>正在申请({$tot_apply_material_num})</h1>
+				<h2>当前系统所有资料</h2>
+			</hgroup>
+			<aside>
+				<span>
+					<a href="#">&#9881;</a>
+					<ul class="settings-dd">
+						<li><label>Option a</label><input type="checkbox" /></li>
+						<li><label>Option b</label><input type="checkbox" checked="checked" /></li>
+						<li><label>Option c</label><input type="checkbox" /></li>
+					</ul>
+				</span>
+			</aside>
+		</header>
+        <div class="content">
+			<table id="myTable" border="0" width="100%">
+				<thead>
+					<tr>
+						<th class="avatar">用户</th>
+						<th>标题/分类</th>
+						<th>上传时间</th>
+						<th>数据</th>
+						<th>联系方式</th>
+						<th>状态</th>
+					</tr>
+				</thead>
+                <tbody>
+                    <!--{loop $apply_material_list $material}-->
+                    <tr>
+                        <td class="avatar"><img src="{eval echo get_avatar_dir($material['uid'])}" height="40" width="40" /> {$material['username']}</td>
+                        <td>
+                            <p><strong>标题:</strong> <a target="_blank" href="{SITE_URL}material/view/{$material['id']}">{$material['title']}</a></p>
+                            <p><strong>分类:</strong> <div id="category_list_{$material['id']}"></div></p>
+                            <p><strong>链接:</strong> <a target="_blank" href="{$material['site_url']}">{$material['site_url']}</a></p>
+                            <p><strong>提取码:</strong> {$material['access_code']}</p>
+                        </td>
+                        <td>{eval echo tdate($material['time'])}</td>
+                        <td>
+                            <p>价格：{$material['price']}</p>
+                            <p>售出{$material['sold_num']}份</p>
+                            <p>评论{$material['comment_num']}条</p>
+                        </td>
+                        <td>
+                            <!--{eval $t_user = $_ENV['user']->get_by_uid($material['uid'])}-->
+                            <p>微信：{eval echo $t_user['wechat']}</p>
+                            <p>QQ ：{eval echo $t_user['qq']}</p>
+                            <p>手机：{eval echo $t_user['phone']}</p>
+                        </td>
+                        <td id="status_{$material['id']}">
+                            <!--{if $material['status'] == MATERIAL_STATUS_APPLY}-->
+                            <input type="button" class="btn btn-sm" id="{$material['id']}" value="审核通过" onclick="accept_material({$material['id']})"/>
+                            <!--{elseif $material['status'] == MATERIAL_STATUS_PUBLISH}-->
+                            <p style="color:green;">已通过审核</p>
+                            <!--{elseif $material['status'] == MATERIAL_STATUS_DENIED}-->
+                            <p style="color:red;">未通过审核</p>
+                            <!--{/if}-->
+                        </td>
+                    </tr>
+                    <!--{/loop}-->
+                </tbody>
+            </table>
+            <center><div>{$apply_departstr}</div></center>
+		</div>
+	</section>
+</section>
+
+<script type="text/javascript">
+<!--{loop $material_list $material}-->
+<!--{loop $material['category'] $category}-->
+$("#category_list_{$material['id']}").append("<p>" + fetch_name_by_all("{$category['region_id']}", "{$category['school_id']}", "{$category['dept_id']}", "{$category['major_id']}") + '</p>');
+<!--{/loop}-->
+<!--{/loop}-->
+
+function accept_material(mid) {
+    $.ajax({
+        type: "GET",
+        url:"{SITE_URL}admin_material/accept/" + mid,
+        cache: false,
+        dataType: 'json',
+        success: function(data) {
+            if (typeof(data.success) == 'undefined') {
+                if (data.error == '101') {
+                    alert("资料无效");
+                } else if (data.error == '102') {
+                    alert("更新失败");
+                } else {
+                    alert("发生未知错误");
+                }
+            } else {
+                alert("操作成功");
+                $("#status_" + mid).html('<p style="color:green;">已通过审核</p>');
+            }
+        }
+    });
+}
+</script>
+<script src="{SITE_URL}public/js/choose_category.js"></script>
+<!--{template footer,'admin'}-->

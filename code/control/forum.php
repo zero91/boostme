@@ -10,8 +10,8 @@ class forumcontrol extends base {
     }
 
     // 私人消息
-    function ondefault() {
-        $navtitle = '考研帮';
+    public function ondefault() {
+        $navtitle = '交流区';
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;

@@ -30,29 +30,29 @@ class material_categorymodel {
         return $mid_list;
     }
 
-    public function get_full($region_id="", $school_id="", $dept_id="", $major_id="", $start=0, $limit=10) {
+    public function get_full($region_id="", $school_id="", $dept_id="", $major_id="", $start=0, $limit=10, $status=MATERIAL_STATUS_PUBLISH) {
         if (!empty($major_id)) {
-            return $this->get_full_by_cid($major_id, "major_id", $start, $limit);
+            return $this->get_full_by_cid($major_id, "major_id", $start, $limit, $status);
         }
         if (!empty($dept_id)) {
-            return $this->get_full_by_cid($dept_id, "dept_id", $start, $limit);
+            return $this->get_full_by_cid($dept_id, "dept_id", $start, $limit, $status);
         }
         if (!empty($school_id)) {
-            return $this->get_full_by_cid($school_id, "school_id", $start, $limit);
+            return $this->get_full_by_cid($school_id, "school_id", $start, $limit, $status);
         }
         if (!empty($region_id)) {
-            return $this->get_full_by_cid($region_id, "region_id", $start, $limit);
+            return $this->get_full_by_cid($region_id, "region_id", $start, $limit, $status);
         }
-        return $this->get_full_by_cid("", "", $start, $limit);
+        return $this->get_full_by_cid("", "", $start, $limit, $status);
     }
 
-    public function get_full_by_cid($cid="", $type="major_id", $start=0, $limit=10) {
+    public function get_full_by_cid($cid="", $type="major_id", $start=0, $limit=10, $status=MATERIAL_STATUS_PUBLISH) {
         $condition = "$type='$cid'";
         if (empty($cid)) {
             $condition = "1";
         }
 
-        return $this->db->fetch_all("SELECT material.* FROM `material`, (SELECT DISTINCT(`material_id`) FROM `material_category` WHERE $condition) AS mid WHERE material.id=mid.material_id ORDER BY `time` DESC LIMIT $start,$limit");
+        return $this->db->fetch_all("SELECT material.* FROM `material`, (SELECT DISTINCT(`material_id`) FROM `material_category` WHERE $condition) AS mid WHERE material.status='$status' AND material.id=mid.material_id ORDER BY `time` DESC LIMIT $start,$limit");
     }
 
     public function get_cid_material_num($cid, $type="major_id") {

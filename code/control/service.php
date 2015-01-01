@@ -30,7 +30,11 @@ class servicecontrol extends base {
         $pagesize = $this->setting['service_page_size'];
         $start = ($page - 1) * $pagesize;
 
-        $service_list = $_ENV['service_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+        if (empty($region_id)) {
+            $service_list = $_ENV['service']->get_list($start, $pagesize);
+        } else {
+            $service_list = $_ENV['service_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
+        }
 
         $this->load('easy_access');
         $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "service");
@@ -200,7 +204,7 @@ class servicecontrol extends base {
             $wechat = $this->post['wechat'];
 
             if ($id > 0) {
-                $_ENV['service']->update($id, $picture, $price, $profile);
+                $_ENV['service']->update($id, $picture, $price, $profile, SERVICE_STATUS_APPLY);
             } else {
                 $id = $_ENV['service']->add($this->user['uid'], $this->user['username'], $picture, $price, $profile);
             }
@@ -215,6 +219,7 @@ class servicecontrol extends base {
             echo json_encode($arr);
         } else {
             $service = $_ENV['service']->get_by_uid($this->user['uid']);
+            $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
             if (!empty($service)) {
                 $service['cid_list'] = $_ENV['service_category']->get_by_sid($service['id']);
             }
@@ -422,6 +427,8 @@ class servicecontrol extends base {
         $tot_comment_num = $_ENV['service_comment']->get_comment_num_by_sid($sid);
         $comment_list = $_ENV['service_comment']->get_by_sid($sid, $start, $pagesize);
 
+        $edu_list = $_ENV['education']->get_by_uid($service['uid']);
+
         $departstr = page($tot_comment_num, $pagesize, $page, "service/view/$sid");
         include template('viewservice');
     }
@@ -511,8 +518,6 @@ class servicecontrol extends base {
         }
         exit('0');
     }
-
-
 
     // 关闭求助
     function onclose() {

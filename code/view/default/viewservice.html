@@ -20,7 +20,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 
 .minfo_ul li {padding:10px;}
 .price_info {background-color:#FFF2E8;line-height:30px;}
-.li_text_info {width:60px;float:left;}
+.li_text_info {width:80px;float:left;}
 
 .buy_btn {width:150px;font-size:16px;}
 
@@ -55,7 +55,29 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                                 浏览&nbsp;{$service['view_num']}&nbsp;次&nbsp;&nbsp;|&nbsp;&nbsp;交易量&nbsp;{$service['service_num']}&nbsp;
                             </span>
                         </li>
-                        <li class="line-height:28px;display:none;">
+
+                        <!--{if count($edu_list) > 0}-->
+                        <li> 
+                            <div>
+                                <p class="li_text_info" style="font-weight:bold;">教育经历 </p>
+                                <!--{loop $edu_list $edu}-->
+                                <div><p>{$edu['start_time']} 至 <!--{if $edu['end_time'] == "0000-00-00"}-->今<!--{else}-->{$edu['end_time']}<!--{/if}-->&nbsp;&nbsp;&nbsp;&nbsp;{$edu['school']}{$edu['department']}{$edu['major']}</p><p class="li_text_info"></p></div>
+                                <!--{/loop}-->
+                            </div>
+                        </li>
+                        <!--{/if}-->
+
+                        <!--{if count($service['cid_list']) > 0}-->
+                        <li> 
+                            <div>
+                                <p class="li_text_info" style="font-weight:bold;">服务分类 </p>
+                                <div id="service_category_list">
+                                </div>
+                            </div>
+                        </li>
+                        <!--{/if}-->
+
+                        <li>
                             <div style="display:none;">
                                 <span class="li_text_info" style="margin-top:2px;">数量</span>
                                 <input type="number" id="quantity" name="quantity" step="1" min="1" max="10000" value="1" readonly />
@@ -136,6 +158,10 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 <script type="text/javascript">
 
 $(document).ready(function() {
+    <!--{loop $service['cid_list'] $category}-->
+    $("#service_category_list").append("<p>" + fetch_name_by_all("{$category['region_id']}", "{$category['school_id']}", "{$category['dept_id']}", "{$category['major_id']}"    ) + '</p><p class="li_text_info"></p>');
+    <!--{/loop}-->
+
     $('#star').raty({
         number : 5,
         hints: ['1', '2', '3', '4', '5'],

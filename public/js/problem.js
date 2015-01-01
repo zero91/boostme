@@ -42,6 +42,21 @@ Problem.prototype.add_problem = function(req_data_dict, callback_func) {
 }
 
 Problem.prototype.create_div = function(problem) {
+    var phone = problem.phone;
+    if (!phone) {
+        phone = "";
+    }
+
+    var wechat = problem.wechat;
+    if (!wechat) {
+        wechat = "";
+    }
+
+    var qq = problem.qq;
+    if (!qq) {
+        qq = "";
+    }
+
     var html = '<div class="col-sm-6 col-md-4">';
     html    += '<a class="job-item-wrap" target="_blank">';
     html    += '    <div class="job-item">';
@@ -50,7 +65,20 @@ Problem.prototype.create_div = function(problem) {
     html    += '        </div>';
     html    += '        <div class="job-company">' + problem.author + '</div>';
     html    += '        <div class="job-title">' + problem.title + '</div>';
-    html    += '        <div class="job-comments"></div>';
+    html    += '        <div class="job-comments">';
+    if (phone) {
+        html    += '            <p>手机：' + phone + '</p>';
+    }
+
+    if (wechat) {
+        html    += '            <p>微信：' + wechat + '</p>';
+    }
+
+    if (qq) {
+        html    += '            <p>QQ：  ' + qq + '</p>';
+    }
+
+    html    += '        </div>';
     html    += '        <div class="job-meta">';
     html    += '            <span class="job-location">[回报：' + problem.price + ']</span><span class="job-publish-time">' + problem.format_time + '</span>';
     html    += '        </div>';

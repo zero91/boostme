@@ -20,6 +20,14 @@ class admin_usercontrol extends base {
         $page = max(1, intval($this->get[2]));
         $pagesize = $this->setting['admin_user_page_size'];
         $userlist = $_ENV['user']->get_user_list(($page - 1) * $pagesize, $pagesize);
+
+        foreach ($userlist as &$t_user) {
+            if ($t_user['invited_by_uid'] > 0) {
+                $tmp_user = $_ENV['user']->get_by_uid($t_user['invited_by_uid']);
+                $t_user['invited_by_username'] = $tmp_user['username'];
+            }
+        }
+
         $departstr = page($statistics['all_user_num'], $pagesize, $page, "admin_user/default");
 
         include template('user', 'admin');

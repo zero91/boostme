@@ -34,6 +34,7 @@
 						<th>图片</th>
 						<th>联系方式</th>
 						<th>教育经历</th>
+						<th>申请内容和分类</th>
 						<th>申请时间</th>
 						<th>操作</th>
 					</tr>
@@ -64,6 +65,11 @@
                             <!--{/if}-->
                             <p>{$edu_type} {$edu['school']} {$edu['department']} {$edu['major']}</p>
                             <!--{/loop}-->
+                        </td>
+                        <td>
+                            <p><strong>内容:</strong> {$service['profile']}</p>
+                            <p><strong>分类:</strong> <div id="category_list_{$service['id']}"></div></p>
+                            <p><strong>价格:</strong> {$service['price']}</p>
                         </td>
                         <td>{eval echo tdate($service['time'])}</td>
                         <td>
@@ -106,7 +112,7 @@
 						<th>图片</th>
 						<th>联系方式</th>
 						<th>教育经历</th>
-						<th>申请时间</th>
+						<th>申请时间/价格</th>
 					</tr>
 				</thead>
                 <tbody>
@@ -136,7 +142,7 @@
                             <p>{$edu_type} {$edu['school']} {$edu['department']} {$edu['major']}</p>
                             <!--{/loop}-->
                         </td>
-                        <td>{eval echo tdate($service['time'])}</td>
+                        <td><p><strong>价格:</strong>{$service['price']}</p><p><strong>时间:</strong>{eval echo tdate($service['time'])}</p></td>
                     </tr>
                     <!--{/loop}-->
                 </tbody>
@@ -146,11 +152,17 @@
 	</section>
 </section>
 
-
-
 <script type="text/javascript">
+
+<!--{loop $apply_service_list $service}-->
+<!--{loop $service['category'] $category}-->
+$("#category_list_{$service['id']}").append("<p>" + fetch_name_by_all("{$category['region_id']}", "{$category['school_id']}", "{$category['dept_id']}", "{$category['major_id']}") + '</p>');
+<!--{/loop}-->
+<!--{/loop}-->
+
 function denied_service(id) {
     var message = prompt("请输入不通过的原因：");
+    var target = $("#tr_" + id);
     $.ajax({
         type: "GET",
         url:"{SITE_URL}admin_service/denied_service/" + id,
@@ -165,6 +177,7 @@ function denied_service(id) {
                     alert("发生未知错误！");
                 }
             } else {
+                target.remove();
                 alert("已通知用户不通过的相关信息");
             }
         }
@@ -194,4 +207,5 @@ function accept_service(id) {
     });
 }
 </script>
+<script src="{SITE_URL}public/js/choose_category.js"></script>
 <!--{template footer,'admin'}-->

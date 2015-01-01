@@ -207,7 +207,7 @@ class materialcontrol extends base {
         }
     }
 
-    function onedit() {
+    public function onedit() {
         $navtitle = "更改资料";
         $op_type = "edit";
 
@@ -350,27 +350,19 @@ class materialcontrol extends base {
         }
     }
 
-    function onuser() {
-        if (empty($this->get[2])) {
-            $this->message("非法提交，缺少参数!", 'BACK');
-        }
+    // 个人空间用户上传资料展示
+    public function onuser() {
+        $this->check_login();
 
-        $op_type = $this->get[2];
+        $uid = $this->user['uid'];
+        $material_num = $_ENV['material']->get_user_total_materials($uid);
 
-        if ($op_type == 'sold') {
-            $material_num = $_ENV['material']->get_user_total_materials($this->user['uid']);
+        $page = max(1, intval($this->get[2]));
+        $pagesize = $this->setting['list_default'];
 
-            $page = max(1, intval($this->get[3]));
-            $pagesize = $this->setting['list_default'];
-
-            $start = ($page - 1) * $pagesize;
-            $departstr = page($material_num, $pagesize, $page, "material/user/sold");
-            $material_list = $_ENV['material']->list_by_uid($this->user['uid'], $start, $pagesize);
-        } else if ($op_type == 'buy') {
-            $mid_list = $_ENV['trade']->get_user_mid_list($this->user['uid']);
-            $material_list = $_ENV['material']->get_by_mids($mid_list);
-        }
-
+        $start = ($page - 1) * $pagesize;
+        $departstr = page($material_num, $pagesize, $page, "material/user");
+        $material_list = $_ENV['material']->list_by_uid($uid, $start, $pagesize);
         include template('user_material');
     }
 }

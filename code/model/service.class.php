@@ -23,8 +23,8 @@ class servicemodel {
         return $this->db->fetch_total("service", "`status`='$status'");
     }
 
-    public function get_list($start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM service ORDER BY `time` DESC LIMIT $start,$limit");
+    public function get_list($start=0, $limit=10, $status=SERVICE_STATUS_ACCEPTED) {
+        return $this->db->fetch_all("SELECT * FROM service WHERE status='$status' ORDER BY `time` DESC LIMIT $start,$limit");
     }
 
     public function get_service_num() {
@@ -72,9 +72,16 @@ class servicemodel {
         return $this->db->affected_rows();
     }
 
-    public function update($id, $picture, $price, $profile) {
+    public function update($id, $picture, $price, $profile, $status="") {
         $time = time();
-        $this->db->query("UPDATE service SET `picture`='$picture',`price`='$price',`profile`='$profile' WHERE `id`=$id");
+        $sql = "UPDATE service SET `picture`='$picture',`price`='$price',`profile`='$profile'";
+        if (!empty($status)) {
+            $sql .= ",`status`='$status' ";
+        }
+        $sql .= " WHERE `id`='$id'";
+
+        $this->db->query($sql);
+        //$this->db->query("UPDATE service SET `picture`='$picture',`price`='$price',`profile`='$profile' WHERE `id`=$id");
         return $this->db->affected_rows();
     }
 

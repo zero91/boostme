@@ -7,6 +7,7 @@ class admin_servicecontrol extends base {
     public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
         $this->load("service");
+        $this->load("service_category");
         $this->load("invite_code");
         $this->load("userresume");
         $this->load("education");
@@ -30,6 +31,7 @@ class admin_servicecontrol extends base {
             $t_service['user_info'] = $_ENV['user']->get_by_uid($t_service['uid']);
             $t_service['resume'] = $_ENV['userresume']->get_by_uid($t_service['uid']);
             $t_service['edu_list'] = $_ENV['education']->get_by_uid($t_service['uid']);
+            $t_service['category'] = $_ENV['service_category']->get_by_sid($t_service['id']);
         }
 
         $tot_accept_service_num = $_ENV['service']->get_status_num(SERVICE_STATUS_ACCEPTED);

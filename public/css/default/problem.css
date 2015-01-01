@@ -42,13 +42,13 @@
 .job-item:hover .job-source{border:5px solid #f1f2f7}
 .job-item .job-title{text-align:center;font-size:13px;font-weight:400;text-transform:uppercase;color:#32323a;margin-bottom:10px;min-height:130px;max-height:130px;overflow-y:hidden}
 .job-item .job-salary{text-align:center;font-size:14px;font-weight:700;color:#e74c3c}
-.job-item .job-comments{border-top:1px solid #dddfeb;padding-top:5px;margin-top:5px;max-height:90px;height:90px;overflow:hidden;color:#555}
+.job-item .job-comments{border-bottom:1px solid #dddfeb;padding-top:5px;margin-top:5px;max-height:90px;height:90px;overflow:hidden;color:#555}
 .job-item .job-comments .label{display:inline-block;color:#3d9ccc;font-weight:400;font-size:13px;margin-right:3px;margin-bottom:6px;background-color:#edf9ff;border:1px solid #e1f2fa;width:6em;text-align:center}
 .job-item .job-item:hover .light-yellow{background:#efca58}
 .job-item .job-item:hover .light-green{background:#9fba72}
 .job-item .job-item:hover .light-violet{background:#a188cf}
 .job-item .job-item:hover .light-blue{background:#67b7e5}
-.job-item .job-meta{color:#777;font-size:12px}
+.job-item .job-meta{color:#777;font-size:12px;padding-top:5px;}
 .job-item .job-meta:before,.job-item .job-meta:after{content:" ";display:table}
 .job-item .job-meta:after{clear:both}
 .job-item .job-meta:before,.job-item .job-meta:after{content:" ";display:table}

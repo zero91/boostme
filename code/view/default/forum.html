@@ -43,7 +43,9 @@
                             <td width="15%">
                                 <!-- <span class="badge alert-info">{$question['answers']}</span> -->
                                 <!-- <div style="position:absolute;right:20px;bottom:35px;font-size:12px;color:grey;"> -->
-                                <div class="pull-right"><span>{eval echo tdate($question['time'])}</span></div>
+                                <div class="pull-right">
+                                    <span>{eval echo tdate($question['update_time'])}</span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

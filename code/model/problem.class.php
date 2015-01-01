@@ -13,7 +13,7 @@ class problemmodel {
     }
 
     public function get_list($start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM `problem` LIMIT $start,$limit ORDER BY `time` DESC");
+        return $this->db->fetch_all("SELECT * FROM `problem` ORDER BY `time` DESC LIMIT $start,$limit");
     }
 
     public function get_all_prob_num() {

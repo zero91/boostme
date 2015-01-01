@@ -59,9 +59,17 @@
                         <div class="job-company">{$problem['author']}</div>
                         <div class="job-title">{$problem['title']}</div>
                         <div class="job-comments">
+                            <!--{if !empty($t_user['phone'])}-->
                             <p>手机：{$t_user['phone']}</p>
+                            <!--{/if}-->
+
+                            <!--{if !empty($t_user['wechat'])}-->
                             <p>微信：{$t_user['wechat']}</p>
+                            <!--{/if}-->
+
+                            <!--{if !empty($t_user['qq'])}-->
                             <p>QQ： {$t_user['qq']}</p>
+                            <!--{/if}-->
                         </div>
                         <div class="job-meta">
                             <span class="job-location">

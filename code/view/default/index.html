@@ -57,8 +57,8 @@
         <div id="testimonial_text_wap" class="col-xs-9 col-sm-10">
             <!--{loop $service_list $service}-->
             <div class="testimonial_text">
-                <div class="col-sm-3">
-                    <img src="{$service['picture']}" class="img-responsive" alt="Business Development Manager" />
+                <div class="col-sm-3" style="min-height:200px;">
+                    <a href="{SITE_URL}service/view/{$service['id']}"><img src="{$service['picture']}" class="img-responsive" alt="Business Development Manager" /></a>
                 </div>
                 <div class="col-sm-9">
                     <h2>{$service['username']}</h2>

@@ -3,6 +3,9 @@
 <link rel="stylesheet" href="{SITE_URL}public/js/plugin/lightbox/lightbox.css"/>
 <link href="{SITE_URL}public/css/default/avatar.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="{SITE_URL}public/js/plugin/lightbox/lightbox.js"></script>
+<style type="text/css">
+    .ui-datepicker-title {color:black;}
+</style>
 
 <!--{template common_link}-->
 <div class="container">
@@ -210,8 +213,10 @@ g_edu_idx = Math.max(1, <!--{eval echo count($edu_list)}-->);
 var ID_ok = <!--{eval echo count($resume['ID_path'])}-->;
 var studentID_ok = <!--{eval echo count($resume['studentID'])}-->;
 var resume_ok = <!--{eval echo count($resume['resume_path'])}-->;
-
 $(document).ready(function() {
+    $.datepicker.regional["zh-CN"] = {closeText: "关闭", prevText: "&#x3c;上月", nextText: "下月&#x3e;", currentText: "今天", monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"], monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"], dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"], dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"], dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"], weekHeader: "周", dateFormat: "yy-mm-dd", firstDay: 1, isRTL: !1, showMonthAfterYear: !0, yearSuffix: "年" }
+    $.datepicker.setDefaults($.datepicker.regional["zh-CN"]);
+
     $("#ID_path_div img, #studentID_div img").each(function(i) {
         var img = $(this);
         img.wrap("<a href='" + img.attr("src") + "' title='" + img.attr("title") + "' data-lightbox='comment'></a>");
@@ -444,4 +449,6 @@ function add_edu() {
 <script type="text/javascript">
     document.write("<script type='text/javascript' src='{SITE_URL}public/js/plugin/uploadify/jquery.uploadify.js?" + (new Date()).getTime()  + "'></s" + "cript>"); 
 </script>
+<link rel="stylesheet" type="text/css" href="{SITE_URL}public/js/plugin/jquery-ui/jquery-ui.css" />
+<script src="{SITE_URL}public/js/plugin/jquery-ui/jquery-ui.min.js"></script>
 <!--{template footer}-->

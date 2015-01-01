@@ -23,6 +23,10 @@
                 <a href="{SITE_URL}trade/history">购买历史</a>
             </li>
 
+            <li <!--{if $regular == "material/user"}-->class="active"<!--{/if}-->>
+                <a href="{SITE_URL}material/user">我的资料</a>
+            </li>
+
             <li <!--{if $regular == "service/register"}-->class="active"<!--{/if}-->>
                 <a href="{SITE_URL}service/register">提供咨询</a>
             </li>
@@ -34,7 +38,6 @@
             <li <!--{if $regular == "message/system"}-->class="active"<!--{/if}-->>
                 <a href="{SITE_URL}message/system">消息通知</a>
             </li>
-
         </ul>
     </div>
 </div>

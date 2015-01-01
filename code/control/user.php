@@ -477,7 +477,7 @@ class usercontrol extends base {
         }
     }
 
-    function onupload_studentID() {
+    public function onupload_studentID() {
         $uid = intval($this->get[2]);
         $session_id = $this->post['session_id'];
         $session_info = $_ENV['user']->get_session_by_sid($session_id);

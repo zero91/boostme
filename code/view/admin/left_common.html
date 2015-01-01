@@ -74,16 +74,22 @@
 </div>
 <nav>
 	<ul>
-        <li <!--{if $type == "admin_main/default"}-->class="section"<!--{/if}-->>
+        <li <!--{if $regular == "admin_main/default"}-->class="section"<!--{/if}-->>
             <a href="{SITE_URL}admin_main/default"><span class="icon">&#128711;</span> 主控板</a>
         </li>
-		<li>
-			<a href="pages-table.html"><span class="icon">&#128196;</span> Pages</a>
-			<ul class="submenu">
-				<li><a href="page-new.html">Create page</a></li>
-				<li><a href="page-timeline.html">View pages</a></li>
-			</ul>	
+
+        <li <!--{if $regular == "admin_user/default"}-->class="section"<!--{/if}-->>
+            <a href="{SITE_URL}admin_user/default"><span class="icon">&#128101;</span> 用户 <span class="pip">3</span></a>
+        </li>
+
+        <li <!--{if $regular == "admin_service/default"}-->class="section"<!--{/if}-->>
+            <a href="{SITE_URL}admin_service/default"><span class="icon">&#128203</i></span> 咨询区</a>
+        </li>
+
+        <li <!--{if $regular == "admin_material/default"}-->class="section"<!--{/if}-->>
+            <a href="{SITE_URL}admin_material/default"><span class="icon">&#128196;</span> 资料区</a>
 		</li>
+
 		<li>
 			<a href="files.html"><span class="icon">&#127748;</span> Media <span class="pip">7</span></a>
 			<ul class="submenu">
@@ -91,6 +97,7 @@
 				<li><a href="files.html">View files</a></li>
 			</ul>
 		</li>
+
 		<li>
 			<a href="blog-timeline.html"><span class="icon">&#59160;</span> Blog <span class="pip">12</span></a>
 			<ul class="submenu">
@@ -102,13 +109,6 @@
 
 		<li><a href="statistics.html"><span class="icon">&#128202;</span> Statistics</a></li>
 
-        <li <!--{if $type == "admin_service/default"}-->class="section"<!--{/if}-->>
-            <a href="{SITE_URL}admin_service/default"><span class="icon">&#128203</i></span> 咨询区</a>
-        </li>
-
-        <li <!--{if $type == "admin_user/default"}-->class="section"<!--{/if}-->>
-            <a href="{SITE_URL}admin_user/default"><span class="icon">&#128101;</span> 用户 <span class="pip">3</span></a>
-        </li>
 		<li>
 			<a href="ui-elements.html"><span class="icon">&#9881;</span> UI Elements</a>
 			<ul class="submenu">
