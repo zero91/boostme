@@ -33,7 +33,8 @@ CREATE TABLE user (
   
   PRIMARY KEY (`uid`),
   KEY username(username),
-  KEY email(email)
+  KEY email(email),
+  KEY invited_by_uid(`invited_by_uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /* alter table `user` add column `balance` DOUBLE NOT NULL DEFAULT '0'; */
 
@@ -108,8 +109,7 @@ CREATE TABLE user_resume (
   `apply_time` int(10) DEFAULT NULL, /* 申请时间 */
   `accepted_time` int(10) DEFAULT NULL, /* 通过审核的时间 */
 
-  PRIMARY KEY (`uid`),
-  UNIQUE KEY `ID`(`ID`)
+  PRIMARY KEY (`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /* DROP TABLE IF EXISTS education; */
@@ -229,8 +229,7 @@ CREATE TABLE problem (
   KEY authorid (authorid),
   KEY solverid (`solverid`),
   KEY time (`time`),
-  KEY price (`price`),
-  KEY cid(`cid`)
+  KEY price (`price`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /* DROP TABLE IF EXISTS problem_category; */
