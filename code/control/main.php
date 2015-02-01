@@ -51,7 +51,6 @@ class maincontrol extends base {
     // 查询图片是否需要点击放大
     function onajaxchkimg() {
         list($width, $height, $type, $attr) = getimagesize($this->post['imgsrc']);
-        runlog("test007", "width = $width, height = $height, type = $type, attr = $attr");
         ($width > 200) && exit('1');
         exit('-1');
     }

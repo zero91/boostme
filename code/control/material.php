@@ -13,49 +13,13 @@ class materialcontrol extends base {
         $this->load('trade');
     }
 
+    // 资料首页
     public function ondefault() {
         $region_id = $this->post['region_id'];
         $school_id = $this->post['school_id'];
         $dept_id = $this->post['dept_id'];
         $major_id = $this->post['major_id'];
-        $page = max(intval($this->post['page']), 1);
-
-        $pagesize = $this->setting['service_page_size'];
-        $start = ($page - 1) * $pagesize;
-
-        $material_list = $_ENV['material_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
-
-        $this->load('easy_access');
-        $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "material");
-        foreach ($user_access_list as &$t_user_access) {
-            $param = "";
-            !empty($t_user_access['region_id']) && $param .= "region_id=" . $t_user_access['region_id'];
-            !empty($t_user_access['school_id']) && $param .= "&school_id=" . $t_user_access['school_id'];
-            !empty($t_user_access['dept_id']) && $param .= "&dept_id=" . $t_user_access['dept_id'];
-            !empty($t_user_access['major_id']) && $param .= "&major_id=" . $t_user_access['major_id'];
-
-            $t_user_access['param'] = $param;
-        }
         include template('material');
-    }
-
-    // 获取material列表
-    public function onfetch_list() {
-        $region_id = $this->post['region_id'];
-        $school_id = $this->post['school_id'];
-        $dept_id = $this->post['dept_id'];
-        $major_id = $this->post['major_id'];
-        $page = max(intval($this->post['page']), 1);
-
-        $pagesize = $this->setting['service_page_size'];
-        $start = ($page - 1) * $pagesize;
-
-        $material_list = $_ENV['material_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
-
-        foreach ($material_list as &$material) {
-            $material['format_time'] = tdate($material['time']);
-        }
-        echo json_encode($material_list);
     }
 
     public function onview() {
@@ -122,29 +86,9 @@ class materialcontrol extends base {
         exit('0');
     }
 
-    /*
-    function onupdate_data() {
-        $category_list = $_ENV['material_category']->get_list();
-
-        foreach ($category_list as $category) {
-            $major_id = $category['major_id'];
-
-            $region_id = 'R' . substr($major_id, 1, 2);
-            $school_id = 'S' . substr($major_id, 1, 6);
-            $dept_id = 'D' . substr($major_id, 1, 9);
-
-            $_ENV['material_category']->update($category['id'], $category['material_id'], $region_id, $school_id, $dept_id, $major_id);
-        }
-
-        echo "SUCCEED";
-    }
-     */
-
     function oncategorylist() {
         $school_id = $this->get[2];
-
         include template('material_category_list');
-        //include template('material_category_list');
     }
 
     // 浏览求助
@@ -198,11 +142,6 @@ class materialcontrol extends base {
             $_ENV['material_category']->multi_add($mid, $category, false);
             $this->jump("material/view/$mid");
         } else {
-            /*
-            if (0 == $this->user['uid']) {
-                $this->message("请先登录!", "user/login");
-            }
-             */
             include template('addmaterial');
         }
     }
@@ -364,6 +303,295 @@ class materialcontrol extends base {
         $departstr = page($material_num, $pagesize, $page, "material/user");
         $material_list = $_ENV['material']->list_by_uid($uid, $start, $pagesize);
         include template('user_material');
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+
+    // @onajax_fetch_list    [获取material列表]
+    // @request type         [GET/POST]
+    // @param[in]  region_id [区域ID号]
+    // @param[in]  school_id [学校ID号]
+    // @param[in]    dept_id [院系ID号]
+    // @param[in]   major_id [专业ID号]
+    // @param[in]       page [页号]
+    // @return               [material列表]
+    public function onajax_fetch_list() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+
+        $material_list = $_ENV['material_category']->get_full($region_id,
+                                                              $school_id,
+                                                              $dept_id,
+                                                              $major_id,
+                                                              $start,
+                                                              $pagesize);
+
+        echo json_encode($material_list);
+    }
+
+    // @onajax_comment       [用户对资料进行评价]
+    // @request type         [GET/POST]
+    // @param[in]        mid [资料ID号]
+    // @param[in]      score [评论分数]
+    // @param[in]    content [评论内容]
+    // @return         成功 [success为true, id为新增加评论ID号]
+    //                 失败 [success为false, error为相应的错误码]
+    //
+    // @error           101 [用户尚未登录]
+    // @error           102 [数据库添加失败]
+    public function onajax_comment() {
+        $res = array();
+        if ($this->user['uid'] > 0) {
+            $mid = $this->post['mid'];
+            $score = $this->post['score'];
+            $content = $this->post['content'];
+
+            // 先添加分数，后面计算平均分需要使用到
+            $_ENV['material_score']->add($this->user['uid'], $mid, $score);
+            $comment_id = $_ENV['material_comment']->add($mid,
+                                                         $content,
+                                                         $this->user['uid'],
+                                                         $this->user['username']);
+            if ($comment_id > 0) {
+                $res['success'] = true;
+                $res['id'] = $comment_id;
+            } else {
+                $res['success'] = false;
+                $res['error'] = 102; // 数据库添加失败
+            }
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_comment_support [用户对评论进行顶或者踩]
+    // @request type           [GET/POST]
+    // @param[in]   comment_id [评论ID号]
+    // @param[in]  thumbs_type [操作类型，0为顶，1为踩]
+    // @param[in]      content [评论内容]
+    // @return            成功 [success为true, num为该评论的该操作的总量]
+    //                         [例如操作类型为0，表示顶的总量]
+    //                    失败 [success为false, error为相应的错误码]
+    //
+    // @error              101 [用户尚未登录]
+    // @error              102 [评论ID号无效]
+    // @error              103 [该用户对该评论已经做出操作]
+    public function onajax_comment_support() {
+        $res = array();
+        if ($this->user['uid'] > 0) {
+            $comment_id = $this->post['comment_id'];
+            $thumbs_type = $this->post['thumbs_type'];
+
+            if (empty($comment_id)) {
+                $res['success'] = false;
+                $res['error'] = 102; // 评论ID号无效
+            } else {
+                $user_support = $_ENV['material_comment']->get_user_support($this->user['uid'],
+                                                                            $comment_id);
+                if (!empty($user_support)) {
+                    $res['success'] = false;
+                    $res['error'] = 103; // 该用户对该评论已经做出操作
+                } else {
+                    $_ENV['material_comment']->add_support($this->user['uid'],
+                                                           $comment_id,
+                                                           $thumbs_type);
+                    $comment = $_ENV['material_comment']->get_comment($comment_id);
+
+                    $res['success'] = true;
+                    if ($thumbs_type == '0') {
+                        $res['num'] = $comment['up'];
+                    } else {
+                        $res['num'] = $comment['down'];
+                    }
+                }
+            }
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101;  // 用户尚未登录
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_add                 [添加资料]
+    // @request type               [POST]
+    // @param[in]            title [资料标题]
+    // @param[in]      description [资料描述]
+    // @param[in]            price [资料价格]
+    // @param[in]         category [资料分类]
+    // @param[in]  picture_tmp_url [临时上传的图片地址]
+    // @param[in]         site_url [资料链接地址]
+    // @param[in]      access_code [资料获取密码]
+    // @return            成功 [success为true, forward表示新添加的资料的链接地址]
+    //                    失败 [success为false, error为相应的错误码]
+    //
+    // @error              101 [用户尚未登录]
+    // @error              102 [验证码错误]
+    public function onajax_add() {
+        $res = array();
+
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+        } else {
+            $title = htmlspecialchars($this->post['title']);
+            $description = $this->post['description'];
+            $price = doubleval($this->post["price"]);
+            $category = $this->post['category'];
+            $picture_tmp_url = $this->post['picture_tmp_url'];
+            $site_url = $this->post['site_url'];
+            $access_code = $this->post['access_code'];
+
+            if ($this->setting['code_material_add'] && !$this->checkcode($this->user['sid'])) {
+                $res['success'] = false;
+                $res['error'] = 102; // 验证码错误
+            } else {
+                $type = get_image_type(WEB_ROOT . $picture_tmp_url);
+                $picture_fname = date("YmdHis") . random(3) . "." . $type;
+                $target_path = "/public/data/material/" . $picture_fname;
+
+                if (file_exists(WEB_ROOT . $picture_tmp_url)) {
+                    image_resize(WEB_ROOT . $picture_tmp_url, WEB_ROOT . $target_path, 500, 700);
+                }
+                $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'],
+                                              $target_path, $title, $description, $price,
+                                              $site_url, $access_code);
+                $_ENV['material_category']->multi_add($mid, $category, false);
+
+                $res['success'] = true;
+                $res['forward'] = SITE_URL .  "material/view/$mid";
+            }
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_edit                [编辑资料]
+    // @request type               [POST]
+    // @param[in]            title [资料标题]
+    // @param[in]      description [资料描述]
+    // @param[in]            price [资料价格]
+    // @param[in]         category [资料分类]
+    // @param[in]  picture_tmp_url [临时上传的图片地址]
+    // @param[in]         site_url [资料链接地址]
+    // @param[in]      access_code [资料获取密码]
+    // @return                成功 [success为true, forward表示新添加的资料的链接地址]
+    //                        失败 [success为false, error为相应的错误码]
+    //
+    // @error                  101 [无效参数，未指定资料ID号]
+    // @error                  102 [验证码错误]
+    // @error                  103 [用户无权操作]
+    public function onajax_edit() {
+        $res = array();
+
+        $mid = $this->post['mid'];
+        if (empty($mid)) {
+            $res['success'] = true;
+            $res['error'] = 101; // 无效参数，未指定资料ID号
+            echo json_encode($res);
+            return;
+        }
+
+        if ($this->setting['code_material_add'] && !$this->checkcode($this->user['sid'])) {
+            $res['success'] = false;
+            $res['error'] = 102; // 验证码错误
+            echo json_encode($res);
+            return;
+        }
+
+        $material = $_ENV['material']->get($mid);
+        if ($material['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户无权操作
+            echo json_encode($res);
+            return;
+        }
+
+        $title = htmlspecialchars($this->post['title']);
+        $description = $this->post['description'];
+        $price = doubleval($this->post["price"]);
+        $category = $this->post['category'];
+        $picture_tmp_url = $this->post['picture_tmp_url'];
+        $site_url = $this->post['site_url'];
+        $access_code = $this->post['access_code'];
+
+        if (!empty($picture_tmp_url)) {
+            $picture_fname = end(explode("/", $picture_tmp_url));
+            $picture_tmp_path = "/public/data/tmp/" . $picture_fname;
+            $target_path = "/public/data/material/" . $picture_fname;
+
+            if (file_exists(WEB_ROOT . $picture_tmp_path)) {
+                // rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
+                image_resize(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path, 400, 400);
+            }
+            $_ENV['material']->update_picture($mid, $target_path);
+        }
+
+        $affected_rows = $_ENV['material']->update($mid, $title, $description,
+                                                   $price, $site_url, $access_code);
+
+        $_ENV['material_category']->multi_add($mid, $category, false);
+        $res['success'] = true;
+        $res['forward'] = SITE_URL . "material/view/$mid";
+        echo json_encode($res);
+    }
+
+    // @onajax_user                [获取用户已上传资料列表]
+    // @request type               [GET/POST]
+    // @param[in]             page [资料页码列表]
+    // @return                成功 [success为true, material_list为资料列表]
+    //                        失败 [success为false, error为相应的错误码]
+    //
+    // @error                  101 [用户尚未登录]
+    public function onajax_user() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101;
+            echo json_encode($res);
+            return;
+        }
+
+        $uid = $this->user['uid'];
+        $material_num = $_ENV['material']->get_user_total_materials($uid);
+
+        $pagesize = $this->setting['list_default'];
+        $page = max(1, intval($this->post['page']));
+        $start = ($page - 1) * $pagesize;
+
+        $res['success'] = true;
+        $res['material_list'] = $_ENV['material']->list_by_uid($uid, $start, $pagesize);
+        echo json_encode($res);
+    }
+
+    // @onajax_user_material_num   [获取用户已上传资料总数量]
+    // @request type               [GET/POST]
+    // @return                成功 [success为true, num为该用户上传资料总数]
+    //                        失败 [success为false, error为相应的错误码]
+    //
+    // @error                  101 [用户尚未登录]
+    public function onajax_user_material_num() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101;
+            echo json_encode($res);
+            return;
+        }
+
+        $material_num = $_ENV['material']->get_user_total_materials($this->user['uid']);
+
+        $res['success'] = true;
+        $res['num'] = $material_num;
+        echo json_encode($res);
     }
 }
 

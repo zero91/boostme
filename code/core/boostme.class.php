@@ -18,8 +18,6 @@ class boostme {
         $control = new $controlname($this->get, $this->post);
         $method = 'on' . $this->get[1];
 
-        runlog('test007', "controlname = $controlname, method = $method", 0);
-
         if (method_exists($control, $method)) {
             $regular = $this->get[0] . '/' . $this->get[1];
             if ($control->checkable($regular)) {
@@ -38,9 +36,6 @@ class boostme {
 
         $access_path = $_GET['access_path'];
 
-        runlog("test007", "access_path = " . $access_path);
-        runlog("test007", "_GET = " . var_export($_GET, true));
-        runlog("test007", "_POST= " . var_export($_POST, true));
         $pos = strpos($access_path, '.');
         if ($pos !== false) {
             $access_path = substr($access_path, 0, $pos);

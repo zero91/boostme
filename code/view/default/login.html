@@ -19,7 +19,7 @@
             <label class="col-sm-2 control-label">验证码</label>
             <div class="col-sm-2"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
             <div class="col-sm-5">
-                <span class="verifycode"><img  src="{url user/code}" onclick="javascript:updatecode();" id="verifycode"></span>
+                <span class="verifycode"><img  src="{SITE_URL}user/code" onclick="javascript:updatecode();" id="verifycode"></span>
                 <a class="changecode" href="javascript:updatecode();">&nbsp;看不清?</a>
                 <span id="codetip"></span>
             </div>
@@ -32,18 +32,51 @@
                     <label><input type="checkbox" id="cookietime" name="cookietime" value="2592000">下次自动登录 </label>
                 </div>
                 <div class="col-sm-offset-4">
-                    <a href="{url user/register}">还没有账号？立即注册!</a>
+                    <a href="{SITE_URL}user/register">还没有账号？立即注册!</a>
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-5">
-                <input type="hidden" name="forward" value="{$forward}"/>
-                <button type="submit" class="btn btn-primary col-sm-12" name="submit">登&nbsp;录</button>
+                <input type="hidden" id="forward" name="forward" value="{$forward}"/>
+                <input type="button" id="login_btn" class="btn btn-primary col-sm-12" value="登&nbsp;录">
                 <!-- &nbsp;&nbsp;&nbsp;忘记密码了？请点击 <a href="{SITE_URL}user/getpass">找回密码</a>-->
             </div>
         </div>
     </form>
 </div>
+
+
+<script type="text/javascript">
+$(function() {
+    $("#login_btn").click(function() {
+        var req_data_dict = {};
+        req_data_dict['username'] = $("#username").val();
+        req_data_dict['password'] = $("#password").val();
+        req_data_dict['forward'] = $("#forward").val();
+        <!--{if $setting['code_login']}-->
+        req_data_dict['code'] = $("#code").val();
+        <!--{/if}-->
+
+        async_request("{SITE_URL}user/ajax_login", "post", req_data_dict, function(response) {
+            if (response.success) {
+                self.location.href = response.forward;
+
+            } else if (response.error == 101 || response.error == 102) {
+                alert("用户名或密码错误");
+
+            } else if (response.error == 103) {
+                alert("验证码错误");
+
+            } else if (response.error == 104) {
+                alert("已登录，请勿重复登录");
+
+            } else {
+                alert("发生未知错误");
+            }
+        });
+    });
+});
+</script>
 <!--{template footer}-->

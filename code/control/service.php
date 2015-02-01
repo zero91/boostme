@@ -20,55 +20,13 @@ class servicecontrol extends base {
         $this->load('trade');
     }
 
+    // 咨询服务首页
     public function ondefault() {
         $region_id = $this->post['region_id'];
         $school_id = $this->post['school_id'];
         $dept_id = $this->post['dept_id'];
         $major_id = $this->post['major_id'];
-        $page = max(intval($this->post['page']), 1);
-
-        $pagesize = $this->setting['service_page_size'];
-        $start = ($page - 1) * $pagesize;
-
-        if (empty($region_id)) {
-            $service_list = $_ENV['service']->get_list($start, $pagesize);
-        } else {
-            $service_list = $_ENV['service_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
-        }
-
-        $this->load('easy_access');
-        $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'], "service");
-        foreach ($user_access_list as &$t_user_access) {
-            $param = "";
-            !empty($t_user_access['region_id']) && $param .= "region_id=" . $t_user_access['region_id'];
-            !empty($t_user_access['school_id']) && $param .= "&school_id=" . $t_user_access['school_id'];
-            !empty($t_user_access['dept_id']) && $param .= "&dept_id=" . $t_user_access['dept_id'];
-            !empty($t_user_access['major_id']) && $param .= "&major_id=" . $t_user_access['major_id'];
-
-            $t_user_access['param'] = $param;
-        }
         include template('service');
-    }
-
-    // 获取service列表
-    public function onfetch_list() {
-        $region_id = $this->post['region_id'];
-        $school_id = $this->post['school_id'];
-        $dept_id = $this->post['dept_id'];
-        $major_id = $this->post['major_id'];
-        $page = max(intval($this->post['page']), 1);
-
-        $pagesize = $this->setting['service_page_size'];
-        $start = ($page - 1) * $pagesize;
-        $service_list = $_ENV['service_category']->get_full($region_id, $school_id, $dept_id, $major_id, $start, $pagesize);
-
-        runlog("test009", "start = $start, pagesize = $pagesize");
-        runlog("test009", var_export($service_list, true));
-
-        foreach ($service_list as &$t_service) {
-            $t_service['format_time'] = tdate($t_service['time']);
-        }
-        echo json_encode($service_list);
     }
 
     public function onedit_picture() {
@@ -106,9 +64,6 @@ class servicecontrol extends base {
             image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $target_img, 200, 200);
             $picture = $target_img;
             $_ENV['service']->update_picture($service['id'], $picture);
-
-            runlog("test007", "crop_img = $crop_img");
-            runlog("test007", "target_img = $target_img");
         }
         include template("edit_service_picture");
     }
@@ -128,7 +83,6 @@ class servicecontrol extends base {
                 return;
             }
 
-            runlog("test007", WEB_ROOT . $picname);
             $type = get_image_type(WEB_ROOT . $picname);
             $type = $extname;
             $uid = intval($this->user['uid']);
@@ -154,7 +108,6 @@ class servicecontrol extends base {
                 'width'  => $image_size[0],
                 'height' => $image_size[1]
             );
-            runlog("test007", var_export($upload_pic, true));
         }
         include template("upload_service_picture");
     }
@@ -694,6 +647,99 @@ class servicecontrol extends base {
         if (file_exists(WEB_ROOT . $target_path . ".png"))
             return $target_path . ".png";
         return "";
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+
+    // @onajax_fetch_list    [获取service列表]
+    // @request type         [GET/POST]
+    // @param[in]  region_id [区域ID号]
+    // @param[in]  school_id [学校ID号]
+    // @param[in]    dept_id [院系ID号]
+    // @param[in]   major_id [专业ID号]
+    // @param[in]       page [页号]
+    // @return               [service列表]
+    public function onajax_fetch_list() {
+        $region_id = $this->post['region_id'];
+        $school_id = $this->post['school_id'];
+        $dept_id = $this->post['dept_id'];
+        $major_id = $this->post['major_id'];
+        $page = max(intval($this->post['page']), 1);
+
+        $pagesize = $this->setting['service_page_size'];
+        $start = ($page - 1) * $pagesize;
+        $service_list = $_ENV['service_category']->get_full($region_id,
+                                                            $school_id,
+                                                            $dept_id,
+                                                            $major_id,
+                                                            $start,
+                                                            $pagesize);
+        echo json_encode($service_list);
+    }
+
+    // @onajax_edit_picture  [编辑用户服务图像]
+    // @request type         [GET/POST]
+    // @param[in]          x [横坐标]
+    // @param[in]          y [纵坐标]
+    // @param[in]          w [宽度]
+    // @param[in]          h [高度]
+    // @param[in]        src [图片地址]
+    // @return          成功 [success为true]
+    //                  失败 [success为false，error为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [图片地址无效]
+    public function onajax_edit_picture() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $service = $_ENV['service']->get_by_uid($this->user['uid']);
+        $picture = $service['picture'];
+        $x = intval($this->post['x']);
+        $y = intval($this->post['y']);
+        $w = intval($this->post['w']);
+        $h = intval($this->post['h']);
+        $pic = $this->post['src'];
+
+        if (empty($pic)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 图片地址无效
+            echo json_encode($res);
+            return;
+        }
+
+        $extname = extname($pic);
+
+        $uid = intval($this->user['uid']);
+        $uid = sprintf("%010d", $uid);
+
+        $type = get_image_type(WEB_ROOT . $pic);
+        $target_path = "/public/data/service";
+        $crop_img = $target_path . "/crop_" . $uid . "." . $type;
+        $target_img = $target_path . "/" . $uid . "." . $type;
+
+        $remove_file = glob(WEB_ROOT . $target_path . "/crop_{$uid}.*");
+        $remove_file = array_merge($remove_file,
+                                    glob(WEB_ROOT . $target_path . "/" . $uid . ".*"));
+        foreach ($remove_file as $imgfile) {
+            if (strtolower($extname) != extname($imgfile)) {
+                unlink($imgfile);
+            }
+        }
+        image_crop(WEB_ROOT . $pic, WEB_ROOT . $crop_img, $x, $y, $w, $h, false);
+        image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $target_img, 300, 300);
+        $picture = $target_img;
+        $_ENV['service']->update_picture($service['id'], $picture);
+
+        $res['success'] = true;
+        echo json_encode($res);
     }
 }
 

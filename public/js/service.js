@@ -7,7 +7,7 @@ Service.prototype.get_site_url = function() {
 }
 
 Service.prototype.get_service_list = function(req_data_dict) {
-    var req_url = this.site_url + "service/fetch_list";
+    var req_url = this.site_url + "service/ajax_fetch_list";
     var service_list = {};
 
     /* // 异步

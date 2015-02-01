@@ -65,7 +65,11 @@ class materialmodel {
     }
 
     public function list_by_uid($uid, $start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM material WHERE `uid`=$uid ORDER BY `time` DESC LIMIT $start,$limit");
+        $material_list = $this->db->fetch_all("SELECT * FROM material WHERE `uid`=$uid ORDER BY `time` DESC LIMIT $start,$limit");
+        foreach ($material_list as &$material) {
+            $material['format_time'] = tdate($material['time']);
+        }
+        return $material_list;
     }
 
     public function update($mid, $title, $description, $price, $site_url, $access_code) {

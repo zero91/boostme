@@ -179,9 +179,8 @@ class usermodel {
     public function logout($sid) {
         tcookie('sid', '', 0);
         tcookie('auth', '', 0);
-        if ($sid) {
-            $this->db->query("DELETE FROM session WHERE `sid`='$sid'");
-        }
+        if ($sid) $this->db->query("DELETE FROM session WHERE `sid`='$sid'");
+        return $this->db->affected_rows();
     }
 
     public function save_code($uid, $sid, $code) {

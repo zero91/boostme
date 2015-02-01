@@ -61,16 +61,12 @@
             }
             msg_id = $(this).attr("id");
             grandparent = $(this).parent().parent();
-            $.ajax({
-                type: "GET",
-                url:"{SITE_URL}message/remove/" + msg_id,
-                cache: false,
-                success: function(succeed) {
-                    if (succeed == '1') {
-                        grandparent.hide();
-                    } else if (succeed == '-1') {
-                        alert("删除失败，请重试！");
-                    }
+            async_request("{SITE_URL}message/ajax_remove", "post", {"id" : msg_id},
+                    function(response) {
+                if (response.success) {
+                    grandparent.hide();
+                } else {
+                    alert("删除失败，请重试！");
                 }
             });
             <!--{/if}-->

@@ -7,7 +7,7 @@ Material.prototype.get_site_url = function() {
 }
 
 Material.prototype.get_material_list = function(req_data_dict) {
-    var req_url = this.site_url + "material/fetch_list";
+    var req_url = this.site_url + "material/ajax_fetch_list";
     var material_list = {};
 
     $.ajax({

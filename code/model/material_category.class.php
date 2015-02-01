@@ -30,7 +30,8 @@ class material_categorymodel {
         return $mid_list;
     }
 
-    public function get_full($region_id="", $school_id="", $dept_id="", $major_id="", $start=0, $limit=10, $status=MATERIAL_STATUS_PUBLISH) {
+    public function get_full($region_id="", $school_id="", $dept_id="", $major_id="",
+                             $start=0, $limit=10, $status=MATERIAL_STATUS_PUBLISH) {
         if (!empty($major_id)) {
             return $this->get_full_by_cid($major_id, "major_id", $start, $limit, $status);
         }
@@ -46,13 +47,26 @@ class material_categorymodel {
         return $this->get_full_by_cid("", "", $start, $limit, $status);
     }
 
-    public function get_full_by_cid($cid="", $type="major_id", $start=0, $limit=10, $status=MATERIAL_STATUS_PUBLISH) {
+    public function get_full_by_cid($cid="", $type="major_id", $start=0, $limit=10,
+                                    $status=MATERIAL_STATUS_PUBLISH) {
         $condition = "$type='$cid'";
         if (empty($cid)) {
             $condition = "1";
         }
 
-        return $this->db->fetch_all("SELECT material.* FROM `material`, (SELECT DISTINCT(`material_id`) FROM `material_category` WHERE $condition) AS mid WHERE material.status='$status' AND material.id=mid.material_id ORDER BY `time` DESC LIMIT $start,$limit");
+        $sql = "SELECT material.* FROM `material`,
+                                        (SELECT DISTINCT(`material_id`)
+                                         FROM `material_category`
+                                         WHERE $condition
+                                        ) AS mid
+                                        WHERE material.status='$status'
+                                          AND material.id=mid.material_id
+                                        ORDER BY `time` DESC LIMIT $start,$limit";
+        $material_list = $this->db->fetch_all($sql);
+        foreach ($material_list as &$material) {
+            $material['format_time'] = tdate($material['time']);
+        }
+        return $material_list;
     }
 
     public function get_cid_material_num($cid, $type="major_id") {

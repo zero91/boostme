@@ -1,3 +1,36 @@
+// 字符串转化为json对象
+function str2json(json_str) {
+    return eval("(" + json_str + ")");
+}
+
+// 同步请求
+function sync_request(req_url, req_type, req_data_dict, callback_func) {
+    $.ajax({
+        type : req_type,  
+        url : req_url,
+        data : req_data_dict,
+        dataType: "json",
+        async : false, // 同步获取
+        success : function(response) {  
+            callback_func(response);
+        }
+    });
+}
+
+// 同步请求
+function async_request(req_url, req_type, req_data_dict, callback_func) {
+    $.ajax({
+        type : req_type,  
+        url : req_url,
+        data : req_data_dict,
+        dataType: "json",
+        async : true, // 异步获取
+        success : function(response) {  
+            callback_func(response);
+        }
+    });
+}
+
 //验证码
 function updatecode() {
     var img = g_site_url + "user/code/" + Math.random();

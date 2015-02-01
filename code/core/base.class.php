@@ -31,10 +31,7 @@ class base {
     protected function fromcache($cachename, $cachetime = 1) {
         $cachetime = ($this->setting['index_life'] == 0) ? $cachetime : $this->setting['index_life'] * 60;
         $cachedata = $this->cache->read($cachename, $cachetime);
-
-        if ($cachedata) {
-            return $cachedata;
-        }
+        if ($cachedata) return $cachedata;
 
         switch ($cachename) {
         case 'allprob': // 所有的求助
@@ -84,7 +81,6 @@ class base {
         $base = $base ? $base : $this;
         if (empty($_ENV[$model])) {
             require WEB_ROOT . "/code/model/$model.class.php";
-            //eval('$_ENV[$model] = new ' . $model . 'model($base);');
             eval('$_ENV[$model] = new ' . $model . 'model($base->db);');
         }
         return $_ENV[$model];
@@ -93,10 +89,12 @@ class base {
     // 检查验证码
     protected function checkcode() {
         $this->load('user');
-        if (isset($this->post['code'])
-            && (strtolower(trim($this->post['code'])) != $_ENV['user']->get_code($this->user['sid']))) {
-            $this->message("验证码错误!", 'BACK');
+        if (isset($this->post['code']) && (strtolower(trim($this->post['code'])) !=
+                                            $_ENV['user']->get_code($this->user['sid']))) {
+            //$this->message("验证码错误!", 'BACK');
+            return false;
         }
+        return true;
     }
 
     // 中转提示页面
@@ -124,11 +122,14 @@ class base {
     }
 
     // 判断用户是否登录
-    protected function check_login() {
+    protected function check_login($jump=true) {
         if ($this->user['uid'] > 0) {
             return true;
         }
-        $this->jump("user/login");
+
+        if ($jump) {
+            $this->jump("user/login");
+        }
         return false;
     }
 
@@ -150,33 +151,18 @@ class base {
         }
     }
 
-    protected function refresh($uid, $islogin=1, $cookietime=0) {
+    protected function refresh(&$user, $islogin=1, $cookietime=0) {
         global $setting;
         @$sid = tcookie('sid');
 
-        $this->user = $_ENV['user']->get_by_uid($uid);
-        $_ENV['user']->update_lastlogin($uid);
-        //$_ENV['user']->update_session($sid, $uid, $islogin, $this->ip);
+        $_ENV['user']->update_lastlogin($user['uid']);
 
-        $password = $this->user['password'];
-        $auth = strcode("$uid\t$password", $setting['auth_key'], 'ENCODE');
+        $auth = strcode($user['uid'] . "\t" . $user['password'], $setting['auth_key'], 'ENCODE');
         if ($cookietime) {
             tcookie('auth', $auth, $cookietime);
         } else {
             tcookie('auth', $auth);
         }
-    }
-
-    private function init_db() {
-        $this->db = new db(DB_HOST, DB_USER, DB_PW, DB_NAME, DB_CHARSET, DB_CONNECT);
-    }
-
-    // 一旦setting的缓存文件读取失败，则更新所有cache
-    private function init_cache() {
-        global $setting, $badword;
-        $this->cache = new cache($this->db);
-        $setting = $this->setting = $this->cache->load('setting', 'k', 'v');
-        $badword = $this->cache->load('badword', 'find');
     }
 
     // 防采集
@@ -211,6 +197,18 @@ class base {
         } else {
             $this->db->query("INSERT INTO visit (`ip`,`time`) values ('$ip','$time')"); //加入数据库记录visit表中
         }
+    }
+
+    private function init_db() {
+        $this->db = new db(DB_HOST, DB_USER, DB_PW, DB_NAME, DB_CHARSET, DB_CONNECT);
+    }
+
+    // 一旦setting的缓存文件读取失败，则更新所有cache
+    private function init_cache() {
+        global $setting, $badword;
+        $this->cache = new cache($this->db);
+        $setting = $this->setting = $this->cache->load('setting', 'k', 'v');
+        $badword = $this->cache->load('badword', 'find');
     }
 
     // 初始化定时任务，并调用定时任务的方法
@@ -249,13 +247,12 @@ class base {
             $this->load('message');
             $user['new_msg_num'] = $_ENV['message']->get_new_msg_num($user['uid']);
 
-            // To Be Done: 初始化用户个人message信息
-            //$user['msg_system'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid=0 AND status<>" . MSG_STATUS_TO_DELETED);
-            //$user['msg_personal'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid<>0 AND status<>" . MSG_STATUS_TO_DELETED);
+            $user['msg_system'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid=0 AND status<>" . MSG_STATUS_TO_DELETED);
+            $user['msg_personal'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid<>0 AND status<>" . MSG_STATUS_TO_DELETED);
         }
 
         if ($user['uid'] > 0) {
-            $this->refresh($user['uid'], 1);
+            $this->refresh($user, 1);
         }
 
         @$lastrefresh = tcookie("lastrefresh");

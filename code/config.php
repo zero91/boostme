@@ -27,6 +27,7 @@ define('DEFAULT_DEMAND_MESSAGE', "您好，我对您的需求十分感兴趣，�
 define('MSG_STATUS_NODELETED', 0);    // 都没有删除
 define('MSG_STATUS_FROM_DELETED', 1); // 发送方删除
 define('MSG_STATUS_TO_DELETED', 2);   // 接受方删除
+define('MSG_STATUS_BOTH_DELETED', 3); // 双方都已经删除
 
 // charge
 define('CHARGING_STATUS_DEMAND', 0);  // 尚未达成交易

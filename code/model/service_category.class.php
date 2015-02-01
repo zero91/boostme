@@ -67,7 +67,19 @@ class service_categorymodel {
             $condition = "1";
         }
 
-        return $this->db->fetch_all("SELECT service.* FROM `service`, (SELECT DISTINCT(`service_id`) FROM `service_category` WHERE $condition) AS sid WHERE service.status='$status' AND service.id=sid.service_id ORDER BY `time` DESC LIMIT $start,$limit");
+        $sql = "SELECT service.* FROM `service`,
+                                      (SELECT DISTINCT(`service_id`)
+                                       FROM `service_category`
+                                       WHERE $condition
+                                      ) AS sid
+                                 WHERE service.status='$status'
+                                   AND service.id=sid.service_id
+                                 ORDER BY `time` DESC LIMIT $start,$limit";
+        $service_list = $this->db->fetch_all($sql);
+        foreach ($service_list as &$service) {
+            $service['format_time'] = $service['time'];
+        }
+        return $service_list;
     }
 
     public function get_cid_service_num($cid, $type="major_id") {
