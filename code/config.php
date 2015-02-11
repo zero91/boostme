@@ -86,3 +86,6 @@ define('SERVICE_STATUS_ACCEPTED', 2); // 获取咨询资格
 define('SERVICE_STATUS_DENIED', 3);   // 审核不通过
 define('SERVICE_STATUS_CLOSED', 4);   // 关闭咨询，用户暂时不对外提供咨询服务
 
+define('TOPIC_ADMIN', 1);  // 话题管理员
+define('TOPIC_USER', 2);   // 话题普通用户
+

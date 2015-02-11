@@ -41,10 +41,8 @@ class ebankcontrol extends base {
         if (empty($verified_trade)) {
             $out_trade_no = $_ENV['trade']->create_trade_no($this->user['sid']); // 订单号
             $_ENV['trade']->add_trade($out_trade_no, $this->user['uid'], $this->user['username'], 0.01);
-            runlog("test008", "Create new trade_no=" . $out_trade_no);
         } else {
             $out_trade_no = $verified_trade['trade_no'];
-            runlog("test008", "Use old trade_no=" . $out_trade_no);
         }
 
         $product_name = "Boostme支付宝账户验证"; // 商品名称
@@ -61,8 +59,6 @@ class ebankcontrol extends base {
         $out_trade_no = $this->post["trade_no"];        // 获取提交的订单号
         $product_name = $this->post["product_name"];    // 获取提交的商品名称
         $order_price = $this->post["order_price"];      // 获取提交的商品价格
-
-        runlog('alipay', "[INFO]trade_no=[$out_trade_no],product_name=[$product_name],order_price=[$order_price]", 0);
 
         $_ENV['ebank']->alipaytransfer($out_trade_no, $order_price, $product_name);
     }

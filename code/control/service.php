@@ -216,7 +216,6 @@ class servicecontrol extends base {
             $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
 
             $viewurl = urlmap("problem/view/$pid", 2);
-            $_ENV['userlog']->add('problem', "回报: $price");
             if (PB_STATUS_UNAUDIT == $status) {
                 $this->message('求助发布成功！为了确保求助的合法性，我们会对您提的求助进行审核。请耐心等待......', 'BACK');
             } else {
@@ -257,7 +256,6 @@ class servicecontrol extends base {
             $subject = "有人想帮您解决您的求助 \"{$problem['title']}\"";
             $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $problem['authorid'], $subject, $content);
-            $_ENV['userlog']->add('demand', "uid:'{$this->user['uid']}',pid:'$pid'");
             $this->message("恭喜您，请求信息已经成功发送到对方账户，请您耐心等待！", "problem/view/$pid");
         } else {
             $this->message("Oops，请求发送失败！", "problem/view/$pid");
@@ -288,7 +286,6 @@ class servicecontrol extends base {
             $subject = "有人想帮您解决您的求助 \"" . cutstr($problem['title'], 30) . "\"";
             $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
             $this->send('', 0, $problem['authorid'], $subject, $content);
-            $_ENV['userlog']->add('demand', "uid:'{$this->user['uid']}',pid:'$pid'");
             exit('1');
         }
         exit('0');
@@ -309,7 +306,6 @@ class servicecontrol extends base {
 
         if ($affected_rows > 0) {
             $_ENV['problem']->update_demand($pid, -$affected_rows);
-            $_ENV['userlog']->add('cancel', "uid:'{$this->user['uid']}',pid:'$pid'");
             exit('1');
         }
         exit('0');
@@ -339,7 +335,6 @@ class servicecontrol extends base {
             if ($this->user['wechat']) $content .= "微信：{$this->user['wechat']}<br/>";
             $content .='<a href="' . url("problem/view/$pid", 1) . '">点击查看求助</a>';
             $this->send('', 0, $uid, $subject, $content);
-            $_ENV['userlog']->add('accept', "pid:'$pid',uid:'$uid'");
             exit('1');
         }
         exit('0');
@@ -356,7 +351,6 @@ class servicecontrol extends base {
             $subject = "Sorry, 您没有成功抢到求助 \"{$problem['title']}\"";
             $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>'; 
             $this->send('', 0, $uid, $subject, $content);
-            $_ENV['userlog']->add('denied', "pid:'$pid',uid:'$uid'");
             exit('1');
         }
         exit('0');
@@ -595,7 +589,6 @@ class servicecontrol extends base {
             $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
 
             $viewurl = urlmap("problem/view/$pid", 2);
-            $_ENV['userlog']->add('problem', "更新: pid='$pid',delta_price='$delta_price'");
             if (PB_STATUS_UNAUDIT == $status) {
                 $this->message('求助更新成功！为了确保求助的合法性，我们会对您提的求助进行审核。请耐心等待......', 'BACK');
             } else {

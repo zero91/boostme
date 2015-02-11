@@ -9,11 +9,23 @@ class questionmodel {
 
     // 获取问题信息
     public function get($qid) {
-        return $this->db->fetch_first("SELECT * FROM question WHERE qid='$qid'");
+        $question = $this->db->fetch_first("SELECT * FROM question WHERE qid='$qid'");
+        $question['format_time'] = tdate($question['time']);
+        return $question;
     }
 
     public function get_list($start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM `question` ORDER BY `update_time` DESC limit $start,$limit");
+        $sql = "SELECT * FROM `question` ORDER BY `update_time` DESC limit $start,$limit";
+        $question_list = $this->db->fetch_all($sql);
+        foreach ($question_list as &$question) {
+            $question['avatar'] = get_avatar_dir($question['authorid']);
+            $question['format_time'] = tdate($question['time']);
+            $question['format_update_time'] = tdate($question['update_time']);
+            $question['strip_description'] = strip_tags($question['description']);
+            $img_match = fetch_img_tag($question['description']);
+            $question['images'] = $img_match[0];
+        }
+        return $question_list;
     }
 
     public function get_total_num() {

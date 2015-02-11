@@ -4,7 +4,7 @@
 
 class answercontrol extends base {
 
-    function __construct(& $get, & $post) {
+    public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
         $this->load('answer');
         $this->load('answer_comment');
@@ -93,6 +93,101 @@ class answercontrol extends base {
         $_ENV['answer']->add_support($this->user['uid'], $answerid, $answer['authorid']);
         $answer = $_ENV['answer']->get($answerid);
         exit($answer['supports']);
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+
+    // @onajax_fetch_list    [获取回复列表]
+    // @request type         [GET/POST]
+    // @param[in]       page [页号]
+    // @return          成功 [success ：true]
+    //                       [answer_list ：回复列表]
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [帖子id参数无效]
+    public function onajax_fetch_list() {
+        $res = array();
+
+        $qid = $this->post['qid'];
+        if ($qid > 0) {
+            $page = max(1, intval($this->post['page']));
+            $pagesize = $this->setting['list_default'];
+            $start = ($page - 1) * $pagesize;
+            $answer_list = $_ENV['answer']->list_by_qid($qid, $start, $pagesize);
+
+            $res['success'] = true;
+            $res['answer_list'] = $answer_list;
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 帖子id参数无效
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_add_comment   [添加回复的评论]
+    // @request type         [GET/POST]
+    // @param[in]    content [评论内容]
+    // @param[in]   answerid [回复的ID编号]
+    // @return          成功 [success ：true]
+    //                       [id ：评论ID编号]
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    public function onajax_add_comment() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $content = $this->post['content'];
+        $answerid = intval($this->post['answerid']);
+        $answer = $_ENV['answer']->get($answerid);
+        $id = $_ENV['answer_comment']->add($answerid, $content,
+                                           $this->user['uid'], $this->user['username']);
+
+        $_ENV['question']->update_answers($answer['qid']);
+        if ($answer['authorid'] != $this->user['uid']) {
+            $msg_title = '您的回复有了新评论';
+            $msg_content = '您对于问题 "' . $answer['title'] . '" 的回复 "' .
+                $answer['content'] . '" 有了新评论 "' . $content . '"<br />' . 
+                '<a href="' . SITE_URL . 'question/view/' . $answer['qid'] . '">点击查看</a>';
+            $this->send("", 0, $answer['authorid'], $msg_title, $msg_content);
+        }
+
+        $res['success'] = true;
+        $res['id'] = $id;
+        echo json_encode($res);
+    }
+
+    public function onajax_has_support() {
+        $res = array();
+
+        $answerid = intval($this->post['answerid']);
+        $supports = $_ENV['answer']->get_support_by_uid_aid($this->user['uid'], $answerid);
+
+        if ($supports > 0) {
+            $res['success'] = true;
+        } else {
+            $res['success'] = false;
+        }
+        echo json_encode($res);
+    }
+
+    public function onajax_add_support() {
+        $answerid = intval($this->get[2]);
+        $answer = $_ENV['answer']->get($answerid);
+        $_ENV['answer']->add_support($this->user['uid'], $answerid, $answer['authorid']);
+        $answer = $_ENV['answer']->get($answerid);
+        exit($answer['supports']);
+
+        echo json_encode($res);
     }
 }
 

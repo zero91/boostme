@@ -20,7 +20,17 @@ class answermodel {
 
     // 根据qid获取答案的列表，用于在浏览一个问题的时候显示用
     public function list_by_qid($qid, $start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM answer WHERE qid=$qid ORDER BY time ASC LIMIT $start,$limit");
+        $sql = "SELECT * FROM answer WHERE qid=$qid ORDER BY time ASC LIMIT $start,$limit";
+        $question_list = $this->db->fetch_all($sql);
+        foreach ($question_list as &$question) {
+            $question['format_time'] = tdate($question['time']);
+        }
+        return $this->db->fetch_all($sql);
+    }
+
+    // 获取帖子回复数量
+    public function get_qid_answer_num($qid) {
+        return $this->db->fetch_total("answer", " qid=$qid ");
     }
 
     // 根据uid获取答案的列表，用于在用户中心，我的回答显示

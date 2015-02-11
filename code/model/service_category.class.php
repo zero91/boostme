@@ -77,7 +77,7 @@ class service_categorymodel {
                                  ORDER BY `time` DESC LIMIT $start,$limit";
         $service_list = $this->db->fetch_all($sql);
         foreach ($service_list as &$service) {
-            $service['format_time'] = $service['time'];
+            $service['format_time'] = tdate($service['time']);
         }
         return $service_list;
     }

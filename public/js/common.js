@@ -17,7 +17,7 @@ function sync_request(req_url, req_type, req_data_dict, callback_func) {
     });
 }
 
-// 同步请求
+// 异步请求
 function async_request(req_url, req_type, req_data_dict, callback_func) {
     $.ajax({
         type : req_type,  

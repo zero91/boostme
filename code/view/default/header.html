@@ -23,6 +23,7 @@
     <script src="{SITE_URL}public/js/plugin/jquery.min.js"></script>
     <script src="{SITE_URL}public/js/plugin/jquery-ui/jquery-ui.min.js"></script>
     <script src="{SITE_URL}public/js/plugin/bootstrap/js/bootstrap.min.js"></script>
+
     <script src="{SITE_URL}public/js/school_major.js"></script>
     <script src="{SITE_URL}public/js/user.js"></script>
 
@@ -37,11 +38,12 @@
         <li><a href="{SITE_URL}"><i class="glyphicon glyphicon-home"></i> &nbsp;首页</a></li>
         <li><a href="{SITE_URL}service/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;咨询区</a></li>
         <li><a href="{SITE_URL}material/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
-        <li><a href="{SITE_URL}problem/default"><i class="glyphicon glyphicon-briefcase"></i> &nbsp;找辅导</a></li>
-        <li><a href="{SITE_URL}forum/default"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
+        <!-- <li><a href="{SITE_URL}problem/default"><i class="glyphicon glyphicon-briefcase"></i> &nbsp;找辅导</a></li> -->
+        <li><a href="{SITE_URL}question/default"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
         <li><a href="{SITE_URL}main/help"><i class="glyphicon glyphicon-phone-alt"></i> &nbsp;帮助</a></li>
     </ul>
 </div>
+
 <div class="container_wapper">
     <div id="nav_menu">
         <div class="container-fluid">
@@ -59,16 +61,18 @@
                             <a href="{SITE_URL}">首页</a>
                         </li>
                         <li <!--{if $regular == "service/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}service/default">咨询区</a>
+                            <a href="{SITE_URL}service/default">求助师兄</a>
                         </li>
                         <li <!--{if $regular == "material/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}material/default">资料区</a>
+                            <a href="{SITE_URL}material/default">考研资料</a>
                         </li>
+                        <!--
                         <li <!--{if $regular == "problem/default"}-->class="menu_link_on"<!--{/if}-->>
                             <a href="{SITE_URL}problem/default">找辅导</a>
                         </li>
-                        <li <!--{if $regular == "forum/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}forum/default">交流区</a>
+                        -->
+                        <li <!--{if $regular == "question/default" || $regular == "topic/default"}-->class="menu_link_on"<!--{/if}-->>
+                            <a href="{SITE_URL}question/default">交流爆料</a>
                         </li>
                         <li <!--{if $regular == "main/help"}-->class="menu_link_on"<!--{/if}-->>
                             <a href="{SITE_URL}main/help">帮助</a>

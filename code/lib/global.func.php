@@ -1,5 +1,10 @@
 <?php
 
+function fetch_img_tag($str) {
+    preg_match_all('/<\s*img\s+[^>]*?src\s*=\s*(\'|\")(.*?)\\1[^>]*?\/?\s*>/i', $str, $match);
+    return $match;
+}
+
 function taddslashes($string, $force = 0) {
     if (!MAGIC_QUOTES_GPC || $force) {
         if (is_array($string)) {

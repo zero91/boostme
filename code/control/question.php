@@ -10,13 +10,25 @@ class questioncontrol extends base {
         $this->load("answer");
     }
 
+    public function ondefault() {
+        $navtitle = '交流区';
+        $page = max(1, intval($this->get[2]));
+        $pagesize = $this->setting['list_default'];
+        $startindex = ($page - 1) * $pagesize;
+
+        $user_num = $_ENV['user']->rownum_alluser();
+        $question_num = $_ENV['question']->get_total_num();
+        $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
+        $departstr = page($question_num, $pagesize, $page, "forum/default");
+        include template("forum");
+    }
+
     // 提交问题
     public function onadd() {
         $this->check_login();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $title = htmlspecialchars($this->post['title']);
             $content = $this->post['content'];
-            $askfromuid = $this->post['askfromuid'];
             $this->setting['code_ask'] && $this->checkcode(); //检查验证码
             $offerscore = $price;
             //检查审核和内容外部URL过滤
@@ -180,76 +192,6 @@ class questioncontrol extends base {
         include template("supply");
     }
 
-    /* 追加悬赏 */
-
-    function onaddscore() {
-        $qid = intval($this->post['qid']);
-        $score = intval($this->post['score']);
-        if ($this->user['credit2'] < $score) {
-            $this->message("财富值不足!", 'BACK');
-        }
-        $_ENV['question']->update_score($qid, $score);
-        $this->credit($this->user['uid'], 0, -$score, 0, 'offer');
-        $viewurl = urlmap('question/view/' . $qid, 2);
-        $this->message('追加悬赏成功！', $viewurl);
-    }
-
-    /* 修改回答 */
-
-    function oneditanswer() {
-        $navtitle = '修改回答';
-        $aid = $this->get[2] ? $this->get[2] : $this->post['aid'];
-        $answer = $_ENV['answer']->get($aid);
-        (!$answer) && $this->message("回答不存在或已被删除！", "STOP");
-        $question = $_ENV['question']->get($answer['qid']);
-        $navlist = $_ENV['category']->get_navigation($question['cid'], true);
-        if (isset($this->post['submit'])) {
-            $content = $this->post['content'];
-            $viewurl = urlmap('question/view/' . $question['id'], 2);
-
-            //检查审核和内容外部URL过滤
-            $status = intval(2 != (2 & $this->setting['verify_question']));
-            $allow = $this->setting['allow_outer'];
-            if (3 != $allow && has_outer($content)) {
-                0 == $allow && $this->message("内容包含外部链接，发布失败!", $viewurl);
-                1 == $allow && $status = 0;
-                2 == $allow && $content = filter_outer($content);
-            }
-            //检查违禁词
-            $contentarray = checkwords($content);
-            1 == $contentarray[0] && $status = 0;
-            2 == $contentarray[0] && $this->message("内容包含非法关键词，发布失败!", $viewurl);
-            $content = $contentarray[1];
-
-            $_ENV['answer']->update_content($aid, $content, $status);
-
-            if (0 == $status) {
-                $this->message('修改回答成功！为了确保问答的质量，我们会对您的回答内容进行审核。请耐心等待......', $viewurl);
-            } else {
-                $this->message('修改回答成功！', $viewurl);
-            }
-        }
-        include template("editanswer");
-    }
-
-    /* 追问模块---追问 */
-
-    function onappendanswer() {
-        $this->load("message");
-        $qid = intval($this->get[2]) ? $this->get[2] : intval($this->post['qid']);
-        $aid = intval($this->get[3]) ? $this->get[3] : intval($this->post['aid']);
-        $type = intval($this->get[4]) ? $this->get[4] : intval($this->post['type']);
-        $question = $_ENV['question']->get($qid);
-        $answer = $_ENV['answer']->get($aid);
-        if (isset($this->post['submit'])) {
-            $_ENV['answer']->add_tag($aid, $this->post['content'], $answer['tag']);
-            $_ENV['message']->add($question['author'], $question['authorid'], $answer['authorid'], '问题追问:' . $question['title'], $question['description'] . '<br /> <a href="' . url('question/view/' . $qid, 1) . '">点击查看问题</a>');
-            $viewurl = urlmap('question/view/' . $qid, 2);
-            isset($type) ? $this->message('继续回答成功!', $viewurl) : $this->message('继续提问成功!', $viewurl);
-        }
-        include template("appendanswer");
-    }
-
     /* 搜索问题 */
 
     function onsearch() {
@@ -354,33 +296,6 @@ class questioncontrol extends base {
         $this->message($message, $viewurl);
     }
 
-    //移动分类
-    function onmovecategory() {
-        if (intval($this->post['category'])) {
-            $cid = intval($this->post['category']);
-            $cid1 = 0;
-            $cid2 = 0;
-            $cid3 = 0;
-            $qid = $this->post['qid'];
-            $viewurl = urlmap('question/view/' . $qid, 2);
-            $category = $this->cache->load('category');
-            if ($category[$cid]['grade'] == 1) {
-                $cid1 = $cid;
-            } else if ($category[$cid]['grade'] == 2) {
-                $cid2 = $cid;
-                $cid1 = $category[$cid]['pid'];
-            } else if ($category[$cid]['grade'] == 3) {
-                $cid3 = $cid;
-                $cid2 = $category[$cid]['pid'];
-                $cid1 = $category[$cid2]['pid'];
-            } else {
-                $this->message('分类不存在，请更下缓存!', $viewurl);
-            }
-            $_ENV['question']->update_category($qid, $cid, $cid1, $cid2, $cid3);
-            $this->message('问题分类修改成功!', $viewurl);
-        }
-    }
-
     //设为未解决
     function onnosolve() {
         $qid = intval($this->get[2]);
@@ -428,6 +343,121 @@ class questioncontrol extends base {
             //$_ENV['message']->add($msgfrom, 0, $question['authorid'], $username . "刚刚关注了您的问题", '<a target="_blank" href="' . url('user/space/' . $this->user['uid'], 1) . '">' . $username . '</a> 刚刚关注了您的问题' . $question['title'] . '"<br /> <a href="' . $viewurl . '">点击查看</a>');
         }
         exit('ok');
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+
+    // @onajax_fetch_list    [获取question列表]
+    // @request type         [GET/POST]
+    // @param[in]       page [页号]
+    // @return          成功 [success ：true]
+    //                       [question_num ：论坛帖子总量]
+    //                       [question_list ：论坛帖子列表]
+    public function onajax_fetch_list() {
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+
+        $res = array();
+        $res['success'] = true;
+        $res['question_num'] = $_ENV['question']->get_total_num();
+        $res['question_list'] = $_ENV['question']->get_list($start, $pagesize);
+
+        echo json_encode($res);
+    }
+
+    // @onajax_add           [新增帖子]
+    // @request type         [GET/POST]
+    // @param[in]       page [页号]
+    // @return          成功 [success ：true]
+    //                       [id ：新增帖子ID号]
+    //                       [forward ：新增帖子查看链接，可作为成功后的跳转界面]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [验证码错误]
+    public function onajax_add() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $title = htmlspecialchars($this->post['title']);
+        $content = $this->post['content'];
+        if ($this->setting['code_ask'] && !$this->checkcode()) {
+            $res['success'] = false;
+            $res['error'] = 102; // 验证码输入错误
+            echo json_encode($res);
+            return;
+        }
+
+        $qid = $_ENV['question']->add($this->user['uid'], $this->user['username'],
+                                      $title, $content);
+
+        $res['success'] = true;
+        $res['id'] = $qid;
+        $res['forward'] = SITE_URL . "question/view/$qid";
+        echo json_encode($res);
+    }
+
+    // @onajax_add           [新增帖子]
+    // @request type         [GET/POST]
+    // @param[in]       page [页号]
+    // @return          成功 [success ：true]
+    //                       [id ：新增帖子ID号]
+    //                       [forward ：新增帖子查看链接，可作为成功后的跳转界面]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [验证码错误]
+    public function onajax_answer() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $qid = $this->post['qid'];
+        $question = $_ENV['question']->get($qid);
+        if (empty($question)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 提交回答失败,帖子不存在!
+            echo json_encode($res);
+            return;
+        }
+
+        if ($this->setting['code_reply'] && !$this->checkcode()) {
+            $res['success'] = true;
+            $res['error'] = 103; // 验证码错误
+            echo json_encode($res);
+            return;
+        }
+
+        $content = $this->post['content'];
+        $_ENV['answer']->add($this->user['uid'], $this->user['username'],
+                             $qid, $question['title'], $content);
+        $_ENV['question']->update_answers($qid);
+
+        $mail_subject = "您的帖子\"" . $question['title'] . "\"有新回复";
+        $mail_content = '<p>现在查看<a swaped="true" target="_blank" href="'
+                        . SITE_URL . "question/view/" . $question['qid'] 
+                        . '">' . $question['title'] . '</a></p>';
+        $this->send("", 0, $question['authorid'], $mail_subject, $mail_content, true);
+
+        $res['success'] = true;
+        $res['forward'] = SITE_URL . "question/view/$qid";
+        echo json_encode($res);
     }
 }
 

@@ -432,6 +432,11 @@ INSERT INTO setting VALUES ('admin_user_page_size', '10');
 INSERT INTO setting VALUES ('admin_fb_page_size', '20');
 
 
+INSERT INTO setting VALUES ('topic_chat_need_code', '0');
+INSERT INTO setting VALUES ('topic_page_size', '20');
+INSERT INTO setting VALUES ('chat_page_size', '50');
+INSERT INTO setting VALUES ('chat_avatar_num', '1054');
+
 INSERT INTO setting VALUES ('code_ask', '0');
 INSERT INTO setting VALUES ('code_message', '0'); 
 INSERT INTO setting VALUES ('cookie_domain', '');
@@ -499,6 +504,57 @@ INSERT INTO setting VALUES ('allow_credit3', '-10');
 INSERT INTO setting VALUES ('apend_question_num', '5');
 INSERT INTO setting VALUES ('time_friendly', '1');
 INSERT INTO setting VALUES ('register_clause', '<p>&nbsp; &nbsp; &nbsp; &nbsp;当您申请用户时，表示您已经同意遵守本规章。 <br/>欢迎您加入本站点参加交流和讨论，本站点为公共论坛，为维护网上公共秩序和社会稳定，请您自觉遵守以下条款： <br/><br/>一、不得利用本站危害国家安全、泄露国家秘密，不得侵犯国家社会集体的和公民的合法权益，不得利用本站制作、复制和传播下列信息：<br/>　 （一）煽动抗拒、破坏宪法和法律、行政法规实施的；<br/>　（二）煽动颠覆国家政权，推翻社会主义制度的；<br/>　（三）煽动分裂国家、破坏国家统一的；<br/>　（四）煽动民族仇恨、民族歧视，破坏民族团结的；<br/>　（五）捏造或者歪曲事实，散布谣言，扰乱社会秩序的；<br/>　（六）宣扬封建迷信、淫秽、色情、赌博、暴力、凶杀、恐怖、教唆犯罪的；<br/>　（七）公然侮辱他人或者捏造事实诽谤他人的，或者进行其他恶意攻击的；<br/>　（八）损害国家机关信誉的；<br/>　（九）其他违反宪法和法律行政法规的；<br/>　（十）进行商业广告行为的。<br/><br/>二、互相尊重，对自己的言论和行为负责。<br/>三、禁止在申请用户时使用相关本站的词汇，或是带有侮辱、毁谤、造谣类的或是有其含义的各种语言进行注册用户，否则我们会将其删除。<br/>四、禁止以任何方式对本站进行各种破坏行为。<br/>五、如果您有违反国家相关法律法规的行为，本站概不负责，您的登录论坛信息均被记录无疑，必要时，我们会向相关的国家管理部门提供此类信息。</p><p><br/></p><p><br/> </p><p><br/></p>');
+
+/* DROP TABLE IF EXISTS topic; */
+CREATE TABLE topic (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `authorid` int(10) unsigned NOT NULL,
+  `author` char(18) NOT NULL,
+  `title` char(50) NOT NULL, /* 标题*/
+  `description` text NOT NULL, /* 简介 */
+  `chat_num` int(10) NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `last_time` int(10) NOT NULL DEFAULT '0', /* 上次更新时间 */
+  `members` int(10) unsigned NOT NULL DEFAULT '0', /* 成员数量 */
+  `ip` varchar(20) DEFAULT NULL,
+
+  PRIMARY KEY (`id`),
+  KEY `time` (`time`),
+  KEY `authorid`(`authorid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/* DROP TABLE IF EXISTS topic_member; */
+CREATE TABLE topic_member (
+  `topic_id` int(10) unsigned NOT NULL,
+  `uid` int(10) unsigned NOT NULL,
+  `username` char(18) NOT NULL,
+  `join_time` int(10) NOT NULL DEFAULT '0',
+  `last_time` int(10) NOT NULL DEFAULT '0', /* 上次使用时间 */
+  `chat_num` int(10) NOT NULL DEFAULT '0', /* 供发信息数 */
+  `avatar` mediumint(8) NOT NULL DEFAULT '0', /* 用户当前使用头像 */
+  `role` smallint(5) unsigned NOT NULL DEFAULT '0',
+
+  KEY `topic_id`(`topic_id`),
+  KEY `uid`(`uid`),
+  UNIQUE KEY `topicid_uid`(`topic_id`, `uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/* DROP TABLE IF EXISTS chat; */
+CREATE TABLE chat (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `topic_id` int(10) unsigned NOT NULL,
+  `authorid` int(10) unsigned NOT NULL,
+  `author` varchar(15) NOT NULL,
+  `avatar` mediumint(8) NOT NULL DEFAULT '0', /* 用户此消息所使用头像 */
+  `content` mediumtext NOT NULL,
+  `ip` varchar(20) DEFAULT NULL,
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+
+  PRIMARY KEY (`id`),
+  KEY `topic_id` (`topic_id`),
+  KEY `authorid` (`authorid`),
+  KEY `time` (`time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /* DROP TABLE IF EXISTS question; */
 CREATE TABLE question (
