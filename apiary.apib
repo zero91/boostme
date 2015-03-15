@@ -3,8 +3,195 @@ FORMAT: 1A
 # BmWeb
 Android、JS与 *Boostme Web* 的接口文档。
 
-# Group Notes
-线下联调机器及端口号: **www.boostme.cn:9507**
+线上机器及端口号： **www.boostme.cn:80**。
+
+线下联调机器及端口号： **www.boostme.cn:9507**。
+
+以下接口不区分线上线下机器，统一使用SITE_URL表示。例如，www.boostme.cn:80/user/login，表示为{SITE_URL}/user/login
+
+#Question API Root [/question]
+
+## Group Question
+question相关资源的API接口。
+
+## Question [/material/ajax_fetch_info]
+一个question具有如下属性：
++ qid
++ author
++ authorid
++ title
++ description
++ time
++ update_time
++ answers
++ attentions - 关注此问题的用户数量
++ views
++ status - 问题状态，暂定为：未通过审核、通过审核等
++ format_time - 格式化为可读性较强的time字段
++ format_update_time - 格式化为可读性较强的update_time字段
+
+### 获取资料详细信息 [GET]
++ Request (application/json)
+
+        { "qid": 1 }
+        
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "question": {
+                "qid" : "1",
+                "author": "摇滚骄子",
+                "authorid": "3",
+                "title": "大家看一下 这个这个题目怎么做？",
+                "description": "<p>a+b=x+y怎么解</p>",
+                "time": "1411974863",
+                "update_time": "1414299118",
+                "answers": "5",
+                "attentions": "3",
+                "views": "0",
+                "status": "0",
+                "format_time": "2014/09/29 15:14",
+                "format_update_time": "2014/10/26 12:51"
+            }
+        }
+
+## Question Collection [/question/ajax_fetch_list]
+每个question出还有上面单个Question的信息，另外增加了下面的字段，以让问题作为列表展示时，能够更美观。
++ strip_description - 抽取掉HTML tag标签之后的问题描述
++ images - 问题描述中，还有的image列表
+
+### 获取问题列表 [GET]
++ Request (application/json)
+
+        { "page": 1 }
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "question_num": 50,
+            "question_list": [
+                {
+                    "qid" : "1",
+                    "author": "摇滚骄子",
+                    "authorid": "3",
+                    "title": "大家看一下 这个这个题目怎么做？",
+                    "description": "<p>a+b=x+y怎么解</p>",
+                    "time": "1411974863",
+                    "update_time": "1414299118",
+                    "answers": "5",
+                    "attentions": "3",
+                    "views": "0",
+                    "status": "0",
+                    "format_time": "2014/09/29 15:14",
+                    "format_update_time": "2014/10/26 12:51",
+                    "avatar": "http://www.boostme.cn:9507/public/data/avatar/000/000/00/small_0000000001.jpg",
+                    "strip_description": "这是抽取掉tag的description",
+                    "images": [
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/n0TkbApA.png' title='31.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/NrPvhtEj.png' title='122.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/aLrRKURS.png' style='float:none;' title='193.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/1NnsZWYL.png' style='float:none;' title='683.png'/>"
+                    ]
+                }
+            ]
+        }
+
+## Answer [/answer/ajax_fetch_info]
+一个answer具有如下属性：
++ id
++ qid
++ author
++ authorid
++ title
++ time
++ content
++ comments - 此回复的评论总数
++ supports - 此回复的支持总数
++ format_time - 格式化为可读性较强的time字段
+
+### 获取回复详细信息 [GET]
++ Request (application/json)
+
+        { "aid": 2 }
+        
++ Response 200 (application/json)
+
+        {
+            success: true,
+            answer: {
+                id: "2",
+                qid: "1",
+                author: "摇滚骄子",
+                authorid: "3",
+                title: "小伙伴们，论坛的功能我已经初步完成了，大家用用反馈一下意见",
+                time: "1411974738",
+                content: "<p>我擦</p>",
+                comments: "2",
+                supports: "0",
+                format_time: "2014/09/29 15:12"
+            }
+        }
+
+
+## Answer Collection [/answer/ajax_fetch_list]
+
+### 获取问题回复列表 [GET]
++ Request (application/json)
+
+        { "qid": 1 }
+        
++ Response 200 (application/json)
+
+        {
+            success: true,
+            answer_list: [
+                {
+                    id: "1",
+                    qid: "1",
+                    title: "小伙伴们，论坛的功能我已经初步完成了，大家用用反馈一下意见",
+                    author: "admin",
+                    authorid: "1",
+                    time: "1411958835",
+                    content: "<p>我顶</p>",
+                    comments: "1",
+                    supports: "0",
+                    format_time: "2014/09/29 10:47"
+                }, {
+                    id: "5",
+                    qid: "1",
+                    title: "小伙伴们，论坛的功能我已经初步完成了，大家用用反馈一下意见",
+                    author: "jews1990",
+                    authorid: "5",
+                    time: "1412952459",
+                    content: "<p>再顶</p>",
+                    comments: "1",
+                    supports: "0",
+                    format_time: "2014/10/10 22:47"
+                }
+            ]
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": false, "error": "101"
+        }
+
+# Group User
+用户相关接口。
+
+## 登录 [/user/login]
+用户登录
+### Login [POST]
++ Request (application/json)
+
+        { "username": "test001", "password" : "test001" }
+
++ Response 201 (application/json)
+
+        { "id": 3, "title": "Buy cheese and bread for breakfast." }
 
 ## Notes Collection [/notes]
 ### List all Notes [GET]
@@ -33,7 +220,7 @@ Android、JS与 *Boostme Web* 的接口文档。
 
         { "id": 3, "title": "Buy cheese and bread for breakfast." }
 
-## Note [/notes/{id}]
+## Note [/notes/{id}/{username}]
 A single Note object with all its details
 
 + Parameters
@@ -50,6 +237,9 @@ A single Note object with all its details
 
             { "id": 2, "title": "Pick-up posters from post-office" }
 
++ Parameters
+    + username (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
+
 ### 登录 [POST]
 + Response 200 (application/json)
 
@@ -63,3 +253,45 @@ A single Note object with all its details
 
 ### Remove a Note [DELETE]
 + Response 204
+
+# Group Material
+资料相关接口
+## Material Collection [/material/ajax_fetch_list]
+### 获取资料列表 [GET]
++ Response 200 (application/json)
+
+        [{
+          "id": 1, "title": "Jogging in park"
+        }, {
+          "id": 2, "title": "Pick-up posters from post-office"
+        }]
+
++ Response 200 (application/json)
+
+        [{
+          "id": 1, "title": "Jogging in park"
+        }, {
+          "id": 2, "title": "Pick-up posters from post-office"
+        }]
+        
+### 添加资料 [POST]
++ Request (application/json)
+
+        { "title": "Buy cheese and bread for breakfast." }
+
++ Response 201 (application/json)
+
+        { "id": 3, "title": "Buy cheese and bread for breakfast." }
+
+## Material Collection [/material/onajax_fetch_info]
+### 获取单个资料详细信息 [GET]
++ Request (application/json)
+
+        { "title": "Buy cheese and bread for breakfast." }
+
++ Response 201 (application/json)
+
+        { "id": 3, "title": "Buy cheese and bread for breakfast." }
+
++ Parameters
+    + username (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
