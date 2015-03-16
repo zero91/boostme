@@ -9,12 +9,12 @@ Android、JS与 *Boostme Web* 的接口文档。
 
 以下接口不区分线上线下机器，统一使用SITE_URL表示。例如，www.boostme.cn:80/user/login，表示为{SITE_URL}/user/login
 
-#Question API Root [/question]
+# Question/Answer API Root [/question]
 
 ## Group Question
-question相关资源的API接口。
+question相关API。
 
-## Question [/material/ajax_fetch_info]
+## Question [/question/ajax_fetch_info]
 一个question具有如下属性：
 + qid
 + author
@@ -31,6 +31,9 @@ question相关资源的API接口。
 + format_update_time - 格式化为可读性较强的update_time字段
 
 ### 获取资料详细信息 [GET]
+error错误码含义如下：
+101: 无效参数
+
 + Request (application/json)
 
         { "qid": 1 }
@@ -55,6 +58,14 @@ question相关资源的API接口。
                 "format_update_time": "2014/10/26 12:51"
             }
         }
+
++ Request (application/json)
+
+        { "qid": "invalid" }
+
++ Response 200 (application/json)
+
+        { "success": true, "error": 101 }
 
 ## Question Collection [/question/ajax_fetch_list]
 每个question出还有上面单个Question的信息，另外增加了下面的字段，以让问题作为列表展示时，能够更美观。
@@ -98,6 +109,9 @@ question相关资源的API接口。
             ]
         }
 
+## Group Answer [/answer]
+answer相关资源API。
+
 ## Answer [/answer/ajax_fetch_info]
 一个answer具有如下属性：
 + id
@@ -112,6 +126,9 @@ question相关资源的API接口。
 + format_time - 格式化为可读性较强的time字段
 
 ### 获取回复详细信息 [GET]
+error错误码含义如下：
+101: 回复id参数无效
+
 + Request (application/json)
 
         { "aid": 2 }
@@ -134,10 +151,20 @@ question相关资源的API接口。
             }
         }
 
++ Request (application/json)
 
+        { "aid": -1 }
+ 
++ Response 200 (application/json)
+
+        { success: true, error : 101 }
+ 
 ## Answer Collection [/answer/ajax_fetch_list]
 
 ### 获取问题回复列表 [GET]
+error错误码含义如下：
+101: 帖子id参数无效
+
 + Request (application/json)
 
         { "qid": 1 }
@@ -173,125 +200,40 @@ question相关资源的API接口。
             ]
         }
 
++ Request (application/json)
+
+        { "qid": 1 }
+ 
 + Response 200 (application/json)
 
         {
             "success": false, "error": "101"
         }
 
-# Group User
-用户相关接口。
+# User API Root [/user]
 
-## 登录 [/user/login]
+## Group User
+user相关API。
+
+## Login [/user/login]
 用户登录
 ### Login [POST]
+请求参数含义：
++ username - 用户昵称
++ password - 登录密码
++ code - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
++ forward - 跳转页面，可选
+
 + Request (application/json)
 
-        { "username": "test001", "password" : "test001" }
-
-+ Response 201 (application/json)
-
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-
-## Notes Collection [/notes]
-### List all Notes [GET]
-+ Response 200 (application/json)
-
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
+        {
+            "username": "test001",
+            "password" : "test001",
+            "code" : "0Ar4",
+            "forward" : "http://www.boostme.cn/material/default"
+        }
 
 + Response 200 (application/json)
 
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
-        
-### Create a Note [POST]
-+ Request (application/json)
+        { "success": 3, "forward" : "http://www.boostme.cn/material/default" }
 
-        { "title": "Buy cheese and bread for breakfast." }
-
-+ Response 201 (application/json)
-
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-
-## Note [/notes/{id}/{username}]
-A single Note object with all its details
-
-+ Parameters
-    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
-
-### Retrieve a Note [GET]
-+ Response 200 (application/json)
-
-    + Header
-
-            X-My-Header: The Value
-
-    + Body
-
-            { "id": 2, "title": "Pick-up posters from post-office" }
-
-+ Parameters
-    + username (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
-
-### 登录 [POST]
-+ Response 200 (application/json)
-
-    + Header
-
-            X-My-Header: The Value
-
-    + Body
-
-            { "username": "test001", "password": "test001" }
-
-### Remove a Note [DELETE]
-+ Response 204
-
-# Group Material
-资料相关接口
-## Material Collection [/material/ajax_fetch_list]
-### 获取资料列表 [GET]
-+ Response 200 (application/json)
-
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
-
-+ Response 200 (application/json)
-
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
-        
-### 添加资料 [POST]
-+ Request (application/json)
-
-        { "title": "Buy cheese and bread for breakfast." }
-
-+ Response 201 (application/json)
-
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-
-## Material Collection [/material/onajax_fetch_info]
-### 获取单个资料详细信息 [GET]
-+ Request (application/json)
-
-        { "title": "Buy cheese and bread for breakfast." }
-
-+ Response 201 (application/json)
-
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-
-+ Parameters
-    + username (required, number, `1`) ... Numeric `id` of the Note to perform action with. Has example value.
