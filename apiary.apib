@@ -31,6 +31,12 @@ question相关API。
 + format_update_time - 格式化为可读性较强的update_time字段
 
 ### 获取资料详细信息 [GET]
+请求参数:
++ qid - question ID号
+
+error错误码含义:
++ 101 - 无效参数
+
 + Request (application/json)
 
         { "qid": 1 }
@@ -64,18 +70,15 @@ question相关API。
 
         { "success": true, "error": 101 }
 
-#### 请求参数
-+ qid - question ID号
-
-#### error错误码含义
-+ 101 - 无效参数
-
 ## Question Collection [/question/ajax_fetch_list]
 每个question出还有上面单个Question的信息，另外增加了下面的字段，以让问题作为列表展示时，能够更美观。
 + strip_description - 抽取掉HTML tag标签之后的问题描述
 + images - 问题描述中，还有的image列表
 
 ### 获取问题列表 [GET]
+请求参数:
++ page - 请求的页号，可选
+
 + Request (application/json)
 
         { "page": 1 }
@@ -112,9 +115,6 @@ question相关API。
             ]
         }
 
-#### 请求参数
-+ page - 请求的页号，可选
-
 ## Group Answer [/answer]
 answer相关资源API。
 
@@ -132,6 +132,12 @@ answer相关资源API。
 + format_time - 格式化为可读性较强的time字段
 
 ### 获取回复详细信息 [GET]
+请求参数:
++ aid - answer ID号
+
+error错误码含义:
++ 101 - 回复id参数无效
+
 + Request (application/json)
 
         { "aid": 2 }
@@ -161,17 +167,16 @@ answer相关资源API。
 + Response 200 (application/json)
 
         { success: true, error : 101 }
- 
-
-#### 请求参数
-+ aid - answer ID号
-
-#### error错误码含义
-+ 101 - 回复id参数无效
 
 ## Answer Collection [/answer/ajax_fetch_list]
 
 ### 获取问题回复列表 [GET]
+请求参数:
++ qid - question ID号
+
+error错误码含义:
++ 101 - 帖子id参数无效
+
 + Request (application/json)
 
         { "qid": 1 }
@@ -217,12 +222,6 @@ answer相关资源API。
             "success": false, "error": "101"
         }
 
-#### 请求参数
-+ qid - question ID号
-
-#### error错误码含义
-+ 101 - 帖子id参数无效
-
 # User API Root [/user]
 
 ## Group User
@@ -230,7 +229,20 @@ user相关API。
 
 ## User [/user/login]
 用户登录
+
 ### Login [POST]
+请求参数:
++ username - 用户昵称
++ password - 登录密码
++ code - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
++ forward - 跳转页面，可选
+
+error错误码含义:
++ 101 - 用户名存在，但密码错误
++ 102 - 用户名不存在
++ 103 - 验证码错误
++ 104 - 用户已登录
+
 + Request (application/json)
 
         {
@@ -243,16 +255,3 @@ user相关API。
 + Response 200 (application/json)
 
         { "success": true, "forward" : "http://www.boostme.cn/material/default" }
-
-#### 请求参数
-+ username - 用户昵称
-+ password - 登录密码
-+ code - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
-+ forward - 跳转页面，可选
-
-#### error错误码含义
-+ 101 - 用户名存在，但密码错误
-+ 102 - 用户名不存在
-+ 103 - 验证码错误
-+ 104 - 已登录
-
