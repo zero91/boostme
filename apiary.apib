@@ -9,6 +9,40 @@ Android、JS与 *Boostme Web* 的接口文档。
 
 以下接口不区分线上线下机器，统一使用SITE_URL表示。例如，www.boostme.cn:80/user/login，表示为{SITE_URL}/user/login
 
+# User API Root [/user]
+
+## Group User
+user相关API。
+
+## User [/user/login]
+用户登录
+
+### Login [POST]
+请求参数:
++ username (string) - 用户昵称
++ password (string) - 登录密码
++ code (string) - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
++ forward (string) - 跳转页面，可选
+
+error错误码含义:
++ 101 - 用户名存在，但密码错误
++ 102 - 用户名不存在
++ 103 - 验证码错误
++ 104 - 用户已登录
+
++ Request (application/json)
+
+        {
+            "username": "test001",
+            "password" : "test001",
+            "code" : "0Ar4",
+            "forward" : "http://www.boostme.cn/material/default"
+        }
+
++ Response 200 (application/json)
+
+        { "success": true, "forward" : "http://www.boostme.cn/material/default" }
+
 # Question/Answer API Root [/question]
 
 ## Group Question
@@ -303,36 +337,103 @@ error错误码含义:
 
         { "success": false, "error": 101 }
 
-# User API Root [/user]
+# Service API Root [/service]
 
-## Group User
-user相关API。
+## Group Service 
+service相关API。
 
-## User [/user/login]
-用户登录
+## Serivce Info [/service/ajax_fetch_info]
+一个service具有如下属性：
++ id
++ uid
++ username
++ picture - 服务页面显示的图片信息，一般为个人的生活照
++ price - 收费价格
++ profile - 服务具体内容内容
++ status - 服务状态，一般分为：是否通过审核、通过审核等
++ avg_score - 平均服务得分
++ time
++ service_num - 到目前为止，一定服务成功的数量
++ comment_num - 评论数
++ view_num - 浏览量
++ format_time - 格式化为可读性较强的time字段
 
-### Login [POST]
+@Future: 细化和明确service服务内容，让其更加标准化且容易衡量
+
+### 获取service详细信息 [GET]
 请求参数:
-+ username (string) - 用户昵称
-+ password (string) - 登录密码
-+ code (string) - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
-+ forward (string) - 跳转页面，可选
++ sid (int) - service ID号
 
 error错误码含义:
-+ 101 - 用户名存在，但密码错误
-+ 102 - 用户名不存在
-+ 103 - 验证码错误
-+ 104 - 用户已登录
++ 101 - 无效参数
 
 + Request (application/json)
 
+        { "sid": 32 }
+        
++ Response 200 (application/json)
+
         {
-            "username": "test001",
-            "password" : "test001",
-            "code" : "0Ar4",
-            "forward" : "http://www.boostme.cn/material/default"
+            "success": true,
+            "service": {
+                "id": "32",
+                "uid": "88",
+                "username": "test011",
+                "picture": "/public/data/service/0000000088.jpg",
+                "price": "0.3",
+                "profile": "金融学大牛",
+                "status": "2",
+                "avg_score": "3.5",
+                "time": "1417972612",
+                "service_num": "1",
+                "comment_num": "1",
+                "view_num": "30",
+                "format_time": "2014/12/08 01:16"
+            }
         }
+
++ Request (application/json)
+
+        { "sid": "invalid" }
 
 + Response 200 (application/json)
 
-        { "success": true, "forward" : "http://www.boostme.cn/material/default" }
+        { "success": true, "error": 101 }
+
+## Service Collection [/service/ajax_fetch_list]
+获取类别下的service列表。
+
+### 获取service列表 [GET]
+请求参数:
++ region_id (string) - 地区ID号，可选
++ school_id (string) - 学校ID号，可选
++ dept_id (string) - 院系ID号，可选
++ major_id (string) - 专业ID号，可选
++ page (int) - 请求的页号，可选
+
++ Request (application/json)
+
+        { "region_id" : "R01", "school_id" : "S010002", "page": 1 }
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "service_list": [
+                {
+                    "id": "31",
+                    "uid": "87",
+                    "username": "test010",
+                    "picture": "/public/data/service/0000000087.jpg",
+                    "price": "0.2",
+                    "profile": "北大教育学院各专业的详细情况，研究生导师的联系等服务",
+                    "status": "2",
+                    "avg_score": "4.5",
+                    "time": "1417970807",
+                    "service_num": "3",
+                    "comment_num": "1",
+                    "view_num": "25",
+                    "format_time": "2014/12/08 00:46"
+                }
+            ]
+        }
