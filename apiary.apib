@@ -149,6 +149,56 @@ error错误码含义:
             ]
         }
 
+## Question Collection For Refresh [/question/ajax_fetch_list_by_update_time]
+此接口类似于Question Collection的接口。不同的地方在于此处主要用于用户在刷新的时候获取数据使用。
+
+### 获取刷新的问题列表 [GET]
+请求参数:
++ req_num (int) - 请求的最多条数
++ req_type (string) - 请求的数据类型
+    + new表示获取比update_time时间更新的Question，此时获取的Question按照时间戳从小到大，也即越来越新
+    + old表示获取比update_time时间更老的Question，此时获取的Question按照时间戳从大到小，也即越来越旧
++ update_time (int) - Question的更新时间戳
+
++ Request (application/json)
+
+        {
+            "req_num": 1,
+            "req_type" : "new",
+            "update_time": 1414299117
+        }
+
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "question_list": [
+                {
+                    "qid" : "1",
+                    "author": "摇滚骄子",
+                    "authorid": "3",
+                    "title": "大家看一下 这个这个题目怎么做？",
+                    "description": "<p>a+b=x+y怎么解</p>",
+                    "time": "1411974863",
+                    "update_time": "1414299118",
+                    "answers": "5",
+                    "attentions": "3",
+                    "views": "0",
+                    "status": "0",
+                    "format_time": "2014/09/29 15:14",
+                    "format_update_time": "2014/10/26 12:51",
+                    "avatar": "http://www.boostme.cn:9507/public/data/avatar/000/000/00/small_0000000001.jpg",
+                    "strip_description": "这是抽取掉tag的description",
+                    "images": [
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/n0TkbApA.png' title='31.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/NrPvhtEj.png' title='122.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/aLrRKURS.png' style='float:none;' title='193.png'/>",
+                        "<img src='http://www.boostme.cn:9507/public/data/attach/1502/1NnsZWYL.png' style='float:none;' title='683.png'/>"
+                    ]
+                }
+            ]
+        }
+
 ## Add New Question [/question/ajax_add]
 新增一个question。
 
