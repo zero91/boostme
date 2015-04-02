@@ -2,7 +2,7 @@
 <div class="container">
     <h2>注册</h2>
     <hr style="border-color: #DFE2E6">
-    <form name="loginform" action="{SITE_URL}user/register" method="post" class="form-horizontal" onsubmit="return docheck()">
+    <form name="loginform" action="{SITE_URL}/user/register" method="post" class="form-horizontal" onsubmit="return docheck()">
         <div class="form-group">
             <label class="col-sm-2 control-label">用户名</label>
             <div>
@@ -10,7 +10,6 @@
                 <span id="usernametip" class="control-label">不超过14个字节(中文，数字，字母和下划线)</span>
             </div>
         </div>
-
         <div class="form-group">
             <label class="col-sm-2 control-label">登陆密码</label>
             <div>
@@ -18,7 +17,6 @@
                 <span id="passwordtip" class="control-label">长度6-14位，字母区分大小写</span>
             </div>
         </div>
-
         <div class="form-group">
             <label class="col-sm-2 control-label">密码确认</label>
             <div>
@@ -26,7 +24,6 @@
                 <span id="repasswordtip" class="input_desc">与登录密码输入一致</span>
             </div>
         </div>
-
         <div class="form-group">
             <label class="col-sm-2 control-label">电子邮箱</label>
             <div>
@@ -46,197 +43,20 @@
             <label class="col-sm-2 control-label">验证码</label>
             <div>
                 <div class="col-sm-5"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
-
-                <img src="{SITE_URL}user/code" onclick="javascript:updatecode();" id="verifycode">
+                <img src="{SITE_URL}/user/ajax_code" onclick="update_code();" id="verifycode">
                 <a class="" href="javascript:updatecode();">&nbsp;看不清?</a>
-
                 <span id="codetip"></span>
             </div>
         </div>
         <!--{/if}-->
-
         <div class="form-group">
             <div class="col-sm-2"></div>
             <div class="col-sm-5">
                 <input type="hidden" id="forward" name="forward" value="{$forward}"/>
-                <input id="reg_btn" type="button" value="注&nbsp;&nbsp;&nbsp;&nbsp;册" class="btn btn-primary col-sm-12"/>
+                <input id="register_btn" type="button" value="注&nbsp;&nbsp;&nbsp;&nbsp;册" class="btn btn-primary col-sm-12"/>
             </div>
         </div>
     </form>
 </div>
-
-<script type="text/javascript">
-var usernameok = false;
-var passwordok = false;
-var repasswdok = false;
-var emailok = false;
-
-function check_username() {
-    var username = $.trim($('#username').val());
-    var length = bytes(username);
-    if (length < 3 || length > 15) {
-        $('#usernametip').html("用户名请使用3到15个字符");
-        $('#usernametip').attr('class', 'input_error');
-        usernameok = false;
-    } else {
-        var req_data_dict = {};
-        req_data_dict['username'] = username;
-        async_request("{SITE_URL}user/ajax_username", "get", req_data_dict, function(response) {
-            if (response.success) {
-                $('#usernametip').html("&nbsp;");
-                $('#usernametip').attr('class', 'input_ok');
-                usernameok = true;
-
-            } else if (response.error == 101) {
-                $('#usernametip').html("此用户名已经存在");
-                $('#usernametip').attr('class', 'input_error');
-                usernameok = false;
-
-            } else if (response.error == 102) {
-                $('#usernametip').html("用户名含有禁用字符");
-                $('#usernametip').attr('class', 'input_error');
-                usernameok = false;
-            }
-        });
-    }
-}
-
-function check_passwd() {
-    var passwd = $('#password').val();
-    if (bytes(passwd) < 6 || bytes(passwd) > 16) {
-        $('#passwordtip').html("密码最少6个字符，最长不得超过16个字符");
-        $('#passwordtip').attr('class', 'input_error');
-        passwordok = false;
-    } else {
-        $('#passwordtip').html("&nbsp;");
-        $('#passwordtip').attr('class', 'input_ok');
-        passwordok = true;
-    }
-}
-
-function check_repasswd() {
-    repasswdok = 1;
-    var repassword = $('#repassword').val();
-    if (bytes(repassword) < 6 || bytes(repassword) > 16) {
-        $('#repasswordtip').html("密码最少6个字符，最长不得超过16个字符");
-        $('#repasswordtip').attr('class', 'input_error');
-        repasswdok = false;
-    } else {
-        if ($('#password').val() == $('#repassword').val()) {
-            $('#repasswordtip').html("&nbsp;");
-            $('#repasswordtip').attr('class', 'input_ok');
-            repasswdok = true;
-        } else {
-            $('#repasswordtip').html("两次密码输入不一致");
-            $('#repasswordtip').attr('class', 'input_error');
-            repasswdok = false;
-        }
-    }
-}
-
-function check_email() {
-    var email = $.trim($('#email').val());
-    if (!email.match(/^[\w\.\-]+@([\w\-]+\.)+[a-z]{2,4}$/ig)) {
-        $('#emailtip').html("邮件格式不正确");
-        $('#emailtip').attr('class', 'input_error');
-        emailok = false;
-    } else {
-        async_request("{SITE_URL}user/ajax_email", "get", {email: email}, function(response) {
-            if (response.success) {
-                $('#emailtip').html("&nbsp;");
-                $('#emailtip').attr('class', 'input_ok');
-                emailok = true;
-
-            } else if (response.error == 101) {
-                $('#emailtip').html("此邮件地址已经注册");
-                $('#emailtip').attr('class', 'input_error');
-                emailok = false;
-
-            } else if (response.error == 102) {
-                $('#emailtip').html("邮件地址被禁止注册");
-                $('#emailtip').attr('class', 'input_error');
-                emailok = false;
-            }
-        });
-    }
-}
-
-function docheck() {
-    if (!usernameok) {
-        check_username();
-        return false;
-    }
-    if (!passwordok) {
-        check_passwd();
-        return false;
-    }
-    if (!repasswdok) {
-        check_repasswd();
-        return false;
-    }
-    if (!emailok) {
-        check_email();
-        return false;
-    }
-
-    <!--{if $setting['code_register']}-->
-    return check_code();
-    <!--{else}-->
-    return true;
-    <!--{/if}-->
-}
-
-$(function() {
-    $("#reg_btn").click(function() {
-        if (!docheck()) {
-            return false;
-        }
-
-        var req_data_dict = {};
-        req_data_dict['username'] = $.trim($('#username').val());
-        req_data_dict['password'] = $('#password').val();
-        req_data_dict['email'] = $.trim($('#email').val());
-        req_data_dict['code'] = $('#code').val();
-        req_data_dict['invite_code'] = $("#invite_code").val();
-        req_data_dict['forward'] = $("#forward").val();
-
-        async_request("{SITE_URL}user/ajax_register", "post", req_data_dict, function(response) {
-            if (response.success) {
-                alert("注册成功");
-                self.location.href = response.forward;
-
-            } else if (response.error == 101) {
-                alert("用户已登录");
-
-            } else if (response.error == 102) {
-                alert("系统注册功能暂时处于关闭状态");
-
-            } else if (response.error == 103) {
-                alert("当前IP已经超过当日最大注册数目");
-
-            } else if (response.error == 104) {
-                alert("用户名或密码不能为空");
-
-            } else if (response.error == 105) {
-                alert("邮件地址不合法");
-
-            } else if (response.error == 106) {
-                alert("用户名已存在");
-
-            } else if (response.error == 107) {
-                alert("此邮件地址已经注册");
-
-            } else if (response.error == 108) {
-                alert("用户名不合法");
-
-            } else if (response.error == 109) {
-                alert("验证码错误");
-            }
-        });
-    });
-});
-
-
-</script>
-
+<script src="{SITE_URL}/public/js/boostme/user.js"></script>
 <!--{template footer}-->
