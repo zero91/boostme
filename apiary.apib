@@ -14,15 +14,21 @@ Android、JS与 *Boostme Web* 的接口文档。
 ## Group User
 user相关API。
 
-## User [/user/login]
+
+## User Login [/user/ajax_login]
 用户登录
 
 ### Login [POST]
 请求参数:
 + username (string) - 用户昵称
 + password (string) - 登录密码
-+ code (string) - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段
++ code (string) - 登录验证码，是系统配置而定。系统需要使用验证码，则需要增加此字段。目前无须验证码
 + forward (string) - 跳转页面，可选
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ forward - 用户登录成功后，需要跳转的页面对象[success=true]
++ error - 错误码 [success=false]
 
 error错误码含义:
 + 101 - 用户名存在，但密码错误
@@ -42,6 +48,73 @@ error错误码含义:
 + Response 200 (application/json)
 
         { "success": true, "forward" : "http://www.boostme.cn/material/default" }
+
+
+## User Logout [/user/ajax_logout]
+用户登出。
+
+### Logout [POST]
+无请求参数
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 当前系统不存在此登录用户
+
++ Request (application/json)
+
+        { }
+
++ Response 200 (application/json)
+
+        { "success": true }
+
+
+## User Register [/user/ajax_register]
+注册用户。
+
+### Register [POST]
+请求参数:
++ username - 用户名
++ password - 密码
++ email - 邮箱
++ code - 验证码，依系统配置是否需要。当前配置为需要填验证码
++ invite_code - 邀请码，可选
++ forward - 注册成功后的跳转页面，可选
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ uid - 新增加的用户ID号[success=true]
++ forward - 注册成功后的跳转页面[success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户已登录
++ 102 - 系统注册功能暂时处于关闭状态
++ 103 - 当前IP已经超过当日最大注册数目
++ 104 - 用户名或密码不能为空
++ 105 - 邮件地址不合法
++ 106 - 用户名已存在
++ 107 - 此邮件地址已经注册
++ 108 - 用户名不合法
++ 109 - 验证码错误
+
++ Request (application/json)
+
+        {
+            "username": "test999",
+            "password" : "test999",
+            "email" : "test999@bm.cn",
+            "code" : "0Ar4",
+            "forward" : "http://www.boostme.cn/material/default"
+        }
+
++ Response 200 (application/json)
+
+        { "success": true, "uid" : 148 }
+
 
 # Question/Answer API Root [/question]
 
@@ -386,6 +459,40 @@ error错误码含义:
 + Response 200 (application/json)
 
         { "success": false, "error": 101 }
+
+## Add Comment [/answer/ajax_add_comment]
+新增一个answer的评论。
+
+### 增加一个新回复 [POST]
+请求参数:
++ answerid (int) - answer ID号
++ content (string) - 回复内容
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ id - 新增answer的comment ID号 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
++ 102 - answer不存在，answerid无效
+
++ Request (application/json)
+
+        { "answerid": "33", "content" : "Hello World" }
+        
++ Response 201 (application/json)
+
+        { "success": true, "id": 19 }
+
++ Request (application/json)
+
+        { "answerid": "abcd", "content" : "Hello World" }
+
++ Response 200 (application/json)
+
+        { "success": false, "error": 102 }
+
 
 # Service API Root [/service]
 
