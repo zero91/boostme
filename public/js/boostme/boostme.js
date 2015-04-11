@@ -89,6 +89,12 @@ Service.prototype = {
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
+    },
+    close_service : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/service/ajax_close";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
     }
 }
 Service.prototype.constructor = Service;

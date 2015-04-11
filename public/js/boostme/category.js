@@ -72,7 +72,7 @@ function fetch_dept_optionhtml(school_id) {
 // 获取院系的专业option列表
 function fetch_major_optionhtml(dept_id) {
     var optionhtml = "<option value=''>专业</option>";
-    if (m_dept_dict["dept_id"] === undefined) {
+    if (m_dept_dict[dept_id] === undefined) {
         return optionhtml;
     }
 
@@ -200,18 +200,20 @@ $(function() {
         });
     });
 
-    var user = new User();
-    user.fetch_easy_access({"type" : g_easy_access_type}, function(response) {
-        if (response.success) {
-            for (var i = 0; i < response.easy_access_list.length; ++i) {
-                create_easy_access(response.easy_access_list[i].id,
-                                   response.easy_access_list[i].region_id,
-                                   response.easy_access_list[i].school_id,
-                                   response.easy_access_list[i].dept_id,
-                                   response.easy_access_list[i].major_id);
+    if (typeof(g_easy_access_type) != 'undefined') {
+        var user = new User();
+        user.fetch_easy_access({"type" : g_easy_access_type}, function(response) {
+            if (response.success) {
+                for (var i = 0; i < response.easy_access_list.length; ++i) {
+                    create_easy_access(response.easy_access_list[i].id,
+                                       response.easy_access_list[i].region_id,
+                                       response.easy_access_list[i].school_id,
+                                       response.easy_access_list[i].dept_id,
+                                       response.easy_access_list[i].major_id);
+                }
             }
-        }
-    });
+        });
+    }
 
     $("#select_region").change(function() {
         var region_id = $("#select_region option:selected").val();
@@ -226,7 +228,6 @@ $(function() {
         $("#select_major").attr('disabled', 'disabled');
 
         category_change_callback({"region_id" : region_id});
-        history.pushState({}, 0, g_site_url + '/' + g_regular + "?region_id=" + region_id);
         g_region_id = region_id;
         g_school_id = "";
         g_dept_id = "";
@@ -245,7 +246,6 @@ $(function() {
         $("#select_major").attr('disabled', 'disabled');
 
         category_change_callback({"region_id" : region_id, "school_id" : school_id});
-        history.pushState({}, 0, g_site_url + '/' + g_regular + "?region_id=" + region_id + "&school_id=" + school_id);
         g_region_id = region_id;
         g_school_id = school_id;
         g_dept_id = "";
@@ -264,7 +264,6 @@ $(function() {
         category_change_callback({"region_id" : region_id,
                                   "school_id" : school_id,
                                   "dept_id" : dept_id});
-        history.pushState({}, 0, g_site_url + '/' + g_regular + "?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id);
         g_region_id = region_id;
         g_school_id = school_id;
         g_dept_id = dept_id;
@@ -282,7 +281,6 @@ $(function() {
                                   "school_id" : school_id,
                                   "dept_id" : dept_id,
                                   "major_id" : major_id});
-        history.pushState({}, 0, g_site_url + '/' + g_regular + "?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id + "&major_id=" + major_id);
         g_region_id = region_id;
         g_school_id = school_id;
         g_dept_id = dept_id;
@@ -292,7 +290,7 @@ $(function() {
 
     $("#select_region").html(fetch_region_optionhtml());
 
-    if ($.trim(g_region_id) == '') {
+    if (typeof(g_region_id) == 'undefined' || $.trim(g_region_id) == '') {
         $("#select_school").attr('disabled', 'disabled');
         $("#select_school").html(fetch_school_optionhtml());
     } else {
@@ -300,7 +298,7 @@ $(function() {
         $("#select_school").html(fetch_school_optionhtml(g_region_id));
     }
 
-    if ($.trim(g_school_id) == '') {
+    if (typeof(g_school_id) == 'undefined' || $.trim(g_school_id) == '') {
         $("#select_dept").attr('disabled', 'disabled');
         $("#select_dept").html(fetch_dept_optionhtml());
     } else {
@@ -308,7 +306,7 @@ $(function() {
         $("#select_dept").html(fetch_dept_optionhtml(g_school_id));
     }
 
-    if ($.trim(g_dept_id) == '') {
+    if (typeof(g_dept_id) == 'undefined' || $.trim(g_dept_id) == '') {
         $("#select_major").attr('disabled', 'disabled');
         $("#select_major").html(fetch_major_optionhtml());
     } else {
@@ -316,10 +314,9 @@ $(function() {
         $("#select_major").html(fetch_major_optionhtml(g_dept_id));
     }
 
-    if ($.trim(g_major_id) != '') {
+    if (typeof(g_major_id) != 'undefined' && $.trim(g_major_id) != '') {
         $("#select_major").val(g_major_id);
     }
-    //$('.selectpicker').selectpicker({'dropupAuto' : false, 'title':''});
 
     $("#more").click(function() {
         g_view_page_num += 1;

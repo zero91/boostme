@@ -29,6 +29,42 @@ class servicecontrol extends base {
         include template('service');
     }
 
+    // 申请提供服务
+    public function onregister() {
+        $this->check_login();
+        $service_list = $_ENV['service']->get_by_uid($this->user['uid']);
+        foreach ($service_list as &$t_service) {
+            $t_service['cid_list'] = $_ENV['service_category']->get_by_sid($t_service['id']);
+        }
+        $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
+        include template("service_register");
+    }
+
+    public function onview() {
+        $sid = $this->post['service_id'];
+        if (empty($sid)) {
+            $this->message("非法链接，缺少参数!", 'STOP');
+        }
+
+        $_ENV['service']->update_view_num($sid);
+        $service = $_ENV['service']->get_by_id($sid);
+        $service['cid_list'] = $_ENV['service_category']->get_by_sid($sid);
+
+        $user_comment = $_ENV['service_comment']->get_by_uid_sid($this->user['uid'], $sid);
+
+        $page = max(1, intval($this->get[3]));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+        $tot_comment_num = $_ENV['service_comment']->get_comment_num_by_sid($sid);
+        $comment_list = $_ENV['service_comment']->get_by_sid($sid, $start, $pagesize);
+
+        $edu_list = $_ENV['education']->get_by_uid($service['uid']);
+
+        $departstr = page($tot_comment_num, $pagesize, $page, "service/view/$sid");
+        include template('viewservice');
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
     public function onedit_picture() {
         if ($this->user['uid'] == 0) {
             echo "Please Login First";
@@ -143,242 +179,6 @@ class servicecontrol extends base {
         );
         echo json_encode($arr);
 	}
-
-    public function onregister() {
-        $this->check_login();
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $picture = $this->fetch_picture_path("/public/data/service", $this->user['uid']);
-            $category = $this->post['category'];
-            $profile = $this->post['profile'];
-            $price = $this->post['price'];
-            $id = $this->post['id'];
-            $phone = $this->post['phone'];
-            $qq = $this->post['qq'];
-            $wechat = $this->post['wechat'];
-
-            if ($id > 0) {
-                $_ENV['service']->update($id, $picture, $price, $profile, SERVICE_STATUS_APPLY);
-            } else {
-                $id = $_ENV['service']->add($this->user['uid'], $this->user['username'], $picture, $price, $profile);
-            }
-
-            if ($id > 0) { 
-                $_ENV['service_category']->multi_add($id, $category, false);
-            }
-
-            $_ENV['user']->update_contact_info($this->user['uid'], $phone, $qq, $wechat);
-
-            $arr = array('success' => true, 'id' => $id);
-            echo json_encode($arr);
-        } else {
-            $service = $_ENV['service']->get_by_uid($this->user['uid']);
-            $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
-            if (!empty($service)) {
-                $service['cid_list'] = $_ENV['service_category']->get_by_sid($service['id']);
-            }
-            include template("service_register");
-        }
-    }
-
-    // 发布求助
-    function onadd() {
-        $op_type = "add"; // 操作类型：增加求助
-        $navtitle = "发布求助";
-        if (isset($this->post['submit'])) {
-            $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $tags = trim($this->post["ptags"]);
-            $price = intval($this->post["price"]);
-            $cid = trim($this->post['category_id']);
-
-            $this->setting['code_problem'] && $this->checkcode(); //检查验证码
-
-            $status = ($this->setting['verify_problem'] ? PB_STATUS_UNAUDIT : PB_STATUS_UNSOLVED);
-
-            //检查标题违禁词
-            $contentarray = checkwords($title);
-            1 == $contentarray[0] && $status = PB_STATUS_UNAUDIT;
-            2 == $contentarray[0] && $this->message("求助包含非法关键词，发布失败!", 'BACK');
-            $title = $contentarray[1];
-
-            //检查问题描述违禁词
-            $descarray = checkwords($description);
-            1 == $descarray[0] && $status = PB_STATUS_UNAUDIT;
-            2 == $descarray[0] && $this->message("求助描述包含非法关键词，发布失败!", 'BACK');
-            $description = $descarray[1];
-
-            $pid = $_ENV['problem']->add($title, $description, $cid, $price);
-            $_ENV['problem']->update_status($pid, $status);
-            $_ENV['user']->update_problem_num($this->user['uid'], 1);
-
-            // 插入标签
-            !empty($tags) && $taglist = explode(" ", $tags);
-            $taglist && $_ENV['tag']->multi_add(array_unique($taglist), $pid);
-
-            $viewurl = urlmap("problem/view/$pid", 2);
-            if (PB_STATUS_UNAUDIT == $status) {
-                $this->message('求助发布成功！为了确保求助的合法性，我们会对您提的求助进行审核。请耐心等待......', 'BACK');
-            } else {
-                $this->message("求助发布成功!", $viewurl);
-            }
-        } else {
-            if (0 == $this->user['uid']) {
-                $this->message("请先登录!", "user/login");
-            }
-            $word = $this->post['word'];
-            include template('problem');
-        }
-    }
-
-    function ondemand() {
-        if (0 == $this->user['uid']) {
-            $this->message("请先登录!", "user/login");
-        }
-
-        if (0 == $this->user['can_teach']) { //没有获得教师的资格
-            $this->message("您还没有获得提供帮助的资格，为了确保人员质量，请详细填写您的个人资料，通过审核之后，就可以提供帮助啦!", "user/resume");
-        }
-
-        $pid = $this->post['dialog_pid'];
-        $message = trim($this->post['demand_message']);
-
-        empty($pid) && $this->message("无效参数", "BACK");
-
-        if ($_ENV['demand']->already_demand($pid)) {
-            $this->message("您已发过一次请求，请您耐心等待!", "problem/view/$pid");
-        }
-
-        $last_insert_id = $_ENV['demand']->add($pid, $message);
-        if ($last_insert_id > 0) {
-            $_ENV['problem']->add_demand($pid);
-
-            $problem = $_ENV['problem']->get($pid);
-            $subject = "有人想帮您解决您的求助 \"{$problem['title']}\"";
-            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
-            $this->send('', 0, $problem['authorid'], $subject, $content);
-            $this->message("恭喜您，请求信息已经成功发送到对方账户，请您耐心等待！", "problem/view/$pid");
-        } else {
-            $this->message("Oops，请求发送失败！", "problem/view/$pid");
-        }
-    }
-
-    function onajaxdemand() {
-        if (0 == $this->user['uid']) {
-            exit('-1');
-        }
-
-        if (0 == $this->user['can_teach']) { //没有获得教师的资格
-            exit('3');
-        }
-
-        $pid = $this->get[2];
-        empty($pid) && exit('0');
-
-        if ($_ENV['demand']->already_demand($pid)) {
-            exit('2');
-        }
-
-        $last_insert_id = $_ENV['demand']->add($pid);
-        if ($last_insert_id > 0) {
-            $_ENV['problem']->add_demand($pid);
-
-            $problem = $_ENV['problem']->get($pid);
-            $subject = "有人想帮您解决您的求助 \"" . cutstr($problem['title'], 30) . "\"";
-            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>';
-            $this->send('', 0, $problem['authorid'], $subject, $content);
-            exit('1');
-        }
-        exit('0');
-    }
-
-    function onajaxcancel() {
-        if (0 == $this->user['uid']) {
-            exit('-1');
-        }
-        $pid = $this->get[2];
-        empty($pid) && exit('0');
-
-        if ($_ENV['demand']->already_demand($pid) === false) {
-            exit('2');
-        }
-
-        $affected_rows = $_ENV['demand']->remove_by_uid_pid($this->user['uid'], $pid);
-
-        if ($affected_rows > 0) {
-            $_ENV['problem']->update_demand($pid, -$affected_rows);
-            exit('1');
-        }
-        exit('0');
-    }
-
-    function onajaxaccept() {
-        if (!($this->user['phone'] || $this->user['qq'] || $this->user['wechat'])) {
-            exit('2'); // 没有联系方式
-        }
-        $uid = $this->get[2];
-        $pid = $this->get[3];
-        (empty($uid) || empty($pid)) && exit('0');
-        $affected_rows = $_ENV['demand']->update_status($uid, $pid, DEMAND_STATUS_ACCEPT);
-        $affected_rows = 1;
-        if ($affected_rows > 0) {
-            $user = $_ENV['user']->get_by_uid($uid);
-            $_ENV['problem']->update_solver($pid, $user['uid'], $user['username']);
-            $problem = $_ENV['problem']->get($pid);
-            $_ENV['user']->solve_problem($user['uid'], $problem['price']);
-
-            $system = $problem['price'] * $user['charge'] / 100.0;
-
-            $subject = "您抢求助 \"{$problem['title']}\" 成功啦";
-            $content = "您可以通过以下方式联系到{$problem['author']}:<br/>";
-            if ($this->user['phone']) $content .= "手机：{$this->user['phone']}<br/>";
-            if ($this->user['qq']) $content .= "QQ：{$this->user['qq']}<br/>";
-            if ($this->user['wechat']) $content .= "微信：{$this->user['wechat']}<br/>";
-            $content .='<a href="' . url("problem/view/$pid", 1) . '">点击查看求助</a>';
-            $this->send('', 0, $uid, $subject, $content);
-            exit('1');
-        }
-        exit('0');
-    }
-
-    function onajaxdenied() {
-        $uid = $this->get[2];
-        $pid = $this->get[3];
-        (empty($uid) || empty($pid)) && exit('0');
-
-        $affected_rows = $_ENV['demand']->update_status($uid, $pid, DEMAND_STATUS_DENIED);
-        if ($affected_rows > 0) {
-            $problem = $_ENV['problem']->get($pid);
-            $subject = "Sorry, 您没有成功抢到求助 \"{$problem['title']}\"";
-            $content ='<a href="' . url("problem/view/$pid", 1) . '">点击查看</a>'; 
-            $this->send('', 0, $uid, $subject, $content);
-            exit('1');
-        }
-        exit('0');
-    }
-
-    public function onview() {
-        $sid = $this->get[2];
-        if (empty($sid)) {
-            $this->message("非法链接，缺少参数!", 'STOP');
-        }
-
-        $_ENV['service']->update_view_num($sid);
-        $service = $_ENV['service']->get_by_id($sid);
-        $service['cid_list'] = $_ENV['service_category']->get_by_sid($sid);
-
-        $user_comment = $_ENV['service_comment']->get_by_uid_sid($this->user['uid'], $sid);
-
-        $page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default'];
-        $start = ($page - 1) * $pagesize;
-        $tot_comment_num = $_ENV['service_comment']->get_comment_num_by_sid($sid);
-        $comment_list = $_ENV['service_comment']->get_by_sid($sid, $start, $pagesize);
-
-        $edu_list = $_ENV['education']->get_by_uid($service['uid']);
-
-        $departstr = page($tot_comment_num, $pagesize, $page, "service/view/$sid");
-        include template('viewservice');
-    }
 
     public function oncomment() {
         if ($this->user['uid'] > 0) {
@@ -647,13 +447,15 @@ class servicecontrol extends base {
     //===================================================================================
 
     // @onajax_fetch_list    [获取service列表]
-    // @request type         [GET/POST]
+    // @request type         [GET]
     // @param[in]  region_id [区域ID号]
     // @param[in]  school_id [学校ID号]
     // @param[in]    dept_id [院系ID号]
     // @param[in]   major_id [专业ID号]
     // @param[in]       page [页号]
-    // @return               [service列表]
+    //
+    // @return       success [true]
+    //          service_list [service列表]
     public function onajax_fetch_list() {
         $region_id = $this->post['region_id'];
         $school_id = $this->post['school_id'];
@@ -669,7 +471,239 @@ class servicecontrol extends base {
                                                             $major_id,
                                                             $start,
                                                             $pagesize);
-        echo json_encode($service_list);
+        foreach ($service_list as &$t_service) {
+            $t_service['avatar'] = get_avatar_dir($t_service['uid']);
+        }
+
+        $res = array();
+        $res['success'] = true;
+        $res['service_list'] = $service_list;
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_info    [获取单个service详细信息]
+    // @request type         [GET]
+    // @param[in] service_id [service ID]
+    // @return          成功 [success: true]
+    //                       [services: service详细信息]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [无效参数]
+    public function onajax_fetch_info() {
+        $sid = $this->post['service_id'];
+        $res = array();
+        if ($sid > 0) {
+            $res['success'] = true;
+            $service = $_ENV['service']->get_by_id($sid);
+            $service['avatar'] = get_avatar_dir($service['uid']);
+            $service['cid_list'] = $_ENV['service_category']->get_by_sid($sid);
+            $service['edu_list'] = $_ENV['education']->get_by_uid($service['uid']);
+            $res['service'] = $service;
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 无效参数
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_add           [新增service]
+    // @request type         [POST]
+    //
+    // @param[in] service_content [服务具体内容]
+    // @param[in]    service_time [服务时长]
+    // @param[in]           price [价格]
+    // @param[in]           phone [手机号]
+    // @param[in]              qq [QQ号]
+    // @param[in]          wechat [微信号]
+    // @param[in]   category_list [服务分类]
+    //
+    // @return          成功 [success: true]
+    //                       [service_id : 新增service ID号]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [服务尚未填写完整]
+    // @error            103 [未填写手机号]
+    public function onajax_add() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $service_content = $this->post["service_content"];
+        $service_time = $this->post["service_time"];
+        $price = $this->post['price'];
+        $phone = $this->post['phone'];
+        $qq = $this->post['qq'];
+        $wechat = $this->post['wechat'];
+        $category_list = $this->post['category_list'];
+
+        if (empty($service_content) || empty($service_time) || empty($price)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 服务尚未填写完整
+            echo json_encode($res);
+            return;
+        }
+
+        if (empty($phone)) {
+            $res['success'] = false;
+            $res['error'] = 103; // 未填写手机号
+            echo json_encode($res);
+            return;
+        }
+
+        $service_id = $_ENV['service']->add($this->user['uid'],
+                                            $this->user['username'],
+                                            $service_content,
+                                            $service_time,
+                                            $price);
+        ($service_id > 0) && $_ENV['service_category']->multi_add($service_id, $category_list, false);
+        $_ENV['user']->update_contact_info($this->user['uid'], $phone, $qq, $wechat);
+
+        $res['success'] = true;
+        $res['service_id'] = $service_id;
+        echo json_encode($res);
+    }
+
+    // @onajax_close         [暂时关闭服务]
+    // @request type         [POST]
+    //
+    // @param[in] service_id [服务ID号]
+    //
+    // @return          成功 [success: true]
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [服务ID号无效]
+    // @error            103 [用户无权关闭该服务]
+    // @error            104 [关闭操作失败]
+    public function onajax_close() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $service_id = $this->post["service_id"];
+        if (empty($service_id)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 服务ID号无效
+            echo json_encode($res);
+            return;
+        }
+
+        $service = $_ENV['service']->get_by_id($service_id);
+        if ($service['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户无权关闭该服务
+        } else {
+            $affected_rows = $_ENV['service']->update_status($service_id, SERVICE_STATUS_CLOSED);
+            if ($affected_rows > 0) {
+                $res['success'] = true;
+            } else {
+                $res['success'] = false;
+                $res['error'] = 104; // 关闭失败
+            }
+        }
+        echo json_encode($res);
+    }
+
+
+
+    // @onajax_fetch_comment [获取service的评论信息]
+    // @request type         [GET]
+    // @param[in] service_id [service ID]
+    // @param[in]       page [评论页码，可选]
+    //
+    // @return          成功 [success: true]
+    //                       [tot_num : 总评论条数]
+    //                       [comment_list : 评论列表]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [无效参数]
+    public function onajax_fetch_comment() {
+        $sid = $this->post['service_id'];
+        $page = max(1, intval($this->post["page"]));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+
+        $res = array();
+        if (empty($sid)) {
+            $res['success'] = false;
+            $res['error'] = 101; // service ID参数不能为空
+        } else {
+            $res['success'] = true;
+            $res['tot_num'] = $_ENV['service_comment']->get_comment_num_by_sid($sid);
+            $res['comment_list'] = $_ENV['service_comment']->get_by_sid($sid, $start, $pagesize);
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_user_comment [获取userid对service的评论]
+    // @request type         [GET]
+    // @param[in] service_id [service ID]
+    //
+    // @return          成功 [success : true]
+    //                       [comment : 用户评论内容]
+    //
+    //                  失败 [success : false]
+    //                       [error : 为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    public function onajax_fetch_user_comment() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $sid = $this->post['service_id'];
+        if (empty($sid)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 参数无效
+        } else {
+            $res['success'] = true;
+            $res['comment'] = $_ENV['service_comment']->get_by_uid_sid($this->user['uid'], $sid);
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_category [获取service详细分类]
+    // @request type          [GET]
+    // @param[in] service_id  [service ID]
+    //
+    // @return           成功 [success : true]
+    //                        [cid_list : service分类信息列表]
+    //                   失败 [success : false]
+    //                        [error : 为错误码]
+    //
+    // @error             101 [无效参数]
+    public function onajax_fetch_category() {
+        $sid = $this->post['service_id'];
+        $res = array();
+        if (empty($sid)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 无效参数
+        } else {
+            $res['success'] = true;
+            $res['cid_list'] = $_ENV['service_category']->get_by_sid($sid);
+        }
+        echo json_encode($res);
     }
 
     // @onajax_edit_picture  [编辑用户服务图像]

@@ -1,0 +1,80 @@
+html, body {font-family: 'Century Gothic', sans-serif; height:100%;}
+#fixed_wrapper {height:100%;}
+body > #fixed_wrapper {
+    position: relative;
+    min-height: 100%;
+    height: auto;
+}
+#main_content {padding-bottom: 70px;}  
+#footer {
+    position: relative;
+    bottom: 0px;
+    height: 70px;
+    width: 100%;
+    margin-top: -70px;
+    border-top: 2px solid #507f9a;
+    background: #447693;
+    clear:both;
+}
+#footer p {padding-top: 20px; color: #fff; text-align: center;}
+#footer a {color: #fff; text-decoration: underline;}
+
+.container_wrapper {width: 100%; background: #c0c0c0;}
+#nav_menu {
+    width: 100%;
+    background: #f9f9f9;
+    height: 64px;
+    border-bottom: 1px solid #f15556;
+    position: fixed;
+    top: 0;
+    z-index: 1049;
+}
+.container-fluid {max-width: 1600px;}
+
+.copyrights {text-indent:-9999px;height:0;line-height:0;font-size:0;overflow:hidden;}
+
+h1 {
+    margin-top: 60px;
+    margin-bottom: 60px;
+    text-align: center;
+    font: normal normal normal 34px/60px 'Century Gothic', sans-serif;
+    color: #3b3b3b;
+}
+
+#nav_menu #logo_text {
+    font: normal normal normal 36px/1em 'Century Gothic', sans-serif;
+    margin-top: 15px;
+    padding-left: 60px;
+    text-align: left;
+    color: #e35354;
+}
+#nav_menu #logo_text span {color: #9fb038;}
+
+
+
+#nav_menu #logo_img {max-height: 60px; float: left;}
+#nav_menu_link li a, #nav_menu_link li a:focus {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font: normal normal normal 18px/23px 'Century Gothic', sans-serif;
+    color: #000;
+    background: repeat-x url("../../images/index/banner_bg.jpg") 0 -74px ;
+    transition-duration: .5s;
+}
+
+#nav_menu_right li a, #nav_menu_right li a:focus {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font: normal normal normal 14px/20px 'Century Gothic', sans-serif;
+    color: #000;
+    background: repeat-x url("../../images/index/banner_bg.jpg") 0 -74px ;
+}
+
+.nav_menu_logo a:hover {text-decoration: none;}
+#nav_menu_link li a:hover, #nav_menu_link li a.current {
+    background-position: 0 0px ;
+    background-color: #f15556;
+    color: #ffffff;
+}
+#nav_menu #mobile_menu {padding-top: 20px; font-size: 30px; float: right; color: #e35354;}
+.menu_link_on {background-position: 0 0px ; background-color: #f15556; color:#ffffff;}

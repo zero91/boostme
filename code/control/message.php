@@ -10,97 +10,57 @@ class messagecontrol extends base {
         $this->load("message");
     }
 
-    // 私人消息
-    public function onpersonal() {
-        $navtitle = '私人消息';
-        $type = 'personal';
-        $page = max(1, intval($this->get[2]));
+    // 消息中心首页
+    public function ondefault() {
+        $navtitle = '消息中心';
+        $this->check_login();
+        $system_message_list = $_ENV['message']->list_by_touid($this->user['uid'], 0, 1);
+        $system_message = $system_message_list[0];
+
+        $page = max(1, intval($this->post['page']));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
-        $messagelist = $_ENV['message']->group_by_touid($this->user['uid'], $startindex, $pagesize);
-        $messagenum = $_ENV['message']->rownum_by_touid($this->user['uid']);
-        $departstr = page($messagenum, $pagesize, $page, "message/personal");
+        $personal_message_list = $_ENV['message']->group_by_touid($this->user['uid'],
+                                                                  $startindex, $pagesize);
+
+        $personal_usernum = $_ENV['message']->rownum_by_touid($this->user['uid']);
+        $departstr = split_page($personal_usernum, $pagesize, $page, "/message/default");
         include template("message");
     }
 
     // 系统消息
     public function onsystem() {
+        $navtitle = '系统消息';
         $this->check_login();
 
-        $navtitle = '通知';
-        $type = 'system';
-        $page = max(1, intval($this->get[2]));
+        $page = max(1, intval($this->post['page']));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
-        $messagelist = $_ENV['message']->list_by_touid($this->user['uid'], $startindex, $pagesize);
-        $messagenum = $this->db->fetch_total('message', 'touid=' . $this->user['uid'] . ' AND fromuid=0 AND status<>'. MSG_STATUS_TO_DELETED);
-
-        $departstr = page($messagenum, $pagesize, $page, "message/system");
-
-        $_ENV['message']->read_by_fromuid(0);
-        include template("message");
+        $message_list = $_ENV['message']->list_by_touid($this->user['uid'],
+                                                        $startindex, $pagesize);
+        $message_num = $_ENV['message']->get_system_msg_num($this->user['uid']);
+        $departstr = split_page($message_num, $pagesize, $page, "/message/system");
+        //$_ENV['message']->read_by_fromuid(0);
+        include template("view_system_message");
     }
 
-    // 阅读消息
-    public function onread() {
-        $mid = $this->get[2];
-        if (empty($mid)) {
-            exit('-1');
-        }
-        $affected_rows = $_ENV['message']->read_by_mid($mid);
-        exit("$affected_rows");
-    }
+    // 私人消息
+    public function onpersonal() {
+        $navtitle = '私人消息';
+        $this->check_login();
 
-    // 发消息
-    function onsend() {
-        $navtitle = '发站内消息';
-        if (isset($this->post['submit'])) {
-            $touser = $_ENV['user']->get_by_username($this->post['username']);
-            (!$touser) && $this->message('该用户不存在!', "message/send");
-            ($touser['uid'] == $this->user['uid']) && $this->message("不能给自己发消息!", "message/send");
-            (trim($this->post['content']) == '') && $this->message("消息内容不能为空!", "message/send");
-            $_ENV['message']->add($this->user['username'], $this->user['uid'], $touser['uid'], $this->post['subject'], $this->post['content']);
-            $this->message('消息发送成功!', get_url_source());
-        }
-        include template('sendmsg');
-    }
-
-    // 查看消息
-    public function onview() {
-        $navtitle = "查看消息";
-        $type = ($this->get[2] == 'personal') ? 'personal' : 'system';
-        $fromuid = intval($this->get[3]);
-        $page = max(1, intval($this->get[4]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        $_ENV['message']->read_by_fromuid($fromuid);
+        $fromuid = $this->post['uid'];
         $fromuser = $_ENV['user']->get_by_uid($fromuid);
-        $status = 1;
-        $messagelist = $_ENV['message']->list_by_fromuid($fromuid, $startindex, $pagesize);
-        $messagenum = $this->db->fetch_total('message', "fromuid<>touid AND ((fromuid=$fromuid AND touid=" . $this->user['uid'] . ") AND status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_FROM_DELETED . ")) OR ((fromuid=" . $this->user['uid'] . " AND touid=" . $fromuid . ") AND status IN (" . MSG_STATUS_NODELETED . "," . MSG_STATUS_TO_DELETED . "))");
-        $departstr = page($messagenum, $pagesize, $page, "message/view/$type/$fromuid");
-        include template('viewmessage');
-    }
 
-    // 删除消息
-    public function onremove() {
-        $msgid = intval($this->get[2]);
-        if ($msgid > 0) {
-            $_ENV['message']->remove($this->user['uid'], $msgid);
-            exit('1');
-        }
-        exit('-1');
-    }
-
-    // ajax删除对话
-    function onremovedialog() {
-        $fromuid = array(intval($this->get[2]));
-
-        if ($fromuid > 0) {
-            $affected_rows = $_ENV['message']->remove_by_author($fromuid);
-            exit("$affected_rows");
-        }
-        exit('-1');
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default'];
+        $startindex = ($page - 1) * $pagesize;
+        $message_list = $_ENV['message']->list_by_fromuid($this->user['uid'], $fromuid,
+                                                          $startindex, $pagesize);
+        $message_num = $_ENV['message']->tot_num_by_fromuid($this->user['uid'], $fromuid);
+        $departstr = split_page($message_num, $pagesize,
+                                $page, "/message/personal?uid=" . $fromuid);
+        include template("view_personal_message");
     }
 
     //===================================================================================
@@ -108,8 +68,8 @@ class messagecontrol extends base {
     //===================================================================================
 
     // @onajax_fetch_system  [获取系统消息列表]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @request type         [GET]
+    // @param[in]       page [页号，可选]
     // @return          成功 [success为true, msg_list为消息列表]
     //                  失败 [success为false, error为相应的错误码]
     //
@@ -135,13 +95,16 @@ class messagecontrol extends base {
         echo json_encode($res);
     }
 
-    // @onajax_fetch_system  [获取与某用户的私信列表]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
-    // @return          成功 [success为true, msg_list为消息列表]
-    //                  失败 [success为false, error为相应的错误码]
+    // @onajax_fetch_personal [获取与某用户的私信列表]
+    // @request type          [GET]
     //
-    // @error            101 [用户尚未登录]
+    // @param[in]        page [页号]
+    // @param[in]         uid [获取对象用户的ID号]
+    //
+    // @return           成功 [success为true, msg_list为消息列表]
+    //                   失败 [success为false, error为相应的错误码]
+    //
+    // @error             101 [用户尚未登录]
     public function onajax_fetch_personal() {
         $res = array();
         if (!$this->check_login(false)) {
@@ -165,7 +128,7 @@ class messagecontrol extends base {
     }
 
     // @onajax_userlist      [获取私信用户列表，也即获取私信用户的第一条信息列表]
-    // @request type         [GET/POST]
+    // @request type         [GET]
     // @param[in]       page [页号]
     // @return          成功 [success为true, msg_list为消息列表]
     //                  失败 [success为false, error为相应的错误码]
@@ -210,8 +173,8 @@ class messagecontrol extends base {
     }
 
     // @onajax_read_msg      [阅读某条消息]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @request type         [GET]
+    // @param[in]        mid [消息ID号]
     // @return          成功 [success为true, msg_list为消息列表]
     //                  失败 [success为false, error为相应的错误码]
     //
@@ -245,9 +208,8 @@ class messagecontrol extends base {
     }
 
     // @onajax_send          [给用户发送私信]
-    // @request type         [GET/POST]
+    // @request type         [POST]
     // @param[in]   username [接收方用户昵称]
-    // @param[in]    subject [私信主题]
     // @param[in]    content [私信内容]
     // @return          成功 [success为true, id为新增消息ID号]
     //                  失败 [success为false, error为相应的错误码]
@@ -266,7 +228,7 @@ class messagecontrol extends base {
         }
 
         $touser = $_ENV['user']->get_by_username($this->post['username']);
-        if (!$touser) {
+        if (empty($touser)) {
             $res['success'] = false;
             $res['error'] = 102; // 接收方用户不存在
             echo json_encode($res);
@@ -290,7 +252,7 @@ class messagecontrol extends base {
         $id = $_ENV['message']->add($this->user['username'],
                                     $this->user['uid'],
                                     $touser['uid'],
-                                    $this->post['subject'],
+                                    "", // $this->post['subject'],
                                     $this->post['content']);
         $res['success'] = true;
         $res['id'] = $id;
@@ -298,7 +260,7 @@ class messagecontrol extends base {
     }
 
     // @onajax_remove        [删除一条消息]
-    // @request type         [GET/POST]
+    // @request type         [POST]
     // @param[in]         id [待删除消息ID号]
     // @return          成功 [success为true]
     //                  失败 [success为false, error为相应的错误码]
@@ -316,6 +278,7 @@ class messagecontrol extends base {
 
         $msgid = intval($this->post['id']);
         if ($msgid > 0) {
+            // 待加入：删除不属于该用户信息的判断
             $_ENV['message']->remove($this->user['uid'], $msgid);
             $res['success' ] = true;
         } else {
@@ -326,7 +289,7 @@ class messagecontrol extends base {
     }
 
     // @onajax_remove_dialog [删除与某用户所有对话]
-    // @request type         [GET/POST]
+    // @request type         [POST]
     // @param[in]        uid [待删除消息对话的用户id]
     // @return          成功 [success为true]
     //                  失败 [success为false, error为相应的错误码]
@@ -344,7 +307,7 @@ class messagecontrol extends base {
 
         $fromuid = array(intval($this->post['uid']));
         if ($fromuid > 0) {
-            $_ENV['message']->remove_by_author($fromuid);
+            $_ENV['message']->remove_by_author($this->user['uid'], $fromuid);
             $res['success'] = true;
         } else {
             $res['success'] = false;

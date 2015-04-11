@@ -1,211 +1,143 @@
 <!--{template header}-->
-<style type="text/css">
-    .pdh0 {padding-left:0px;padding-right:0px;}
-</style>
-<link href="{SITE_URL}public/css/default/picture.css" rel="stylesheet" type="text/css"/>
-<script src="{SITE_URL}public/js/plugin/jquery-form/jquery.form.js"></script>
-<script src="{SITE_URL}public/js/plugin/Jcrop/js/jquery.Jcrop.min.js"></script>
-<link href="{SITE_URL}public/js/plugin/Jcrop/css/jquery.Jcrop.min.css" rel="stylesheet" type="text/css" />
 <!--{template common_link}-->
+
+<style type="text/css">
+    #register_service_panel td {padding-bottom : 20px;}
+</style>
+
 <div class="container">
-    <div class="panel panel-default">
+    <!--{if count($service_list) > 0}-->
+    <div class="panel panel-success">
+        <div class="panel-heading"><h3 class="panel-title">现有服务</h3></div>
         <div class="panel-body">
-            <ul class="col-md-7 col-sm-7 setting-content">
-                <!--{if count($edu_list) == 0}-->
-                <strong>请先完善<a href="{SITE_URL}user/resume">教育信息</a><span style="color:red;">(必填)</span></strong>
-                <!--{/if}-->
-                <form class="form-horizontal" role="form" name="creator">
-                    <input id="picture" name="picture" type="hidden" value="{$service['picture']}">
-                    <div class="form-group" id="div_price">
-                        <label for="name" class="col-sm-2 control-label pdh0">价格</label>
-                        <div class="col-sm-10">
-                            <!--{if empty($service)}-->
-                            <input type="number" name="price" id="price" class="reg-ipt form-control" value="48">
-                            <!--{else}-->
-                            <input type="number" name="price" id="price" class="reg-ipt form-control" value="{$service['price']}">
-                            <!--{/if}-->
-                            <span class="help-block">价格不能大于¥99，低于¥10</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone" class="col-sm-2 control-label pdh0">手机</label>
-                        <div class="col-sm-10">
-                            <input name="phone" id="phone" class="form-control" value="{$user['phone']}">
-                            <span class="help-block">必填项</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="qq" class="col-sm-2 control-label pdh0">QQ</label>
-                        <div class="col-sm-10">
-                            <input name="qq" id="qq" class="form-control" value="{$user['qq']}">
-                            <span class="help-block">同"手机"项，作为联系你的备选项</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="wechat" class="col-sm-2 control-label pdh0">微信</label>
-                        <div class="col-sm-10">
-                            <input name="wechat" id="wechat" class="form-control" value="{$user['wechat']}">
-                            <span class="help-block">同"手机"项，作为联系你的备选项</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="div_category">
-                        <!--{if empty($service)}-->
-                        <label class="col-sm-2 control-label pdh0">分类</label>
-                        <!--{else}-->
-                        <label class="col-sm-2 control-label pdh0">增加分类</label>
-                        <!--{/if}-->
-                        <div class="com-sm-10">
-                            <div class="col-md-2" style="padding-right:0px;"><select class="selectpicker form-control" id="select_region"></select></div> 
-                            <div class="col-md-2 pdh0"><select class="selectpicker form-control" id="select_school" disabled="disabled"></select></div>
-                            <div class="col-md-3 pdh0"><select class="selectpicker form-control" id="select_dept" disabled="disabled"></select></div> 
-                            <div class="col-md-3 pdh0">
-                                <div class="pull-right" style="padding-top:4%;">
-                                    <a id="add_category" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加分类">
-                                        <small class="glyphicon glyphicon-plus-sign"></small>
-                                    </a>
-                                </div>
-                                <div style="width:90%">
-                                    <select class="selectpicker form-control" id="select_major" disabled="disabled"></select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="div_category_list">
-                        <label class="col-sm-2 control-label"></label>
-                        <div id="category_list" class="col-sm-10">
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="div_profile">
-                        <label for="profile" class="col-sm-2 control-label pdh0">服务内容</label>
-                        <div class="col-sm-10">
-                            <textarea name="profile" id="profile" maxlength="300" class="form-control" style="height:250px;padding:5px;" >{$service['profile']}</textarea>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label pdh0"></label>
-                        <div class="col-sm-10 jsk-setting-submit">
-                            <!--{if empty($service)}-->
-                            <input type="button" name="submit" id="submit" class="btn btn-success col-sm-12" style="float:left" value="提交申请">
-                            <!--{else}-->
-
-                            <!--{if $service['status'] == SERVICE_STATUS_ACCEPTED}-->
-                            <input type="button" class="btn btn-success col-sm-12" style="float:left" value="已通过审核，暂时不能更改信息" disabled="disabled">
+            <!--{loop $service_list $service}-->
+            <li class="list-group-item" id="rm_{$service['id']}">
+                <table class="bm_full_width" style="min-height:46px;">
+                    <tr>
+                        <td width="67%" class="bm_rpadding_10">
+                            <p>服务内容： {$service['service_content']}</p>
+                            <p>服务价格： {$service['price']}元</p>
+                            <p>服务时长： {$service['service_time']}分钟</p>
+                            <p>服务分类：</p>
+                            <div class="bm_lpadding_70" id="service_category_{$service['id']}"></div>
+                        </td>
+                        <td width="5%">
+                            <p><a target="_blank" href="{SITE_URL}/service/view?service_id={$service['id']}">预览</a></p>
+                            <!-- <p class="bm_tpadding_10"><a id="update_{$service['id']}">更改</a></p> -->
+                        </td>
+                        <td width="12%">
+                            <!--{if $service['status'] == SERVICE_STATUS_APPLY}-->
+                            <span>正在审核</span>
+                            <!--{elseif $service['status'] == SERVICE_STATUS_ACCEPTED}-->
+                            <span>对外提供服务</span>
                             <!--{elseif $service['status'] == SERVICE_STATUS_DENIED}-->
-                            <p>没有通过审核，请重新填写信息后，提交</p>
-                            <input type="button" name="submit" id="submit" class="btn btn-success col-sm-12" style="float:left" value="重新提交">
-                            <!--{elseif $service['status'] == SERVICE_STATUS_APPLY}-->
-                            <p>您提交的请求正在审核，请耐心等待</p>
-                            <input type="button" name="submit" id="submit" class="btn btn-success col-sm-12" style="float:left" value="更改信息">
+                            <span>未通过审核</span>
+                            <!--{elseif $service['status'] == SERVICE_STATUS_CLOSED}-->
+                            <span>暂停提供服务</span>
                             <!--{/if}-->
-
+                        </td>
+                        <td width="16%">
+                            <!--{if $service['status'] == SERVICE_STATUS_ACCEPTED}-->
+                            <p>服务操作：<a class="bm_pointer" id="service_close_{$service['id']}">暂时关闭</a></p>
                             <!--{/if}-->
-                            <span class="jsk-setting-success word-success">信息已经成功修改</span>
-                        </div>
-                    </div>
-                </form>
-            </ul>
+                            <p>创建时间：{$service['format_time']}</p>
+                        </td>
+                    </tr>
+                </table>
+            </li>
+            <!--{/loop}-->
+        </div>
+    </div>
+    <!--{/if}-->
 
-            <div class="col-md-5 col-sm-5" style="overflow:hidden">
-                <!--{if empty($service['picture'])}-->
-                <iframe src="{SITE_URL}service/upload_picture" style="border:none;" width="520px" height="600px;" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no" ></iframe>
+    <div class="panel panel-primary" id="register_service_panel">
+        <div class="panel-heading"><h3 class="panel-title">申请提供新服务</h3></div>
+        <div class="panel-body">
+            <ul class="col-md-12 col-sm-12 setting-content">
+                <!--{if count($edu_list) == 0}-->
+                <strong>请先完善<a href="{SITE_URL}/user/resume" target="_blank">教育信息</a><span style="color:red;">(必填)</span></strong>
                 <!--{else}-->
-                <iframe src="{SITE_URL}service/edit_picture" style="border:none;" width="520px" height="600px;" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="no" ></iframe>
                 <!--{/if}-->
-            </div>
+                <div class="bm_tmargin_40"></div>
+                <table>
+                    <tr>
+                        <td width="50px"><strong>描述</strong></td>
+                        <td width="65%" class="bm_rpadding_10">
+                            <textarea class="bm_full_width" name="service_content" id="service_content" style="height:150px;"></textarea>
+                        </td>
+                        <td width="30%"><span class="help-block">能够提供服务的详细内容</span></td>
+                    </tr>
+                </table>
+                <table class="bm_full_width">
+                    <tr>
+                        <td width="8%"><strong>分类</strong></td>
+                        <td width="5%">
+                            <a id="add_category" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加">
+                                <small class="glyphicon glyphicon-plus-sign"></small>
+                            </a>
+                        </td>
+                        <td width="10%"><select class="selectpicker" id="select_region"></td>
+                        <td width="10%"><select class="selectpicker" id="select_school" disabled="disabled"></select></td>
+                        <td width="10%"><select class="selectpicker" id="select_dept" disabled="disabled"></select></td>
+                        <td width="10%"><select class="selectpicker" id="select_major" disabled="disabled"></select></td>
+                        <td width="40%"><span class="help-block">服务的分类</span></td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td width="50px"></td>
+                        <td width="90%"><div id="category_list"></div></td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td width="50px" class="bm_rpadding_10"><strong>价格</strong></td>
+                        <td width="40%" class="bm_rpadding_10">
+                            <input type="number" name="price" id="price" class="form-control" value="25">
+                            <input type="hidden" name="service_time" id="service_time" value="15">
+                        </td>
+                        <td width="50%"><span class="help-block">元/15分钟</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>手机</strong></td>
+                        <td class="bm_rpadding_10"><input name="phone" id="phone" class="form-control" value="{$user['phone']}"></td>
+                        <td><span class="help-block">必填项</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>QQ</strong></td>
+                        <td class="bm_rpadding_10"><input name="qq" id="qq" class="form-control" value="{$user['qq']}"></td>
+                        <td><span class="help-block">作为联系你的备选项</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>微信</strong></td>
+                        <td class="bm_rpadding_10"><input name="wechat" id="wechat" class="form-control" value="{$user['wechat']}"></td>
+                        <td><span class="help-block">作为联系你的备选项</span></td>
+                    </tr>
+                </table>
+                <input type="button" id="service_register_btn" class="btn btn-success col-sm-12" style="float:left" value="提交申请">
+            </ul>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-var g_service_info = {'category' : new Array()};
-<!--{if !empty($service)}-->
-g_service_info['id'] = "{$service['id']}";
-<!--{/if}-->
+$(function() {
 
-<!--{loop $service['cid_list'] $category}-->
-
-$("#category_list").append("<p>" + fetch_name_by_all("{$category['region_id']}", "{$category['school_id']}", "{$category['dept_id']}", "{$category['major_id']}") + ' <a id="' + g_service_info['category'].length + '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>');
-g_service_info['category'].push({
-        <!--{if !empty($category['region_id'])}-->
-        'region_id' : "{$category['region_id']}",
-        <!--{/if}-->
-        <!--{if !empty($category['school_id'])}-->
-        'school_id' : "{$category['school_id']}",
-        <!--{/if}-->
-        <!--{if !empty($category['region_id'])}-->
-        'dept_id' : "{$category['dept_id']}",
-        <!--{/if}-->
-        <!--{if !empty($category['major_id'])}-->
-        'major_id' : "{$category['major_id']}",
-        <!--{/if}-->
-    });
-
+<!--{loop $service_list $service}-->
+<!--{loop $service['cid_list'] $t_category}-->
+$("#service_category_{$service['id']}").append("<p>" + 
+                                fetch_name_by_all("{$t_category['region_id']}",
+                                                  "{$t_category['school_id']}",
+                                                  "{$t_category['dept_id']}",
+                                                  "{$t_category['major_id']}") + "</p>");
+<!--{/loop}-->
 <!--{/loop}-->
 
-$(function(){
-    var bar = $('.bar');
-    var percent = $('.percent');
-    var showimg = $('.pic');
-    var progress = $(".progress");
-    var files = $(".files");
-    var btn = $(".btn span");
-
-    $('#submit').click(function() {
-        if ($.trim($("#select_region option:selected").val())) {
-            //add_category(get_select_category());
-            $("#add_category").click();
-        }
-
-        var service = new Service("{SITE_URL}");
-        g_service_info['price'] = $("#price").val();
-        g_service_info['profile'] = $("#profile").val();
-        g_service_info['phone'] = $("#phone").val();
-        g_service_info['qq'] = $("#qq").val();
-        g_service_info['wechat'] = $("#wechat").val();
-        service.add_service(g_service_info, add_service_callback);
-    });
-
-    $("#add_category").click(function() {
-        var category_info = get_select_category();
-        var category = category_info['category'];
-        var show_val = category_info['show_val'];
-        if (!category['region_id']) {
-            alert("所添加的分类为空");
-            return false;
-        }
-
-        var category_lenth = g_service_info['category'].length;
-        g_service_info['category'].push(category);
-        $("#category_list").append("<p>" + show_val + ' <a id="' + category_lenth + '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>');
-
-        clear_select_state();
-    });
-
-    $("body").on('click', '.glyphicon-trash', function() {
-        $(this).parent().remove();
-        var category_list_id = $(this).attr("id");
-        g_service_info['category'].splice(category_list_id, 1);
-    });
 });
-
-function add_service_callback(data) {
-    g_service_info['id'] = data.id;
-
-    if (typeof(data.success) == 'undefined') {
-        if (data.error == '103') {
-        }
-    } else {
-        alert("提交成功，请您耐心等待审核");
-    }
-    $(".jsk-setting-success").fadeIn(800);
-    $(".jsk-setting-success").fadeOut(1500);
-}
-
 </script>
-<script src="{SITE_URL}public/js/service.js"></script>
-<script src="{SITE_URL}public/js/choose_category.js"></script>
+
+<link href="{SITE_URL}/public/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+<script src="{SITE_URL}/public/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script src="{SITE_URL}/public/js/boostme/category.js"></script>
+<script src="{SITE_URL}/public/js/boostme/service.js"></script>
 <!--{template footer}-->
