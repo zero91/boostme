@@ -1,0 +1,132 @@
+<!--{template header}-->
+<link href="{SITE_URL}/public/css/default/material.css" rel="stylesheet">
+
+<style type="text/css">
+h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
+.panel-body {position: relative;}
+.price_info {background-color:#FFF2E8;line-height:30px;}
+.li_text_info {width:80px;float:left;}
+.buy_btn {width:150px;font-size:16px;}
+.panel {border:0px;}
+</style>
+
+<div class="container">
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <ul class="col-md-12 col-sm-12 setting-content">
+                <table>
+                    <tr>
+                        <td width="80px" height="80px" class="bm_rpadding_20">
+                            <img width="80" height="80" src="{echo get_avatar_dir($service['uid'])}" class="img-circle"/>
+                        </td>
+                        <td class="bm_full_width"><h4>{$service['service_content']}</h4></td>
+                    </tr>
+                    <tr>
+                        <td width="80px" class="bm_rpadding_20"></td>
+                        <td class="price_info">
+                            <p>
+                            <span class="li_text_info bm_font_bold">价格</span>
+                            <span class="bm_rmb_num">{$service['price']}</span><span>元/{$service['service_time']}分钟</span>
+                            <span class="pull-right">
+                                浏览&nbsp;{$service['view_num']}&nbsp;次&nbsp;&nbsp;|&nbsp;&nbsp;服务&nbsp;{$service['service_num']}&nbsp;次
+                            </span>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="80px" class="bm_rpadding_20"></td>
+                        <td>
+                            <div>
+                                <p class="li_text_info bm_font_bold">教育经历 </p>
+                                <!--{loop $edu_list $edu}-->
+                                <div><p>{$edu['start_time']} 至 <!--{if $edu['end_time'] == "0000-00-00"}-->今<!--{else}-->{$edu['end_time']}<!--{/if}-->&nbsp;&nbsp;&nbsp;&nbsp;{$edu['school']}{$edu['department']}{$edu['major']}</p><p class="li_text_info"></p></div>
+                                <!--{/loop}-->
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="80px" class="bm_rpadding_20"></td>
+                        <td><div><p class="li_text_info bm_font_bold">服务分类 </p><div id="service_category_list"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td width="80px" class="bm_rpadding_20"></td>
+                        <td>
+                            <a class="btn btn-info buy_btn" href="{SITE_URL}/message/personal?uid={$service['uid']}" target="_blank">私信聊一聊</a>
+                            <button class="btn btn-danger buy_btn" id="buy_service_btn">电话一对一</button>
+                        </td>
+                    </tr>
+                </table>
+            </ul>
+        </div>
+    </div>
+    <div style="padding-top:20px;">
+        <span style="font-size:18px;">我的评价</span>&nbsp;
+        <span id="self_star"></span>
+    </div>
+    <div id="user_comment">
+        <div class="form-group">
+            <textarea class="form-control" id="evaluation_content" maxlength="1000" name="evaluation[content]" placeholder="这个人很懒,没留下任何内容..." rows="5"></textarea>
+        </div>
+        <p class="help-block text-right">你还可以输入<span id="evaluation_content-word" class="word-num-counter">1000</span>字</p>
+        <div class="text-right btm">
+            <!--{if $user['uid'] > 0}-->
+            <input class="btn btn-primary" click_source="evaluation" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
+            <!--{else}-->
+            <label class="text-primary"><a href="{SITE_URL}/user/login">登录</a></label>后
+            <input class="btn btn-blue" click_source="evaluation" disabled="disabled" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
+            <!--{/if}-->
+        </div>
+    </div>
+
+    <hr style="border-color: #DFE2E6">
+    <div>
+        <span style="font-size:18px;">用户评价</span>&nbsp;
+        <span id="avg_star"></span>
+        <span>{$service['avg_score']}分</span>
+    </div>
+
+    <div class="open-class-eval-list" id="comment_list"></div>
+    <center><div class="pages">{$departstr}</div></center>
+</div>
+<script type="text/template" id="comment_list_template">
+<% _.each(comment_list, function(comment) { %>
+<div class="item clearfix">
+    <div class="pic">
+        <img class="pull-left pic" height="50" src="<%= comment['avatar'] %>" width="50" />
+    </div>
+    <div class="cont">
+        <div class="original">
+            <div class="star">
+                <span id="user_score_<%= comment['id'] %>_<%= comment['score'] %>"></span><span><%= comment['score'] %>分</span>
+            </div>
+            <div class="name">
+                <strong><%= comment['author'] %></strong><em><%= comment['format_time'] %></em>
+            </div>
+            <div class="mess break-paragraph"><%= comment['content'] %></div>
+            <div class="atti" id="useful_or_useless_evaluation_8269">
+                <label>
+                    <a id="thumbs_0_<%= comment['id'] %>"><span class="glyphicon glyphicon-thumbs-up"></span><em>有用(<%= comment['up'] %>)</em></a>
+                </label>
+                <label>
+                    <a id="thumbs_1_<%= comment['id'] %>"><span class="glyphicon glyphicon-thumbs-down"></span><em>没用(<%= comment['down'] %>)</em></a>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+<%})%>
+</script>
+
+<div style="height:29px;"></div>
+<script type="text/javascript">
+var g_service_id = {$service['id']};
+var g_service_avg_score = {$service['avg_score']};
+</script>
+
+<script src="{SITE_URL}/public/js/plugin/raty/jquery.raty.js"></script>
+<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/raty/jquery.raty.css">
+
+<script src="{SITE_URL}/public/js/boostme/category.js"></script>
+<script src="{SITE_URL}/public/js/boostme/service.js"></script>
+<script src="{SITE_URL}/public/js/boostme/trade.js"></script>
+<!--{template footer}-->
