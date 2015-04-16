@@ -602,11 +602,11 @@ error错误码含义:
 
 + Request (application/json)
 
-        { "sid": "invalid" }
+        { "service_id": "invalid" }
 
 + Response 200 (application/json)
 
-        { "success": true, "error": 101 }
+        { "success": false, "error": 101 }
 
 ## Service Collection [/service/ajax_fetch_list]
 获取类别下的service列表。
@@ -646,6 +646,90 @@ error错误码含义:
             ]
         }
 
+## Comment Collection [service/ajax_fetch_comment]
+### 获取service评论信息[GET]
+请求参数:
++ service_id (int) - service ID号
++ page (int) - 页码，可选
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ tot_num - 全部评论数量 [success=true]
++ comment_list - 评论列表 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 无效参数
+
++ Request (application/json)
+
+        { "service_id": 32, "page" : 1 }
+        
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "tot_num": "1",
+            "comment_list": [
+                {
+                    "id": "19",
+                    "authorid": "1",
+                    "author": "admin",
+                    "sid": "32",
+                    "score": "3.5",
+                    "content": "测试账户金额",
+                    "time": "1417972798",
+                    "up": "0",
+                    "down": "0",
+                    "format_time": "2014/12/08 01:19",
+                    "avatar": "http://www.boostme.cn:9507/public/css/default/avatar.png"
+                }
+            ]
+        }
+
+## Add Comment [service/ajax_add_comment]
+### 为service添加评论信息[POST]
+请求参数:
++ service_id (int) - service ID号
++ content (string) - 服务内容
++ score (int) - service评分
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ comment_id - 新增comment的ID号 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登
++ 102 - 无效参数
++ 103 - 用户历史已经评论过
++ 104 - 数据库添加失败
+
++ Request (application/json)
+
+        { "service_id": 32 }
+        
++ Response 200 (application/json)
+
+        {
+            "success": true,
+            "tot_num": "1",
+            "comment_list": [
+                {
+                    "id": "19",
+                    "authorid": "1",
+                    "author": "admin",
+                    "sid": "32",
+                    "score": "3.5",
+                    "content": "测试账户金额",
+                    "time": "1417972798",
+                    "up": "0",
+                    "down": "0",
+                    "format_time": "2014/12/08 01:19",
+                    "avatar": "http://www.boostme.cn:9507/public/css/default/avatar.png"
+                }
+            ]
+        }
 
 # Message API Root [/message]
 
