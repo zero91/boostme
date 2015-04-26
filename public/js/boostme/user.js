@@ -1,6 +1,8 @@
 $(function() {
     $("#login_btn").click(function() { login(); });
     $("#register_btn").click(function() { register(); });
+    $("#update_passwd_btn").click(function() { update_passwd(); });
+    $("#update_info_btn").click(function() { update_info(); });
 });
 
 function login() {
@@ -9,6 +11,10 @@ function login() {
     req_data_dict['password'] = $("#password").val();
     req_data_dict['forward'] = $("#forward").val();
     req_data_dict['code'] = $("#code").val();
+
+    if ($("#cookietime").is(":checked")) {
+        req_data_dict['cookietime'] = $("#cookietime").val();
+    }
 
     var user = new User();
     user.login(req_data_dict, function(response) {
@@ -177,6 +183,100 @@ function register() {
         if (response.success) {
             alert("注册成功");
             self.location.href = response.forward;
+        } else {
+            errno_alert(response.error, error_dict);
+        }
+    });
+}
+
+function update_passwd() {
+    if (!check_code()) {
+        $("#code").focus();
+        return false;
+    }
+    var newpwd = $.trim($("#newpwd").val());
+    if (!newpwd) {
+        $("#newpwd_tip").html("新密码不能为空");
+        $("#newpwd_tip").attr("class", "input_error");
+        $("#newpwd").focus();
+        return false;
+    }
+
+    var confirmpwd = $.trim($("#confirmpwd").val());
+    if (newpwd != confirmpwd) {
+        $("#confirmpwd_tip").html("两次密码输入不一致");
+        $("#confirmpwd_tip").attr("class", "input_error");
+        $("#confirmpwd").focus();
+        return false;
+    }
+
+    var oldpwd = $('#oldpwd').val();
+    var user = new User();
+    user.update_passwd({"newpwd" : newpwd, "oldpwd" : oldpwd}, function(response) {
+        var error_dict = {
+            101 : "用户尚未登录",
+            102 : "新密码为空",
+            103 : "新密码与旧密码相同",
+            104 : "验证码错误",
+            105 : "旧密码不对"
+        };
+        if (response.success) {
+            $("#oldpwd_tip").html("");
+            $("#oldpwd_tip").attr("class", "");
+            $("#oldpwd").val("");
+
+            $("#newpwd_tip").html("");
+            $("#newpwd_tip").attr("class", "");
+            $("#newpwd").val("");
+
+            $("#confirmpwd_tip").html("");
+            $("#confirmpwd_tip").attr("class", "");
+            $("#confirmpwd").val("");
+            alert("修改成功");
+
+        } else if (response.error == 102) {
+            $("#newpwd_tip").html("新密码不能为空");
+            $("#newpwd_tip").attr("class", "input_error");
+            $("#newpwd").focus();
+
+        } else if (response.error == 103) {
+            $("#newpwd_tip").html('新密码与旧密码相同');
+            $("#newpwd_tip").attr("class", "input_error");
+            $("#newpwd").focus();
+
+        } else if (response.error == 105) {
+            $("#oldpwd_tip").html('旧密码错误');
+            $("#oldpwd_tip").attr("class", "input_error");
+            $("#oldpwd").focus();
+
+        } else {
+            errno_alert(response.error, error_dict);
+        }
+    });
+}
+
+function update_info() {
+    var req_data_dict = {};
+    req_data_dict['email'] = $('#email').val();
+    req_data_dict['gender'] = $('#gender').val();
+    req_data_dict['phone'] = $('#phone').val();
+    req_data_dict['qq'] = $('#qq').val();
+    req_data_dict['wechat'] = $('#wechat').val();
+    req_data_dict['bday'] = $("#bday").val();
+    req_data_dict['signature'] = $('#signature').val();
+
+    var user = new User();
+    user.update_info(req_data_dict, function(response) {
+        var error_dict = {
+            101 : "用户尚未登录",
+            102 : "邮件格式不正确",
+            103 : "邮件已被占用"
+        };
+        if (response.success) {
+            alert("修改成功");
+            $(".jsk-setting-success").html('信息已经成功修改');
+            $(".jsk-setting-success").fadeIn(800);
+            $(".jsk-setting-success").fadeOut(1500);
         } else {
             errno_alert(response.error, error_dict);
         }

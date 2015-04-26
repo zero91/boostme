@@ -7,6 +7,7 @@ class ebankcontrol extends base {
         parent::__construct($get, $post);
         $this->load('ebank');
         $this->load('trade');
+
         $this->load('material');
         $this->load('service');
         $this->load('user');
@@ -47,19 +48,6 @@ class ebankcontrol extends base {
 
         $product_name = "Boostme支付宝账户验证"; // 商品名称
         $order_price = "0.01"; // 价格
-        $_ENV['ebank']->alipaytransfer($out_trade_no, $order_price, $product_name);
-    }
-
-    // 支付宝转账
-    public function onalipaytransfer() {
-        if ($this->user['uid'] == 0) {
-            $this->jump("user/login");
-            return;
-        }
-        $out_trade_no = $this->post["trade_no"];        // 获取提交的订单号
-        $product_name = $this->post["product_name"];    // 获取提交的商品名称
-        $order_price = $this->post["order_price"];      // 获取提交的商品价格
-
         $_ENV['ebank']->alipaytransfer($out_trade_no, $order_price, $product_name);
     }
 
@@ -272,6 +260,46 @@ class ebankcontrol extends base {
         $log .= "gmt_create=[" . $result['gmt_create'] . "], ";
         $log .= "gmt_payment=[" . $result['gmt_payment'] . "]";
         runlog("ebank", $log);
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+
+    // @onajax_alipay_transfer [支付宝支付]
+    // @request type           [GET]
+    // @param[in]     trade_no [订单号]
+    // @return            成功 [success为true, html_text为跳转到支付宝的HTML/JS代码]
+    //                    失败 [success为false, error为相应的错误码]
+    //
+    // @error              101 [用户尚未登录]
+    // @error              102 [用户所支付的非本人订单]
+    public function onajax_alipay_transfer() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $trade_no = $this->post['trade_no'];
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        if ($this->user['uid'] != $trade['uid']) {
+            $res['success'] = false;
+            $res['error'] = 102; // 用户所支付的非本人订单
+            echo json_encode($res);
+            return;
+        }
+
+        $out_trade_no = $trade['trade_no'];
+        $product_name = "Boostme";
+        $order_price = $trade['tot_price'];
+        $html_text = $_ENV['ebank']->alipay_transfer($out_trade_no, $order_price, $product_name);
+
+        $res['success'] = true;
+        $res['html_text'] = $html_text;
+        echo json_encode($res);
     }
 }
 

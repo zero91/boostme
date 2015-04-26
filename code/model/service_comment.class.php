@@ -12,7 +12,11 @@ class service_commentmodel {
     }
 
     public function get_by_sid($sid, $start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM `service_comment` WHERE sid='$sid' ORDER BY `time` ASC limit $start,$limit");
+        $service_list = $this->db->fetch_all("SELECT * FROM `service_comment` WHERE sid='$sid' ORDER BY `time` ASC limit $start,$limit");
+        foreach ($service_list as &$service) {
+            $service['format_time'] = tdate($service['time']);
+        }
+        return $service_list;
     }
 
     public function get_comment_num_by_sid($sid) {

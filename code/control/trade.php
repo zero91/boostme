@@ -10,72 +10,31 @@ class tradecontrol extends base {
         $this->load('service');
     }
 
-    public function onbuy_now() {
-        if (!$this->user['uid']) {
-            $this->jump("user/login");
-        }
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $target_id = $this->post['target_id'];
-            $type = $this->post['type'];
-            $quantity = $this->post['quantity'];
-
-            $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
-            if (!empty($trade)) {
-                $trade_no = $trade['trade_no'];
-                $_ENV['trade']->add_trade_info($this->user['uid'], $this->user['username'], $trade_no, $target_id, $type, $quantity);
-            } else {
-                $trade_no = $_ENV['trade']->create_trade_no($this->user['sid']);
-                $_ENV['trade']->add_trade_info($this->user['uid'], $this->user['username'], $trade_no, $target_id, $type, $quantity);
-                $_ENV['trade']->add_trade($trade_no, $this->user['uid'], $this->user['username']);
-            }
-            $this->jump("trade/buy_now");
-        } else {
-            $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'], TRADE_STATUS_WAIT_BUYER_PAY);
-            $trade_info_list = $this->get_one_trade_full($trade['trade_no']);
-            include template('trade_info_list');
-        }
-    }
-
-    // 删除购物车物品
-    public function ondelete_goods() {
-        $trade_no = $this->post['trade_no'];
-        $target_id = $this->post['target_id'];
-        $type = $this->post['type'];
-
-        if (empty($trade_no) || empty($target_id) || empty($type)) {
-            echo json_encode(array("error" => "101")); // 无效参数
-            return;
-        }
-        // check permission
-        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
-        if ($trade['uid'] != $this->user['uid']) {
-            echo json_encode(array("error" => "102")); // 无权操作
-            return;
-        }
-
-        $affected_rows = $_ENV['trade']->remove_trade_info($trade_no, $target_id, $type);
-        if ($affected_rows > 0) {
-            echo json_encode(array("success" => true));
-        } else {
-            echo json_encode(array("error" => 103)); // Unknow error
-        }
-    }
-
-    public function onhistory() {
+    // 订单首页
+    public function ondefault() {
         $this->check_login();
 
-        $page = max(1, intval($this->get[2]));
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default'];
+        //$pagesize = 1;
+        $start = ($page - 1) * $pagesize;
         $total_trade_num = $_ENV['trade']->get_history_trade_num_by_uid($this->user['uid']);
 
-        $pagesize = $this->setting['list_default'];
-        $start = ($page - 1) * $pagesize;
         $trade_list = $_ENV['trade']->get_trade_by_uid($this->user['uid'], $start, $pagesize);
         foreach ($trade_list as &$t_for_trade) {
             $t_for_trade['trade_info'] = $this->get_one_trade_full($t_for_trade['trade_no']);
         }
+        $departstr = split_page($total_trade_num, $pagesize, $page, "/trade/default?page=%s");
+        include template('trade');
+    }
 
-        $departstr = page($total_trade_num, $pagesize, $page, "trade/history");
-        include template('trade_history');
+    // 查看单个订单的详情
+    public function onview() {
+        $trade_no = $this->post['trade_no'];
+
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        $trade_info_list = $this->get_one_trade_full($trade_no);
+        include template('view_trade');
     }
 
     public function onajaxaccess_trade_info() {
@@ -138,36 +97,6 @@ class tradecontrol extends base {
         echo $html_text;
     }
 
-    // 支付宝回调
-    function onaliapyback() {
-        if ($_GET['trade_status'] == 'TRADE_SUCCESS') {
-            //$credit2 = $_GET['total_fee'] * $this->setting['recharge_rate'];
-            //$this->credit($this->user['uid'], 0, $credit2, 0, "支付宝充值");
-            $this->message("充值成功", "user/score");
-        } else {
-            $this->message("服务器繁忙，请稍后再试!", 'STOP');
-        }
-    }
-
-    // 支付宝转账
-    function onaliapytransfer() {
-        if (isset($this->post['submit'])) {
-            $recharge_money = intval($this->post['money']);
-            if (!$this->user['uid']) {
-                $this->message("您无权执行该操作!", "STOP");
-                exit;
-            }
-            if (!$this->setting['recharge_open']) {
-                $this->message("财富充值服务已关闭，如有问题，请联系管理员!", "STOP");
-            }
-            if ($recharge_money <= 0 || $recharge_money > 20000) {
-                $this->message("输入充值金额不正确!充值金额必须为整数，且单次充值不超过20000元!", "STOP");
-                exit;
-            }
-            $_ENV['ebank']->aliapytransfer($recharge_money);
-        }
-    }
-
     // 获取一次订单的详细信息
     private function get_one_trade_full($trade_no) {
         $trade_info_list = $_ENV['trade']->get_trade_info_by_trade_no($trade_no);
@@ -179,6 +108,244 @@ class tradecontrol extends base {
             }
         }
         return $trade_info_list;
+    }
+
+    // 当订单有变更时，重新计算订单价格
+    private function recalc_trade($trade_no) {
+        $trade_info_list = $this->get_one_trade_full($trade_no);
+        $total_price = 0;
+        foreach ($trade_info_list as $trade_info) {
+            $total_price += $trade_info['target_info']['price'] * $trade_info['buy_num'];
+        }
+        runlog("boostme", "total_price = $total_price");
+        $_ENV['trade']->update_trade_tot_price($trade_no, $total_price);
+    }
+
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
+    // @onajax_fetch_list    [获取用户历史订单]
+    // @request type         [GET]
+    //
+    // @param[in]       page [页号，可选]
+    //
+    // @return          成功 [success为true, trade_list为历史订单列表]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    public function onajax_fetch_list() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+
+        $total_trade_num = $_ENV['trade']->get_history_trade_num_by_uid($this->user['uid']);
+        $trade_list = $_ENV['trade']->get_trade_by_uid($this->user['uid'], $start, $pagesize);
+
+        foreach ($trade_list as &$t_for_trade) {
+            $t_for_trade['trade_info'] = $this->get_one_trade_full($t_for_trade['trade_no']);
+        }
+        $res['success'] = true;
+        $res['trade_list'] = $trade_list;
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_tradeno [获取订单号]
+    // @request type         [GET]
+    // @return          成功 [success为true, tradeno为订单号]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    public function onajax_fetch_tradeno() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'],
+                                                         TRADE_STATUS_WAIT_BUYER_PAY);
+        if (empty($trade)) {
+            $trade_no = generate_tradeno($this->user['sid']);
+            $_ENV['trade']->add_trade($trade_no, $this->user['uid'], $this->user['username']);
+        } else {
+            $trade_no = $trade['trade_no'];
+        }
+        $res['success'] = true;
+        $res['tradeno'] = $trade_no;
+        echo json_encode($res);
+    }
+
+    // @onajax_remove_item   [删除购物车物品]
+    // @request type         [POST]
+    //
+    // @param[in]   trade_no [订单号]
+    // @param[in]  target_id [待删除项的ID号]
+    // @param[in]      type [待删除项的类型，为"service"或"material"]
+    //
+    // @return          成功 [success为true, tradeno为订单号]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    // @error            103 [用户无权删除该订单物品]
+    // @error            104 [删除失败]
+    public function onajax_remove_item() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $trade_no = $this->post['trade_no'];
+        $target_id = $this->post['target_id'];
+        $type = $this->post['type'];
+        if (empty($trade_no) || empty($target_id) || empty($type)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 无效参数
+            echo json_encode(res);
+            return;
+        }
+
+        // check permission
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        if ($trade['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户无权查询该订单号
+            echo json_encode($res);
+            return;
+        }
+
+        $affected_rows = $_ENV['trade']->remove_trade_info($trade_no, $target_id, $type);
+        if ($affected_rows > 0) {
+            $res['success'] = true;
+            $this->recalc_trade($trade_no);
+        } else {
+            $res['success'] = false;
+            $res['error'] = 104; // 删除失败
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_add_item      [为购物车添加商品]
+    // @request type         [POST]
+    //
+    // @param[in]  target_id [待添加项的ID号]
+    // @param[in]       type [待添加项的类型]
+    // @param[in]   quantity [待添加项的数量]
+    //
+    // @return          成功 [success为true, trade_no为订单号]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    // @error            103 [添加失败]
+    public function onajax_add_item() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $target_id = $this->post['target_id'];
+        $type = $this->post['type'];
+        $quantity = $this->post['quantity'];
+        if (empty($target_id) || empty($type) || empty($quantity)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 无效参数
+            echo json_encode($res);
+            return;
+        }
+
+        $trade = $_ENV['trade']->get_trade_by_uid_status($this->user['uid'],
+                                                         TRADE_STATUS_WAIT_BUYER_PAY);
+        if (empty($trade)) {
+            $trade_no = generate_tradeno($this->user['sid']);
+            $_ENV['trade']->add_trade($trade_no, $this->user['uid'], $this->user['username']);
+        } else {
+            $trade_no = $trade['trade_no'];
+        }
+        $affected_rows = $_ENV['trade']->add_trade_info($this->user['uid'],
+                                                        $this->user['username'],
+                                                        $trade_no,
+                                                        $target_id,
+                                                        $type,
+                                                        $quantity);
+        if ($affected_rows > 0) {
+            $res['success'] = true;
+            $res['trade_no'] = $trade_no;
+            $this->recalc_trade($trade_no);
+        } else {
+            $res['success'] = false;
+            $res['error'] = 103; // 添加失败
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_update_quantity [更新订单单个项目的数量]
+    // @request type         [POST]
+    //
+    // @param[in]   trade_no [订单号]
+    // @param[in]  target_id [待更改项的ID号]
+    // @param[in]       type [待更改项的类型]
+    // @param[in]   quantity [待更改项的新数量]
+    //
+    // @return          成功 [success为true]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    // @error            103 [用户无权操作]
+    // @error            104 [更新失败]
+    public function onajax_update_quantity() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+        $trade_no = $this->post['trade_no'];
+        $target_id = $this->post['target_id'];
+        $type = $this->post['type'];
+        $quantity = $this->post['quantity'];
+        if (empty($trade_no) || empty($target_id) || empty($type) || empty($quantity)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 无效参数
+            echo json_encode($res);
+            return;
+        }
+
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        if ($trade['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户无权操作
+            echo json_encode($res);
+            return;
+        }
+
+        $affected_rows = $_ENV['trade']->update_trade_info($trade_no, $target_id, $type, $quantity);
+        if ($affected_rows > 0) {
+            $res['success'] = true;
+            $this->recalc_trade($trade_no);
+        } else {
+            $res['success'] = false;
+            $res['error'] = 104; // 更新失败
+        }
+        echo json_encode($res);
     }
 }
 

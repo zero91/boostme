@@ -10,8 +10,29 @@ class questionmodel {
     // 获取问题信息
     public function get($qid) {
         $question = $this->db->fetch_first("SELECT * FROM question WHERE qid='$qid'");
-        $question['format_time'] = tdate($question['time']);
+        !empty($question) && $question['format_time'] = tdate($question['time']);
+        !empty($question) && $question['format_update_time'] = tdate($question['update_time']);
         return $question;
+    }
+
+    // type=new,选择时间更新的；type = old,选择时间更老的
+    public function get_list_by_update_time($update_time, $type="new", $limit=10) {
+        $sql = " SELECT * FROM `question` WHERE `update_time`>$update_time " .
+               " ORDER BY `update_time` DESC limit 0,$limit";
+        if ($type == "old") {
+            $sql = " SELECT * FROM `question` WHERE `update_time`<$update_time " .
+                   " ORDER BY `update_time` DESC limit 0,$limit";
+        }
+        $question_list = $this->db->fetch_all($sql);
+        foreach ($question_list as &$question) {
+            $question['avatar'] = get_avatar_dir($question['authorid']);
+            $question['format_time'] = tdate($question['time']);
+            $question['format_update_time'] = tdate($question['update_time']);
+            $question['strip_description'] = strip_tags($question['description']);
+            $img_match = fetch_img_tag($question['description']);
+            $question['images'] = $img_match[0];
+        }
+        return $question_list;
     }
 
     public function get_list($start=0, $limit=10) {

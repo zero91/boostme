@@ -16,8 +16,8 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
             <ul class="col-md-12 col-sm-12 setting-content">
                 <table>
                     <tr>
-                        <td width="80px" height="80px" class="bm_rpadding_20">
-                            <img width="80" height="80" src="{echo get_avatar_dir($service['uid'])}" class="img-circle"/>
+                        <td class="bm_rpadding_20 bm_large_avatar">
+                            <img src="{echo get_avatar_dir($service['uid'], 'large')}" class="img-circle bm_large_avatar"/>
                         </td>
                         <td class="bm_full_width"><h4>{$service['service_content']}</h4></td>
                     </tr>

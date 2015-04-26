@@ -4,6 +4,7 @@
 
 require(WEB_ROOT . '/code/lib/db.class.php');
 require(WEB_ROOT . '/code/lib/global.func.php');
+require(WEB_ROOT . '/code/lib/utils.func.php');
 require(WEB_ROOT . '/code/lib/cache.class.php');
 require(WEB_ROOT . '/code/core/base.class.php');
 
@@ -19,7 +20,7 @@ class boostme {
         $method = 'on' . $this->get[1];
 
         if (method_exists($control, $method)) {
-            $regular = $this->get[0] . '/' . $this->get[1];
+            $regular = '/' . $this->get[0] . '/' . $this->get[1];
             if ($control->checkable($regular)) {
                 $control->$method();
             } else {

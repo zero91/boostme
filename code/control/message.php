@@ -24,7 +24,7 @@ class messagecontrol extends base {
                                                                   $startindex, $pagesize);
 
         $personal_usernum = $_ENV['message']->rownum_by_touid($this->user['uid']);
-        $departstr = split_page($personal_usernum, $pagesize, $page, "/message/default");
+        $departstr = split_page($personal_usernum, $pagesize, $page, "/message/default?page=%s");
         include template("message");
     }
 
@@ -39,7 +39,7 @@ class messagecontrol extends base {
         $message_list = $_ENV['message']->list_by_touid($this->user['uid'],
                                                         $startindex, $pagesize);
         $message_num = $_ENV['message']->get_system_msg_num($this->user['uid']);
-        $departstr = split_page($message_num, $pagesize, $page, "/message/system");
+        $departstr = split_page($message_num, $pagesize, $page, "/message/system?page=%s");
         //$_ENV['message']->read_by_fromuid(0);
         include template("view_system_message");
     }
@@ -58,8 +58,8 @@ class messagecontrol extends base {
         $message_list = $_ENV['message']->list_by_fromuid($this->user['uid'], $fromuid,
                                                           $startindex, $pagesize);
         $message_num = $_ENV['message']->tot_num_by_fromuid($this->user['uid'], $fromuid);
-        $departstr = split_page($message_num, $pagesize,
-                                $page, "/message/personal?uid=" . $fromuid);
+        $departstr = split_page($message_num, $pagesize, $page,
+                               "/message/personal?uid=" . $fromuid . "&page=%s");
         include template("view_personal_message");
     }
 

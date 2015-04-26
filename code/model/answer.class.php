@@ -8,7 +8,9 @@ class answermodel {
     }
 
     public function get($id) {
-        return $this->db->fetch_first("SELECT * FROM answer WHERE id='$id'");
+       $answer =  $this->db->fetch_first("SELECT * FROM answer WHERE id='$id'");
+       !empty($answer) && $answer['format_time'] = tdate($answer['time']);
+       return $answer;
     }
 
     // 添加答案
@@ -21,11 +23,11 @@ class answermodel {
     // 根据qid获取答案的列表，用于在浏览一个问题的时候显示用
     public function list_by_qid($qid, $start=0, $limit=10) {
         $sql = "SELECT * FROM answer WHERE qid=$qid ORDER BY time ASC LIMIT $start,$limit";
-        $question_list = $this->db->fetch_all($sql);
-        foreach ($question_list as &$question) {
-            $question['format_time'] = tdate($question['time']);
+        $answer_list = $this->db->fetch_all($sql);
+        foreach ($answer_list as &$answer) {
+            $answer['format_time'] = tdate($answer['time']);
         }
-        return $this->db->fetch_all($sql);
+        return $answer_list;
     }
 
     // 获取帖子回复数量
@@ -76,10 +78,12 @@ class answermodel {
     public function add_support($uid, $aid) {
         $time = time();
         $this->db->query("INSERT INTO answer_support(uid,aid,time) VALUES ('$uid','$aid','$time')");
-        //if ($this->db->insert_id() > 0) {
+        $affected_rows = $this->db->affected_rows();
+        if ($affected_rows > 0) {
             $this->db->query("UPDATE `answer` SET `supports`=supports+1 WHERE `id`=$aid");
-        //}
-        return $this->db->affected_rows();
+        }
+        $affected_rows += $this->db->affected_rows();
+        return $affected_rows;
     }
 
     public function get_support_by_uid_aid($uid, $aid) {

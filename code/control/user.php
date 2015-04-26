@@ -15,132 +15,116 @@ class usercontrol extends base {
         $this->load('invite_code');
     }
 
-    // 用户进入登录界面
+    // 个人基本信息页
+    public function ondefault() {
+        $navtitle = "基本资料";
+        $this->check_login();
+        include template('user');
+    }
+
+    // 登录界面
     public function onlogin() {
+        $navtitle = "登录";
         $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
         include template('login');
     }
 
-    // 用户进入注册界面
+    // 注册界面
     public function onregister() {
+        $navtitle = "注册";
         $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
         include template('register');
     }
 
-    public function ondefault() {
-        $this->onscore();
-    }
-
-    public function onbasic() {
+    // 更改账户密码
+    public function onuppass() {
+        $navtitle = "修改密码";
         $this->check_login();
-        include template('user_basic');
+        include template('uppass');
     }
 
-    public function oncode() {
-        ob_clean();
-        $code = random(4);
-        $_ENV['user']->save_code($this->user['uid'], $this->user['sid'], strtolower($code));
-        makecode($code);
-    }
-
-    // 用于ajax检测验证码是否匹配
-    public function onajaxcode() {
-        $code = strtolower(trim($this->get[2]));
-        if ($code == $_ENV['user']->get_code($this->user['sid'])) {
-            exit('1');
-        }
-        exit('0');
-    }
-
-    // 退出系统
+    // 登出系统
     public function onlogout() {
         $navtitle = '登出系统';
         $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
         $_ENV['user']->logout($this->user['sid']);
-        $this->jump("main/default");
+        $this->jump("/main/default");
     }
 
-    function ondemand() {
-        $navtitle = '我的求助';
-        $status = intval($this->get[2]);
-        @$page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default'];
-        $pagesize = 4;
-        $startindex = ($page - 1) * $pagesize; //每页面显示$pagesize条
-        $problemlist = $_ENV['problem']->list_by_uid($this->user['uid'], $status, $startindex, $pagesize);
-        $problemtotal = intval($this->db->fetch_total('problem', 'authorid=' . $this->user['uid'] . $_ENV['problem']->statustable[$status]));
+    // 用户上传头像
+    public function onupload_avatar() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $uid = intval($this->user['uid']);
+            $picname = $_FILES['userimage']['name'];
+            $picsize = $_FILES['userimage']['size'];
+            $extname = extname($picname);
 
-        $departstr = page($problemtotal, $pagesize, $page, "user/demand/$status");
-        include template('mydemand');
+            if (!isimage($extname)) {
+                echo json_encode(array("error" => "101")); //type_error
+                return;
+            }
+            if ($picsize > 5120000) {
+                echo '图片大小不能超过5M';
+                return;
+            }
+            $upload_tmp_file = '/public/data/tmp/user_avatar_' . $uid . '.' . $extname;
+            move_uploaded_file($_FILES["userimage"]["tmp_name"], WEB_ROOT . $upload_tmp_file);
+            $size = round($picsize / 1024, 2);
+            $image_size = getimagesize(WEB_ROOT . $upload_tmp_file);
+     
+            $upload_pic = array(
+                'name'   => $picname,
+                'pic'    => $upload_tmp_file,
+                'size'   => $size,
+                'width'  => $image_size[0],
+                'height' => $image_size[1]
+            );
+        }
+        include template("upload_avatar");
     }
 
-    // 用户个人空间
-    function onspace() {
-        //需要用户登录才能够看到用户空间的内容
-        if ($this->user['uid'] == 0) {
-            $this->message("请先登录!", "user/login");
-        }
+    // 截取用户头像
+    public function oneditimg() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $x = intval($this->post['x']);
+            $y = intval($this->post['y']);
+            $w = intval($this->post['w']);
+            $h = intval($this->post['h']);
+            $pic = $this->post['src'];
+            $extname = extname($pic);
 
-        $navtitle = "个人空间";
+            $uid = intval($this->user['uid']);
+            $uid = sprintf("%010d", $uid);
+            $avatardir = "/public/data/avatar/";
+            $dir1 = $avatardir . substr($uid, 0, 3);
+            $dir2 = $dir1 . '/' . substr($uid, 3, 3);
+            $dir3 = $dir2 . '/' . substr($uid, 6, 2);
+            (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
+            (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
+            (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
 
-        if (empty($this->get[2])) {
-            $userid = $this->user['uid'];
-        } else {
-            $userid = intval($this->get[2]);
-        }
+            // crop image
+            $crop_img = $dir3 . "/crop_" . $uid . '.' . $extname;
+            $smallimg = $dir3 . "/small_" . $uid . '.' . $extname;
+            $mediumimg = $dir3 . "/medium_" . $uid . '.' . $extname;
+            $largeimg = $dir3 . "/large_" . $uid . '.' . $extname;
 
-        $member = $_ENV['user']->get_by_uid($userid);
-        $member['avatar'] = get_avatar_dir($userid);
-        if ($member) {
-            $uid_prob_list = $_ENV['problem']->list_by_uid($userid, 'all');
-            $uid_solve_list = $_ENV['problem']->list_by_solverid($userid);
-
-            $prob_idx = 0;
-            $solve_idx = 0;
-
-            $problemlist = array();
-            while ($prob_idx < count($uid_prob_list) && $solve_idx < count($uid_solve_list)) {
-                if (intval($uid_prob_list[$prob_idx]['time']) > intval($uid_solve_list[$solve_idx]['time'])) {
-                    $uid_prob_list[$prob_idx]['data_type'] = 'prob';
-                    $problemlist[] = $uid_prob_list[$prob_idx];
-                    $prob_idx += 1;
-                } else {
-                    $uid_prob_list[$prob_idx]['data_type'] = 'solved';
-                    $problemlist[] = $uid_solve_list[$solve_idx];
-                    $solve_idx += 1;
+            $remove_file = glob(WEB_ROOT . $dir3 . "/crop_{$uid}.*");
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/small_{$uid}.*"));
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/medium_{$uid}.*"));
+            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/large_{$uid}.*"));
+            foreach ($remove_file as $imgfile) {
+                if (strtolower($extname) != extname($imgfile)) {
+                    unlink($imgfile);
                 }
             }
-            while ($prob_idx < count($uid_prob_list)) {
-                $uid_prob_list[$prob_idx]['data_type'] = 'prob';
-                $problemlist[] = $uid_prob_list[$prob_idx];
-                $prob_idx += 1;
-            }
-            while ($solve_idx < count($uid_solve_list)) {
-                $uid_prob_list[$solve_idx]['data_type'] = 'solved';
-                $problemlist[] = $uid_solve_list[$solve_idx];
-                $solve_idx += 1;
-            }
-            $navtitle = $member['username'] . $navtitle;
-            include template('space');
-        } else {
-            $this->message("抱歉，该用户不存在！", 'BACK');
+            image_crop(WEB_ROOT . $pic, WEB_ROOT . $crop_img, $x, $y, $w, $h, false);
+            $success = true;
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $largeimg, 244, 244);
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $mediumimg, 160, 160);
+            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $smallimg, 100, 100);
         }
-    }
-
-    function onproblem() {
-        if (empty($this->get[2])) {
-            $this->message("非法提交，缺少参数!", 'BACK');
-        }
-
-        $op_type = $this->get[2];
-
-        if ($op_type == "all") {
-            $problemlist = $_ENV['problem']->list_by_uid($this->user['uid']);
-            include template('userprob');
-        } else if ($op_type == "solved") {
-            $problemlist = $_ENV['problem']->list_by_solverid($this->user['uid']);
-            include template('userprob');
-        }
+        include template("editimg");
     }
 
     // 找回密码
@@ -164,92 +148,6 @@ class usercontrol extends base {
             $this->message("用户名或邮箱填写错误，请核实!", 'BACK');
         }
         include template('getpass');
-    }
-
-    // 重置密码
-    function onresetpass() {
-        $navtitle = '重置密码';
-        @$authstr = $this->get[2] ? $this->get[2] : $this->post['authstr'];
-        if (empty($authstr)) {
-            $this->message("非法提交，缺少参数!", 'BACK');
-        }
-
-        $authstr = urldecode($authstr);
-        $username = strcode($authstr, $this->setting['auth_key'], 'DECODE');
-        $theuser = $_ENV['user']->get_by_username($username);
-
-        if (!$theuser || ($authstr != $theuser['authstr'])) {
-            $this->message("本网址已过期，请重新使用找回密码的功能!", 'BACK');
-        }
-
-        if (isset($this->post['submit'])) {
-            $password = $this->post['password'];
-            $repassword = $this->post['repassword'];
-            if (strlen($password) < 6) {
-                $this->message("密码长度不能少于6位!", 'BACK');
-            }
-            if ($password != $repassword) {
-                $this->message("两次密码输入不一致!", 'BACK');
-            }
-            $_ENV['user']->uppass($theuser['uid'], $password);
-            $_ENV['user']->update_authstr($theuser['uid'], '');
-            $this->message("重置密码成功，请使用新密码登录!", "user/login");
-        }
-        include template('resetpass');
-    }
-
-    // 个人中心修改资料
-    function onajax_profile() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $res = array();
-
-            $email = $this->post['email'];
-            $gender = $this->post['gender'];
-            $phone = $this->post['phone'];
-            $qq = $this->post['qq'];
-            $wechat = $this->post['wechat'];
-            $bday = $this->post['bday'];
-            $signature = $this->post['signature'];
-
-            if ($this->user['uid'] == 0) {
-                $res['error'] = 101;  // 用户还未登陆
-            } else if (($this->post['email'] != $this->user['email']) &&
-                (!preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $this->post['email']) ||
-                    $this->db->fetch_total('user', " email='" . $this->post['email'] . "' "))) {
-                $res['error'] = 102;  // 邮件格式不正确或已被占用
-            } else {
-                $_ENV['user']->update($this->user['uid'], $gender, $bday, $phone, $qq, $wechat, $signature);
-
-                isset($email) && $_ENV['user']->update_email($this->user['uid'], $email);
-                $res['success'] = true;
-            }
-            echo json_encode($res);
-        }
-    }
-
-    public function onuppass() {
-        $this->check_login();
-
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-            $res = array();
-            if (trim($this->post['newpwd']) == '') {
-                $res['error'] = 101; // 新密码为空
-
-            } else if (trim($this->post['oldpwd']) == trim($this->post['newpwd'])) {
-                $res['error'] = 102; // 新密码与旧密码相同
-
-            } else if (md5(trim($this->post['oldpwd'])) == $this->user['password']) {
-                $_ENV['user']->uppass($this->user['uid'], trim($this->post['newpwd']));
-                $res['success'] = true;
-            } else {
-                $res['error'] = 103; // 旧密码不对
-            }
-            echo json_encode($res);
-        } else {
-            $navtitle = "修改密码";
-            include template('uppass');
-        }
     }
 
     function onupload_resume() {
@@ -291,12 +189,6 @@ class usercontrol extends base {
         $uid = intval($this->get[2]);
         $session_id = $this->post['session_id'];
         $session_info = $_ENV['user']->get_session_by_sid($session_id);
-
-        /*$file = fopen("/home/boostme/web/debug/boostme/log.txt", "w+");
-        fwrite($file, "uid=$uid, session_uid = {$session_info['uid']}, ip={$this->ip}, session_ip={$session_info['ip']}, session_id=$session_id\n");
-        $strdata = var_export($session_info, true);
-        fwrite($file, $strdata);
-        fclose($file);*/
 
         if ($uid != $session_info['uid'] || $this->ip != $session_info['ip']) {
             return;
@@ -360,82 +252,6 @@ class usercontrol extends base {
         }
     }
 
-    public function onupload_avatar() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $uid = intval($this->user['uid']);
-            $picname = $_FILES['userimage']['name'];
-            $picsize = $_FILES['userimage']['size'];
-            $extname = extname($picname);
-
-            if (!isimage($extname)) {
-                echo json_encode(array("error" => "101")); //type_error
-                return;
-            }
-            if ($picsize > 2048000) {
-                echo '图片大小不能超过2M';
-                return;
-            }
-
-            $upload_tmp_file = '/public/data/tmp/user_avatar_' . $uid . '.' . $extname;
-            move_uploaded_file($_FILES["userimage"]["tmp_name"], WEB_ROOT . $upload_tmp_file);
-            $size = round($picsize / 1024, 2);
-            $image_size = getimagesize(WEB_ROOT . $upload_tmp_file);
-     
-            $upload_pic = array(
-                'name'   => $picname,
-                'pic'    => $upload_tmp_file,
-                'size'   => $size,
-                'width'  => $image_size[0],
-                'height' => $image_size[1]
-            );
-        }
-        include template("upload_avatar");
-    }
-
-    public function oneditimg() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $x = intval($this->post['x']);
-            $y = intval($this->post['y']);
-            $w = intval($this->post['w']);
-            $h = intval($this->post['h']);
-            $pic = $this->post['src'];
-            $extname = extname($pic);
-
-            $uid = intval($this->user['uid']);
-            $uid = sprintf("%010d", $uid);
-            $avatardir = "/public/data/avatar/";
-            $dir1 = $avatardir . substr($uid, 0, 3);
-            $dir2 = $dir1 . '/' . substr($uid, 3, 3);
-            $dir3 = $dir2 . '/' . substr($uid, 6, 2);
-            (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
-            (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
-            (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
-
-            // crop image
-            $crop_img = $dir3 . "/crop_" . $uid . '.' . $extname;
-            $smallimg = $dir3 . "/small_" . $uid . '.' . $extname;
-            $mediumimg = $dir3 . "/medium_" . $uid . '.' . $extname;
-            $largeimg = $dir3 . "/large_" . $uid . '.' . $extname;
-
-
-            $remove_file = glob(WEB_ROOT . $dir3 . "/crop_{$uid}.*");
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/small_{$uid}.*"));
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/medium_{$uid}.*"));
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/large_{$uid}.*"));
-            foreach ($remove_file as $imgfile) {
-                if (strtolower($extname) != extname($imgfile)) {
-                    unlink($imgfile);
-                }
-            }
-            image_crop(WEB_ROOT . $pic, WEB_ROOT . $crop_img, $x, $y, $w, $h, false);
-            $success = true;
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $largeimg, 122, 122);
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $mediumimg, 80, 80);
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $smallimg, 50, 50);
-        }
-        include template("editimg");
-    }
-
     // 维护个人简历
     public function onresume() {
         $this->check_login();
@@ -475,41 +291,24 @@ class usercontrol extends base {
         include template("resume");
     }
 
-    function onajaxpoplogin() {
-        $forward = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : SITE_URL;
-        exit(0);
-        //include template("poplogin");
-    }
-
-    // 用户查看下详细信息 
-    function onajaxuserinfo() {
-        $uid = intval($this->get[2]);
-        if ($uid) {
-            $userinfo = $_ENV['user']->get_by_uid($uid);
-            $userresume = $_ENV['userresume']->get_by_uid($uid);
-            $userskill = $_ENV['userskill']->get_by_uid($uid);
-            $education = $_ENV['education']->get_by_uid($uid);
-            include template("usercard");
-        }
-    }
-
     //===================================================================================
     //==========================  JSON Format Request/Response ==========================
     //===================================================================================
 
-    // @onajax_login        [登录]
-    // @request type        [POST]
-    // @param[in]  username [用户名]
-    // @param[in]  password [登录密码]
-    // @param[in]      code [验证码，依系统配置是否需要]
-    // @param[in]   forward [可选，登录成功后的跳转页面]
-    // @return         成功 [success为true, forward为跳转页面]
-    //                 失败 [success为false, error为相应的错误码]
+    // @onajax_login         [登录]
+    // @request type         [POST]
+    // @param[in]   username [用户名]
+    // @param[in]   password [登录密码]
+    // @param[in]       code [验证码，依系统配置是否需要]
+    // @param[in]    forward [可选，登录成功后的跳转页面]
+    // @param[in] cookietime [可选，cookie有效时间]
+    // @return          成功 [success为true, forward为跳转页面]
+    //                  失败 [success为false, error为相应的错误码]
     //
-    // @error           101 [用户名存在，但密码错误]
-    // @error           102 [用户名不存在]
-    // @error           103 [验证码错误]
-    // @error           104 [已登录]
+    // @error            101 [用户名存在，但密码错误]
+    // @error            102 [用户名不存在]
+    // @error            103 [验证码错误]
+    // @error            104 [已登录]
     public function onajax_login() {
         $res = array();
         if ($this->user['uid']) {
@@ -534,16 +333,18 @@ class usercontrol extends base {
 
         $password = md5($this->post['password']);
         $user = $_ENV['user']->get_by_username($username);
-
-        $forward = SITE_URL;
+        $user['avatar'] = get_avatar_dir($user['uid']);
+        $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : SITE_URL;
+        $cookietime = intval($this->post['cookietime']);
         if (isset($this->post['forward'])) {
             $forward = $this->post['forward'];
         }
 
         if (is_array($user) && ($password == $user['password'])) {
             $res['success'] = true;
+            $res['user'] = $user;
             $res['forward'] = $forward;
-            $this->refresh($user);
+            $this->refresh($user, 1, $cookietime);
         } else {
             $res['success'] = false;
 
@@ -556,73 +357,20 @@ class usercontrol extends base {
         echo json_encode($res);
     }
 
-    // @onajax_logout       [登录]
-    // @request type        [GET/POST]
-    // @return              [成功退出则success为true，出现success为false，表示异常或者退出失败]
+    // @onajax_logout       [登出]
+    // @request type        [POST]
+    // @return         成功 [success为true]
+    //                 失败 [success为false, error为相应的错误码]
+    //
+    // @error           101 [当前系统不存在此登录用户]
     public function onajax_logout() {
         $affected_rows = $_ENV['user']->logout($this->user['sid']);
-
         $res = array();
         if ($affected_rows > 0) {
             $res['success'] = true;
         } else {
             $res['success'] = false;
-        }
-        echo json_encode($res);
-    }
-
-    // @onajax_email        [检查用户是否可以使用该邮件]
-    // @request type        [GET/POST]
-    // @param[in]     email [邮箱字符串]
-    // @return              [能够使用则success为true，否则success为false且error为相应的错误码]
-    //
-    // @error           101 [邮箱已被占用]
-    // @error           102 [邮箱地址不合法]
-    public function onajax_email() {
-        $email = $this->post['email'];
-        $user = $_ENV['user']->get_by_email($email);
-
-        $res = array();
-        if (is_array($user)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 邮箱已被占用
-        } else {
-            if (check_emailaccess($email)) {
-                $res['success'] = true;
-            } else {
-                $res['success'] = false;
-                $res['error'] = 102; // 邮箱不合法
-            }
-        }
-        echo json_encode($res);
-    }
-
-    // @onajax_username     [检查用户名是否可以使用]
-    // @request type        [GET/POST]
-    // @param[in]  username [用户名]
-    // @return              [能够使用则success为true，否则success为false且error为相应的错误码]
-    //
-    // @error           101 [用户名已被使用]
-    // @error           102 [用户名不合法]
-    public function onajax_username() {
-        $username = $this->post['username'];
-        if (WEB_CHARSET == 'GBK') {
-            require_once(WEB_ROOT . '/code/lib/iconv.func.php');
-            $username = utf8_to_gbk($username);
-        }
-        $user = $_ENV['user']->get_by_username($username);
-
-        $res = array();
-        if (is_array($user)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 用户名已被使用
-        } else {
-            if (check_usernamecensor($username)) {
-                $res['success'] = true;
-            } else {
-                $res['success'] = false;
-                $res['error'] = 102;  // 用户名不合法
-            }
+            $res['error'] = 101;
         }
         echo json_encode($res);
     }
@@ -650,7 +398,6 @@ class usercontrol extends base {
     // @error             109 [验证码错误]
     public function onajax_register() {
         $res = array();
-
         if ($this->user['uid']) {
             $res['success'] = false;
             $res['error'] = 101;  // 已登录
@@ -739,12 +486,107 @@ class usercontrol extends base {
         sendmail($username, $email, $subject, $message);
 
         $res['success'] = true;
+        $res['uid'] = $uid;
         $res['forward'] = $forward;
         echo json_encode($res);
     }
 
-    // @onajax_easy_access  [添加快捷链接]
-    // @request type        [GET/POST]
+    // @onajax_username     [检查用户名是否可以使用]
+    // @request type        [GET]
+    // @param[in]  username [用户名]
+    // @return              [能够使用则success为true，否则success为false且error为相应的错误码]
+    //
+    // @error           101 [用户名已被使用]
+    // @error           102 [用户名不合法]
+    // @error           103 [用户名不能为空]
+    public function onajax_username() {
+        $res = array();
+        $username = $this->post['username'];
+        if (empty($username)) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户名不能为空
+            echo json_encode($res);
+            return;
+        }
+
+        $user = $_ENV['user']->get_by_username($username);
+        if (is_array($user)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户名已被使用
+        } else {
+            if (check_usernamecensor($username)) {
+                $res['success'] = true;
+            } else {
+                $res['success'] = false;
+                $res['error'] = 102;  // 用户名不合法
+            }
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_email        [检查用户是否可以使用该邮件]
+    // @request type        [GET]
+    // @param[in]     email [邮箱字符串]
+    // @return              [能够使用则success为true，否则success为false且error为相应的错误码]
+    //
+    // @error           101 [邮箱已被占用]
+    // @error           102 [邮箱地址不合法]
+    // @error           102 [邮箱地址不能为空]
+    public function onajax_email() {
+        $res = array();
+        $email = $this->post['email'];
+        if (empty($email)) {
+            $res['success'] = false;
+            $res['error'] = 103; // email不能为空
+            echo json_encode($res);
+            return;
+        }
+
+        $user = $_ENV['user']->get_by_email($email);
+        if (is_array($user)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 邮箱已被占用
+        } else {
+            if (check_emailaccess($email)) {
+                $res['success'] = true;
+            } else {
+                $res['success'] = false;
+                $res['error'] = 102; // 邮箱不合法
+            }
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_check_code   [验证验证码是否正确]
+    // @request type        [GET]
+    // @param[in]      code [验证码]
+    // @return              [正确则success为true，否则success为false且error为相应的错误码]
+    //
+    // @error           101 [验证码书写错误]
+    public function onajax_check_code() {
+        $code = strtolower(trim($this->post['code']));
+        $res = array();
+        if ($code == $_ENV['user']->get_code($this->user['sid'])) {
+            $res['success'] = true;
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 验证码书写错误
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_code         [获取验证码图片]
+    // @request type        [GET]
+    // @return              [验证码图片]
+    public function onajax_code() {
+        ob_clean();
+        $code = random(4);
+        $_ENV['user']->save_code($this->user['uid'], $this->user['sid'], strtolower($code));
+        makecode($code);
+    }
+
+    // @onajax_add_easy_access  [添加快捷链接]
+    // @request type        [GET]
     // @param[in]  username [用户名]
     // @return              [成功success为true，id为key，否则success为false且error为相应的错误码]
     //
@@ -785,7 +627,7 @@ class usercontrol extends base {
     }
 
     // @onajax_remove_easy_access [删除快捷链接]
-    // @request type              [GET/POST]
+    // @request type              [GET]
     // @param[in]            code [验证码]
     // @return                    [正确则success为true，否则success为false且error为相应的错误码]
     //
@@ -817,14 +659,14 @@ class usercontrol extends base {
         echo json_encode($res);
     }
 
-    // @onajax_easy_access    [获取用户首页快捷链接列表]
-    // @request type          [GET/POST]
+    // @onajax_fetch_easy_access    [获取用户首页快捷链接列表]
+    // @request type          [GET]
     // @param[in]        type [快捷链接类型，枚举类型：material、service]
     // @return           成功 [success为true, link为该用户首页快捷链接列表]
     //                   失败 [success为false, error为相应的错误码]
     //
     // @error             101 [用户尚未登录]
-    public function onajax_easy_access() {
+    public function onajax_fetch_easy_access() {
         $res = array();
         if (!$this->check_login(false)) {
             $res['success'] = false;
@@ -833,46 +675,38 @@ class usercontrol extends base {
             return;
         }
         $type = $this->post['type'];
-        $user_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'],
+        $easy_access_list = $_ENV['easy_access']->get_by_uid_target($this->user['uid'],
                                                                     $type);
-        foreach ($user_access_list as &$t_user_access) {
-            $param = "";
-            if (!empty($t_user_access['region_id'])) {
-                $param .= "region_id=" . $t_user_access['region_id'];
-            }
 
-            if (!empty($t_user_access['school_id'])) {
-                $param .= "&school_id=" . $t_user_access['school_id'];
-            }
-
-            if (!empty($t_user_access['dept_id'])) {
-                $param .= "&dept_id=" . $t_user_access['dept_id'];
-            }
-
-            if (!empty($t_user_access['major_id'])) {
-                $param .= "&major_id=" . $t_user_access['major_id'];
-            }
-            $t_user_access['param'] = $param;
-        }
         $res['success'] = true;
-        $res['link'] = $user_access_list;
+        $res['easy_access_list'] = $easy_access_list;
         echo json_encode($res);
     }
 
-    // @onajax_check_code   [验证验证码是否正确]
-    // @request type        [GET/POST]
-    // @param[in]      code [验证码]
-    // @return              [正确则success为true，否则success为false且error为相应的错误码]
+    // @onajax_fetch_edu      [获取用户教育信息]
+    // @request type          [GET]
+    // @param[in]         uid [用户ID号,userid]
+    // @return           成功 [success为true, edu_list为该用户教育信息列表]
+    //                   失败 [success为false, error为相应的错误码]
     //
-    // @error           101 [验证码书写错误]
-    public function onajax_check_code() {
-        $code = strtolower(trim($this->get[2]));
+    // @error             101 [用户尚未登录]
+    // @error             102 [参数无效]
+    public function onajax_fetch_edu() {
         $res = array();
-        if ($code == $_ENV['user']->get_code($this->user['sid'])) {
-            $res['success'] = true;
-        } else {
+        if (!$this->check_login(false)) {
             $res['success'] = false;
-            $res['error'] = 101; // 验证码书写错误
+            $res['error'] = 101;
+            echo json_encode($res);
+            return;
+        }
+
+        $uid = $this->post['uid'];
+        if (empty($uid)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 参数无效
+        } else {
+            $res['success'] = true;
+            $res['edu_list'] = $_ENV['education']->get_by_uid($uid);
         }
         echo json_encode($res);
     }
@@ -881,33 +715,95 @@ class usercontrol extends base {
     // @request type        [POST]
     // @param[in]    newpwd [新密码]
     // @param[in]    oldpwd [老密码]
+    // @param[in]      code [验证码]
     // @return              [正确则success为true，否则success为false且error为相应的错误码]
     //
-    // @error           101 [新密码为空]
-    // @error           102 [新密码与旧密码相同]
-    // @error           103 [旧密码不对]
-    // @error           104 [未登录]
+    // @error           101 [用户尚未登录]
+    // @error           102 [新密码为空]
+    // @error           103 [新密码与旧密码相同]
+    // @error           104 [验证码错误]
+    // @error           105 [旧密码不对]
     public function onajax_uppass() {
         $res = array();
         if (!$this->check_login(false)) {
             $res['success'] = false;
-            $res['error'] = 104; // 未登录
+            $res['error'] = 101; // 未登录
 
         } else if (trim($this->post['newpwd']) == '') {
             $res['success'] = false;
-            $res['error'] = 101; // 新密码为空
+            $res['error'] = 102; // 新密码为空
 
         } else if (trim($this->post['oldpwd']) == trim($this->post['newpwd'])) {
             $res['success'] = false;
-            $res['error'] = 102; // 新密码与旧密码相同
+            $res['error'] = 103; // 新密码与旧密码相同
 
-        } else if (md5(trim($this->post['oldpwd'])) == $this->user['password']) {
+        } else if (!$this->checkcode($this->user['sid'])) {
+            $res['success'] = false;
+            $res['error'] = 104; // 验证码错误
+
+        } else if (md5(trim($this->post['oldpwd'])) != $this->user['password']) {
+            $res['success'] = false;
+            $res['error'] = 105; // 旧密码不对
+
+        } else {
             $_ENV['user']->uppass($this->user['uid'], trim($this->post['newpwd']));
             $res['success'] = true;
-        } else {
-            $res['success'] = false;
-            $res['error'] = 103; // 旧密码不对
         }
+        echo json_encode($res);
+    }
+
+    // @onajax_update_info  [更改用户基本信息]
+    // @request type        [POST]
+    // @param[in]     email [邮箱]
+    // @param[in]    gender [性别]
+    // @param[in]     phone [手机]
+    // @param[in]        qq [QQ号]
+    // @param[in]    wechat [微信号]
+    // @param[in]      bday [出生日期]
+    // @param[in] signature [签名]
+
+    // @return         成功 [success为true]
+    //                 失败 [success为false，error为相应的错误码]
+    //
+    // @error           101 [用户尚未登录]
+    // @error           102 [邮件格式不正确]
+    // @error           103 [邮件已被占用]
+    public function onajax_update_info() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $email = $this->post['email'];
+        $gender = $this->post['gender'];
+        $phone = $this->post['phone'];
+        $qq = $this->post['qq'];
+        $wechat = $this->post['wechat'];
+        $bday = $this->post['bday'];
+        $signature = $this->post['signature'];
+        if (!check_email_format($email)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 邮件格式不正确
+            echo json_encode($res);
+            return;
+        }
+
+        if ($email != $this->user['email'] && $_ENV['user']->is_email_existed($email)) {
+            $res['success'] = false;
+            $res['error'] = 103;  // 邮件已被占用
+            echo json_encode($res);
+            return;
+        }
+        $_ENV['user']->update($this->user['uid'], $gender, $bday,
+                              $phone, $qq, $wechat, $signature);
+
+        if ($email != $this->user['email']) {
+            $_ENV['user']->update_email($this->user['uid'], $email);
+        }
+        $res['success'] = true;
         echo json_encode($res);
     }
 }

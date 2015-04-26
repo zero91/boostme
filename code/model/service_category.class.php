@@ -99,7 +99,6 @@ class service_categorymodel {
         foreach ($cid_list as $cid) {
             $insertsql .= "('$sid','" . $cid['region_id'] . "','" . $cid['school_id'] . "','" . $cid['dept_id'] . "','" . $cid['major_id'] . "'),";
         }
-
         $this->db->query(substr($insertsql, 0, -1));
         return $this->db->affected_rows();
     }

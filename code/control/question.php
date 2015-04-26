@@ -2,7 +2,7 @@
 
 !defined('IN_SITE') && exit('Access Denied');
 
-//0、未审核 1、待解决、2、已解决 4、悬赏的 9、 已关闭问题
+// 0、未审核 1、待解决、2、已解决 4、悬赏的 9、 已关闭问题
 class questioncontrol extends base {
     public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
@@ -10,67 +10,28 @@ class questioncontrol extends base {
         $this->load("answer");
     }
 
+    // 交流区首页
     public function ondefault() {
         $navtitle = '交流区';
-        $page = max(1, intval($this->get[2]));
+        $page = max(1, intval($this->post['page']));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
 
         $user_num = $_ENV['user']->rownum_alluser();
         $question_num = $_ENV['question']->get_total_num();
         $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
-        $departstr = page($question_num, $pagesize, $page, "forum/default");
-        include template("forum");
+        $departstr = split_page($question_num, $pagesize, $page, "/question/default&page=%s");
+        include template("question");
     }
 
-    // 提交问题
-    public function onadd() {
-        $this->check_login();
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $title = htmlspecialchars($this->post['title']);
-            $content = $this->post['content'];
-            $this->setting['code_ask'] && $this->checkcode(); //检查验证码
-            $offerscore = $price;
-            //检查审核和内容外部URL过滤
-            $status = intval(1 != (1 & $this->setting['verify_question']));
-            $allow = $this->setting['allow_outer'];
-            if (3 != $allow && has_outer($content)) {
-                0 == $allow && $this->message("内容包含外部链接，发布失败!", 'BACK');
-                1 == $allow && $status = 0;
-                2 == $allow && $content = filter_outer($content);
-            }
-            //检查标题违禁词
-            $contentarray = checkwords($title);
-            1 == $contentarray[0] && $status = 0;
-            2 == $contentarray[0] && $this->message("问题包含非法关键词，发布失败!", 'BACK');
-            $title = $contentarray[1];
-
-            //检查问题描述违禁词
-            $descarray = checkwords($content);
-            1 == $descarray[0] && $status = 0;
-            2 == $descarray[0] && $this->message("问题描述包含非法关键词，发布失败!", 'BACK');
-            $content = $descarray[1];
-
-            // 检查提问数是否超过组设置
-            ($this->user['questionlimits'] && ($_ENV['userlog']->rownum_by_time('ask') >= $this->user['questionlimits'])) &&
-                    $this->message("你已超过每小时最大提问数" . $this->user['questionlimits'] . ',请稍后再试！', 'BACK');
-
-            $qid = $_ENV['question']->add($this->user['uid'], $this->user['username'], $title, $content, $status);
-
-            if (0 == $status) {
-                $this->message('问题发布成功！为了确保问答的质量', 'BACK');
-            } else {
-                $this->jump("question/view/$qid");
-            }
-        }
-    }
-
+    // 帖子详细页面
     public function onview() {
         $this->setting['stopcopy_on'] && $_ENV['question']->stopcopy(); //是否开启了防采集功能
-        $qid = $this->get[2]; //接收qid参数
+        $qid = $this->post['qid'];
         $question = $_ENV['question']->get($qid);
-        empty($question) && $this->message('问题已经被删除！');
-        ($question['status'] == 2) && $this->message('帖子为通过审核，您看看其他的帖子吧！');
+        $navtitle = $question['title'];
+        //empty($question) && $this->message('问题已经被删除！');
+        //($question['status'] == 2) && $this->message('帖子为通过审核，您看看其他的帖子吧！');
 
         $asktime = tdate($question['time']);
         if (isset($this->get[3]) && $this->get[3] == 1) {
@@ -84,14 +45,13 @@ class questioncontrol extends base {
         $is_followed = $_ENV['question']->is_followed($qid, $this->user['uid']);
 
         //回答分页
-        @$page = max(1, intval($this->get[4]));
+        @$page = max(1, intval($this->post['page']));
         $pagesize = $this->setting['list_default'];
         $startindex = ($page - 1) * $pagesize;
         $rownum = $this->db->fetch_total("answer", " qid=$qid ");
         $answerlist = $_ENV['answer']->list_by_qid($qid, $startindex, $pagesize);
-        $departstr = page($rownum, $pagesize, $page, "question/view/$qid/" . $this->get[3]);
-        $navtitle = $question['title'];
-        include template("question");
+        $departstr = split_page($rownum, $pagesize, $page, "/question/view?qid=" . $qid . "&page=%s");
+        include template("view_question");
     }
 
     // 提交回答
@@ -350,8 +310,8 @@ class questioncontrol extends base {
     //===================================================================================
 
     // @onajax_fetch_list    [获取question列表]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @request type         [GET]
+    // @param[in]       page [页号，可选]
     // @return          成功 [success ：true]
     //                       [question_num ：论坛帖子总量]
     //                       [question_list ：论坛帖子列表]
@@ -368,9 +328,59 @@ class questioncontrol extends base {
         echo json_encode($res);
     }
 
+    // @onajax_fetch_list_by_update_time    [按照更新时间获取question列表]
+    // @request type                        [GET]
+    // @param[in]                   req_num [请求返回的最多条数，默认为10]
+    // @param[in]                  req_type [请求的数据类型]
+    //                                  req_type=new [返回更新的数据，列表顺序为从旧到新]
+    //                                  req_type=old [返回更旧的数据，列表顺序为从新到旧]
+    // @param[in]               update_time [请求的时间戳]
+    //
+    // @return                         成功 [success ：true]
+    //                                      [question_list ：论坛帖子列表]
+    public function onajax_fetch_list_by_update_time() {
+        $req_num = intval($this->post['req_num']);
+        ($req_num == 0) && $req_num = 10;
+        $req_type = $this->post["req_type"];
+        $update_time = intval($this->post['update_time']);
+
+        $res = array();
+        $res['success'] = true;
+        $res['question_list'] = $_ENV['question']->get_list_by_update_time($update_time,
+                                                                           $req_type,
+                                                                           $req_num);
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_info    [获取单个question详细信息]
+    // @request type         [GET]
+    // @param[in]        qid [question ID]
+    // @return          成功 [success ：true]
+    //                       [question_num ：论坛帖子总量]
+    //                       [question_list ：论坛帖子列表]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [无效参数]
+    public function onajax_fetch_info() {
+        $qid = $this->post['qid'];
+
+        $res = array();
+        if (!empty($qid)) {
+            $res['success'] = true;
+            $res['question'] = $_ENV['question']->get($qid);
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101;
+        }
+        echo json_encode($res);
+    }
+
     // @onajax_add           [新增帖子]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @request type         [POST]
+    // @param[in]      title [标题]
+    // @param[in]    content [内容]
     // @return          成功 [success ：true]
     //                       [id ：新增帖子ID号]
     //                       [forward ：新增帖子查看链接，可作为成功后的跳转界面]
@@ -380,6 +390,7 @@ class questioncontrol extends base {
     //
     // @error            101 [用户尚未登录]
     // @error            102 [验证码错误]
+    // @error            103 [参数无效]
     public function onajax_add() {
         $res = array();
         if (!$this->check_login(false)) {
@@ -390,6 +401,13 @@ class questioncontrol extends base {
         }
 
         $title = htmlspecialchars($this->post['title']);
+        if (strlen($title) < 5) {
+            $res['success'] = false;
+            $res['error'] = 103; // 参数无效
+            echo json_encode($res);
+            return;
+        }
+
         $content = $this->post['content'];
         if ($this->setting['code_ask'] && !$this->checkcode()) {
             $res['success'] = false;
@@ -403,22 +421,25 @@ class questioncontrol extends base {
 
         $res['success'] = true;
         $res['id'] = $qid;
-        $res['forward'] = SITE_URL . "question/view/$qid";
+        $res['forward'] = SITE_URL . "/question/view?qid=$qid";
         echo json_encode($res);
     }
 
-    // @onajax_add           [新增帖子]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @onajax_answer        [新增帖子回复]
+    // @request type         [POST]
+    // @param[in]        qid [帖子ID号]
+    // @param[in]    content [回复内容]
     // @return          成功 [success ：true]
-    //                       [id ：新增帖子ID号]
-    //                       [forward ：新增帖子查看链接，可作为成功后的跳转界面]
+    //                       [aid ：新增回复ID号]
+    //                       [forward ：所回复的帖子链接，可作为成功后的跳转界面]
     //
     //                  失败 [success ：false]
     //                       [error ：为错误码]
     //
     // @error            101 [用户尚未登录]
-    // @error            102 [验证码错误]
+    // @error            102 [提交回答失败,帖子不存在]
+    // @error            103 [验证码错误]
+    // @error            104 [回复内容不能为空]
     public function onajax_answer() {
         $res = array();
         if (!$this->check_login(false)) {
@@ -445,8 +466,15 @@ class questioncontrol extends base {
         }
 
         $content = $this->post['content'];
-        $_ENV['answer']->add($this->user['uid'], $this->user['username'],
-                             $qid, $question['title'], $content);
+        if (empty($content)) {
+            $res['success'] = true;
+            $res['error'] = 104;
+            echo json_encode($res);
+            return;
+        }
+
+        $aid = $_ENV['answer']->add($this->user['uid'], $this->user['username'],
+                                    $qid, $question['title'], $content);
         $_ENV['question']->update_answers($qid);
 
         $mail_subject = "您的帖子\"" . $question['title'] . "\"有新回复";
@@ -456,6 +484,7 @@ class questioncontrol extends base {
         $this->send("", 0, $question['authorid'], $mail_subject, $mail_content, true);
 
         $res['success'] = true;
+        $res['aid'] = $aid;
         $res['forward'] = SITE_URL . "question/view/$qid";
         echo json_encode($res);
     }

@@ -12,59 +12,6 @@ class answercontrol extends base {
         $this->load('message');
     }
 
-    function onajaxviewcomment() {
-        $answerid = intval($this->get[2]);
-        $answer = $_ENV['answer']->get($answerid);
-
-        $page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default']; 
-        $pagesize = 5;
-
-        $departstr = page_ajax(intval($answer['comments']), $pagesize, $page, $answerid);
-
-        $startindex = ($page - 1) * $pagesize;
-        $commentlist = $_ENV['answer_comment']->get_by_aid($answerid, $startindex, $pagesize);
-
-        $commentstr = '<div style="text-align:center;">暂无评论</div>';
-        if ($commentlist) {
-            $commentstr = "";
-
-            //$admin_control = '&nbsp;&nbsp;|&nbsp;&nbsp;<span><a href="javascript:void(0)" onclick="deletecomment({commentid},{answerid});">删除</a></span>';
-            foreach ($commentlist as $comment) {
-                if ($admin_control) {
-                    $del_comment = str_replace("{commentid}", $comment['id'], $admin_control);
-                    $del_comment = str_replace("{answerid}", $comment['aid'], $del_comment);
-                }
-
-                $commentstr .= "<div class=\"list-group-item\"><div style=\"position:absolute;left:5px;\">" .
-                                        "<img class=\"img-circle\" width=\"30\" height=\"30\" src=\"" . get_avatar_dir($comment['authorid']) . "\">" .
-                                        "<p>{$comment['author']}</p></div>" .
-                                        "<div style=\"margin-left:35px;\">" .
-                                        "<div class=\"\">{$comment['content']}</div>" .
-                                        "<div style=\"position:absolute;right:25px;bottom:1px;font-size:11px;color:grey;\"><span>{$comment['format_time']}</span>$del_comment</div></div></div>";
-            }
-
-
-            $commentstr .= "<center><div class=\"pages\">{$departstr}</div></center>";
-        }
-        exit($commentstr);
-    }
-
-    function onaddcomment() {
-        if (isset($this->post['content'])) {
-            $content = $this->post['content'];
-            $answerid = intval($this->post['answerid']);
-            $answer = $_ENV['answer']->get($answerid);
-            $_ENV['answer_comment']->add($answerid, $content, $this->user['uid'], $this->user['username']);
-            $_ENV['question']->update_answers($answer['qid']);
-
-            if ($answer['authorid'] != $this->user['uid']) {
-                $_ENV['message']->add($this->user['username'], $this->user['uid'], $answer['authorid'], '您的回答有了新评论', '您对于问题 "' . $answer['title'] . '" 的回答 "' . $answer['content'] . '" 有了新评论 "' . $content . '"<br /> <a href="' . url('question/view/' . $answer['qid'], 1) . '">点击查看</a>');
-            }
-            exit('1');
-        }
-    }
-
     function ondeletecomment() {
         if (isset($this->post['commentid'])) {
             $commentid = intval($this->post['commentid']);
@@ -74,34 +21,14 @@ class answercontrol extends base {
         }
     }
 
-    function onajaxgetsupport() {
-        $answerid = intval($this->get[2]);
-        $answer = $_ENV['answer']->get($answerid);
-        exit($answer['supports']);
-    }
-
-    function onajaxhassupport() {
-        $answerid = intval($this->get[2]);
-        $supports = $_ENV['answer']->get_support_by_uid_aid($this->user['uid'], $answerid);
-        $ret = $supports ? '1' : '-1';
-        exit($ret);
-    }
-
-    function onajaxaddsupport() {
-        $answerid = intval($this->get[2]);
-        $answer = $_ENV['answer']->get($answerid);
-        $_ENV['answer']->add_support($this->user['uid'], $answerid, $answer['authorid']);
-        $answer = $_ENV['answer']->get($answerid);
-        exit($answer['supports']);
-    }
-
     //===================================================================================
     //==========================  JSON Format Request/Response ==========================
     //===================================================================================
 
     // @onajax_fetch_list    [获取回复列表]
-    // @request type         [GET/POST]
-    // @param[in]       page [页号]
+    // @request type         [GET]
+    // @param[in]        qid [问题ID]
+    // @param[in]       page [页号，可选]
     // @return          成功 [success ：true]
     //                       [answer_list ：回复列表]
     //                  失败 [success ：false]
@@ -127,8 +54,30 @@ class answercontrol extends base {
         echo json_encode($res);
     }
 
+    // @onajax_fetch_info    [获取单个回复详细信息]
+    // @request type         [GET]
+    // @param[in]        aid [回复的ID号]
+    // @return          成功 [success: true]
+    //                       [answer: 回复详细信息]
+    //                  失败 [success: false]
+    //                       [error: 为错误码]
+    //
+    // @error            101 [回复id参数无效]
+    public function onajax_fetch_info() {
+        $res = array();
+        $aid = $this->post['aid'];
+        if ($aid > 0) {
+            $res['success'] = true;
+            $res['answer'] = $_ENV['answer']->get($aid);
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 回复id参数无效
+        }
+        echo json_encode($res);
+    }
+
     // @onajax_add_comment   [添加回复的评论]
-    // @request type         [GET/POST]
+    // @request type         [POST]
     // @param[in]    content [评论内容]
     // @param[in]   answerid [回复的ID编号]
     // @return          成功 [success ：true]
@@ -137,6 +86,8 @@ class answercontrol extends base {
     //                       [error ：为错误码]
     //
     // @error            101 [用户尚未登录]
+    // @error            102 [answer不存在，answerid无效]
+    // @error            103 [comment内容为空]
     public function onajax_add_comment() {
         $res = array();
         if (!$this->check_login(false)) {
@@ -148,7 +99,22 @@ class answercontrol extends base {
 
         $content = $this->post['content'];
         $answerid = intval($this->post['answerid']);
+
+        if (empty($content)) {
+            $res['success'] = false;
+            $res['error'] = 103; // comment内容为空
+            echo json_encode($res);
+            return;
+        }
+
         $answer = $_ENV['answer']->get($answerid);
+        if (empty($answer)) {
+            $res['success'] = false;
+            $res['error'] = 102; // answer不存在，answerid无效
+            echo json_encode($res);
+            return;
+        }
+
         $id = $_ENV['answer_comment']->add($answerid, $content,
                                            $this->user['uid'], $this->user['username']);
 
@@ -166,12 +132,49 @@ class answercontrol extends base {
         echo json_encode($res);
     }
 
-    public function onajax_has_support() {
-        $res = array();
+    // @onajax_fetch_comment_list [获取单个回复的评论列表]
+    // @request type              [GET]
+    // @param[in]        answerid [回复的ID编号]
+    // @param[in]            page [页码，可选]
+    // @return               成功 [success ：true]
+    //                            [comment_list ：回复的评论列表]
+    //                            [departstr ：回复分页html代码]
+    public function onajax_fetch_comment_list() {
+        $answerid = intval($this->post['answerid']);
+        $answer = $_ENV['answer']->get($answerid);
 
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default']; 
+        $startindex = ($page - 1) * $pagesize;
+
+        $comment_list = $_ENV['answer_comment']->get_by_aid($answerid, $startindex, $pagesize);
+        foreach ($comment_list as &$comment) {
+            $comment['avatar'] = get_avatar_dir($comment['author']);
+        }
+
+        $res = array();
+        $res['success'] = true;
+        $res['comment_list'] = $comment_list;
+        $res['departstr'] = split_page(intval($answer['comments']), $pagesize, $page,
+                                     "show_comment($answerid, %s)", 1);
+        echo json_encode($res);
+    }
+
+    // @onajax_has_support        [获取某个回复是否已被用户点赞]
+    // @request type              [GET]
+    // @param[in]        answerid [回复的ID编号]
+    // @return               成功 [success ：true，用户已经赞过]
+    //                       失败 [success ：false，用户尚未点赞]
+    public function onajax_has_support() {
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            echo json_encode($res);
+            return;
+        }
         $answerid = intval($this->post['answerid']);
         $supports = $_ENV['answer']->get_support_by_uid_aid($this->user['uid'], $answerid);
 
+        $res = array();
         if ($supports > 0) {
             $res['success'] = true;
         } else {
@@ -180,13 +183,61 @@ class answercontrol extends base {
         echo json_encode($res);
     }
 
+    // @onajax_add_support    [给某个回复点赞]
+    // @request type          [POST]
+    // @param[in]    answerid [回复的ID编号]
+    // @return           成功 [success ：true，用户已经赞过]
+    //                   失败 [success ：false，用户尚未点赞]
+    // 
+    // @error            101 [用户尚未登录]
+    // @error            102 [用户已经点过赞]
+    // @error            103 [参数无效]
     public function onajax_add_support() {
-        $answerid = intval($this->get[2]);
-        $answer = $_ENV['answer']->get($answerid);
-        $_ENV['answer']->add_support($this->user['uid'], $answerid, $answer['authorid']);
-        $answer = $_ENV['answer']->get($answerid);
-        exit($answer['supports']);
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
 
+        $answerid = intval($this->post['answerid']);
+        if ($answerid > 0) {
+            $affected_rows = $_ENV['answer']->add_support($this->user['uid'], $answerid);
+            if ($affected_rows > 0) {
+                $answer = $_ENV['answer']->get($answerid);
+                $res['success'] = true;
+                $res['supports'] = $answer['supports'];
+            } else {
+                $res['success'] = false;
+                $res['error'] = 102; // 用户已经点过赞
+            }
+        } else {
+            $res['success'] = false;
+            $res['error'] = 103; // 参数无效
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_get_support    [获取某回复的点赞数量]
+    // @request type          [GET]
+    // @param[in]    answerid [回复的ID编号]
+    // @return           成功 [success ：true，supports为点赞数量]
+    //                   失败 [success ：false]
+    // 
+    // @error             101 [参数无效]
+    public function onajax_get_support() {
+        $answerid = intval($this->post['answerid']);
+
+        $res = array();
+        if ($answerid > 0) {
+            $answer = $_ENV['answer']->get($answerid);
+            $res['success'] = true;
+            $res['supports'] = $answer['supports'];
+        } else {
+            $res['success'] = false;
+            $res['error'] = 101; // 参数无效
+        }
         echo json_encode($res);
     }
 }

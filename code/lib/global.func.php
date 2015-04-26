@@ -171,19 +171,18 @@ function get_avatar_dir($uid, $type="small") {
         $dir1 = substr($uid, 0, 3);
         $dir2 = substr($uid, 3, 3);
         $dir3 = substr($uid, 6, 2);
-        $avatar_dir = "public/data/avatar/" . $dir1 . '/' . $dir2 . '/' . $dir3 . '/' . $type . "_" . $uid;
-
-        if (file_exists($avatar_dir . ".jpg"))
+        $avatar_dir = "/public/data/avatar/" . $dir1 . '/' . $dir2 . '/' . $dir3 . '/' . $type . "_" . $uid;
+        if (file_exists(WEB_ROOT . $avatar_dir . ".jpg"))
             return SITE_URL . $avatar_dir . ".jpg";
-        if (file_exists($avatar_dir . ".jepg"))
+        if (file_exists(WEB_ROOT . $avatar_dir . ".jepg"))
             return SITE_URL . $avatar_dir . ".jepg";
-        if (file_exists($avatar_dir . ".gif"))
+        if (file_exists(WEB_ROOT . $avatar_dir . ".gif"))
             return SITE_URL . $avatar_dir . ".gif";
-        if (file_exists($avatar_dir . ".png"))
+        if (file_exists(WEB_ROOT . $avatar_dir . ".png"))
             return SITE_URL . $avatar_dir . ".png";
     }
     //显示系统默认头像
-    return SITE_URL . 'public/css/default/avatar.png';
+    return SITE_URL . '/public/css/default/avatar.png';
 }
 
 // 获得用户简历地址

@@ -3,13 +3,6 @@
 // 翻页函数：获取翻页的html片段
 function split_page($tot_num, $page_size, $cur_page, $operation, $ajax = 0) {
     $html = "";
-    $req_url = SITE_URL . "$operation";
-    if (strpos($req_url, "?")) {
-        $req_url .= "&";
-    } else {
-        $req_url .= "?";
-    }
-
     if ($tot_num > $page_size) {
         $max_show_page = 8;
         $offset = 2;
@@ -21,29 +14,45 @@ function split_page($tot_num, $page_size, $cur_page, $operation, $ajax = 0) {
         $from = max(1, $to - $max_show_page + 1);
 
         if ($ajax) {
-            if ($cur_page < $tot_page_num) {
-                $html = "<a href=\"{$req_url}page=" . ($cur_page + 1) . '">查看更多</a>';
-            }
-
-        } else {
             if ($from > 1) {
-                $html .= "<a href=\"{$req_url}page=1\">首页</a>\n";
+                $html .= sprintf("<a onclick=\"$operation\" href=\"javascript:void(0)\">首页</a>\n", 1);
             }
             if ($cur_page > 1) {
-                $html .= "<a href=\"{$req_url}page=" . ($cur_page - 1) . "\">上一页</a>\n";
+                $html .= sprintf("<a onclick=\"$operation\" href=\"javascript:void(0)\">上一页</a>\n", $cur_page - 1);
             }
             for ($i = $from; $i <= $to; ++$i) {
                 if ($i == $cur_page) {
                     $html .= "<strong>$i</strong>\n";
                 } else {
-                    $html .= "<a href=\"{$req_url}page=$i\">$i</a>\n";
+                    $html .= sprintf("<a onclick=\"$operation\" href=\"javascript:void(0)\">$i</a>\n", $i);
                 }
             }
             if ($cur_page < $tot_page_num) {
-                $html .= "<a href=\"{$req_url}page=" . ($cur_page + 1) . "\">下一页</a>\n";
+                $html .= sprintf("<a onclick=\"$operation\" href=\"javascript:void(0)\">下一页</a>\n", $cur_page + 1);
             }
             if ($to < $tot_page_num) {
-                $html .= "<a href=\"{$req_url}page=" . $tot_page_num . "\">最后一页</a>\n";
+                $html .= sprintf("<a onclick=\"$operation\" href=\"javascript:void(0)\">最后一页</a>\n", $tot_page_num);
+            }
+
+        } else {
+            if ($from > 1) {
+                $html .= sprintf("<a href=\"{$operation}\">首页</a>\n", 1);
+            }
+            if ($cur_page > 1) {
+                $html .= sprintf("<a href=\"{$operation}\">上一页</a>\n", ($cur_page - 1));
+            }
+            for ($i = $from; $i <= $to; ++$i) {
+                if ($i == $cur_page) {
+                    $html .= "<strong>$i</strong>\n";
+                } else {
+                    $html .= sprintf("<a href=\"{$operation}\">$i</a>\n", $i);
+                }
+            }
+            if ($cur_page < $tot_page_num) {
+                $html .= sprintf("<a href=\"{$operation}\">下一页</a>\n", $cur_page + 1);
+            }
+            if ($to < $tot_page_num) {
+                $html .= sprintf("<a href=\"{$operation}\">最后一页</a>\n", $tot_page_num);
             }
         }
     }
@@ -55,6 +64,11 @@ function generate_tradeno($token) {
     $time = time();
     $trade_no = substr("{$time}{$token}" . random(32), 0, 32); 
     return $trade_no;
+}
+
+// 检查邮件地址是否合法
+function check_email_format($email) {
+    return preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $email);
 }
 
 ?>

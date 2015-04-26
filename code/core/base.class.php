@@ -116,7 +116,7 @@ class base {
     protected function jump($url, $full=false) {
         $jump_url = $url;
         if (!$full) {
-            $jump_url = SITE_URL . $url . $this->setting['seo_suffix'];
+            $jump_url = SITE_URL . $url;
         }
         header("Location: $jump_url");
     }
@@ -128,7 +128,7 @@ class base {
         }
 
         if ($jump) {
-            $this->jump("user/login");
+            $this->jump("/user/login");
         }
         return false;
     }
@@ -156,7 +156,6 @@ class base {
         @$sid = tcookie('sid');
 
         $_ENV['user']->update_lastlogin($user['uid']);
-
         $auth = strcode($user['uid'] . "\t" . $user['password'], $setting['auth_key'], 'ENCODE');
         if ($cookietime) {
             tcookie('auth', $auth, $cookietime);
@@ -245,8 +244,9 @@ class base {
             $user['uid'] = 0;
         } else {
             $this->load('message');
-            $user['new_msg_num'] = $_ENV['message']->get_new_msg_num($user['uid']);
+            $user['new_system_msg'] = $_ENV['message']->get_new_system_msg_num($user['uid']);
 
+            $user['new_msg_num'] = $_ENV['message']->get_new_msg_num($user['uid']);
             $user['msg_system'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid=0 AND status<>" . MSG_STATUS_TO_DELETED);
             $user['msg_personal'] = $this->db->fetch_total('message', " new=1 AND touid=$uid AND fromuid<>$uid AND fromuid<>0 AND status<>" . MSG_STATUS_TO_DELETED);
         }

@@ -59,6 +59,30 @@ Answer.prototype = {
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
+    },
+    fetch_comment_list : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/answer/ajax_fetch_comment_list";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    has_support : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/answer/ajax_has_support";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add_support : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/answer/ajax_add_support";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    get_support : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/answer/ajax_get_support";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
     }
 }
 Answer.prototype.constructor = Answer;
@@ -81,6 +105,30 @@ Service.prototype = {
     fetch_info : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/service/ajax_fetch_info";
         async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_category : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/service/ajax_fetch_category";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/service/ajax_fetch_comment";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_user_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/service/ajax_fetch_user_comment";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/service/ajax_add_comment";
+        async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
     },
@@ -122,6 +170,66 @@ Material.prototype = {
     }
 }
 Material.prototype.constructor = Service;
+
+
+function Trade(host) {
+    this.host = host || "http://www.boostme.cn:80";
+    this.host = "";
+}
+Trade.prototype = {
+    server : function() {
+        return this.host;
+    },
+    fetch_list : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/trade/ajax_fetch_list";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add_item : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/trade/ajax_add_item";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    remove_item : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/trade/ajax_remove_item";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_tradeno : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/trade/ajax_fetch_tradeno";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    update_quantity : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/trade/ajax_update_quantity";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    }
+}
+Trade.prototype.constructor = Trade;
+
+
+function EBank(host) {
+    this.host = host || "http://www.boostme.cn:80";
+    this.host = "";
+}
+EBank.prototype = {
+    server : function() {
+        return this.host;
+    },
+    alipay_transfer : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_alipay_transfer";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    }
+}
+EBank.prototype.constructor = EBank;
 
 
 function User(host) {
@@ -177,6 +285,18 @@ User.prototype = {
     fetch_easy_access : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/user/ajax_fetch_easy_access";
         async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    update_passwd : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/user/ajax_uppass";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    update_info : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/user/ajax_update_info";
+        async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
     }
@@ -242,3 +362,22 @@ Message.prototype = {
     }
 }
 Message.prototype.constructor = Message;
+
+
+function Main(host) {
+    this.host = host || "http://www.boostme.cn:80";
+    this.host = "";
+}
+Main.prototype = {
+    server : function() {
+        return this.host;
+    },
+    image_size : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/main/ajax_image_size";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+}
+Main.prototype.constructor = Main;
+

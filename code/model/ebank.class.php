@@ -1,17 +1,15 @@
 <?php
 
-//!defined('IN_SITE') && exit('Access Denied');
-//require WEB_ROOT . '/code/lib/alipay/alipay_service.class.php';
-//require WEB_ROOT . '/code/lib/alipay/alipay_notify.class.php';
-require(WEB_ROOT . '/code/lib/tenpay/RequestHandler.class.php');
-require(WEB_ROOT . '/code/lib/tenpay/ResponseHandler.class.php');
+!defined('IN_SITE') && exit('Access Denied');
+//require(WEB_ROOT . '/code/lib/tenpay/RequestHandler.class.php');
+//require(WEB_ROOT . '/code/lib/tenpay/ResponseHandler.class.php');
 
 class ebankmodel {
     public function __construct(&$db) {
         $this->db = & $db;
     }
 
-    public function alipaytransfer($out_trade_no, $total_fee, $product_name) {
+    public function alipay_transfer($out_trade_no, $total_fee, $product_name) {
         require_once(WEB_ROOT . '/code/conf/alipay/alipay.config.php');
         require_once(WEB_ROOT . '/code/lib/alipay/alipay_submit.class.php');
 
@@ -88,8 +86,8 @@ class ebankmodel {
 
         //建立请求
         $alipaySubmit = new AlipaySubmit($alipay_config);
-        $html_text = $alipaySubmit->buildRequestForm($parameter,"get", "确认");
-        echo $html_text;
+        $html_text = $alipaySubmit->buildRequestForm($parameter, "get", "确认");
+        return $html_text;
     }
 
     public function alipayreturn() {

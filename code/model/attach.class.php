@@ -31,7 +31,8 @@ class attachmodel {
 
     public function add($uid, $filename, $ftype, $fsize, $location, $isimage=1) {
         $time = time();
-        $this->db->query("INSERT INTO attach(time,filename,filetype,filesize,location,isimage,uid) VALUES ('$time','$filename','$ftype','$fsize','$location',$isimage,$uid)");
+        $sql = "INSERT INTO attach(time,filename,filetype,filesize,location,isimage,uid) VALUES ('$time','$filename','$ftype','$fsize','$location',$isimage,$uid)";
+        $this->db->query($sql);
         return $this->db->insert_id();
     }
 

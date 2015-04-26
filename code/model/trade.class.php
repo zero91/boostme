@@ -13,7 +13,11 @@ class trademodel {
     }
 
     public function get_trade_by_uid($uid, $start=0, $limit=10) {
-        return $this->db->fetch_all("SELECT * FROM `trade` WHERE `uid`='$uid' ORDER BY `time` DESC LIMIT $start,$limit");
+        $trade_list = $this->db->fetch_all("SELECT * FROM `trade` WHERE `uid`='$uid' ORDER BY `time` DESC LIMIT $start,$limit");
+        foreach ($trade_list as &$trade) {
+            $trade['format_time'] = tdate($trade['time']);
+        }
+        return $trade_list;
     }
 
     public function get_history_trade_num_by_uid($uid) {
@@ -74,6 +78,7 @@ class trademodel {
 
     public function update_trade_tot_price($trade_no, $tot_price) {
         $this->db->query("UPDATE `trade` SET `tot_price`='$tot_price' WHERE `trade_no`='$trade_no'");
+        runlog("boostme", "UPDATE `trade` SET `tot_price`='$tot_price' WHERE `trade_no`='$trade_no'");
         return $this->db->affected_rows();
     }
 
@@ -131,14 +136,6 @@ class trademodel {
         }
         return $mid_list;
     }
-
-    // 生成订单号
-    public function create_trade_no($sid) {
-        $time = time();
-        $trade_no = cutstr("{$time}{$sid}" . random(32), 32, '');
-        return $trade_no;
-    }
-
     private $db;
 }
 

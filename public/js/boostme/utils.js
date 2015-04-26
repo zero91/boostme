@@ -83,3 +83,25 @@ function check_code() {
     return result;
 }
 
+// @check_image_size [检查image是否被缩放了]
+// @param  image_obj [jquery对象的image]
+// @return      true [图片被缩放了]
+//             false [图片未被缩放]
+function check_image_size(image_obj) {
+    var image = new Image();
+    image.src = image_obj.attr("src");
+    return image.width > image_obj.width() || image.height > image_obj.height();
+}
+
+function image_light(image_target) {
+    image_target.each(function() {
+        var image = $(this);
+        image.load(function() {
+            if (check_image_size(image)) {
+                var src = image.attr("src");
+                var title = image.attr("title");
+                image.wrap("<a href='" + src + "' title='" + title + "' data-lightbox='comment'></a>");
+            }
+        });
+    });
+}

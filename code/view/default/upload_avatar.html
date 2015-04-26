@@ -1,17 +1,15 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 <title>上传头像</title>
-<link href="/public/css/default/avatar.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="/public/js/plugin/jquery.min.js" language="javascript" charset="utf-8"></script>
-<script type="text/javascript" src="/public/js/plugin/Jcrop/js/jquery.Jcrop.min.js" language="javascript" charset="utf-8"></script>
-<script src="/public/js/plugin/jquery-form/jquery.form.js"></script>
+<link href="{SITE_URL}/public/css/default/avatar.css" rel="stylesheet" type="text/css"/>
+<script src="{SITE_URL}/public/js/plugin/jquery/jquery.min.js" charset="utf-8"></script>
+<script src="{SITE_URL}/public/js/plugin/Jcrop/js/jquery.Jcrop.min.js" charset="utf-8"></script>
+<script src="{SITE_URL}/public/js/plugin/jquery-form/jquery.form.js"></script>
 <link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
 <link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <script type="text/javascript">
-
 var uploaded = 0;
 $(function() {
     $("#target").Jcrop({
@@ -19,8 +17,6 @@ $(function() {
         onChange:showCoords,
         onSelect:showCoords
     }); 
-
-    //响应自onChange,onSelect事件
     function showCoords(obj) {
         var image_width = {$upload_pic['width']};
         var image_height = {$upload_pic['height']};
@@ -32,17 +28,11 @@ $(function() {
         $("#w").val(obj.w * image_rx);
         $("#h").val(obj.h * image_ry);
 
-        /*
-        $("#x").val(obj.x);
-        $("#y").val(obj.y);
-        $("#w").val(obj.w);
-        $("#h").val(obj.h);
-        */
-        if (parseInt(obj.w) > 0){
-            //计算预览区域图片缩放的比例
+        if (parseInt(obj.w) > 0) {
+            // 计算预览区域图片缩放的比例
             var rx = $("#preview_box").width() / obj.w; 
             var ry = $("#preview_box").height() / obj.h;
-            //通过比例值控制图片的样式与显示
+            // 通过比例值控制图片的样式与显示
             $("#preview").css({
                 width:Math.round(rx * $("#target").width()) + "px",
                 height:Math.round(rx * $("#target").height()) + "px",
@@ -51,7 +41,6 @@ $(function() {
             });
         }
     }
-
     $("#crop_submit").click(function(){
         if (parseInt($("#x").val()) >= 0) {
             $("#crop_form").submit();   
@@ -59,7 +48,6 @@ $(function() {
             alert("要先在图片上划一个选区再单击确认剪裁的按钮！");  
         }
     });
-
     $(".pic").click(function(){
         if(uploaded == 0){
             $("#takepic").click();
@@ -70,7 +58,7 @@ $(function() {
 </script>
 </head>
 <body>
-<form action="/user/editimg" method="post" id="crop_form">
+<form action="{SITE_URL}/user/editimg" method="post" id="crop_form">
     <input type="hidden" id="x" name="x" />
     <input type="hidden" id="y" name="y" />
     <input type="hidden" id="w" name="w" />
@@ -81,7 +69,7 @@ $(function() {
             <img src="{$upload_pic['pic']}" id="target">
             <!--{else}-->
             <div style="margin:14px;">
-                在这里设置你的头像……<br/>请使用2M以内的jpg、gif、png图片。
+                在这里设置你的头像……<br/>请使用5M以内的jpg、gif、png图片。
             </div>
             <!--{/if}-->
         </div>
