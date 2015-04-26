@@ -776,3 +776,201 @@ message相关API。
             ]
         }
 
+# Trade API Root [/trade]
+
+## Group Trade
+订单交易相关API。
+
+## Trade Collection [/trade/ajax_fetch_list]
+获取用户历史订单列表。
+
+### 获取用户历史订单列表 [GET]
+请求参数:
++ page (int) - 请求的页号，可选
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ trade_list - 用户历史订单列表。[success=true]
+    + tot_price - 订单总价格
+    + trade_info - 订单详细信息
+        + type - 物品类型，1为资料，2为服务
+        + target_id - 物品ID号，与type一起，用于确定物品
+        + target_info - 物品的详细信息
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
+
++ Request (application/json)
+
+        { "page": 1 }
+
++ Response 200 (application/json)
+        {
+            "success": true,
+            "trade_list": [
+                {
+                    "trade_no": "142217059781fafd3517b49f00V7yHrq",
+                    "uid": "1",
+                    "username": "admin",
+                    "tot_price": "0.04",
+                    "status": "1",
+                    "goods_num": "0",
+                    "trade_total_fee": "0",
+                    "trade_discount": null,
+                    "trade_type": null,
+                    "trade_mode": "0",
+                    "time": "1422170597",
+                    "transaction_id": null,
+                    "pay_account": null,
+                    "format_time": "2015/01/25 15:23",
+                    "trade_info": [
+                        {
+                            "trade_no": "142217059781fafd3517b49f00V7yHrq",
+                            "target_id": "44",
+                            "type": "1",
+                            "buy_num": "2",
+                            "time": "0",
+                            "uid": "1",
+                            "username": "admin",
+                            "target_info": {
+                                "id": "44",
+                                "uid": "1",
+                                "username": "admin",
+                                "title": "考研一共花了多少钱？大家都来交（tu）流（cao）一下~~~",
+                                "description": "",
+                                "price": "0.02",
+                                "time": "1417866489",
+                                "status": "2",
+                                "avg_score": "0",
+                                "sold_num": "0",
+                                "comment_num": "0",
+                                "picture": "/public/data/material/20141206194809CEE.",
+                                "view_num": "20",
+                                "site_url": "http://pan.baidu.com/s/1sjwh2mp",
+                                "access_code": "5sl6",
+                                "auto_delivery": "0"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+
+
+## Add Item [/trade/ajax_add_item]
+增加新物品到购物车。
+
+### 新增物品到购物车 [POST]
+请求参数:
++ target_id (int) - 新增物品的ID号
++ type (int) - 新增物品的类型，1为资料，2为服务
++ quantity (int) - 购买数量
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ trade_no - 订单号 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
++ 102 - 无效参数
++ 103 - 添加失败
+
++ Request (application/json)
+
+        { "target_id": 21, "type": 2, "quantity": 1 }
+
++ Response 200 (application/json)
+
+        {
+            "success": "true",
+            "trade_no": "143005326330e684b742abc311scy2cZ"
+        }
+
+
+## Remove Item [/trade/ajax_remove_item]
+删除购物车中某物品。
+
+### 删除购物车中某物品 [POST]
+请求参数:
++ trade_no - 订单号
++ target_id - 待删除物品的ID号
++ type - 待删除物品的类型，1为资料，2为服务
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
++ 102 - 无效参数
++ 103 - 用户无权删除该订单物品
++ 104 - 删除失败
+
++ Request (application/json)
+
+        { "target_id": 21, "ype": 2, "trade_no": "143005326330e684b742abc311scy2cZ" }
+
++ Response 200 (application/json)
+
+        { "success": "true" }
+
+
+## Tradeno [/trade/ajax_fetch_tradeno]
+获取一个订单号。如果当前没有用户未使用的订单号，则新增一个订单号；否则使用用户还未付款订单的订单号。
+
+### 获取订单号 [GET]
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ trade_no - 订单号 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
+
++ Request (application/json)
+
+        { }
+
++ Response 200 (application/json)
+
+        {
+            "success": "true",
+            "trade_no": "143005326330e684b742abc311scy2cZ"
+        }
+
+
+## Update Quantity [/trade/ajax_update_quantity]
+更新订单单个项目的数量。
+
+### 更新订单单个项目数量 [POST]
+请求参数:
++ trade_no - 订单号
++ target_id - 待更改项的ID号
++ type - 待更改项的类型
++ quantity - 待更改项的新数量
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登录
++ 102 - 无效参数
++ 103 - 用户无权操作
++ 104 - 更新失败
+
++ Request (application/json)
+
+        {
+            "target_id": 21,
+            "type": 2,
+            "trade_no": "143005326330e684b742abc311scy2cZ",
+            "quantity": 10
+        }
+
++ Response 200 (application/json)
+
+        { "success": "true" }
+
