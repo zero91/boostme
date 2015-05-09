@@ -858,6 +858,74 @@ error错误码含义:
         }
 
 
+## Trade Info [/trade/ajax_fetch_info]
+获取用户某订单的详细信息。
+
+### 获取用户某订单的详细信息 [GET]
+请求参数:
++ trade_no (string) - 订单号
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ trade_status - 订单状态 [success=true]
++ trade_info_list - 用户历史订单列表。[success=true]
+    + type - 物品类型，1为资料，2为服务
+    + target_id - 物品ID号，与type一起，用于确定物品
+    + target_info - 物品的详细信息
++ error - 错误码 [success=false]
+
+trade_status(订单状态)各数字表示含义：
++ 1 - 等待付款
++ 2 - 等待发货
++ 3 - 等待确认收货
++ 4 - 交易成功结束
++ 5 - 交易未成功完成
+
+error错误码含义:
++ 101 - 用户尚未登录
++ 102 - 无效参数
++ 103 - 用户无权操作
+
++ Request (application/json)
+
+        { "trade_no": "142217059781fafd3517b49f00V7yHrq" }
+
++ Response 200 (application/json)
+        {
+            "success": true,
+            "trade_status": "4",
+            "trade_info_list": [
+                {
+                    "trade_no": "142217059781fafd3517b49f00V7yHrq",
+                    "target_id": "44",
+                    "type": "1",
+                    "buy_num": "2",
+                    "time": "0",
+                    "uid": "1",
+                    "username": "admin",
+                    "target_info": {
+                        "id": "44",
+                        "uid": "1",
+                        "username": "admin",
+                        "title": "考研一共花了多少钱？大家都来交（tu）流（cao）一下~~~",
+                        "description": "",
+                        "price": "0.02",
+                        "time": "1417866489",
+                        "status": "2",
+                        "avg_score": "0",
+                        "sold_num": "0",
+                        "comment_num": "0",
+                        "picture": "/public/data/material/20141206194809CEE.",
+                        "view_num": "20",
+                        "site_url": "http://pan.baidu.com/s/1sjwh2mp",
+                        "access_code": "5sl6",
+                        "auto_delivery": "0"
+                    }
+                }
+            ]
+        }
+
+
 ## Add Item [/trade/ajax_add_item]
 增加新物品到购物车。
 

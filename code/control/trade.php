@@ -34,6 +34,7 @@ class tradecontrol extends base {
 
         $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
         $trade_info_list = $this->get_one_trade_full($trade_no);
+
         include template('view_trade');
     }
 
@@ -117,7 +118,6 @@ class tradecontrol extends base {
         foreach ($trade_info_list as $trade_info) {
             $total_price += $trade_info['target_info']['price'] * $trade_info['buy_num'];
         }
-        runlog("boostme", "total_price = $total_price");
         $_ENV['trade']->update_trade_tot_price($trade_no, $total_price);
     }
 
@@ -192,7 +192,7 @@ class tradecontrol extends base {
     // @param[in]  target_id [待删除项的ID号]
     // @param[in]      type [待删除项的类型，为"service"或"material"]
     //
-    // @return          成功 [success为true, tradeno为订单号]
+    // @return          成功 [success为true]
     //                  失败 [success为false, error为相应的错误码]
     //
     // @error            101 [用户尚未登录]
@@ -214,7 +214,7 @@ class tradecontrol extends base {
         if (empty($trade_no) || empty($target_id) || empty($type)) {
             $res['success'] = false;
             $res['error'] = 102; // 无效参数
-            echo json_encode(res);
+            echo json_encode($res);
             return;
         }
 
@@ -345,6 +345,52 @@ class tradecontrol extends base {
             $res['success'] = false;
             $res['error'] = 104; // 更新失败
         }
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_info    [获取单个订单的详细信息]
+    // @request type         [GET]
+    //
+    // @param[in]   trade_no [订单号]
+    //
+    // @return          成功 [success为true]
+    //                       [trade_status为订单的状态]
+    //                       [trade_info_list为订单详细物品列表]
+    //
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    // @error            103 [用户无权操作]
+    public function onajax_fetch_info() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+        $trade_no = $this->post['trade_no'];
+        if (empty($trade_no)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 无效参数
+            echo json_encode($res);
+            return;
+        }
+
+        $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
+        if ($trade['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 103; // 用户无权操作
+            echo json_encode($res);
+            return;
+        }
+
+        $trade_info_list = $this->get_one_trade_full($trade_no);
+
+        $res['success'] = true;
+        $res['trade_status'] = $trade['status'];
+        $res['trade_info_list'] = $trade_info_list;
         echo json_encode($res);
     }
 }
