@@ -6,6 +6,7 @@
 
 .bm_envelope_unread {color:#F79726;}
 
+.bm_lpadding_0 {padding-left:0px;}
 .bm_lpadding_10 {padding-left:10px;}
 .bm_lpadding_20 {padding-left:20px;}
 .bm_lpadding_30 {padding-left:30px;}
@@ -29,7 +30,13 @@
 .bm_tpadding_10 {padding-top:10px;}
 .bm_tpadding_15 {padding-top:15px;}
 .bm_tpadding_20 {padding-top:20px;}
+.bm_tpadding_30 {padding-top:30px;}
+.bm_tpadding_40 {padding-top:40px;}
+.bm_tpadding_50 {padding-top:50px;}
+.bm_tpadding_60 {padding-top:60px;}
+.bm_tpadding_200 {padding-top:200px;}
 
+.bm_lmargin_0 {margin-left:0px;}
 .bm_lmargin_5 {margin-left:5px;}
 .bm_lmargin_10 {margin-left:10px;}
 .bm_lmargin_15 {margin-left:15px;}
@@ -100,3 +107,9 @@
 .bm_table_style {width:100%;text-align:left;min-height:86px;}
 
 .bm_button_agree {background: url("../default/btn_agree.png") repeat-x scroll 0 0 transparent;border:0;width:67px;line-height: 25px;height:25px;font-size:12px;color:#DB4F1F;font-weight: bold;padding-left:21px; text-align: center;cursor: pointer;}
+
+.bm_place_bottom {position: relative; margin-top:20%;}
+
+.bm_lborder_grey {border-left: 1px solid grey;}
+.bm_rborder_grey {border-right: 1px solid grey;}
+

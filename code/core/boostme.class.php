@@ -5,6 +5,7 @@
 require(WEB_ROOT . '/code/lib/db.class.php');
 require(WEB_ROOT . '/code/lib/global.func.php');
 require(WEB_ROOT . '/code/lib/utils.func.php');
+require(WEB_ROOT . '/code/lib/category.class.php');
 require(WEB_ROOT . '/code/lib/cache.class.php');
 require(WEB_ROOT . '/code/core/base.class.php');
 

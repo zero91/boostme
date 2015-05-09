@@ -1,9 +1,8 @@
 <!--{template header}-->
-<link href="{SITE_URL}public/css/default/material.css" rel="stylesheet">
+<link href="{SITE_URL}/public/css/default/material.css" rel="stylesheet">
 
-<div style="margin-top:84px;"></div>
-<link rel="stylesheet" href="{SITE_URL}public/js/plugin/lightbox/lightbox.css"/>
-<script type="text/javascript" src="{SITE_URL}public/js/plugin/lightbox/lightbox.js"></script>
+<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/lightbox/lightbox.js"></script>
 <style type="text/css">
 h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 
@@ -35,9 +34,9 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
             </div>
             <div class="col-sm-8">
                 <!--{if $user['uid'] == $material['uid']}-->
-                <a href="{SITE_URL}material/edit/$material['id']" class="glyphicon glyphicon-pencil pull-right">编辑</a>
+                <a href="{SITE_URL}/material/edit/$material['id']" class="glyphicon glyphicon-pencil pull-right">编辑</a>
                 <!--{/if}-->
-                <form method="POST" action="{SITE_URL}trade/buy_now" name="material_form"
+                <form method="POST" action="{SITE_URL}/trade/buy_now" name="material_form"
                       id="material_form" onsubmit="return check_form();" class="form-horizontal">
                     <!--{eval $title = $material['title']}-->
                     <input type="hidden" name="target_id" id="target_id" value="{$mid}"/>
@@ -68,7 +67,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                             <li>密码：{$material['access_code']}</li>
                         </div>
                         <!--{elseif $user['uid'] == 0 && empty($material['price']) }-->
-                        <li><a class="btn btn-danger buy_btn" id="submit_btn" href="{SITE_URL}user/login">登录下载</a></li>
+                        <li><a class="btn btn-danger buy_btn" id="submit_btn" href="{SITE_URL}/user/login">登录下载</a></li>
                         <!--{else}-->
                         <li><button type="submit" name="submit" class="btn btn-danger buy_btn" id="submit_btn">立即购买</button></li>
                         <!--{/if}-->
@@ -103,7 +102,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                             <!--{if $user['uid'] > 0}-->
                             <input class="btn btn-primary" click_source="evaluation" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
                             <!--{else}-->
-                            <label class="text-primary"><a href="{SITE_URL}user/login">登录</a></label>后
+                            <label class="text-primary"><a href="{SITE_URL}/user/login">登录</a></label>后
                             <input class="btn btn-blue" click_source="evaluation" disabled="disabled" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
                             <!--{/if}-->
                         </div>
@@ -163,7 +162,7 @@ $(document).ready(function() {
     $('#star').raty({
         number : 5,
         hints: ['1', '2', '3', '4', '5'],
-        path:"{SITE_URL}public/js/plugin/raty/images",
+        path:"{SITE_URL}/public/js/plugin/raty/images",
         starOff:"star-off-big.png",
         starOn:"star-on-big.png",
         starHalf:"star-half-big.png",
@@ -184,7 +183,7 @@ $(document).ready(function() {
 
     $('#avg_star').raty({
         number : 5,
-        path:"{SITE_URL}public/js/plugin/raty/images",
+        path:"{SITE_URL}/public/js/plugin/raty/images",
         starOff:"star-off-big.png",
         starOn:"star-on-big.png",
         starHalf:"star-half-big.png",
@@ -199,7 +198,7 @@ $(document).ready(function() {
 
         $(this).raty({
             number : 5,
-            path: "{SITE_URL}public/js/plugin/raty/images",
+            path: "{SITE_URL}/public/js/plugin/raty/images",
             half: true,
             readOnly: true,
             score: score
@@ -234,13 +233,13 @@ $(document).ready(function() {
         }
         var content = $("#evaluation_content").val();
 
-        $.post("{SITE_URL}material/comment", {mid : {$mid}, score: score, content: content}, function(flag) {
+        $.post("{SITE_URL}/material/comment", {mid : {$mid}, score: score, content: content}, function(flag) {
             if (flag == '1') {
                 alert("感谢您的评价");
                 window.top.location.reload();
             } else if (flag == '0') {
                 alert("请先登录");
-                window.location.href = "{SITE_URL}user/login";
+                window.location.href = "{SITE_URL}/user/login";
             } else if (flag == '-1') {
                 alert("添加评论失败");
             }
@@ -257,7 +256,7 @@ $(document).ready(function() {
         var num_target = $(this).children('em');
 
 
-        $.get("{SITE_URL}material/comment_support/" + comment_id + "/" + thumbs_type, "", function(data) {
+        $.get("{SITE_URL}/material/comment_support/" + comment_id + "/" + thumbs_type, "", function(data) {
             data = parseInt(data);
             if (data > 0) {
                 if (thumbs_type == '0') {
@@ -267,7 +266,7 @@ $(document).ready(function() {
                 }
             } else if (data == '0') {
                 alert("请先登录");
-                window.location.href = "{SITE_URL}user/login";
+                window.location.href = "{SITE_URL}/user/login";
             } else if (data == '-1') {
                 alert("操作失败");
             } else if (data == '-2') {
@@ -283,7 +282,7 @@ $(document).ready(function() {
         }
         var content = $("#evaluation_content").val();
 
-        $.post("{SITE_URL}material/comment", {mid : {$mid}, score: score, content: content}, function(flag) {
+        $.post("{SITE_URL}/material/comment", {mid : {$mid}, score: score, content: content}, function(flag) {
             alert(flag);
             return;
             if (-1 == flag) {
@@ -301,6 +300,6 @@ $(document).ready(function() {
 });
 
 </script>
-<script src="{SITE_URL}public/js/plugin/raty/jquery.raty.js"></script>
-<link rel="stylesheet" href="{SITE_URL}public/js/plugin/raty/jquery.raty.css">
+<script src="{SITE_URL}/public/js/plugin/raty/jquery.raty.js"></script>
+<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/raty/jquery.raty.css">
 <!--{template footer}-->

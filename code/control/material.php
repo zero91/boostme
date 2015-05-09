@@ -22,11 +22,16 @@ class materialcontrol extends base {
         include template('material');
     }
 
+    // 分类浏览资料
+    public function onlist() {
+        $type = $this->post['type'];
+        empty($type) && $type = "major";
+        include template("list_material");
+    }
+
+    // 查看资料详细信息
     public function onview() {
-        $mid = $this->get[2];
-        if (empty($mid)) {
-            $this->message("非法链接，缺少参数!", 'STOP');
-        }
+        $mid = $this->post['id'];
 
         $_ENV['material']->update_view_num($mid);
         $material = $_ENV['material']->get($mid);
@@ -41,7 +46,7 @@ class materialcontrol extends base {
         $user_comment = $_ENV['material_comment']->get_user_comment($this->user['uid'], $mid);
 
         $departstr = page($tot_comment_num, $pagesize, $page, "material/view/$mid");
-        include template('viewmaterial');
+        include template('view_material');
     }
 
     // 用户对资料进行评价
@@ -231,51 +236,6 @@ class materialcontrol extends base {
         }
     }
 
-    // 搜索求助
-    function onsearch() {
-        $pstatus = $status = $this->get[3] ? $this->get[3] : 'all';
-        if ($status == 'all') {
-            $pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED . "," . PB_STATUS_CLOSED;
-        } else if ($status != PB_STATUS_SOLVED) {
-            $status = $pstatus = PB_STATUS_SOLVED;
-        }
-
-        $word = urldecode($this->post['word'] ? str_replace("%27", "", $this->post['word']) : $this->get[2]);
-        (!trim($word)) && $this->message("搜索关键词不能为空!", 'STOP');
-        $navtitle = $word . '-搜索求助';
-        @$page = max(1, intval($this->get[4]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        if (preg_match("/^tag:(.+)/", $word, $tagarr)) {
-            $tag = $tagarr[1];
-            $rownum = $_ENV['problem']->rownum_by_tag($tag, $pstatus);
-            $problemlist = $_ENV['problem']->list_by_tag($tag, $pstatus, $startindex, $pagesize);
-        } else {
-            $problemlist = $_ENV['problem']->search_title($word, $pstatus, $startindex, $pagesize);
-            $rownum = $_ENV['problem']->search_title_num($word, $pstatus);
-        }
-        $related_words = $_ENV['problem']->get_related_words();
-        $hot_words = $_ENV['problem']->get_hot_words();
-        $corrected_words = $_ENV['problem']->get_corrected_word($word);
-        $departstr = page($rownum, $pagesize, $page, "problem/search/$word/$status");
-        include template('problem_search');
-    }
-
-    // 按标签搜索求助
-    function ontag() {
-        $tag = urldecode($this->get['2']);
-        $navtitle = $tag . '-标签搜索';
-        @$page = max(1, intval($this->get[4]));
-        $pstatus = $status = intval($this->get[3]);
-        (PB_STATUS_UNSOLVED == $status) && ($pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED);
-        $startindex = ($page - 1) * $pagesize;
-        $rownum = $this->db->fetch_total("problem_tag", " tname='$tag' ");
-        $pagesize = $this->setting['list_default'];
-        $problemlist = $_ENV['problem']->list_by_tag($tag, $pstatus, $startindex, $pagesize);
-        $departstr = page($rownum, $pagesize, $page, "problem/tag/$tag/$status");
-        include template('problem_search');
-    }
-
     function onreg() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
@@ -316,7 +276,9 @@ class materialcontrol extends base {
     // @param[in]    dept_id [院系ID号]
     // @param[in]   major_id [专业ID号]
     // @param[in]       page [页号]
-    // @return               [material列表]
+    //
+    // @return       success [true]
+    //         material_list [material列表]
     public function onajax_fetch_list() {
         $region_id = $this->post['region_id'];
         $school_id = $this->post['school_id'];
@@ -333,8 +295,35 @@ class materialcontrol extends base {
                                                               $major_id,
                                                               $start,
                                                               $pagesize);
+        $arr = array();
+        $res['success'] = true;
+        $res['material_list'] = $material_list;
+        echo json_encode($res);
+    }
 
-        echo json_encode($material_list);
+    // @onajax_fetch_info    [获取material详细信息]
+    // @request type         [GET]
+    // @param[in]        mid [material ID]
+    // @return          成功 [success: true]
+    //                       [services: service详细信息]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [无效参数，该ID号对应material无效]
+    public function onajax_fetch_info() {
+        $mid = $this->post['mid'];
+        $material = $_ENV['material']->get($mid);
+
+        $res = array();
+        if (empty($material)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 参数无效
+        } else {
+            $res['success'] = true;
+            $res['material'] = $material;
+        }
+        echo json_encode($res);
     }
 
     // @onajax_comment       [用户对资料进行评价]
@@ -591,6 +580,41 @@ class materialcontrol extends base {
 
         $res['success'] = true;
         $res['num'] = $material_num;
+        echo json_encode($res);
+    }
+
+    public function onajax_build_index() {
+        $_ENV['material']->build_index();
+        echo "DONE";
+    }
+
+    // @onajax_search    [搜索资料]
+    //
+    // @param[in]  query [查询语句]
+    // @param[in]   page [页码，可选]
+    //
+    // @request type     [GET]
+    // @return      成功 [success: true]
+    //                   [material_list: 搜索资料结果列表]
+    //                   [tot_num : 符合搜索条件项的总数量]
+    //                   [departstr: html分页片段]
+    public function onajax_search() {
+        $query = $this->post['query'];
+        empty($query) && $query = "";
+
+        $page = max(1, intval($this->post['page']));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+
+        $search_res = $_ENV['material']->search($query, true, $start, $pagesize);
+
+        $res = array();
+        $res['success'] = true;
+        $res['material_list'] = $search_res["material_list"];
+        $res['tot_num'] = $search_res["tot_num"];
+        $res['departstr'] = split_page($search_res['tot_num'],
+                                       $pagesize, $page,
+                                       "query_search('$query', %s)", 1);
         echo json_encode($res);
     }
 }

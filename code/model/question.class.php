@@ -89,7 +89,6 @@ class questionmodel {
     public function add($uid, $username, $title, $description, $status=0) {
         $creattime = time();
         (!strip_tags($description, '<img>')) && $description = '';
-
         $this->db->query("INSERT INTO question SET authorid='$uid',author='$username',title='$title',description='$description',time='$creattime',update_time='$creattime',ip='" . getip() . "'");
         $qid = $this->db->insert_id();
         $this->db->query("UPDATE user SET questions=questions+1 WHERE uid=$uid");

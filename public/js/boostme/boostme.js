@@ -167,6 +167,12 @@ Material.prototype = {
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });
+    },
+    search : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_search";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
     }
 }
 Material.prototype.constructor = Service;
