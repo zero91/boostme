@@ -3,90 +3,88 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class categorycontrol extends base {
-
-    function categorycontrol(& $get, & $post) {
-        $this->base($get, $post);
-        $this->load("problem");
-        $this->load('demand');
+    public function __construct(& $get, & $post) {
+        parent::__construct($get, $post);
+        $this->_category = new Category();
     }
 
-    function onschool() {
-        $type = $this->get[2];
-        include template('school');
+    public function onbuild_index() {
+        $category_data_fname = WEB_ROOT . '/private/data/school_department_major.txt';
+        $this->_category->build_index($category_data_fname);
+        echo "DONE";
     }
 
-    function oncourse() {
-        $type = $this->get[2];
-        include template('course');
-    }
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
 
-    // 浏览求助
-    function onview() {
-        $cid = $this->get[2]; //接收cid参数
-
-        $category_name = $this->category[$cid]['name'];
-        $category_desc = $this->category[$cid]['description'];
-
-        $page = max(1, intval($this->get[3]));
-        $pagesize = intval($this->setting['list_index_per_page']);
-
-        if ($cid[0] == 'S') {
-            $type = "school";
-        } else if ($cid[0] == 'C') {
-            $type = "course";
+    // @onajax_fetch_list    [根据ID号获取相应的信息列表]
+    // @request type         [GET]
+    //
+    // @param[in]         id [分类的ID号]
+    // @param[in]    id_type [ID号的类别，默认为"id"]
+    // @param[in]      start [搜索结果的起始条数]
+    // @param[in]      limit [搜索结果最多的条数]
+    //
+    // @return          成功 [success为true, list为符合条件的分类列表]
+    //                  失败 [success为false, error为相应的错误码]
+    //
+    // @error            101 [参数无效]
+    // @error            102 [无法找到该ID号的信息]
+    public function onajax_fetch_list() {
+        $res = array();
+        $category_id = $this->post['id'];
+        if (empty($category_id)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 参数无效
+            echo json_encode($res);
+            return;
         }
 
-        $problem_num = $_ENV['problem']->get_prob_num_by_cid($cid);
-        $problemlist = $_ENV['problem']->get_by_cid($cid, ($page - 1) * $pagesize, $pagesize);
-
-        $departstr = page($problem_num, $pagesize, $page, "category/view/$cid");
-        include template('category');
-    }
-
-    // 搜索求助
-    function onsearch() {
-        $pstatus = $status = $this->get[3] ? $this->get[3] : 'all';
-        if ($status == 'all') {
-            $pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED . "," . PB_STATUS_CLOSED;
-        } else if ($status != PB_STATUS_SOLVED) {
-            $status = $pstatus = PB_STATUS_SOLVED;
+        $id_type = "id";
+        if (isset($this->post['id_type'])) {
+            $id_type = $this->post['id_type'];
         }
+        $start = 0;
+        $limit = 10;
+        isset($this->post['start']) && $start = intval($this->post['start']);
+        isset($this->post['limit']) && $limit = intval($this->post['limit']);
 
-        $word = urldecode($this->post['word'] ? str_replace("%27", "", $this->post['word']) : $this->get[2]);
-        (!trim($word)) && $this->message("搜索关键词不能为空!", 'STOP');
-        $navtitle = $word . '-搜索求助';
-        @$page = max(1, intval($this->get[4]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        if (preg_match("/^tag:(.+)/", $word, $tagarr)) {
-            $tag = $tagarr[1];
-            $rownum = $_ENV['problem']->rownum_by_tag($tag, $pstatus);
-            $problemlist = $_ENV['problem']->list_by_tag($tag, $pstatus, $startindex, $pagesize);
+        $category_info_arr = $this->_category->get_by_id($category_id, $id_type, $start, $limit);
+        if (array_key_exists($category_id, $category_info_arr)) {
+            $res['success'] = true;
+            $res['list'] = $category_info_arr[$category_id];
         } else {
-            $problemlist = $_ENV['problem']->search_title($word, $pstatus, $startindex, $pagesize);
-            $rownum = $_ENV['problem']->search_title_num($word, $pstatus);
+            $res['success'] = false;
+            $res['error'] = 102; // 无法找到改ID号
         }
-        $related_words = $_ENV['problem']->get_related_words();
-        $hot_words = $_ENV['problem']->get_hot_words();
-        $corrected_words = $_ENV['problem']->get_corrected_word($word);
-        $departstr = page($rownum, $pagesize, $page, "problem/search/$word/$status");
-        include template('problem_search');
+        echo json_encode($res);
     }
 
-    // 按标签搜索求助
-    function ontag() {
-        $tag = urldecode($this->get['2']);
-        $navtitle = $tag . '-标签搜索';
-        @$page = max(1, intval($this->get[4]));
-        $pstatus = $status = intval($this->get[3]);
-        (PB_STATUS_UNSOLVED == $status) && ($pstatus = PB_STATUS_UNSOLVED . "," . PB_STATUS_SOLVED);
-        $startindex = ($page - 1) * $pagesize;
-        $rownum = $this->db->fetch_total("problem_tag", " tname='$tag' ");
-        $pagesize = $this->setting['list_default'];
-        $problemlist = $_ENV['problem']->list_by_tag($tag, $pstatus, $startindex, $pagesize);
-        $departstr = page($rownum, $pagesize, $page, "problem/tag/$tag/$status");
-        include template('problem_search');
+    // @onajax_search        [搜索符合条件的类别]
+    // @request type         [GET]
+    //
+    // @param[in]      query [中文查询语句]
+    // @param[in]      start [搜索结果的起始条数]
+    // @param[in]      limit [搜索结果最多的条数]
+    //
+    // @return          成功 [success为true, list为符合条件的分类列表]
+    public function onajax_search() {
+        $query = $this->post['query'];
+        $start = 0;
+        $limit = 10;
+        isset($this->post['start']) && $start = intval($this->post['start']);
+        isset($this->post['limit']) && $limit = intval($this->post['limit']);
+
+        $category_arr = $this->_category->search($query, $start, $limit);
+
+        $res = array();
+        $res['success'] = true;
+        $res['list'] = $category_arr;
+        echo json_encode($res);
     }
+
+    private $_category;
 }
 
 ?>

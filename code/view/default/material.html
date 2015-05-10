@@ -1,325 +1,92 @@
 <!--{template header}-->
-<link href="{SITE_URL}public/css/default/material.css" rel="stylesheet">
-<script src="{SITE_URL}public/js/school_major.js"></script>
+<link href="{SITE_URL}/public/css/default/material.css" rel="stylesheet">
+<link href="{SITE_URL}/public/css/boostme/search_form.css" rel="stylesheet">
+<link href="{SITE_URL}/public/css/boostme/material.css" rel="stylesheet">
 
-<header id="top-header" class="top-header jumbotron"
-        style="background-image: url(/public/images/index/banner_slide_03.jpg);">
-    <div class="container">
-        <div class="col-md-8">
-            <h2>考研资料</h2>
-            <h2>师兄有资料？分享给师妹吧</h2>
-            <h3>考研相关的各类资料！</h3>
-            <div class="features media">
-                <h5 class="media-left">快捷入口：</h5>
-                <div class="media-body" id="easy_access_list"></div>
-            </div>
-        </div>
-        <div class="col-md-4 hidden-sm hidden-xs">
-            <div class="activities-wrap">
-                <div class="activities">
-                    <h2>Boostme登记资料 <i class="fa fa-star"></i></h2>
-                    <p>有一些珍贵的资料，现在就分享给大家！(Boostme资料群：428198669)</p>
-                    <p class="text-center">
-                    <!-- <a class="btn btn-default btn-sm" href="{SITE_URL}material/register">缺少登记</a> -->
-                        <a class="btn btn-default btn-sm" href="{SITE_URL}material/add">上传资料</a>
-                    </p>
+<section class="container"> 
+    <div class="search_form_wrapper cf">
+        <input type="text" id="search_query" placeholder="" required>
+        <button type="submit" id="query_submit_btn">搜索资料</button>
+    </div>
+</section>
+
+<section class="container">
+    <div class="col-sm-9 bm_lpadding_0" id="query_result">
+    </div>
+    <div class="col-sm-3 bm_lborder_grey">
+        <div>
+            <a href="{SITE_URL}/material/list?type=major" target="_blank">
+                <div class="bm_door_card">
+                    <div class="bm_card_title"><h1>专业课</h1></div>
                 </div>
-            </div>
+            </a>
         </div>
+        <div>
+            <a href="{SITE_URL}/material/list?type=math" target="_blank">
+                <div class="bm_door_card">
+                    <div class="bm_card_title"><h1>数学</h1></div>
+                </div>
+            </a>
         </div>
-    </div>
-</header>
-
-<section class="newest-jobs container">
-    <div class="page-header">
-        <h3>数学</h3>
-        <h3>英语</h3>
-        <h3>政治</h3>
-    </div>
-</section>
-
-<section class="newest-jobs container">
-    <div class="page-header">
-        <h3>专业课资料
-            <div class="col-sm-10 pull-right">
-                <select class="selectpicker col-sm-2" id="select_region"><option value=''>地区</option></select>
-                <select class="selectpicker col-sm-3" id="select_school"><option value=''>学校</option></select>
-                <select class="selectpicker col-sm-3" id="select_dept"><option value=''>院系</option></select>
-                <select class="selectpicker col-sm-3" id="select_major"><option value=''>专业</option></select>
-                <a id="easy_access" href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加到快捷入口">
-                    <small class="glyphicon glyphicon-plus-sign"></small>
-                </a>
-            </div>
-        </h3>
-    </div>
-</section>
-
-<section class="job-list">
-    <div class="container">
-        <div class="row" id="material_show"></div>
-
-        <div class="col-sm-6 col-sm-push-3 col-md-4 col-md-push-4">
-            <p><a id="more" class="btn-load-more btn btn-primary btn-lg btn-block"><i class="fa fa-th"></i>  更多资料</a></p>
+        <div>
+            <a href="{SITE_URL}/material/list?type=english" target="_blank">
+                <div class="bm_door_card">
+                    <div class="bm_card_title"><h1>英语</h1></div>
+                </div>
+            </a>
+        </div>
+        <div>
+            <a href="{SITE_URL}/material/list?type=politics" target="_blank">
+                <div class="bm_door_card">
+                    <div class="bm_card_title"><h1>政治</h1></div>
+                </div>
+            </a>
         </div>
     </div>
 </section>
+
+<script type="text/template" id="material_search_list_template">
+<div class="bm_tpadding_10">
+    约有 <em><strong><%= tot_num %></strong></em> 项符合查询结果
+</div>
+<dl class="bm_query_res_list">
+<% _.each(material_list, function(material) { %>
+<dt>
+    <a href="{SITE_URL}/material/view?id=<%= material["mid"] %>" target="_blank" class="bm_link">
+        <h4 class="bm_highlight"><%= material["rank"] %>. <%= material["title"] %></h4>
+    </a>
+</dt>
+<dd>
+    <p class="bm_highlight"><%= material["description"] %></p>
+    <% if ($.trim(material["category"]) != "") { %>
+    <p class="bm_highlight">分类：<%= material["category"] %></p>
+    <% } %>
+    <p class="bm_item_foot">
+        <small>
+            <span style="color:#218868;">{SITE_URL}/material/view?id=<%= material["mid"] %></span> |
+            <span><%= material['format_time'] %></span> |
+            <span>相关度：<%= material['percent'] %></span>
+        </small>
+    </p>
+</dd>
+<%})%>
+</dl>
+<center><div class="pages"><%= departstr %></div></center>
+</script>
 
 <script type="text/javascript">
-
-var g_easy_access_cnt = 0;
-var g_view_page_num = 0;
 var g_region_id = "{$region_id}";
 var g_school_id = "{$school_id}";
 var g_dept_id = "{$dept_id}";
 var g_major_id = "{$major_id}";
-
-function create_easy_access_link(link) {
-    var label_color_array = {2 : 'label-warning',
-                             1 : 'label-success',
-                             5 : 'label-default',
-                             3 : 'label-danger',
-                             0 : 'label-primary',
-                             4 : 'label-info'};
-    var label_color = label_color_array[g_easy_access_cnt];
-    g_easy_access_cnt += 1;
-    var link_html = '<p class="coms"><a class="label ' + label_color 
-                        + ' " href="{SITE_URL}material/default?' + link.param + '">';
-
-    if (link.region_id) {
-        link_html += " " + m_region_dict[link.region_id]['name'];
-    }
-
-    if (link.school_id) {
-        link_html += " " + m_school_dict[link.school_id]['name'];
-    }
-
-    if (link.dept_id) {
-        link_html += " " + m_dept_dict[link.dept_id]['name'];
-    }
-
-    if (link.major_id) {
-        link_html += " " + m_major_dict[link.major_id]['name'];
-    }
-    link_html += '</a><a id="' + link.id + '" href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="删除此快捷入口">';
-    link_html += '<small class="glyphicon glyphicon-minus-sign"></small></a></p>';
-    return link_html;
-}
-
-$(function() {
-    $("body").on('click', '.glyphicon-minus-sign', function() {
-        var id = $(this).parent().attr('id');
-        if (confirm('确定删除该快捷入口?') === false) {
-            return false;
-        }
-
-        var target = $(this).parent().parent();
-        async_request("{SITE_URL}user/ajax_remove_easy_access", "get",
-                        {"id" : id}, function(response) {
-            if (response.success) {
-                target.remove();
-            } else if (response.error == 101) {
-                alert("参数错误");
-            } else if (response.error == 102) {
-                alert("删除失败");
-            } else if (response.error == 103) {
-                alert("用户尚未登录");
-            }
-        });
-    });
-
-    $("#easy_access").click(function() {
-        if (confirm('确定添加该快捷入口?') === false) {
-            return false;
-        }
-        var region_id = $.trim($("#select_region option:selected").val());
-        var school_id = $.trim($("#select_school option:selected").val());
-        var dept_id = $.trim($("#select_dept option:selected").val());
-        var major_id = $.trim($("#select_major option:selected").val());
-
-        var req_data_dict = {};
-        req_data_dict["region_id"] = region_id;
-        req_data_dict["school_id"] = school_id;
-        req_data_dict["dept_id"] = dept_id;
-        req_data_dict["major_id"] = major_id;
-        req_data_dict["type"] = "material";
-
-        var link = new Object();
-        link.region_id = region_id;
-        link.school_id = school_id;
-        link.dept_id = dept_id;
-        link.major_id = major_id;
-        link.param = "region_id=" + region_id;
-        link.param += "&school_id=" + school_id;
-        link.param += "&dept_id=" + dept_id;
-        link.param += "&major_id=" + major_id;
-
-        async_request("{SITE_URL}user/ajax_add_easy_access", "post", req_data_dict,
-                function(response) {
-            if (response.success) {
-                link.id = response.id;
-                $("#easy_access_list").append(create_easy_access_link(link));
-            } else if (response.error == 101) {
-                alert("资料快捷链接数量不能超过3");
-            } else if (response.error == 102) {
-                alert("最多只能添加3个快捷入口!");
-            } else if (response.error == 103) {
-                alert("您还未登录");
-            }
-        });
-    });
-
-    $("#select_region").change(function() {
-        var region_id = $("#select_region option:selected").val();
-        $("#select_school").html(fetch_school_optionhtml(m_region_dict, m_school_dict, region_id));
-        $("#select_school").removeAttr('disabled');
-
-        $("#select_dept").html("<option value=''>院系</option>");
-        $("#select_dept").attr('disabled', 'disabled');
-
-        $("#select_major").html("<option value=''>专业</option>");
-        $("#select_major").attr('disabled', 'disabled');
-
-        replace_material_list({"region_id" : region_id});
-        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id);
-        g_region_id = region_id;
-        g_school_id = "";
-        g_dept_id = "";
-        g_major_id = "";
-        $('.selectpicker').selectpicker('refresh');
-    }); 
-
-    $("#select_school").change(function() {
-        var region_id = $("#select_region option:selected").val();
-        var school_id = $("#select_school option:selected").val();
-        $("#select_dept").html(fetch_dept_optionhtml(m_school_dict, m_dept_dict, school_id));
-        $("#select_dept").removeAttr('disabled');
-
-        $("#select_major").html("<option value=''>专业</option>");
-        $("#select_major").attr('disabled', 'disabled');
-
-        replace_material_list({"region_id" : region_id, "school_id" : school_id});
-        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id);
-
-        g_region_id = region_id;
-        g_school_id = school_id;
-        g_dept_id = "";
-        g_major_id = "";
-
-        $('.selectpicker').selectpicker('refresh');
-    }); 
-
-    $("#select_dept").change(function() {
-        var region_id = $("#select_region option:selected").val();
-        var school_id = $("#select_school option:selected").val();
-        var dept_id = $("#select_dept option:selected").val();
-        $("#select_major").html(fetch_major_optionhtml(m_dept_dict, m_major_dict, dept_id));
-        $("#select_major").removeAttr('disabled');
-
-        replace_material_list({"region_id" : region_id, "school_id" : school_id, "dept_id" : dept_id});
-        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id);
-        g_region_id = region_id;
-        g_school_id = school_id;
-        g_dept_id = dept_id;
-        g_major_id = "";
-
-        $('.selectpicker').selectpicker('refresh');
-    });
-
-    $("#select_major").change(function() {
-        var region_id = $("#select_region option:selected").val();
-        var school_id = $("#select_school option:selected").val();
-        var dept_id = $("#select_dept option:selected").val();
-        var major_id = $("#select_major option:selected").val();
-
-        g_region_id = region_id;
-        g_school_id = school_id;
-        g_dept_id = dept_id;
-        g_major_id = major_id;
-
-        replace_material_list({"region_id" : region_id, "school_id" : school_id, "dept_id" : dept_id, "major_id" : major_id});
-        history.pushState({}, 0, "{SITE_URL}material/default?region_id=" + region_id + "&school_id=" + school_id + "&dept_id=" + dept_id + "&major_id=" + major_id);
-    });
-
-    $("#select_region").html(fetch_region_optionhtml(m_region_dict));
-    <!--{if empty($region_id)}-->
-    $("#select_school").attr('disabled', 'disabled');
-    <!--{else}-->
-    $("#select_region").val('$region_id');
-    $("#select_school").html(fetch_school_optionhtml(m_region_dict, m_school_dict, '$region_id'));
-    //$("#select_school").trigger('change');
-    <!--{/if}-->
-
-    <!--{if empty($school_id)}-->
-    $("#select_dept").attr('disabled', 'disabled');
-    <!--{else}-->
-    $("#select_school").val('$school_id');
-    $("#select_dept").html(fetch_dept_optionhtml(m_school_dict, m_dept_dict, '$school_id'));
-    <!--{/if}-->
-
-    <!--{if empty($dept_id)}-->
-    $("#select_major").attr('disabled', 'disabled');
-    <!--{else}-->
-    $("#select_dept").val('$dept_id');
-    $("#select_major").html(fetch_major_optionhtml(m_dept_dict, m_major_dict, '$dept_id'));
-    <!--{/if}-->
-
-    <!--{if !empty($major_id)}-->
-    $("#select_major").val('$major_id');
-    <!--{/if}-->
-
-    $('.selectpicker').selectpicker({'dropupAuto' : false, 'title':'asdf'});
-
-    $("#more").click(function() {
-        g_view_page_num += 1;
-        var req_data_dict = {"page": g_view_page_num,
-                             "region_id" : g_region_id,
-                             "school_id" : g_school_id,
-                             "dept_id" : g_dept_id,
-                             "major_id" : g_major_id};
-
-        append_material_list(req_data_dict);
-    });
-
-    $("#more").click();
-
-    async_request("{SITE_URL}user/ajax_easy_access", "get", {"type" : "material"},
-                function(response) {
-        if (response.success) {
-            for (var i = 0; i < response.link.length; ++i) {
-                link_html = create_easy_access_link(response.link[i]);
-                $('#easy_access_list').append(link_html);
-            }
-        }
-    });
-});
-
-function replace_material_list(req_data_dict) {
-    g_view_page_num = 1;
-    req_data_dict['page'] = g_view_page_num;
-
-    $("#material_show").empty();
-    append_material_list(req_data_dict);
-}
-
-function append_material_list(req_data_dict) {
-    async_request("{SITE_URL}material/ajax_fetch_list",
-                 "get",
-                 req_data_dict, function(response) {
-        var material = new Material("{SITE_URL}");
-
-        if (response.length == 0) {
-            $("#more").hide();
-        }
-        for (var k = 0; k < response.length; ++k) {
-            $("#material_show").append(material.create_div(response[k]));
-        }
-    });
-}
-
+var g_view_page_num = 0;
+var g_easy_access_type = "material";
+var g_easy_access_cnt = 0;
 </script>
 
-<link href="{SITE_URL}public/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
-<script src="{SITE_URL}public/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
-<script src="{SITE_URL}public/js/material.js"></script>
+<link href="{SITE_URL}/public/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+<script src="{SITE_URL}/public/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
 
+<script src="{SITE_URL}/public/js/boostme/category.js"></script>
+<script src="{SITE_URL}/public/js/boostme/material.js"></script>
 <!--{template footer}-->

@@ -1,19 +1,11 @@
 $(function() {
     var trade = new Trade();
     $("#buy_service_btn").click(function() {
-        trade.add_item({"target_id" : g_service_id,
-                        "type" : 2, "quantity" : 1}, function(response) {
-            var error_dict = {
-                101 : "尚未登录",
-                102 : "无效参数",
-                103 : "购买失败"
-            };
-            if (response.success) {
-                window.location.href = g_site_url + "/trade/view?trade_no=" + response.trade_no;
-            } else {
-                errno_alert(response.error, error_dict);
-            }
-        });
+        buy_item(g_service_id, 2, 1);
+    });
+
+    $("#buy_material_btn").click(function() {
+        buy_item(g_material_id, 1, 1);
     });
 
     $(".item_remove").click(function() {
@@ -97,4 +89,21 @@ function calc_trade_price() {
         $(this).find(".bm_trade_summary").html(item_cost.toFixed(2));
     });
     $("#total_price").html("¥&nbsp;" + trade_cost.toFixed(2));
+}
+
+function buy_item(target_id, type, quantity) {
+    var trade = new Trade();
+    trade.add_item({"target_id" : target_id,
+                    "type" : type, "quantity" : quantity}, function(response) {
+        var error_dict = {
+            101 : "尚未登录",
+            102 : "无效参数",
+            103 : "购买失败"
+        };
+        if (response.success) {
+            window.location.href = g_site_url + "/trade/view?trade_no=" + response.trade_no;
+        } else {
+            errno_alert(response.error, error_dict);
+        }
+    });
 }

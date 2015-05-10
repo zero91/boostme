@@ -62,6 +62,8 @@ class material_categorymodel {
         $material_list = $this->_db->fetch_all($sql);
         foreach ($material_list as &$material) {
             $material['format_time'] = tdate($material['time']);
+            $material['desc_content'] = strip_tags($material['description']);
+            $material['desc_images'] = fetch_img_tag($material['description'])[0];
         }
         return $material_list;
     }

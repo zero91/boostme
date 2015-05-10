@@ -23,7 +23,13 @@ class materialmodel {
         $sql = "SELECT * FROM `material` WHERE status='$status' AND `type`='$type'" .
                                        " ORDER BY `time` DESC";
         !empty($limit) && $sql.=" LIMIT $start,$limit";
-        return $this->_db->fetch_all($sql);
+        $material_list = $this->_db->fetch_all($sql);
+        foreach ($material_list as &$material) {
+            $material['format_time'] = tdate($material['time']);
+            $material['desc_content'] = strip_tags($material['description']);
+            $material['desc_images'] = fetch_img_tag($material['description'])[0];
+        }
+        return $material_list;
     }
 
     public function get_by_mids($mids) {

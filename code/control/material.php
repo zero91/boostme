@@ -280,24 +280,33 @@ class materialcontrol extends base {
     // @return       success [true]
     //         material_list [material列表]
     public function onajax_fetch_list() {
+        $type = $this->post["type"];
         $region_id = $this->post['region_id'];
         $school_id = $this->post['school_id'];
         $dept_id = $this->post['dept_id'];
         $major_id = $this->post['major_id'];
         $page = max(intval($this->post['page']), 1);
 
-        $pagesize = $this->setting['service_page_size'];
+        $pagesize = $this->setting['list_default'];
         $start = ($page - 1) * $pagesize;
 
-        $material_list = $_ENV['material_category']->get_full($region_id,
-                                                              $school_id,
-                                                              $dept_id,
-                                                              $major_id,
-                                                              $start,
-                                                              $pagesize);
+        $material_list = array();
+        if (empty($type) || $type == "major") {
+            $material_list = $_ENV['material_category']->get_full($region_id,
+                                                                  $school_id,
+                                                                  $dept_id,
+                                                                  $major_id,
+                                                                  $start,
+                                                                  $pagesize);
+        } else {
+            $material_list = $_ENV['material']->get_list($start, $pagesize, $type);
+        }
+
         $arr = array();
         $res['success'] = true;
+        $res['start'] = $start + 1;
         $res['material_list'] = $material_list;
+        runlog("boostme", var_export($res, true));
         echo json_encode($res);
     }
 
@@ -326,8 +335,77 @@ class materialcontrol extends base {
         echo json_encode($res);
     }
 
-    // @onajax_comment       [用户对资料进行评价]
-    // @request type         [GET/POST]
+    // @onajax_fetch_comment [获取material的评论信息]
+    // @request type         [GET]
+    // @param[in]         id [material的ID号]
+    // @param[in]       page [评论页码，可选]
+    //
+    // @return          成功 [success: true]
+    //                       [tot_num : 总评论条数]
+    //                       [comment_list : 评论列表]
+    //
+    //                  失败 [success ：false]
+    //                       [error ：为错误码]
+    //
+    // @error            101 [无效参数]
+    public function onajax_fetch_comment() {
+        $mid = $this->post['id'];
+        $page = max(1, intval($this->post["page"]));
+        $pagesize = $this->setting['list_default'];
+        $start = ($page - 1) * $pagesize;
+
+        $res = array();
+        if (empty($mid)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 参数无效
+            echo json_encode($res);
+            return;
+        }
+        $res['success'] = true;
+        $res['tot_num'] = $_ENV['material_comment']->get_comment_num_by_mid($mid);
+        $comment_list = $_ENV['material_comment']->get_full_by_mid($mid, $start, $pagesize);
+        foreach ($comment_list as &$comment) {
+            $comment['avatar'] = get_avatar_dir($comment['uid']);
+        }
+        $res['comment_list'] = $comment_list;
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_user_comment [获取userid对material的评论]
+    // @request type         [GET]
+    //
+    // @param[in]        mid [资料ID号]
+    //
+    // @return          成功 [success : true]
+    //                       [comment : 用户评论内容]
+    //
+    //                  失败 [success : false]
+    //                       [error : 为错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [无效参数]
+    public function onajax_fetch_user_comment() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $mid = $this->post['mid'];
+        if (empty($mid)) {
+            $res['success'] = false;
+            $res['error'] = 102; // 参数无效
+        } else {
+            $res['success'] = true;
+            $res['comment'] = $_ENV['material_comment']->get_user_comment($this->user['uid'], $mid);
+        }
+        echo json_encode($res);
+    }
+
+    // @onajax_add_comment   [用户对资料进行评价]
+    // @request type         [POST]
     // @param[in]        mid [资料ID号]
     // @param[in]      score [评论分数]
     // @param[in]    content [评论内容]
@@ -336,29 +414,31 @@ class materialcontrol extends base {
     //
     // @error           101 [用户尚未登录]
     // @error           102 [数据库添加失败]
-    public function onajax_comment() {
+    public function onajax_add_comment() {
         $res = array();
-        if ($this->user['uid'] > 0) {
-            $mid = $this->post['mid'];
-            $score = $this->post['score'];
-            $content = $this->post['content'];
-
-            // 先添加分数，后面计算平均分需要使用到
-            $_ENV['material_score']->add($this->user['uid'], $mid, $score);
-            $comment_id = $_ENV['material_comment']->add($mid,
-                                                         $content,
-                                                         $this->user['uid'],
-                                                         $this->user['username']);
-            if ($comment_id > 0) {
-                $res['success'] = true;
-                $res['id'] = $comment_id;
-            } else {
-                $res['success'] = false;
-                $res['error'] = 102; // 数据库添加失败
-            }
-        } else {
+        if (!$this->check_login(false)) {
             $res['success'] = false;
             $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $mid = $this->post['mid'];
+        $score = $this->post['score'];
+        $content = $this->post['content'];
+
+        // 先添加分数，后面计算平均分需要使用到
+        $_ENV['material_score']->add($this->user['uid'], $mid, $score);
+        $comment_id = $_ENV['material_comment']->add($mid,
+                                                     $content,
+                                                     $this->user['uid'],
+                                                     $this->user['username']);
+        if ($comment_id > 0) {
+            $res['success'] = true;
+            $res['id'] = $comment_id;
+        } else {
+            $res['success'] = false;
+            $res['error'] = 102; // 数据库添加失败
         }
         echo json_encode($res);
     }

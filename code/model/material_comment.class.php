@@ -22,7 +22,13 @@ class material_commentmodel {
     }
 
     public function get_user_comment($uid, $mid) {
-        return $this->db->fetch_first("SELECT comment.*,score.score FROM `material_comment` as comment,`material_score` as score WHERE comment.mid=$mid AND comment.authorid='$uid' AND comment.authorid=score.uid AND comment.mid=score.mid");
+        $sql = "SELECT comment.*,score.score FROM `material_comment` as comment,
+                                                  `material_score` as score
+                                             WHERE comment.mid=$mid
+                                                    AND comment.authorid='$uid'
+                                                    AND comment.authorid=score.uid
+                                                    AND comment.mid=score.mid";
+        return $this->db->fetch_first($sql);
     }
 
     public function add($mid, $comment, $authorid, $author) {

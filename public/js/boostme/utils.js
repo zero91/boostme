@@ -105,3 +105,19 @@ function image_light(image_target) {
         });
     });
 }
+
+function raty_ui(target, score, read_only) {
+    target.raty({
+        number : 5,
+        hints: ['1', '2', '3', '4', '5'],
+        path: g_site_url + "/public/js/plugin/raty/images",
+        starOff:"star-off-big.png",
+        starOn:"star-on-big.png",
+        starHalf:"star-half-big.png",
+        half : true,
+        readOnly:  read_only,
+        round : {down: .26, full: .6, up: .76},
+        score: score
+    });
+}
+

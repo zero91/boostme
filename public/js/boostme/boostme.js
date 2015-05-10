@@ -173,6 +173,24 @@ Material.prototype = {
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });
+    },
+    fetch_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_fetch_comment";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_user_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_fetch_user_comment";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add_comment : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_add_comment";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
     }
 }
 Material.prototype.constructor = Service;

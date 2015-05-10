@@ -1,129 +1,130 @@
 <!DOCTYPE html>
-  <!--{eval
-  $user = $this->user;
-  $setting = $this->setting;
-  $regular = $this->regular;
-  $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
-  }-->
-
-<html lang="en">
+<!--{eval
+    $user = $this->user;
+    $setting = $this->setting;
+    $regular = $this->regular;
+    $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'";
+}-->
+<html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
     <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title><!--{if $navtitle}-->{$navtitle} - <!--{/if}-->{$setting['site_name']}</title>
     <meta name="description" content="找名校学生做家教，找兼职" />
     <meta name="author" content="{$setting['site_name']}">
-    <link rel="stylesheet" type="text/css" href="{SITE_URL}public/js/plugin/jquery-ui/jquery-ui.css" />
-    <link rel="shortcut icon" href="{SITE_URL}public/images/icon.png" />
-    <link href="{SITE_URL}public/css/plugin/font-awesome.min.css" rel="stylesheet">
-    <link href="{SITE_URL}public/js/plugin/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{SITE_URL}public/css/default/common.css" rel="stylesheet">
-    <script src="{SITE_URL}public/js/common.js"></script>
-    <script src="{SITE_URL}public/js/plugin/jquery.min.js"></script>
-    <script src="{SITE_URL}public/js/plugin/jquery-ui/jquery-ui.min.js"></script>
-    <script src="{SITE_URL}public/js/plugin/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="shortcut icon" href="{SITE_URL}/public/images/icon.png"/>
 
-    <script src="{SITE_URL}public/js/school_major.js"></script>
-    <script src="{SITE_URL}public/js/user.js"></script>
+    <script src="{SITE_URL}/public/js/plugin/jquery/jquery.min.js"></script>
+    <script src="{SITE_URL}/public/js/plugin/underscore/underscore-min.js"></script>
+    <script src="{SITE_URL}/public/js/plugin/bootstrap/js/bootstrap.min.js"></script>
 
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <script src="{SITE_URL}/public/js/data/category.data.js"></script>
+    <script src="{SITE_URL}/public/js/boostme/utils.js"></script>
+    <script src="{SITE_URL}/public/js/boostme/boostme.js"></script>
+
+    <link href="{SITE_URL}/public/js/plugin/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{SITE_URL}/public/css/plugin/font-awesome.min.css" rel="stylesheet">
+
+    <link href="{SITE_URL}/public/css/boostme/utils.css" rel="stylesheet">
+    <link href="{SITE_URL}/public/css/boostme/boostme.css" rel="stylesheet">
+    <link href="{SITE_URL}/public/css/default/common.css" rel="stylesheet">
 </head>
 <body>
+<div id="fixed_wrapper">
+<div id="main_content">
+
 <div id="mobile_menu">
     <ul class="nav nav-pills nav-stacked">
         <li><a href="{SITE_URL}"><i class="glyphicon glyphicon-home"></i> &nbsp;首页</a></li>
-        <li><a href="{SITE_URL}service/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;咨询区</a></li>
-        <li><a href="{SITE_URL}material/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
-        <!-- <li><a href="{SITE_URL}problem/default"><i class="glyphicon glyphicon-briefcase"></i> &nbsp;找辅导</a></li> -->
-        <li><a href="{SITE_URL}question/default"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
-        <li><a href="{SITE_URL}main/help"><i class="glyphicon glyphicon-phone-alt"></i> &nbsp;帮助</a></li>
+        <li><a href="{SITE_URL}/service/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;咨询区</a></li>
+        <li><a href="{SITE_URL}/material/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
+        <li><a href="{SITE_URL}/question/default"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
+        <li><a href="{SITE_URL}/main/help"><i class="glyphicon glyphicon-phone-alt"></i> &nbsp;帮助</a></li>
     </ul>
 </div>
 
-<div class="container_wapper">
+<div class="container_wrapper">
     <div id="nav_menu">
-        <div class="container-fluid">
-            <div class="col-xs-3 nav_menu_logo">
-                <a rel="nofollow" href="{SITE_URL}">
-                    <!-- <img src="{SITE_URL}public/images/logo.png" id="logo_img" alt="dragonfruit free html5 template" /> -->
-                	<h1 id="logo_text">Boost<span>me</span></h1>
-                </a>
-            </div>
-            <div class="col-sm-9 hidden-xs">
-                <!-- <ul class="nav nav-justified"> -->
-                <div class="col-sm-8">
-                    <ul class="nav nav-justified" id="nav_menu_link">
-                        <li <!--{if $regular == "main/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}">首页</a>
-                        </li>
-                        <li <!--{if $regular == "service/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}service/default">求助师兄</a>
-                        </li>
-                        <li <!--{if $regular == "material/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}material/default">考研资料</a>
-                        </li>
-                        <!--
-                        <li <!--{if $regular == "problem/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}problem/default">找辅导</a>
-                        </li>
-                        -->
-                        <li <!--{if $regular == "question/default" || $regular == "topic/default"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}question/default">交流爆料</a>
-                        </li>
-                        <li <!--{if $regular == "main/help"}-->class="menu_link_on"<!--{/if}-->>
-                            <a href="{SITE_URL}main/help">帮助</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4" id="nav_menu_right">
-                    <ul class="nav navbar-nav navbar-right">
-                        <!--{if $user['uid'] > 0}-->
-                        <li>
-                            <a href="{SITE_URL}user/basic" class="user-tip" id="user-tip" data-toggle="popover" data-placement="bottom" data-container="#user-tip" data-html="true" data-content="<div class='nav-user-basic'><a class='home' href=''>个人主页</a><span class='coin'>财富值：65</span></div>">
-                                <span onclick="gotoFun(13552)">{$user['username']}</span>
-                                <span class="badge" id="msg-alert"></span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="{SITE_URL}message/system" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="消息">
-                                <!--{if $user['new_msg_num'] > 0}-->
-                                <i class="fa fa-comments"></i>
-                                <!--{else}-->
-                                <i class="fa fa-comments-o"></i>
-                                <!--{/if}-->
-                            </a>
-                        </li>
-                        <!-- <li><a href="#" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="退出"><i class="fa fa-sign-out"></i></a></li> -->
-                        <li><a href="{SITE_URL}user/logout" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="退出"><i class="glyphicon glyphicon-off"></i></a></li>
-                        <!--{if $user['isadmin']}-->
-                        <li><a target="_blank" href="{SITE_URL}admin_main/default">管理</a></li>
-                        <!--{/if}-->
-
-                        <!--{else}-->
-                        <li><a href="{SITE_URL}user/register">注册</a></li>
-                        <li><a href="{SITE_URL}user/login">登录</a></li>
-                        <!--{/if}-->
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xs-9 visible-xs">
-                <a href="#" id="mobile_menu"><span class="glyphicon glyphicon-th-list"></span></a>
-           </div>
+        <div class="col-xs-3 nav_menu_logo">
+            <a href="{SITE_URL}"><h1 id="logo_text">帮<span>考研</span></h1></a>
         </div>
+        <div class="col-sm-9 hidden-xs">
+            <!-- <ul class="nav nav-justified"> -->
+            <div class="col-sm-8">
+                <ul class="nav nav-justified" id="nav_menu_link">
+                    <!--{if $regular == "/main/default"}-->
+                    <li class="menu_link_on"><a href="{SITE_URL}">首页</a></li>
+                    <!--{else}-->
+                    <li><a href="{SITE_URL}">首页</a></li>
+                    <!--{/if}-->
+
+                    <!--{if $regular == "/service/default"}-->
+                    <li class="menu_link_on"><a href="{SITE_URL}/service/default">求助师兄</a></li>
+                    <!--{else}-->
+                    <li><a href="{SITE_URL}/service/default">求助师兄</a></li>
+                    <!--{/if}-->
+
+                    <!--{if $regular == "/material/default"}-->
+                    <li class="menu_link_on"><a href="{SITE_URL}/material/default">考研资料</a></li>
+                    <!--{else}-->
+                    <li><a href="{SITE_URL}/material/default">考研资料</a></li>
+                    <!--{/if}-->
+
+                    <!--{if $regular == "/question/default" || $regular == "/topic/default"}-->
+                    <li class="menu_link_on"><a href="{SITE_URL}/question/default">交流爆料</a></li>
+                    <!--{else}-->
+                    <li><a href="{SITE_URL}/question/default">交流爆料</a></li>
+                    <!--{/if}-->
+
+                    <!--{if $regular == "/main/help"}-->
+                    <li class="menu_link_on"><a href="{SITE_URL}/main/help">帮助</a></li>
+                    <!--{/if}-->
+                </ul>
+            </div>
+            <div class="col-sm-4" id="nav_menu_right">
+                <ul class="nav navbar-nav navbar-right">
+                    <!--{if $user['uid'] > 0}-->
+                    <li>
+                        <a href="{SITE_URL}/user/default" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="个人主页">
+                            <span>{$user['username']}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{SITE_URL}/message/default" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="消息">
+                            <!--{if $user['new_msg_num'] > 0}-->
+                            <i class="fa fa-comments"></i>
+                            <!--{else}-->
+                            <i class="fa fa-comments-o"></i>
+                            <!--{/if}-->
+                        </a>
+                    </li>
+                    <li><a href="{SITE_URL}/user/logout" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="退出"><i class="glyphicon glyphicon-off"></i></a></li>
+
+                    <!--{if $user['isadmin']}-->
+                    <li><a target="_blank" href="{SITE_URL}/admin_main/default">管理</a></li>
+                    <!--{/if}-->
+
+                    <!--{else}-->
+                    <li><a href="{SITE_URL}/user/register">注册</a></li>
+                    <li><a href="{SITE_URL}/user/login">登录</a></li>
+                    <!--{/if}-->
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-9 visible-xs">
+            <a href="#" id="mobile_menu"><span class="glyphicon glyphicon-th-list"></span></a>
+       </div>
     </div>
 </div>
-<div style="margin-top:64px;"></div>
+<div style="height:64px;positive:relative;"></div>
 
 <script type="text/javascript">
 var g_site_url = "{SITE_URL}";
-
+var g_regular = "{$regular}";
+var g_code_register = {$setting['code_register']};
+var g_userid = {$user['uid']};
 $(function(){
     $('.tip').tooltip({animation:true, trigger:'hover'});
 });
 </script>
-
