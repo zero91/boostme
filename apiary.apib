@@ -707,29 +707,201 @@ error错误码含义:
 
 + Request (application/json)
 
-        { "service_id": 32 }
+        { "service_id": 32, "content" : "testing", "score" : 5 }
+        
++ Response 200 (application/json)
+
+        { "success": true, "comment_id": "31" }
+
+
+# Material API Root [/material]
+
+## Group Material
+material相关API。
+
+## Material Info [/material/ajax_fetch_info]
+一个material具有如下属性：
++ id
++ uid
++ username
++ price - 价格
++ title - 资料标题
++ status - 资料状态，一般分为：是否通过审核、通过审核等
++ avg_score - 平均服务得分
++ time
++ sold_num - 到目前为止，总计售出数量
++ comment_num - 评论数
++ view_num - 浏览量
+
+### 获取material详细信息 [GET]
+请求参数:
++ mid (int) - material ID号
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ material - 资料详细信息[success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 无效参数
+
++ Request (application/json)
+
+        { "mid": 45 }
         
 + Response 200 (application/json)
 
         {
-            "success": true,
-            "tot_num": "1",
-            "comment_list": [
+            success: true,
+            material: {
+                id: "45",
+                uid: "1",
+                username: "admin",
+                title: "帅哥一枚，甩卖",
+                description: "<p>asdf asdf asdf </p>",
+                price: "1.99",
+                time: "1418705763",
+                status: "2",
+                avg_score: "0",
+                sold_num: "0",
+                comment_num: "0",
+                picture: "/public/data/material/3a66404af133f3c6yz.jpg",
+                view_num: "28",
+                site_url: "http://pan.baidu.com/s/1sjwh2mp",
+                access_code: "5sl6",
+                auto_delivery: "0",
+                type: "major"
+            }
+        }
+
++ Request (application/json)
+
+        { "mid": "invalid" }
+
++ Response 200 (application/json)
+
+        { "success": false, "error": 101 }
+
+## Material Collection [/material/ajax_fetch_list]
+获取类别下的material列表。
+
+### 获取material列表 [GET]
+请求参数:
++ type (string) - 资料类型
++ region_id (string) - 地区ID号，可选
++ school_id (string) - 学校ID号，可选
++ dept_id (string) - 院系ID号，可选
++ major_id (string) - 专业ID号，可选
++ page (int) - 请求的页号，可选
+
+资料类型（type）：
++ major - 专业课
++ english - 英语
++ politics - 政治
++ math - 数学
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ material_list - 资料列表[success=true]
++ start - 资料起始序号[success=true]
+
++ Request (application/json)
+
+        { "type" : "math", "region_id" : "R01", "page": 1 }
+
++ Response 200 (application/json)
+
+        {
+            success: true,
+            start: 1,
+            material_list: [
                 {
-                    "id": "19",
-                    "authorid": "1",
-                    "author": "admin",
-                    "sid": "32",
-                    "score": "3.5",
-                    "content": "测试账户金额",
-                    "time": "1417972798",
-                    "up": "0",
-                    "down": "0",
-                    "format_time": "2014/12/08 01:19",
-                    "avatar": "http://www.boostme.cn:9507/public/css/default/avatar.png"
+                    id: "8",
+                    uid: "1",
+                    username: "admin",
+                    title: "Boostme支付手段测试资料",
+                    description: "",
+                    price: "0.01",
+                    time: "1414213758",
+                    status: "2",
+                    avg_score: "0",
+                    sold_num: "0",
+                    comment_num: "0",
+                    picture: "/public/data/material/f812df56885aa8c0HF.jpg",
+                    view_num: "7",
+                    site_url: "http://pan.baidu.com/s/1sjwh2mp",
+                    access_code: "5sl6",
+                    auto_delivery: "0",
+                    type: "math",
+                    format_time: "2014/10/25 13:09",
+                    desc_content: "",
+                    desc_images:[]
+                }
+        }
+
+## Comment Collection [/material/ajax_fetch_comment]
+### 获取material评论信息[GET]
+请求参数:
++ id (int) - material ID号
++ page (int) - 页码，可选
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ tot_num - 全部评论数量 [success=true]
++ comment_list - 评论列表 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 无效参数
+
++ Request (application/json)
+
+        { "id": 7, "page" : 1 }
+        
++ Response 200 (application/json)
+
+        {
+            success: true,
+            tot_num: "1",
+            comment_list: [
+                {
+                    id: "28",
+                    mid: "7",
+                    authorid: "1",
+                    author: "admin",
+                    content: "asdfasdfsdf ",
+                    time: "1431259563",
+                    up: "0",
+                    down: "0",
+                    score: "4",
+                    avatar: "http://localhost/public/css/default/avatar.png"
                 }
             ]
         }
+
+## Add Comment [/material/ajax_add_comment]
+### 为material添加评论信息[POST]
+请求参数:
++ mid (int) - material ID号
++ content (string) - 评论内容
++ score (int) - material评分
+
+返回值:
++ success - 操作结果，true为操作成功，false为操作失败
++ id - 新增comment的ID号 [success=true]
++ error - 错误码 [success=false]
+
+error错误码含义:
++ 101 - 用户尚未登
++ 102 - 数据库添加失败
+
++ Request (application/json)
+
+        { "mid": 32, "score" : 5, "content" : "testing" }
+        
++ Response 200 (application/json)
+
+        { "success": true, "id": "31" }
 
 # Message API Root [/message]
 
