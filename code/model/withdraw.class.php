@@ -7,20 +7,24 @@ class withdrawmodel {
         $this->db = & $db;
     }
 
-    // 读取消息内容
     public function get_by_id($id) {
         return $this->db->fetch_first("SELECT * FROM withdraw WHERE `id`=$id");
     } 
 
     public function get_by_uid($uid) {
-        return $this->db->fetch_all("SELECT * FROM withdraw WHERE `uid`=$uid");
+        $sql = "SELECT * FROM withdraw WHERE `uid`=$uid ORDER BY apply_time DESC";
+        $withdraw_list = $this->db->fetch_all($sql);
+        foreach ($withdraw_list as &$withdraw) {
+            $withdraw['format_apply_time'] = tdate($withdraw['apply_time']);
+        }
+        return $withdraw_list;
     }
 
     public function get_uid_unpaid($uid) {
         return $this->db->fetch_all("SELECT * FROM withdraw WHERE `uid`=$uid AND ispaid='0'");
     }
 
-    public function move_by_id($id) {
+    public function remove_by_id($id) {
         $this->db->query("DELETE FROM withdraw WHERE `id`='$id'");
         return $this->db->affected_rows();
     }

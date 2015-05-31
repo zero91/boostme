@@ -51,6 +51,14 @@ class usercontrol extends base {
         $this->jump("/main/default");
     }
 
+    // 维护个人简历
+    public function onresume() {
+        $this->check_login();
+        $navtitle = "完善简历";
+        $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+        include template("resume");
+    }
+
     // 用户上传头像
     public function onupload_avatar() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -125,6 +133,36 @@ class usercontrol extends base {
             $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $smallimg, 100, 100);
         }
         include template("editimg");
+    }
+
+    // 上传学生证
+    public function onupload_student_card() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $resume_dir = "/private/userdata/studentID/";
+            $extname = extname($_FILES["student_card"]["name"]);
+            $uid = abs($this->user['uid']);
+            $uid = sprintf("%010d", $uid);
+            $dir1 = $resume_dir . substr($uid, 0, 3);
+            $dir2 = $dir1 . '/' . substr($uid, 3, 3);
+            $dir3 = $dir2 . '/' . substr($uid, 6, 2);
+
+            (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
+            (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
+            (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
+
+            $file_web_path = $dir3 . "/{$uid}.{$extname}";
+
+            $upload_target_fname = WEB_ROOT . $file_web_path;
+            if (file_exists($upload_target_fname)) { //删除现有学生证照片
+                unlink($upload_target_fname);
+            }
+            if (move_uploaded_file($_FILES["student_card"]["tmp_name"], $upload_target_fname)) {
+                $_ENV['userresume']->update_studentID($uid, substr($file_web_path, 1));
+            }
+        }
+        $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+        $uid = $this->user['uid'];
+        include template("upload_student_card");
     }
 
     // 找回密码
@@ -217,78 +255,6 @@ class usercontrol extends base {
             $_ENV['userresume']->update_ID_path($uid, substr($file_web_path, 1));
             echo 'ok';
         }
-    }
-
-    public function onupload_studentID() {
-        $uid = intval($this->get[2]);
-        $session_id = $this->post['session_id'];
-        $session_info = $_ENV['user']->get_session_by_sid($session_id);
-        if ($uid != $session_info['uid'] || $this->ip != $session_info['ip']) {
-            return;
-        }
-
-        $resumedir = "/private/userdata/studentID/";
-        $extname = extname($_FILES["studentID"]["name"]);
-        $uid = abs($uid);
-        $uid = sprintf("%010d", $uid);
-        $dir1 = $resumedir . substr($uid, 0, 3);
-        $dir2 = $dir1 . '/' . substr($uid, 3, 3);
-        $dir3 = $dir2 . '/' . substr($uid, 6, 2);
-
-        (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
-        (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
-        (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
-
-        $file_web_path = $dir3 . "/{$uid}.{$extname}";
-
-        $upload_target_fname = WEB_ROOT . $file_web_path;
-        if (file_exists($upload_target_fname)) { //删除现有身份证照片
-            unlink($upload_target_fname);
-        }
-
-        if (move_uploaded_file($_FILES["studentID"]["tmp_name"], $upload_target_fname)) {
-            $_ENV['userresume']->update_studentID($uid, substr($file_web_path, 1));
-            echo 'ok';
-        }
-    }
-
-    // 维护个人简历
-    public function onresume() {
-        $this->check_login();
-        $navtitle = "完善简历";
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $realname = trim($this->post['realname']);
-            $phone = trim($this->post['phone']);
-            $qq = trim($this->post['qq']);
-            $wechat = trim($this->post['wechat']);
-
-            $_ENV['userresume']->update_realname($this->user['uid'], $realname);
-            $_ENV['user']->update_contact_info($this->user['uid'], $phone, $qq, $wechat);
-
-            $edu_num = min(count($this->post['school']), 6);
-            $edu_list = array();
-            for ($i = 0; $i < $edu_num; ++$i) {
-                $edu_list[] = array('edu_type'=> $this->post['edu_type'][$i],
-                                  'school'=> $this->post['school'][$i],
-                                    'dept'=> $this->post['dept'][$i],
-                                   'major'=> $this->post['major'][$i],
-                              'start_time'=> $this->post['start_time'][$i],
-                                'end_time'=> $this->post['end_time'][$i]);
-            }
-            $_ENV['education']->remove_by_uid($this->user['uid']);
-            $_ENV['education']->multi_add($this->user['uid'], $edu_list);
-
-            if ($this->post['operation'] == RESUME_APPLY) {
-                $_ENV['userresume']->update_verify($this->user['uid'], RESUME_APPLY);
-                $this->message("提交请求成功，Boostme将以最快的速度审核您的材料！", 'BACK');
-            } else {
-                $this->jump("user/resume");
-            }
-        } else {
-            $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-            $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
-        }
-        include template("resume");
     }
 
     //===================================================================================
@@ -804,6 +770,75 @@ class usercontrol extends base {
             $_ENV['user']->update_email($this->user['uid'], $email);
         }
         $res['success'] = true;
+        echo json_encode($res);
+    }
+
+    // @onajax_update_resume [更新用户学历信息]
+    // @request type         [POST]
+    // @param[in]   realname [真实姓名]
+    // @param[in]      phone [手机]
+    // @param[in]     wechat [微信号]
+    // @param[in]         qq [QQ号]
+    // @param[in]   edu_list [教育信息列表，每列信息包括下列字段：]
+    //                       school     [学校]
+    //                       dept       [院系]
+    //                       major      [专业]
+    //                       edu_type   [学历类型]
+    //                       start_time [起始时间]
+    //                       end_time   [结束时间，可为空]
+    //
+    // @return          成功 [success为true]
+    //                  失败 [success为false，error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [更新失败]
+    // @error            103 [未上传学生证]
+    public function onajax_update_resume() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $affected_rows = 0;
+        $realname = trim($this->post['realname']);
+        if (!empty($realname)) {
+            $affected_rows += $_ENV['userresume']->update_realname($this->user['uid'], $realname);
+        }
+
+        $phone = trim($this->post['phone']);
+        $qq = trim($this->post['qq']);
+        $wechat = trim($this->post['wechat']);
+        if (!empty($phone) || !empty($qq) || !empty($wechat)) {
+            $affected_rows += $_ENV['user']->update_contact_info($this->user['uid'],
+                                                                 $phone, $qq, $wechat);
+        }
+
+        $edu_list = $this->post['edu_list'];
+        $affected_rows += $_ENV['education']->remove_by_uid($this->user['uid']);
+        $affected_rows += $_ENV['education']->multi_add($this->user['uid'], $edu_list);
+
+        if ($this->post['apply']) {
+            $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+            if (empty($resume['studentID'])) {
+                $res['sucess'] = false;
+                $res['error'] = 103; // 未上传学生证
+                echo json_encode($res);
+                return;
+            } else {
+                $affected_rows += $_ENV['userresume']->update_verify($this->user['uid'],
+                                                                     RESUME_APPLY);
+            }
+        }
+
+        if ($affected_rows > 0) {
+            $res['success'] = true;
+        } else {
+            $res['success'] = false;
+            $res['error'] = 102; // 更新失败
+        }
         echo json_encode($res);
     }
 }

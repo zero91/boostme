@@ -20,7 +20,9 @@ class userresumemodel {
     }
 
     public function update_realname($uid, $realname) {
-        $this->db->query("INSERT INTO user_resume(`uid`,`realname`) VALUES('$uid','$realname') ON DUPLICATE KEY UPDATE `realname`='$realname'");
+        $sql = "INSERT INTO user_resume(`uid`,`realname`) VALUES('$uid','$realname') " .
+                        "ON DUPLICATE KEY UPDATE `realname`='$realname'";
+        $this->db->query($sql);
         return $this->db->affected_rows();
     }
 

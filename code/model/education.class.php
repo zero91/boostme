@@ -21,11 +21,13 @@ class educationmodel {
     }
 
     public function multi_add($uid, $edu_list) {
-        $insertsql = "INSERT INTO education(`uid`,`edu_type`,`school`,`department`,`major`,`start_time`,`end_time`) VALUES ";
+        $sql = "INSERT INTO education(`uid`,`edu_type`,`school`,`department`," .
+                                      "`major`,`start_time`,`end_time`) VALUES ";
         foreach ($edu_list as $edu) {
-            $insertsql .= "($uid,'{$edu['edu_type']}','{$edu['school']}','{$edu['dept']}','{$edu['major']}','{$edu['start_time']}','{$edu['end_time']}'),";
+            $sql .= "($uid,'{$edu['edu_type']}','{$edu['school']}','{$edu['dept']}'," .
+                        "'{$edu['major']}','{$edu['start_time']}','{$edu['end_time']}'),";
         }
-        $this->db->query(substr($insertsql, 0, -1));
+        $this->db->query(substr($sql, 0, -1));
         return $this->db->affected_rows();
     }
 
@@ -34,7 +36,7 @@ class educationmodel {
         return $this->db->affected_rows();
     }
 
-    public function remove_edu($eid) {
+    public function remove_by_eid($eid) {
         $this->db->query("DELETE FROM education WHERE `eid`='$eid'");
         return $this->db->affected_rows();
     }

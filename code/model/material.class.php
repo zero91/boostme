@@ -27,7 +27,8 @@ class materialmodel {
         foreach ($material_list as &$material) {
             $material['format_time'] = tdate($material['time']);
             $material['desc_content'] = strip_tags($material['description']);
-            $material['desc_images'] = fetch_img_tag($material['description'])[0];
+            $images_arr = fetch_img_tag($material['description']);
+            $material['desc_images'] = $images_arr[0];
         }
         return $material_list;
     }

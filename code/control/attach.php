@@ -42,11 +42,16 @@ class attachcontrol extends base {
             if (!$result) {
                 $state = "文件保存失败！";
             } else {
-                $_ENV['attach']->add($clientFile["name"], $current_type, $clientFile["size"], $targetfile, 0);
+                $_ENV['attach']->add($this->user['uid'], $clientFile["name"], $current_type, $clientFile["size"], $targetfile, 0);
             }
         }
         //向浏览器返回数据json数据
-        echo '{"state":"' . $state . '","url":"' . $targetfile . '","fileType":"' . $current_type . '","original":"' . $clientFile["name"] . '"}';
+        $res = array();
+        $res["state"] = $state;
+        $res["url"] = "/" . $targetfile;
+        $res["fileType"] = $current_type;
+        $res["original"] = $clientFile["name"];
+        echo json_encode($res);
     }
 
     function onuploadimage() {
@@ -84,10 +89,15 @@ class attachcontrol extends base {
             if (!$result) {
                 $state = "c";
             } else {
-                $_ENV['attach']->add($file["name"], $current_type, $file["size"], $targetfile);
+                $_ENV['attach']->add($this->user['uid'], $file["name"], $current_type, $file["size"], $targetfile);
             }
         }
-        echo "{'url':'" . $targetfile . "','title':'" . $title . "','original':'" . $oriName . "','state':'" . $state . "'}";
+        $res = array();
+        $res['url'] = "/" . $targetfile;
+        $res['title'] = $title;
+        $res['original'] = $oriName;
+        $res['state'] = $state;
+        echo json_encode($res);
     }
 }
 

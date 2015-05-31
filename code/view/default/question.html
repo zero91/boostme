@@ -67,8 +67,8 @@
                 <div style="margin-top:15px;">
                     <span>验证码：</span>
                     <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
-                    <img src="{SITE_URL}/user/code" onclick="javascript:updatecode();" id="verifycode">
-                    <a href="javascript:updatecode();">&nbsp;换一个</a><span id="codetip"></span>
+                    <img src="{SITE_URL}/user/ajax_code" onclick="javascript:update_code();" id="verifycode">
+                    <a href="javascript:update_code();">&nbsp;换一个</a><span id="codetip"></span>
                     <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_question_btn">
                 </div>
             </div>

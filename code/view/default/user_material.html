@@ -6,7 +6,7 @@
 </style>
 
 <!--{template common_link}-->
-<div class="container" style="margin-top:5px;">
+<div class="container">
     <div class="panel panel-default">
         <div class="panel-body">
             <ul class="col-md-9 col-sm-8 setting-content">
@@ -21,7 +21,7 @@
                     </tr>
                     <!--{loop $material_list $material}-->
                     <tr height="89px">
-                        <td><a target="_blank" href="{SITE_URL}material/view/{$material['id']}">{$material['title']}</a>&nbsp;&nbsp;</td>
+                        <td><a target="_blank" href="{SITE_URL}/material/view?id={$material['id']}">{$material['title']}</a>&nbsp;&nbsp;</td>
                         <td style="font-size:12px;text-align:left;" width="17%">
                             <p><span>价格：</span><span class="price">¥{$material['price']}</span></p>
                             <p><span>购买量：</span><span style="color:green;">{$material['sold_num']}</span></p>
@@ -32,16 +32,19 @@
                             <p>{eval echo tdate($material['time'])}</p>
                         </td>
                         <td width="8%">
-                            <a target="_blank" href="{SITE_URL}material/edit/{$material['id']}" class="glyphicon glyphicon-pencil" style="font-size:12px;">更改</a>
+                            <a target="_blank" href="{SITE_URL}/material/edit?mid={$material['id']}" class="glyphicon glyphicon-pencil" style="font-size:12px;">更改</a>
                         </td>
                     </tr>
                     <!--{/loop}-->
                 </table>
                 <center><div class="pages" style="margin-top:20px;">{$departstr}</div></center>
                 <!--{else}-->
-                <p>您还未上传过任何资料。有珍贵资料？现在就去<a href="{SITE_URL}material/add">上传</a></p>
+                <p>您还未上传过任何资料。</p>
                 <!--{/if}-->
             </ul>
+            <div class="col-md-3 col-sm-4">
+                <a class="btn btn-info" href="{SITE_URL}/material/add">上传</a>
+            </div>
         </div>
     </div>
 </div>

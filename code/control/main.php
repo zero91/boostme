@@ -3,7 +3,6 @@
 !defined('IN_SITE') && exit('Access Denied');
 
 class maincontrol extends base {
-
     public function __construct(& $get, & $post) {
         parent::__construct($get, $post);
         $this->load('service');
@@ -15,17 +14,7 @@ class maincontrol extends base {
     }
 
     public function ondefault() {
-        /*
-        $page = max(1, intval($this->get[2]));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-
-        $user_num = $_ENV['user']->rownum_alluser();
-        $question_num = $_ENV['question']->get_total_num();
-        $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
-        $departstr = page($question_num, $pagesize, $page, "forum/view");
-         */
-        $service_list = $_ENV['service']->get_list();
+        $service_list = $_ENV['service']->get_by_status(SERVICE_STATUS_ACCEPTED);
         foreach ($service_list as &$t_service) {
             $t_service['cid_list'] = $_ENV['service_category']->get_by_sid($t_service['id']);
         }

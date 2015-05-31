@@ -109,7 +109,8 @@ class usermodel {
     }
 
     public function update_contact_info($uid, $phone, $qq, $wechat) {
-        $this->db->query("UPDATE user SET `phone`='$phone',`qq`='$qq',`wechat`='$wechat' WHERE `uid`=$uid");
+        $sql = "UPDATE user SET `phone`='$phone',`qq`='$qq',`wechat`='$wechat' WHERE `uid`=$uid";
+        $this->db->query($sql);
         return $this->db->affected_rows();
     }
 

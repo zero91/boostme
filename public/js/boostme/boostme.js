@@ -168,6 +168,12 @@ Material.prototype = {
             callback_func(response);
         });
     },
+    fetch_category : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_fetch_category";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
     search : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/material/ajax_search";
         async_request(req_url, "get", req_data_dict, function(response) {
@@ -188,6 +194,18 @@ Material.prototype = {
     },
     add_comment : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/material/ajax_add_comment";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_add";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    edit : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/material/ajax_edit";
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
@@ -249,6 +267,24 @@ EBank.prototype = {
     alipay_transfer : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/ebank/ajax_alipay_transfer";
         async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_account : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_fetch_account";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_history : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_fetch_history";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    add_withdraw : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_add_withdraw";
+        async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });
     }
@@ -321,6 +357,18 @@ User.prototype = {
     update_info : function(req_data_dict, callback_func) {
         var req_url = this.server() + "/user/ajax_update_info";
         async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    update_resume : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/user/ajax_update_resume";
+        async_request(req_url, "post", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_edu : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/user/ajax_fetch_edu";
+        async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });
     }

@@ -121,3 +121,81 @@ function raty_ui(target, score, read_only) {
     });
 }
 
+function trigger_enter_key(target, callback_func) {
+    target.keydown(function(e) {
+        var ev = document.all ? window.event : e;
+        if (ev.which == 13) {
+            callback_func();
+            return true;
+        }
+    });
+}
+
+//弹出窗口
+function pop(id) {
+    // 将窗口居中
+    makeCenter(id);
+
+    // 初始化省份列表
+    initProvince(id);
+
+    // 默认情况下, 给第一个省份添加choosen样式
+    $('[province-id="1"]').addClass('choosen');
+
+    // 初始化大学列表
+    initSchool(1, id);
+}
+
+//隐藏窗口
+function hide(id) {
+    $('#choose-box-wrapper-' + id).css("display","none");
+}
+
+function initProvince(id) {
+    target_name='#choose-a-province-' + id;
+    //原先的省份列表清空
+    $(target_name).html('');
+    for (i = 0; i < schoolList.length; ++i) {
+        $(target_name).append('<a class="province-item" province-id="'+schoolList[i].id+'">'+schoolList[i].name+'</a>');
+    }
+    //添加省份列表项的click事件
+    $('.province-item').bind('click', function(){
+            var item=$(this);
+            var province = item.attr('province-id');
+            var choosenItem = item.parent().find('.choosen');
+            if(choosenItem)
+                $(choosenItem).removeClass('choosen');
+            item.addClass('choosen');
+            //更新大学列表
+            initSchool(province, id);
+        }
+    );
+}
+
+function initSchool(provinceID, id) {
+    target_name = '#choose-a-school-' + id;
+    //原先的学校列表清空
+    $(target_name).html('');
+    var schools = schoolList[provinceID-1].school;
+    for (i = 0; i <schools.length; ++i) {
+        $(target_name).append('<a class="school-item" school-id="'+schools[i].id+'">'+schools[i].name+'</a>');
+    }
+    //添加大学列表项的click事件
+    $('.school-item').bind('click', function(){
+            var item=$(this);
+
+            var school = item.attr('school-id');
+            //更新选择大学文本框中的值
+            item.parents(".col-sm-5").children(".form-control").val(item.text());
+            hide(id);
+        }
+    );
+}
+
+function makeCenter(id) {
+    target_name = '#choose-box-wrapper-' + id;
+    $(target_name).css("display","block");
+    $(target_name).css("position","absolute");
+    $(target_name).css("z-index","1000");
+}
+

@@ -108,7 +108,6 @@ function fetch_user_comment(service_id) {
     });
 };
 
-var g_service_reg_category = new Array();
 $(function() {
     $("#service_register_btn").click(function() {
         var service_content = $("#service_content").val();
@@ -128,7 +127,7 @@ $(function() {
                              "phone" : phone,
                              "qq" : qq,
                              "wechat" : wechat,
-                             "category_list" : g_service_reg_category}, function(response) {
+                             "category_list" : g_add_category}, function(response) {
             var error_dict = {
                 101 : "尚未登录",
                 102 : "服务尚未填写完整",
@@ -141,32 +140,6 @@ $(function() {
                 errno_alert(response.error, error_dict);
             }
         });
-    });
-
-    $("#add_category").click(function() {
-        var region_id = $.trim($("#select_region option:selected").val());
-        var school_id = $.trim($("#select_school option:selected").val());
-        var dept_id = $.trim($("#select_dept option:selected").val());
-        var major_id = $.trim($("#select_major option:selected").val());
-
-        if (region_id == "" && school_id == "" && dept_id == "" && major_id == "") {
-            return;
-        }
-        var category_dict = {"region_id" : region_id,
-                             "school_id" : school_id,
-                             "dept_id" : dept_id,
-                             "major_id" : major_id};
-
-        if (_.some(g_service_reg_category, function(t_category) {
-                                return _.isEqual(t_category, category_dict); })) {
-            return;
-        }
-        var show_val = fetch_name_by_all(region_id, school_id, dept_id, major_id);
-        $("#category_list").append("<p> + " + show_val + ' <a id="reg_rm_category_' + g_service_reg_category.length
-            + '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>');
-        g_service_reg_category.push(category_dict);
-        $("#select_region").val("");
-        $("#select_region").change();
     });
 
     $("a[id^=service_close_]").click(function() {
@@ -191,13 +164,7 @@ $(function() {
         });
     });
 
-    $("body").on('click', 'a[id^=reg_rm_category_]', function() {
-        var remove_index = $(this).attr("id").substr(16);
-        $(this).parent().remove();
-        g_service_reg_category.splice(remove_index, 1);
-    });
-
-    if (g_service_id !== undefined) {
+    if (typeof(g_service_id) !== "undefined") {
         var service = new Service();
         service.fetch_category({"service_id" :  g_service_id}, function(response) {
             var error_dict = {

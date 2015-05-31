@@ -1,3 +1,4 @@
+var g_add_category = new Array();
 // 排序使用函数
 function index_sort_func(x, y) {
     var int_x = parseInt(x['index']);
@@ -232,7 +233,9 @@ $(function() {
         g_school_id = "";
         g_dept_id = "";
         g_major_id = "";
-        $('.selectpicker').selectpicker('refresh');
+        if ($('.selectpicker') && $('.selectpicker').selectpicker) {
+            $('.selectpicker').selectpicker('refresh');
+        }
     }); 
 
     $("#select_school").change(function() {
@@ -250,7 +253,9 @@ $(function() {
         g_school_id = school_id;
         g_dept_id = "";
         g_major_id = "";
-        $('.selectpicker').selectpicker('refresh');
+        if ($('.selectpicker') && $('.selectpicker').selectpicker) {
+            $('.selectpicker').selectpicker('refresh');
+        }
     }); 
 
     $("#select_dept").change(function() {
@@ -268,7 +273,9 @@ $(function() {
         g_school_id = school_id;
         g_dept_id = dept_id;
         g_major_id = "";
-        $('.selectpicker').selectpicker('refresh');
+        if ($('.selectpicker') && $('.selectpicker').selectpicker) {
+            $('.selectpicker').selectpicker('refresh');
+        }
     });
 
     $("#select_major").change(function() {
@@ -285,7 +292,9 @@ $(function() {
         g_school_id = school_id;
         g_dept_id = dept_id;
         g_major_id = major_id;
-        $('.selectpicker').selectpicker('refresh');
+        if ($('.selectpicker') && $('.selectpicker').selectpicker) {
+            $('.selectpicker').selectpicker('refresh');
+        }
     });
 
     $("#select_region").html(fetch_region_optionhtml());
@@ -327,6 +336,53 @@ $(function() {
                            "major_id" : g_major_id});
     });
     $("#more").click();
+
+    $("#add_category").click(function() {
+        var category_dict = fetch_choose_category();
+        if (category_dict['region_id'] == ""
+                && category_dict['school_id'] == ""
+                && category_dict['dept_id'] == ""
+                && category_dict['major_id'] == "") {
+            return;
+        }
+        if (_.some(g_add_category, function(t_category) {
+                                return _.isEqual(t_category, category_dict); })) {
+            return;
+        }
+        var show_val = fetch_name_by_all(category_dict['region_id'],
+                                         category_dict['school_id'],
+                                         category_dict['dept_id'],
+                                         category_dict['major_id']);
+        $("#category_list").append("<p> + " + show_val + ' <a id="remove_category_' + g_add_category.length
+            + '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>');
+        g_add_category.push(category_dict);
+        $("#select_region").val("");
+        $("#select_region").change();
+    });
+
+    if ($("#save_material_btn").length > 0) {
+        var mid = $("div[id^='material_id_']").attr('id').substr(12);
+        var material = new Material();
+        material.fetch_category({"mid" : mid}, function(response) {
+            if (response.success) {
+                _.each(response.cid_list, function(category_dict) {
+                    var show_val = fetch_name_by_all(category_dict['region_id'],
+                                                     category_dict['school_id'],
+                                                     category_dict['dept_id'],
+                                                     category_dict['major_id']);
+                    $("#category_list").append("<p> + " + show_val + ' <a id="remove_category_' + g_add_category.length
+                        + '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>');
+                    g_add_category.push(category_dict);
+                });
+            }
+        });
+    }
+
+    $("body").on('click', 'a[id^=remove_category_]', function() {
+        var remove_index = $(this).attr("id").substr(16);
+        $(this).parent().remove();
+        g_add_category.splice(remove_index, 1);
+    });
 });
 
 function category_change_callback(category_dict) {
@@ -335,5 +391,16 @@ function category_change_callback(category_dict) {
 
     $("#board_show").empty();
     request_show_data(category_dict);
+}
+
+function fetch_choose_category() {
+    var region_id = $.trim($("#select_region option:selected").val());
+    var school_id = $.trim($("#select_school option:selected").val());
+    var dept_id = $.trim($("#select_dept option:selected").val());
+    var major_id = $.trim($("#select_major option:selected").val());
+    return {"region_id" : region_id,
+            "school_id" : school_id,
+            "dept_id" : dept_id,
+            "major_id" : major_id};
 }
 

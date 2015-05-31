@@ -121,84 +121,27 @@ class materialcontrol extends base {
         include template('material_category');
     }
 
+    // 增加资料页面
     public function onadd() {
         $this->check_login();
         $navtitle = "申请发布资料";
         $op_type = "add";
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $price = doubleval($this->post["price"]);
-            $category = $this->post['category'];
-            $picture_tmp_url = $this->post['picture_tmp_url'];
-            $site_url = $this->post['site_url'];
-            $access_code = $this->post['access_code'];
-
-            $this->setting['code_material_add'] && $this->checkcode(); //检查验证码 
-
-            $type = get_image_type(WEB_ROOT . $picture_tmp_url);
-            $picture_fname = date("YmdHis") . random(3) . "." . $type;
-            $target_path = "/public/data/material/" . $picture_fname;
-
-            if (file_exists(WEB_ROOT . $picture_tmp_url)) {
-                image_resize(WEB_ROOT . $picture_tmp_url, WEB_ROOT . $target_path, 375, 525);
-            }
-            $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'], $target_path, $title, $description, $price, $site_url, $access_code);
-            $_ENV['material_category']->multi_add($mid, $category, false);
-            $this->jump("material/view/$mid");
-        } else {
-            include template('addmaterial');
-        }
+        include template('add_material');
     }
 
+    // 修改资料页面
     public function onedit() {
+        $this->check_login();
+
         $navtitle = "更改资料";
-        $op_type = "edit";
-
-        $mid = $this->get[2];
-        if (empty($mid)) {
-            $this->message("无效参数!", "STOP");
+        $mid = $this->post['mid'];
+        $material = $_ENV['material']->get($mid);
+        if ($material['uid'] != $this->user['uid']) {
+            $this->jump("/material/view?id=$mid");
+            return;
         }
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $price = doubleval($this->post["price"]);
-            $category = $this->post['category'];
-            $picture_tmp_url = $this->post['picture_tmp_url'];
-            $site_url = $this->post['site_url'];
-            $access_code = $this->post['access_code'];
-
-            $this->setting['code_material_add'] && $this->checkcode(); //检查验证码 
-
-            if (!empty($picture_tmp_url)) {
-                $picture_fname = end(explode("/", $picture_tmp_url));
-                $picture_tmp_path = "/public/data/tmp/" . $picture_fname;
-                $target_path = "/public/data/material/" . $picture_fname;
-
-                if (file_exists(WEB_ROOT . $picture_tmp_path)) {
-                    // rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
-                    image_resize(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path, 400, 400);
-                }
-                $_ENV['material']->update_picture($mid, $target_path);
-            }
-
-            $affected_rows = $_ENV['material']->update($mid, $title, $description, $price, $site_url, $access_code);
-
-            $_ENV['material_category']->multi_add($mid, $category, false);
-            $this->jump("material/view/$mid");
-        } else {
-            if (0 == $this->user['uid']) {
-                $this->message("请先登录!", "user/login");
-            }
-
-            $material = $_ENV['material']->get($mid);
-            if ($material['uid'] != $this->user['uid']) {
-                $this->message("您无权执行此操作!", "STOP");
-            }
-
-            $category_list = $_ENV['material_category']->get_by_mid($mid);
-            include template('addmaterial');
-        }
+        $category_list = $_ENV['material_category']->get_by_mid($mid);
+        include template('add_material');
     }
 
     function onajaxrm_material_category() {
@@ -217,25 +160,6 @@ class materialcontrol extends base {
         exit('-1');
     }
 
-    function onupload_picture() {
-        $session_id = $this->post['session_id'];
-        $random_num = random(2);
-
-        $output_dir = "/public/data/tmp";
-        $extname = extname($_FILES["picture"]["name"]);
-
-        $file_web_path = $output_dir . "/{$session_id}{$random_num}.{$extname}";
-
-        $upload_target_fname = WEB_ROOT . $file_web_path;
-        if (file_exists($upload_target_fname)) {
-            unlink($upload_target_fname);
-        }
-
-        if (move_uploaded_file($_FILES["picture"]["tmp_name"], $upload_target_fname)) {
-            echo $file_web_path;
-        }
-    }
-
     function onreg() {
         if (0 == $this->user['uid']) {
             $this->message("请先登录!", "user/login");
@@ -250,19 +174,48 @@ class materialcontrol extends base {
     }
 
     // 个人空间用户上传资料展示
-    public function onuser() {
+    public function onprovide() {
         $this->check_login();
 
         $uid = $this->user['uid'];
         $material_num = $_ENV['material']->get_user_total_materials($uid);
 
-        $page = max(1, intval($this->get[2]));
+        $page = max(1, intval($this->post['page']));
         $pagesize = $this->setting['list_default'];
 
         $start = ($page - 1) * $pagesize;
-        $departstr = page($material_num, $pagesize, $page, "material/user");
+        $departstr = split_page($material_num, $pagesize, $page, "/material/provide?page=%s");
         $material_list = $_ENV['material']->list_by_uid($uid, $start, $pagesize);
         include template('user_material');
+    }
+
+    // 上传资料图片
+    public function onupload_picture() {
+        $this->check_login();
+        $target_picture_path = "";
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $session_id = $this->user['sid'];
+            $random_num = random(3);
+
+            $extname = extname($_FILES["picture"]["name"]);
+            $output_dir = "/public/data/tmp";
+            $picture_path = $output_dir . "/{$session_id}{$random_num}.{$extname}";
+
+            if (file_exists(WEB_ROOT . $picture_path)) {
+                unlink(WEB_ROOT . $picture_path);
+            }
+            if (move_uploaded_file($_FILES["picture"]["tmp_name"], WEB_ROOT . $picture_path)) {
+                $target_picture_path = $picture_path;
+            }
+        }
+        include template("upload_material_pic");
+    }
+
+    // 更改资料图片
+    public function onupdate_picture() {
+        $mid = $this->post['mid'];
+        $material = $_ENV['material']->get($mid);
+        include template("update_material_pic");
     }
 
     //===================================================================================
@@ -271,6 +224,7 @@ class materialcontrol extends base {
 
     // @onajax_fetch_list    [获取material列表]
     // @request type         [GET/POST]
+    // @param[in]       type [资料类型，分为：major, english, politics, math]
     // @param[in]  region_id [区域ID号]
     // @param[in]  school_id [学校ID号]
     // @param[in]    dept_id [院系ID号]
@@ -290,8 +244,10 @@ class materialcontrol extends base {
         $pagesize = $this->setting['list_default'];
         $start = ($page - 1) * $pagesize;
 
+        $category_null = ($region_id == "") && ($school_id == "") && ($dept_id == "") && ($major_id == "");
+
         $material_list = array();
-        if (empty($type) || $type == "major") {
+        if ((empty($type) || $type == "major") && !$category_null) {
             $material_list = $_ENV['material_category']->get_full($region_id,
                                                                   $school_id,
                                                                   $dept_id,
@@ -306,7 +262,6 @@ class materialcontrol extends base {
         $res['success'] = true;
         $res['start'] = $start + 1;
         $res['material_list'] = $material_list;
-        runlog("boostme", var_export($res, true));
         echo json_encode($res);
     }
 
@@ -500,86 +455,18 @@ class materialcontrol extends base {
     // @param[in]  picture_tmp_url [临时上传的图片地址]
     // @param[in]         site_url [资料链接地址]
     // @param[in]      access_code [资料获取密码]
+    // @param[in]    material_type [资料类型，分为专业课、数学、英语和政治]
     // @return            成功 [success为true, forward表示新添加的资料的链接地址]
     //                    失败 [success为false, error为相应的错误码]
     //
     // @error              101 [用户尚未登录]
-    // @error              102 [验证码错误]
+    // @error              102 [非法图片路径]
+    // @error              103 [未知资料类型]
     public function onajax_add() {
         $res = array();
-
         if (!$this->check_login(false)) {
             $res['success'] = false;
             $res['error'] = 101; // 用户尚未登录
-        } else {
-            $title = htmlspecialchars($this->post['title']);
-            $description = $this->post['description'];
-            $price = doubleval($this->post["price"]);
-            $category = $this->post['category'];
-            $picture_tmp_url = $this->post['picture_tmp_url'];
-            $site_url = $this->post['site_url'];
-            $access_code = $this->post['access_code'];
-
-            if ($this->setting['code_material_add'] && !$this->checkcode($this->user['sid'])) {
-                $res['success'] = false;
-                $res['error'] = 102; // 验证码错误
-            } else {
-                $type = get_image_type(WEB_ROOT . $picture_tmp_url);
-                $picture_fname = date("YmdHis") . random(3) . "." . $type;
-                $target_path = "/public/data/material/" . $picture_fname;
-
-                if (file_exists(WEB_ROOT . $picture_tmp_url)) {
-                    image_resize(WEB_ROOT . $picture_tmp_url, WEB_ROOT . $target_path, 500, 700);
-                }
-                $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'],
-                                              $target_path, $title, $description, $price,
-                                              $site_url, $access_code);
-                $_ENV['material_category']->multi_add($mid, $category, false);
-
-                $res['success'] = true;
-                $res['forward'] = SITE_URL .  "material/view/$mid";
-            }
-        }
-        echo json_encode($res);
-    }
-
-    // @onajax_edit                [编辑资料]
-    // @request type               [POST]
-    // @param[in]            title [资料标题]
-    // @param[in]      description [资料描述]
-    // @param[in]            price [资料价格]
-    // @param[in]         category [资料分类]
-    // @param[in]  picture_tmp_url [临时上传的图片地址]
-    // @param[in]         site_url [资料链接地址]
-    // @param[in]      access_code [资料获取密码]
-    // @return                成功 [success为true, forward表示新添加的资料的链接地址]
-    //                        失败 [success为false, error为相应的错误码]
-    //
-    // @error                  101 [无效参数，未指定资料ID号]
-    // @error                  102 [验证码错误]
-    // @error                  103 [用户无权操作]
-    public function onajax_edit() {
-        $res = array();
-
-        $mid = $this->post['mid'];
-        if (empty($mid)) {
-            $res['success'] = true;
-            $res['error'] = 101; // 无效参数，未指定资料ID号
-            echo json_encode($res);
-            return;
-        }
-
-        if ($this->setting['code_material_add'] && !$this->checkcode($this->user['sid'])) {
-            $res['success'] = false;
-            $res['error'] = 102; // 验证码错误
-            echo json_encode($res);
-            return;
-        }
-
-        $material = $_ENV['material']->get($mid);
-        if ($material['uid'] != $this->user['uid']) {
-            $res['success'] = false;
-            $res['error'] = 103; // 用户无权操作
             echo json_encode($res);
             return;
         }
@@ -591,25 +478,98 @@ class materialcontrol extends base {
         $picture_tmp_url = $this->post['picture_tmp_url'];
         $site_url = $this->post['site_url'];
         $access_code = $this->post['access_code'];
+        $material_type = $this->post['material_type'];
 
-        if (!empty($picture_tmp_url)) {
-            $picture_fname = end(explode("/", $picture_tmp_url));
+        $expected_tmp_path = "/public/data/tmp";
+        if (substr($picture_tmp_url, 0, strlen($expected_tmp_path)) != $expected_tmp_path) {
+            $res['success'] = false;
+            $res['error'] = 102; // 非法图片路径
+            echo json_encode($res);
+            return;
+        }
+        if (!in_array($material_type, array("major", "math", "english", "politics"))) {
+            $res['success'] = false;
+            $res['error'] = 103; // 未知资料类型
+            echo json_encode($res);
+            return;
+        }
+
+        $type = get_image_type(WEB_ROOT . $picture_tmp_url);
+        $picture_fname = date("YmdHis") . random(3) . "." . $type;
+        $target_path = "/public/data/material/" . $picture_fname;
+        if (file_exists(WEB_ROOT . $picture_tmp_url)) {
+            image_resize(WEB_ROOT . $picture_tmp_url, WEB_ROOT . $target_path, 500, 700);
+        }
+        $mid = $_ENV['material']->add($this->user['uid'], $this->user['username'],
+                                      $target_path, $title, $description, $price,
+                                      $site_url, $access_code, $material_type);
+        $_ENV['material_category']->multi_add($mid, $category, false); // 注意顺序，add需要添加索引
+
+        $res['success'] = true;
+        $res['forward'] = SITE_URL .  "/material/view?id=$mid";
+        echo json_encode($res);
+    }
+
+    // @onajax_edit                [编辑资料]
+    // @request type               [POST]
+    // @param[in]              mid [资料ID号]
+    // @param[in]            title [资料标题]
+    // @param[in]      description [资料描述]
+    // @param[in]            price [资料价格]
+    // @param[in]         category [资料分类]
+    // @param[in]         site_url [资料链接地址]
+    // @param[in]      access_code [资料获取密码]
+    // @param[in]          picture [上传的图片地址，可选]
+    // @return                成功 [success为true, forward表示新添加的资料的链接地址]
+    //                        失败 [success为false, error为相应的错误码]
+    //
+    // @error                  101 [无效参数，未指定资料ID号]
+    // @error                  102 [用户无权操作]
+    public function onajax_edit() {
+        $res = array();
+
+        $mid = $this->post['mid'];
+        if (empty($mid)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 无效参数，未指定资料ID号
+            echo json_encode($res);
+            return;
+        }
+
+        $material = $_ENV['material']->get($mid);
+        if ($material['uid'] != $this->user['uid']) {
+            $res['success'] = false;
+            $res['error'] = 102; // 用户无权操作
+            echo json_encode($res);
+            return;
+        }
+
+        $title = htmlspecialchars($this->post['title']);
+        $description = $this->post['description'];
+        $price = doubleval($this->post["price"]);
+        $category = $this->post['category'];
+        $site_url = $this->post['site_url'];
+        $access_code = $this->post['access_code'];
+
+        $picture = $this->post['picture'];
+        if (!empty($picture)) {
+            $picture_fname = end(explode("/", $picture));
             $picture_tmp_path = "/public/data/tmp/" . $picture_fname;
             $target_path = "/public/data/material/" . $picture_fname;
 
             if (file_exists(WEB_ROOT . $picture_tmp_path)) {
                 // rename(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path);
-                image_resize(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path, 400, 400);
+                image_resize(WEB_ROOT . $picture_tmp_path, WEB_ROOT . $target_path, 500, 700);
             }
             $_ENV['material']->update_picture($mid, $target_path);
         }
-
         $affected_rows = $_ENV['material']->update($mid, $title, $description,
                                                    $price, $site_url, $access_code);
 
-        $_ENV['material_category']->multi_add($mid, $category, false);
+        if (!empty($category)) $_ENV['material_category']->multi_add($mid, $category, false);
+
         $res['success'] = true;
-        $res['forward'] = SITE_URL . "material/view/$mid";
+        $res['forward'] = SITE_URL . "/material/view?id=$mid";
         echo json_encode($res);
     }
 
@@ -695,6 +655,28 @@ class materialcontrol extends base {
         $res['departstr'] = split_page($search_res['tot_num'],
                                        $pagesize, $page,
                                        "query_search('$query', %s)", 1);
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_category [获取用户已上传资料总数量]
+    //
+    // @param[in]         mid [资料ID号]
+    //
+    // @request type          [GET]
+    // @return                [success为true, cid_list为分类信息]
+    //
+    // @error             101 [参数无效]
+    public function onajax_fetch_category() {
+        $res = array();
+        $mid = $this->post['mid'];
+        if (empty($mid)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 参数无效
+            echo json_encode($res);
+            return;
+        }
+        $res['success'] = true;
+        $res['cid_list'] = $_ENV['material_category']->get_by_mid($mid);
         echo json_encode($res);
     }
 }

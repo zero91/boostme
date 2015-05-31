@@ -8,10 +8,9 @@ class resourcecontrol extends base {
         $this->load('userresume');
     }
 
-    function onrequest() {
-        $data_type = $this->get[2];
-        $uid = intval($this->get[3]);
-        // http://www.boostme.cn:9507/resource/request/stduentID/1
+    public function onrequest() {
+        $uid = intval($this->post['uid']);
+        $data_type = $this->post['data_type'];
 
         if ($uid != $this->user['uid']) {
             return;
@@ -20,19 +19,12 @@ class resourcecontrol extends base {
         $resume = $_ENV['userresume']->get_by_uid($uid);
 
         $filepath = "";
-        if ($data_type == 'ID') {
-            $filepath = WEB_ROOT . "/" . $resume['ID_path'];
-
-        } else if ($data_type == 'studentID') {
-            $filepath = WEB_ROOT . "/" . $resume['studentID'];
-
-        } else if ($data_type == 'resume') {
-            $filepath = WEB_ROOT . "/" . $resume['resume_path'];
-        }
+        if ($data_type == 'ID')             $filepath = WEB_ROOT . "/" . $resume['ID_path'];
+        else if ($data_type == 'studentID') $filepath = WEB_ROOT . "/" . $resume['studentID'];
+        else if ($data_type == 'resume')    $filepath = WEB_ROOT . "/" . $resume['resume_path'];
 
         header("Content-Type: application/force-download");
         header("Content-Disposition: attachment; filename=$data_type");
-
         if (file_exists($filepath)) {
             echo readfromfile($filepath);
         }

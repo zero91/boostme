@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<title>上传头像</title>
+<link href="{SITE_URL}/public/css/default/avatar.css" rel="stylesheet" type="text/css"/>
+<script src="{SITE_URL}/public/js/plugin/jquery/jquery.min.js" charset="utf-8"></script>
+<script src="{SITE_URL}/public/js/plugin/Jcrop/js/jquery.Jcrop.min.js" charset="utf-8"></script>
+<script src="{SITE_URL}/public/js/plugin/jquery-form/jquery.form.js"></script>
+<link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
+<link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript">
+<!--{if empty($target_picture_path)}-->
+$(function() {
+    $(".pic").click(function(){
+        $("#picture").click();
+    });
+});
+<!--{/if}-->
+</script>
+</head>
+<body>
+<div id="head">
+    <div class="pic">
+        <!--{if !empty($target_picture_path)}-->
+        <img src="{SITE_URL}{$target_picture_path}" id="target_picture">
+        <input type="hidden" id="target_picture_path" value="{$target_picture_path}"/>
+        <!--{else}-->
+        <div style="margin:14px;">
+            在这里上传资料的封面图片……<br/>请使用4M以内的jpg、gif、png图片。
+        </div>
+        <!--{/if}-->
+    </div>
+</div>
+<div class="upload" id="upload">
+    <form enctype="multipart/form-data" method="post">
+        <input name="picture" id="picture" type="file" onchange="$('#submit').trigger('click')">
+        <input type="submit" id="submit" value="上传" style="display:none">
+    </form>
+</div>
+</body>
+</html>

@@ -40,6 +40,8 @@ class material_categorymodel {
         if (!empty($region_id)) {
             return $this->get_full_by_cid($region_id, "region_id", $start, $limit, $status);
         }
+
+        // 此处不能选出无任何分类项的专业课资料
         return $this->get_full_by_cid("", "", $start, $limit, $status);
     }
 
@@ -63,7 +65,8 @@ class material_categorymodel {
         foreach ($material_list as &$material) {
             $material['format_time'] = tdate($material['time']);
             $material['desc_content'] = strip_tags($material['description']);
-            $material['desc_images'] = fetch_img_tag($material['description'])[0];
+            $images_arr = fetch_img_tag($material['description']);
+            $material['desc_images'] = $images_arr[0];
         }
         return $material_list;
     }
@@ -87,7 +90,6 @@ class material_categorymodel {
             $major_id  = $cid['major_id'];
             $sql .= "('$mid','$region_id','$school_id','$dept_id','$major_id'),";
         }
-
         $this->_db->query(substr($sql, 0, -1));
         return $this->_db->affected_rows();
     }

@@ -15,25 +15,11 @@ class ebankcontrol extends base {
         $this->load('withdraw');
     }
 
-    // 用户取出账户余额
+    // 用户余额套现页面
     public function onwithdraw() {
         $this->check_login();
         $ebank_account_list = $_ENV['user_ebank']->get_by_uid($this->user['uid']);
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $money = $this->post['money'];
-
-            $ebank_account_str = $this->post['ebank_account'];
-            $split_pos = strrpos($ebank_account_str, "_");
-            $ebank_account = substr($ebank_account_str, 0, $split_pos);
-            $ebank_type = substr($ebank_account_str, $split_pos + 1);
-            $_ENV['withdraw']->add($this->user['uid'], $money, $ebank_type, $ebank_account);
-            $_ENV['user']->update_balance($this->user['uid'], -$money);
-
-            $this->jump("ebank/withdraw");
-        } else {
-            $withdraw_list = $_ENV['withdraw']->get_uid_unpaid($this->user['uid']);
-            include template("withdraw");
-        }
+        include template("withdraw");
     }
 
     // 验证账户
@@ -259,7 +245,6 @@ class ebankcontrol extends base {
         $log .= "receive_mobile=[" . $result['receive_mobile'] . "], ";
         $log .= "gmt_create=[" . $result['gmt_create'] . "], ";
         $log .= "gmt_payment=[" . $result['gmt_payment'] . "]";
-        runlog("ebank", $log);
     }
 
     //===================================================================================
@@ -299,6 +284,101 @@ class ebankcontrol extends base {
 
         $res['success'] = true;
         $res['html_text'] = $html_text;
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_account   [获取用户已经验证的支付宝账号]
+    // @request type           [GET]
+    // @return            成功 [success为true, account_list为用户认证过的支付宝账户]
+    //                    失败 [success为false, error为相应的错误码]
+    //
+    // @error              101 [用户尚未登录]
+    public function onajax_fetch_account() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $res['success'] = true;
+        $res['account_list'] = $_ENV['user_ebank']->get_by_uid($this->user['uid']);
+        echo json_encode($res);
+    }
+
+    // @onajax_fetch_history   [获取用户历史申请套现列表]
+    // @request type           [GET]
+    // @return            成功 [success为true, withdraw_list为用户历史套现列表]
+    //                    失败 [success为false, error为相应的错误码]
+    //
+    // @error              101 [用户尚未登录]
+    public function onajax_fetch_history() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+        $res['success'] = true;
+        $res['withdraw_list'] = $_ENV['withdraw']->get_by_uid($this->user['uid']);
+        echo json_encode($res);
+    }
+
+    // @onajax_add_withdraw     [获取用户历史申请套现列表]
+    // @request type            [POST]
+    //
+    // @param[in]         money [套现金额]
+    // @param[in] ebank_account [套现账户]
+    // @param[in]    ebank_type [套现账户类型，暂定为：alipay]
+    //
+    // @return             成功 [success为true, withdraw_list为用户历史套现列表]
+    //                     失败 [success为false, error为相应的错误码]
+    //
+    // @error               101 [用户尚未登录]
+    // @error               102 [账户余额不足]
+    // @error               103 [无效参数]
+    // @error               104 [添加失败]
+    public function onajax_add_withdraw() {
+        $res = array();
+        if (!$this->check_login(false)) {
+            $res['success'] = false;
+            $res['error'] = 101; // 用户尚未登录
+            echo json_encode($res);
+            return;
+        }
+
+        $money = $this->post['money'];
+        if ($money > $this->user['balance']) {
+            $res['success'] = false;
+            $res['error'] = 102; // 账户余额不足
+            echo json_encode($res);
+            return;
+        }
+
+        $ebank_account = $this->post['ebank_account'];
+        $ebank_type = $this->post['ebank_type'];
+        if (empty($ebank_account) || empty($ebank_type)) {
+            $res['success'] = false;
+            $res['error'] = 103; // 无效参数
+            echo json_encode($res);
+            return;
+        }
+
+        $id = $_ENV['withdraw']->add($this->user['uid'], $money, $ebank_type, $ebank_account);
+        if ($id > 0) {
+            $affected_rows = $_ENV['user']->update_balance($this->user['uid'], -$money);
+            if ($affected_rows > 0) {
+                $res['success'] = true;
+                echo json_encode($res);
+                return;
+            } else {
+                $_ENV['withdraw']->remove_by_id($id);
+            }
+        }
+        $res['success'] = false;
+        $res['error'] = 104; // 添加失败
         echo json_encode($res);
     }
 }

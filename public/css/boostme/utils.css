@@ -113,3 +113,16 @@
 .bm_lborder_grey {border-left: 1px solid grey;}
 .bm_rborder_grey {border-right: 1px solid grey;}
 
+.bm_max_wh_80 {max-height:80px; max-width:80px;}
+.bm_max_wh_100 {max-height:100px; max-width:100px;}
+.bm_max_wh_120 {max-height:120px; max-width:120px;}
+.bm_max_wh_140 {max-height:140px; max-width:140px;}
+.bm_max_wh_160 {max-height:160px; max-width:160px;}
+
+.bm_wh_80 {height:80px; width:80px;}
+.bm_wh_100 {height:100px; width:100px;}
+.bm_wh_120 {height:120px; width:120px;}
+.bm_wh_140 {height:140px; width:140px;}
+.bm_wh_160 {height:160px; width:160px;}
+
+
