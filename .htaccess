@@ -1,15 +1,8 @@
-Options +FollowSymlinks
-RewriteEngine on
-RewriteBase /
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks
+  RewriteEngine On
 
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule (.*) index.php?access_path=$1 [L,QSA]
-
-#rewritecond %{http_host} ^boostme.cn [nc]
-#rewriterule ^(.*)$ http://www.boostme.cn/$1 [r=301,nc]
-#RewriteRule ^(.*)/(.*)$ index.php?path=$1 [L,QSA]
-#RewriteRule (.*)?/ index.php?path=$1 [L,QSA]
-#RewriteRule (.*)?/(.*) index.php?path=$1/$2 [L,QSA]
-#RewriteRule ^/(.*)/(.*)/(.*)$ index.php?$1/$2 [L,QSA]
-#RewriteRule ^(.*)/(.*)$ index.php?$1/$2 [QSA]
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+</IfModule>
