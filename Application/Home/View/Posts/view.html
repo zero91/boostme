@@ -1,0 +1,139 @@
+<include file="Common/header" />
+<link href="{SITE_URL}/public/css/default/forum.css" rel="stylesheet">
+<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/lightbox/lightbox.css"/>
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.all.js"></script> 
+
+<style type="text/css">
+    .avatar {position: absolute; top: 20px; left: 10px; }
+    .content {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px; min-height:100px;}
+    .content img {max-width:300px;max-height:400px;}
+    .comments {margin-top:15px;margin-left:45%;background:#FAFAFA;}
+
+    .comments .list-group .list-group-item {background:#FAFAFA;border-left:0px;
+            border-right:0px;font-size:12px;min-height:70px;}
+    .container {width:90%;} 
+
+    a:link {color: #0449be;}
+    a:visited {color: #653096;}
+    a:hover {color: #2d64b3;}
+    a:active {}
+</style>
+
+<div class="container bm_tpadding_20">
+    <div class="col-sm-2"><!--{template forum_left}--></div>
+    <div class="col-sm-10">
+        <ol class="breadcrumb">
+            <li><a href="{SITE_URL}/question/default">交流区</a></li>
+            <li class="active">{$question['title']}</li>
+        </ol>
+
+        <!--{if $is_followed}-->
+        <input type="button" class="btn btn-sm btn-success pull-right" id="attenttoquestion"
+                value="取消关注" onclick="attentto_question({$question['qid']})"/>
+        <!--{else}-->
+        <input type="button" class="btn btn-sm btn-info pull-right" id="attenttoquestion"
+                value="关注此贴" onclick="attentto_question({$question['qid']})"/>
+        <!--{/if}-->
+        <ul class="list-group">
+            <li class="list-group-item">
+                <div class="avatar" style="max-width:60px">
+                    <img class="img-circle" width="60px" height="60px"
+                            src="{eval echo get_avatar_dir($question['authorid']);}">
+                    <span>{$question['author']}</span>
+                </div>
+                <div class="content">
+                    <div class="">{$question['description']}</div> 
+                    <div style="font-size:12px; padding:6px 0 10px;">
+                        <span style="float:right" id="{$answer['id']}">
+                            {$question['format_time']}
+                        </span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <!--{loop $answerlist $answer}-->
+        <div id="{$answer[id]}" class="list-group-item">
+            <div class="avatar" style="max-width:60px">
+                <img class="img-circle" width="60px" height="60px" src="{eval echo get_avatar_dir($answer['authorid']);}">
+                <p>{$answer['author']}</p>
+            </div>
+            <div class="content">{$answer['content']}</div>
+            <div>
+                <div style="font-size:12px; padding:6px 0 10px; height:24px; line-height:24px;">
+                    <div style="float:right" id="{$answer['id']}">
+                        <span>{$answer['format_time']}</span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <span>
+                            <a id="show_{$answer['id']}" onclick="show_comment('{$answer['id']}', 1);"
+                                href="javascript:void(0)">回复</a>({$answer['comments']})
+                        </span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <input type="button" class="bm_button_agree" value="{$answer['supports']}"/>
+                    </div>
+                </div>
+                <div style="display:none;" class="comments" id="comment_{$answer['id']}">
+                    <div class="list-group">
+                        <div style="text-align:center;">
+                            <img src='{SITE_URL}/public/css/default/loading.gif' align='absmiddle' />&nbsp;加载中...
+                        </div>
+                    </div>
+                    <div style="padding-top:30px;">
+                        <span style="margin-left:5%;">我也说一句</span>
+                        <textarea name="content" class="form-control" maxlength="90"
+                                style="height:70px;width:90%;margin-left:5%;margin-bottom:10px;resize:none;"></textarea>
+                        <input type="button" value="发&nbsp;表" class="btn btn-sm btn-primary" name="submit"
+                                onclick="add_comment({$answer['id']});" style="margin-left:85%;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--{/loop}-->
+        <center><ul class="pagination">{$departstr}</ul></center>
+
+        <div id="answer_area" style="background: url({SITE_URL}/public/css/default/forum_editor.jpg) repeat;height:280px;">
+            <div class="content">
+                <h4>发表回复</h4>
+                <div>
+                    <script type="text/plain" id="answer_question_content" name="content" style="height: 122px;"></script>
+                    <script type="text/javascript">UE.getEditor('answer_question_content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+                </div>
+                <div style="margin-top:15px;">
+                    <!--{if $setting['code_reply']}-->
+                    <span>验证码：</span>
+                    <input type="text" onblur="check_code()" name="code" id="code">&nbsp;
+                    <span class="verifycode">
+                        <img id="verifycode" onclick="javascript:updatecode();" src="{SITE_URL}user/code">
+                    </span>
+                    <a class="changecode" href="javascript:updatecode();">&nbsp;换一个</a>
+                    <span id="codetip"></span>
+                    <!--{/if}-->
+                    <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="answer_question({$question['qid']})">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/template" id="answer_comment_list_template">
+<% _.each(comment_list, function(comment) { %>
+<div class="list-group-item">
+    <div style="position:absolute;left:5px;">
+        <img class="img-circle" width="30" height="30" src="<%= comment['avatar'] %>">
+        <p><%= comment['author'] %></p>
+    </div>
+    <div style="margin-left:35px;">
+        <div class=""><%= comment['content'] %></div>
+        <div style="position:absolute;right:25px;bottom:1px;font-size:11px;color:grey;">
+            <span><%= comment['format_time'] %></span>
+        </div>
+    </div>
+</div>
+<%})%>
+<center><div class="pages"><%= departstr %></div></center>
+</script>
+
+<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/editor/third-party/SyntaxHighlighter/shCoreDefault.css"/>
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/third-party/SyntaxHighlighter/shCore.js"></script>
+<script src="{SITE_URL}/public/js/boostme/question.js"></script>
+<include file="Common/footer" />

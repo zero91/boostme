@@ -1,0 +1,102 @@
+<!--{template header,'admin'}-->
+<script type="text/javascript">
+    $(function(){
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (e.target.id == "feedback_tab") {
+            location.href = "{url admin_feedback/default}";
+          } else if (e.target.id == "register_tab") {
+            location.href = "{url admin_material/register}";
+          }
+        })
+    })
+</script>
+<style type="text/css">
+    .mybadge_div {margin-top: 10px; margin-bottom: 10px;}
+    .mybadge {margin: 10px 20px;}
+    .photo {position: absolute; top: 20px; left: 10px; }
+    .action {position: absolute; right: 50px; bottom: 20px;} /* panel右下角的动作 */
+    .list-group-item {min-height: 80px;border:0px;padding: 10px 5px;}
+    .mypanel {margin: 0 0px 0 75px !important; padding: 10px; line-height: 26px;}
+    .arrow {left:76px;top:40px;position:absolute;}
+    .arrow:before,.arrow:after{color:transparent;bottom:100%;border:solid;content:"";height:0;width:0;position:absolute;pointer-events:none}
+    .arrow:before{border-color:transparent #e7e7e7 transparent transparent;border-width:6px;left:50%;margin-left:-8px;top:50%;margin-top:-8px}
+    .arrow:after{border-color:transparent #fff transparent transparent;border-width:6px;left:50%;margin-left:-6px;top:50%;margin-top:-8px}
+</style>
+
+<div class="container">
+  <div class="col-md-2"><!--{template leftmenu,'admin'}--></div>
+  <div class="col-md-9">
+    <ul class="nav nav-tabs" role="tablist" style="font-size:13px;">
+        <!--{if $type =="feedback/default"}-->
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">全部反馈</a></li>
+        <!--{else}-->
+        <li><a href="#no_content" id="feedback_tab" role="tab" data-toggle="tab">全部反馈</a></li>
+        <!--{/if}-->
+
+        <!--{if $type =="material/register"}-->
+        <li class="active"><a href="javascript:void(0)" role="tab" data-toggle="tab">资料登记</a></li>
+        <!--{else}-->
+        <li><a href="#no_content" id="register_tab" role="tab" data-toggle="tab">资料登记</a></li>
+        <!--{/if}-->
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div class="tab-pane active" id="all_prob">
+        <div class="list-group">
+            <!--{loop $reg_list $reg}-->
+            <div id="{$reg['id']}" class="list-group-item" style="min-height:100px;">
+                <div class="pull-right">
+                    <a type="button" name="delete_{$reg['id']}" class="glyphicon glyphicon-trash" id="{$reg['id']}" style="color:grey"></a>
+                </div>
+                <div class="photo" style="max-width:60px">
+                    <img class="img-circle" width="60px" height="60px" src={$reg['avatar']}>
+                    <a href="{url user/space/$reg['uid']}" class="trigger_btn align_center">{$reg['username']}</a>
+                </div>
+                <div class="panel panel-default mypanel">
+                    <p> {$reg['description']} </p>
+
+                    <!--{eval $user = $_ENV['user']->get_by_uid($reg['uid'])}-->
+
+                    <p>电话：{$user['phone']}</p>
+                    <p>QQ：{$user['qq']}</p>
+                    <p>wechat：{$user['wechat']}</p>
+
+                    <span style="color:grey">{$reg['format_time']}</span>
+                    <span class="arrow"></span>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <!--{/loop}-->
+        </div>    
+        <ul class="pagination">{$departstr}</ul>
+      </div><!-- existing problems tab end -->
+      <div class="tab-pane" id="my_prob"></div>
+      <div class="tab-pane" id="sys_sugg"></div>
+    </div>
+  </div>
+</div><!-- container end -->
+
+<script type="text/javascript">
+var timer;
+$(document).ready(function() {
+    $(".glyphicon").click(function() {
+        id = $(this).attr("id");
+        grandparent = $(this).parent().parent();
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}index.php?admin_material/ajax_existed/" + id,
+            cache: false,
+            success: function(succeed) {
+                if (succeed == '1') {
+                    grandparent.hide();
+                } else if (succeed == '-1') {
+                    alert("删除失败，请重试！");
+                }
+            }
+        });
+    });
+});
+
+</script>
+<!--{template footer,'admin'}-->

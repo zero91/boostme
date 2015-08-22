@@ -1,0 +1,57 @@
+<link href="__PUBLIC__/css/default/new-general.css" rel="stylesheet" type="text/css"/>
+<link href="__PUBLIC__/css/default/new-setting.css" rel="stylesheet" type="text/css"/>
+
+<div class="jumbotron jsk-setting">
+    <div class="container">
+        <ul class="nav nav-pills" role="tablist">
+            <if condition="'__SELF__' eq U('User/profile')">
+                <li class="active"><a href="{:U('User/profile')}">基本资料</a></li>
+            <else/>
+                <li><a href="{:U('User/profile')}">基本资料</a></li>
+            </if>
+
+            <if condition="'__SELF__' eq U('User/password')">
+                <li class="active"><a href="{:U('User/password')}">修改密码</a></li>
+            <else/>
+                <li><a href="{:U('User/password')}">修改密码</a></li>
+            </if>
+
+            <if condition="$regular eq '/user/resume'">
+                <li class="active"><a href="__ROOT__/user/resume">身份认证</a></li>
+            <else/>
+                <li><a href="__ROOT__/user/resume">身份认证</a></li>
+            </if>
+
+            <if condition="$regular eq '/trade/default'">
+                <li class="active"><a href="__ROOT__/trade/default">购买历史</a></li>
+            <else/>
+                <li><a href="__ROOT__/trade/default">购买历史</a></li>
+            </if>
+
+            <if condition="$regular eq '/material/provide'">
+                <li class="active"><a href="__ROOT__/material/provide">我的资料</a></li>
+            <else/>
+                <li><a href="__ROOT__/material/provide">我的资料</a></li>
+            </if>
+
+            <if condition="$regular eq '/service/register'">
+                <li class="active"><a href="__ROOT__/service/register">申请提供服务</a></li>
+            <else/>
+                <li><a href="__ROOT__/service/register">申请提供服务</a></li>
+            </if>
+
+            <if condition="$regular eq '/ebank/withdraw'">
+                <li class="active"><a href="__ROOT__/ebank/withdraw">余额套现</a></li>
+            <else/>
+                <li><a href="__ROOT__/ebank/withdraw">余额套现</a></li>
+            </if>
+
+            <if condition="$regular eq '/message/index'">
+                <li class="active"><a href="__ROOT__/message/index">消息中心</a></li>
+            <else/>
+                <li><a href="__ROOT__/message/index">消息中心</a></li>
+            </if>
+        </ul>
+    </div>
+</div>
+

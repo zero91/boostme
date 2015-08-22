@@ -1,15 +1,4 @@
-# public running data
-public/data/material/
-public/data/service/
-public/data/attach
-public/data/tmp
-public/data/avatar
-
-# private running data
-private/view/
-private/cache/
-private/logs/
-private/userdata/
-
 # vim tmp files
 *.swp
+
+Application/Runtime

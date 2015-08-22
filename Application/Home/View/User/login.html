@@ -1,0 +1,44 @@
+<include file="Common/header" />
+<div class="container">
+    <h2>登录</h2>
+    <hr style="border-color: #DFE2E6">
+    <form name="loginform" class="form-horizontal" action="{SITE_URL}/user/login" method="post">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">用户名</label>
+            <div class="col-sm-5"><input type="text" class="form-control" id="username" name="username" /></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">密&nbsp;&nbsp;码</label>
+            <div class="col-sm-5"><input type="password" class="form-control" id="password" name="password" /></div>
+        </div>
+        <!--{if $setting['code_login']}-->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">验证码</label>
+            <div class="col-sm-2"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
+            <div class="col-sm-5">
+                <span class="verifycode"><img src="{SITE_URL}/user/ajax_code" onclick="update_code();" id="verifycode"></span>
+                <a class="changecode" href="update_code();">&nbsp;看不清?</a>
+                <span id="codetip"></span>
+            </div>
+        </div>
+        <!--{/if}-->
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <div class="col-sm-4">
+                    <label><input type="checkbox" checked id="cookietime" name="cookietime" value="2592000">下次自动登录 </label>
+                </div>
+                <div class="col-sm-offset-4"><a href="{SITE_URL}/user/register">还没有账号？立即注册!</a></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-5">
+                <input type="hidden" id="forward" name="forward" value="{$forward}"/>
+                <input type="button" id="login_btn" class="btn btn-primary col-sm-12" value="登&nbsp;录">
+                <!-- &nbsp;&nbsp;&nbsp;忘记密码了？请点击 <a href="{SITE_URL}/user/getpass">找回密码</a>-->
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="__PUBLIC__/js/boostme/user.js"></script>
+<include file="Common/footer" />

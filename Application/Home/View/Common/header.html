@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!--{eval $toolbars="'".str_replace(",", "','", $setting['editor_toolbars'])."'"; }-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset={WEB_CHARSET}"/>
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{$title}</title>
+    <meta name="description" content="找名校学生做家教，找兼职" />
+    <meta name="author" content="帮考研" />
+    <link rel="shortcut icon" href="__PUBLIC__/images/icon.png"/>
+
+    <script src="__PUBLIC__/Common/js/third/underscore/underscore-min.js"></script>
+    <script src="__PUBLIC__/Common/js/third/jquery/jquery.min.js"></script>
+    <script src="__PUBLIC__/Common/js/third/backbone/1.2.1/backbone-min.js"></script>
+    <script src="__PUBLIC__/Common/js/third/bootstrap/js/bootstrap.min.js"></script>
+    <link  href="__PUBLIC__/Common/js/third/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="__PUBLIC__/js/data/category.data.js"></script>
+    <script src="__PUBLIC__/js/boostme/utils.js"></script>
+    <script src="__PUBLIC__/js/boostme/boostme.js"></script>
+
+    <link href="__PUBLIC__/css/third/font-awesome.min.css" rel="stylesheet">
+
+    <link href="__PUBLIC__/css/boostme/utils.css" rel="stylesheet">
+    <link href="__PUBLIC__/css/boostme/boostme.css" rel="stylesheet">
+    <link href="__PUBLIC__/css/default/common.css" rel="stylesheet">
+</head>
+<body>
+<div id="fixed_wrapper">
+<div id="main_content">
+
+<div id="mobile_menu">
+    <ul class="nav nav-pills nav-stacked">
+        <li><a href="{:U('Index/index')}"><i class="glyphicon glyphicon-home"></i> &nbsp;首页</a></li>
+        <li><a href="__ROOT__/service/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;咨询区</a></li>
+        <li><a href="__ROOT__/material/default"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
+        <li><a href="__ROOT__/posts/index"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
+        <li><a href="__ROOT__/main/help"><i class="glyphicon glyphicon-phone-alt"></i> &nbsp;帮助</a></li>
+    </ul>
+</div>
+
+<div class="container_wrapper">
+    <div id="nav_menu">
+        <div class="col-xs-3 nav_menu_logo">
+            <a href="__ROOT__"><h1 id="logo_text">帮<span>考研</span></h1></a>
+        </div>
+        <div class="col-sm-9 hidden-xs">
+            <!-- <ul class="nav nav-justified"> -->
+            <div class="col-sm-8">
+                <ul class="nav nav-justified" id="nav_menu_link">
+                    <if condition="'__SELF__' eq U('Index/index')">
+                        <li class="menu_link_on"><a href="{:U('Index/index')}">首页</a></li>
+                    <else />
+                        <li><a href="{:U('Index/index')}">首页</a></li>
+                    </if>
+
+                    <if condition="'__SELF__' eq U('Service/index')">
+                        <li class="menu_link_on"><a href="{:U('Service/index')}">师兄师姐</a></li>
+                    <else />
+                        <li><a href="{:U('Service/index')}">师兄师姐</a></li>
+                    </if>
+
+                    <if condition="'__SELF__' eq U('Material/index')">
+                        <li class="menu_link_on"><a href="{:U('Material/index')}">考研资料</a></li>
+                    <else />
+                        <li><a href="{:U('Material/index')}">考研资料</a></li>
+                    </if>
+
+                    <if condition="'__SELF__' eq U('Posts/index')">
+                        <li class="menu_link_on"><a href="{:U('Posts/index')}">考研圈</a></li>
+                    <else />
+                        <li><a href="{:U('Posts/index')}">考研圈</a></li>
+                    </if>
+
+                    <if condition="'__SELF__' eq U('Index/help')">
+                        <li class="menu_link_on"><a href="{:U('Index/help')}">帮助</a></li>
+                    <else />
+                        <li><a href="{:U('Index/help')}">帮助</a></li>
+                    </if>
+                </ul>
+            </div>
+            <div class="col-sm-4" id="nav_menu_right">
+                <ul class="nav navbar-nav navbar-right">
+                    <if condition="is_login()">
+                        <li>
+                            <a href="{:U('User/profile')}" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="个人主页">
+                                <span>{:get_username()}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{:U('Message/index')}" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="消息">
+                                <!--{if $user['new_msg_num'] > 0}-->
+                                <i class="fa fa-comments"></i>
+                                <!--{else}-->
+                                <i class="fa fa-comments-o"></i>
+                                <!--{/if}-->
+                            </a>
+                        </li>
+                        <li><a href="{:U('User/logout')}" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="退出"><i class="glyphicon glyphicon-off"></i></a></li>
+                    <else/>
+                        <li><a href="{:U('User/login')}">登录</a></li>
+                        <li><a href="{:U('User/register')}">注册</a></li>
+                    </if>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-9 visible-xs">
+            <a href="#" id="mobile_menu"><span class="glyphicon glyphicon-th-list"></span></a>
+       </div>
+    </div>
+</div>
+<div style="height:64px;positive:relative;"></div>
+
+<script type="text/javascript">
+var g_site_url = "__ROOT__";
+var g_regular = "__SELF__";
+var g_code_register = 0;
+var g_userid = {:is_login()};
+$(function(){
+    $('.tip').tooltip({animation:true, trigger:'hover'});
+});
+</script>

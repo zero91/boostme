@@ -1,0 +1,62 @@
+<include file="Common/header" />
+<div class="container">
+    <h2>注册</h2>
+    <hr style="border-color: #DFE2E6">
+    <form name="loginform" action="{SITE_URL}/user/register" method="post" class="form-horizontal" onsubmit="return docheck()">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">用户名</label>
+            <div>
+                <div class="col-sm-5"><input type="text" class="form-control" id="username" name="username" onblur="check_username();"/></div>
+                <span id="usernametip" class="control-label">不超过14个字节(中文，数字，字母和下划线)</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">登陆密码</label>
+            <div>
+                <div class="col-sm-5"><input type="password" class="form-control" id="password" name="password" onblur="check_passwd();" /></div>
+                <span id="passwordtip" class="control-label">长度6-14位，字母区分大小写</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">密码确认</label>
+            <div>
+                <div class="col-sm-5"><input type="password" class="form-control" id="repassword" name="repassword"  onblur="check_repasswd();"/></div>
+                <span id="repasswordtip" class="input_desc">与登录密码输入一致</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">电子邮箱</label>
+            <div>
+                <div class="col-sm-5"><input type="text" class="form-control" id="email" name="email" onblur="check_email();"/></div>
+                <span id="emailtip" class="input_desc">请输入正确的电子邮箱地址</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">邀请码</label>
+            <div>
+                <div class="col-sm-5"><input type="text" class="form-control" id="invite_code" name="invite_code" value="{$invite_code}"/></div>
+                <span id="invite_code" class="control-label">选填</span>
+            </div>
+        </div>
+        <!--{if $setting['code_register']}-->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">验证码</label>
+            <div>
+                <div class="col-sm-5"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
+                <img src="{SITE_URL}/user/ajax_code" onclick="update_code();" id="verifycode">
+                <a class="" href="javascript:update_code();">&nbsp;看不清?</a>
+                <span id="codetip"></span>
+            </div>
+        </div>
+        <!--{/if}-->
+        <div class="form-group">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-5">
+                <input type="hidden" id="forward" name="forward" value="{$forward}"/>
+                <input id="register_btn" type="button" value="注&nbsp;&nbsp;&nbsp;&nbsp;册" class="btn btn-primary col-sm-12"/>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="__PUBLIC__/js/boostme/user.js"></script>
+<include file="Common/footer" />

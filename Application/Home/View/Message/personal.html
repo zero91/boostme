@@ -1,0 +1,74 @@
+<!--{template header}-->
+<!--{template common_link}-->
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.all.js"></script> 
+<style type="text/css">
+    .list-group-item {border:0px;background-color:#FCFCFC;}
+</style>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ol class="breadcrumb">
+                <li><a href="{SITE_URL}/message/default">消息中心</a></li>
+                <li class="active">私信 - {$fromuser['username']}</li>
+            </ol>
+            <ul class="col-md-12 col-sm-12 setting-content">
+                <div class="bm_bpadding_20">
+                    <script type="text/plain" id="content" name="content" style="height: 144px;"></script>
+                    <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+                    <input value="回&nbsp;复" class="btn btn-primary bm_full_width" id="reply_btn">
+                    <input value="{$fromuser['username']}" id="to_username" type="hidden">
+                </div>
+
+                <!--{loop $message_list $message}-->
+                <li class="list-group-item" id="{$message['mid']}">
+                    <table style="width:100%;text-align:left;min-height:46px;">
+                        <tr>
+                            <!--{if $message['fromuid'] != $user['uid']}-->
+                            <td width="5%">
+                                <small>
+                                    {eval echo tdate($message['time'])}
+                                    <a class="bm_pointer" id="remove_{$message['mid']}">删除</a>
+                                </small>
+                                <!-- <a type="button" class="del_personal_msg_btn glyphicon glyphicon-trash">删除</a> -->
+                            </td>
+                            <td width="10%">
+                                <center>
+                                    <img width="60" height="60" src="{echo get_avatar_dir($message['fromuid'])}" class="img-circle"/>
+                                    <p>{$message['from']}</p>
+                                </center>
+                            </td>
+                            <td width="55%" class="bm_rpadding_10"><p>{$message['content']}</p></td>
+                            <td width="27%"></td>
+
+                            <!--{else}-->
+
+                            <td width="27%"></td>
+                            <td width="55%" class="bm_rpadding_10"><div class="bm_float_right">{$message['content']}</div></td>
+                            <td width="10%">
+                                <center>
+                                    <img width="60" height="60" src="{echo get_avatar_dir($message['fromuid'])}" class="img-circle"/>
+                                    <p>{$message['from']}</p>
+                                </center>
+                            </td>
+                            <td width="5%">
+                                <small>
+                                    {eval echo tdate($message['time'])} 
+                                    <a class="bm_pointer" id="remove_{$message['mid']}">删除</a>
+                                </small>
+                            </td>
+                            <!--{/if}-->
+                        </tr>
+                    </table>
+                </li>
+                <!--{/loop}-->
+                <center><div class="split_page">{$departstr}</div></center>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="{SITE_URL}/public/js/boostme/user.js"></script>
+<script src="{SITE_URL}/public/js/boostme/message.js"></script>
+<!--{template footer}-->

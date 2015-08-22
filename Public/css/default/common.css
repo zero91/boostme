@@ -1,0 +1,36 @@
+#mobile_menu {
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background: #f9f9f9;
+    position: fixed;
+    z-index: 1049;
+    right: -1500px;
+    display: none;
+    overflow: auto;
+}
+#mobile_menu ul li a {
+    text-align: left;
+    background: #f15556;
+    color: #000;
+}
+#mobile_menu ul li:hover a {
+    background: #c83233;
+	color: #fff;
+}
+
+/*  Small devices (tablets, 768px and up)  */
+@media (max-width: 768px ) { 
+    #index_about .pre_next {
+        font-size: 15px;
+    }
+}
+/*  Medium devices (desktops, 992px and up)  */
+@media (max-width: 970px ) {
+    #nav_menu #logo_text {
+        font: normal normal normal 30px/1em 'Century Gothic', sans-serif;
+    }
+}
+/*  Large devices (large desktops, 1200px and up)  */
+@media (min-width: 1200px ) {
+} 

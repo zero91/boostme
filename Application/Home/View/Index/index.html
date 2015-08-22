@@ -1,0 +1,74 @@
+<include file="Common/header" />
+
+<include file="__PUBLIC__/css/default/index.css" />
+
+<div class="banner" id="banner_slide">
+    <ul>
+        <li class="banner_slide_01">
+            <div class="slide_caption">
+                <h1>选学校，挑专业，一头雾水？</h1>
+                <h1>进复试，找老师，寻路无门？</h1>
+                <h1> —— 快来咨询师兄师姐吧！</h1>
+            </div>
+        </li>
+        <li class="banner_slide_02">
+            <div class="slide_caption">
+                <h1>考研资料</h1>
+                <h1>师兄有资料？分享给师妹吧</h1>
+            </div>
+        </li>
+        <li class="banner_slide_03">
+            <div class="slide_caption">
+                <h1>专业课一知半解？师兄师姐全程辅导！</h1>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div id="index_about" class="container_wapper">
+    <div class="container-fluid">
+        <h1>关于Boostme</h1>
+        <div class="col-sm-6 col-md-4 about_icon">
+            <a target="_blank" href="__ROOT__/service/default"><div class="imgwap mission"><i class="fa fa-rocket"></i></div></a>
+            <h2>找学长了解信息</h2>
+            <p>咨询区有一大波学长学姐在等待</p>
+        </div>
+        <div class="col-sm-6 col-md-4 about_icon">
+            <a target="_blank" href="__ROOT__/material/default"><div class="imgwap product"><i class="fa fa-cubes"></i></div></a>
+            <h2>找考研相关资料</h2>
+            <p>资料区有一大堆资料</p>
+        </div>
+        <div class="col-sm-6 col-md-4 about_icon">
+            <a target="_blank" href="__ROOT__/forum/default"><div class="imgwap statistic"><i class="fa fa-comments"></i></div></a>
+            <h2>找研友一起考研交流</h2>
+            <p>交流区内可以随便探讨</p>
+        </div>
+        <div class="clearfix testimonial_top_bottom_spacer"></div>
+        <div class="col-xs-1 pre_next_wap" id="prev_testimonial">
+            <a href="#"><span class="glyphicon glyphicon-chevron-left pre_next"></span></a>
+        </div>
+        
+        <div id="testimonial_text_wap" class="col-xs-9 col-sm-10">
+            <!--{loop $service_list $service}-->
+            <div class="testimonial_text">
+                <div class="col-sm-3" style="min-height:200px;">
+                    <a href="__ROOT__/service/view?service_id={$service['id']}"><img src="{echo get_avatar_dir($service['uid'])}" class="img-responsive"/></a>
+                </div>
+                <div class="col-sm-9">
+                    <h2>{$service['username']}</h2>
+                    <p>{$service['service_content']}</p>
+                </div>
+            </div>
+            <!--{/loop}-->
+        </div>
+        <div class="col-xs-1 pre_next_wap" id="next_testimonial">
+            <a href="#"><span class="glyphicon glyphicon-chevron-right pre_next"></span></a>
+        </div>
+        <div class="clearfix testimonial_top_bottom_spacer"></div>
+    </div>
+</div>
+
+<script src="__PUBLIC__/js/unslider.min.js"></script>
+<script src="__PUBLIC__/js/index.js"></script>
+
+<!--{template footer}-->
