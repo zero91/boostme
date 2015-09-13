@@ -79,7 +79,7 @@ h1 {
     padding-bottom: 35px;
     font: normal normal normal 18px/23px 'Century Gothic', sans-serif;
     color: #000;
-    background: repeat-x url("../images/banner_bg.jpg") 0 -94px ;
+    background: repeat-x url("../Images/banner_bg.jpg") 0 -94px ;
     transition-duration: .5s;
 }
 #templatemo_banner_menu ul li a:hover ,
