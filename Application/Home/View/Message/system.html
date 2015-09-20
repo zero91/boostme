@@ -1,36 +1,40 @@
-<!--{template header}-->
-<!--{template common_link}-->
+<include file="Common/header" />
+<include file="Common/common_link" />
+
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-body">
             <ol class="breadcrumb">
-                <li><a href="{SITE_URL}/message/default">消息中心</a></li>
+                <li><a href="{:U('Message/index')}">消息中心</a></li>
                 <li class="active">系统消息</li>
             </ol>
             <ul class="col-md-9 col-sm-9 setting-content">
-                <!--{loop $message_list $message}-->
-                <li class="list-group-item" id="{$message['mid']}">
+                <foreach name="message_list" item="message">
+                <li class="list-group-item" id="message_{$message['id']}">
                     <table style="width:100%;text-align:left;min-height:86px;">
                         <tr>
                             <td width="67%" class="bm_rpadding_10">
+                                <if condition="$message['new']">
                                 <p style="font-size:14px;">
-                                    <!--{if $message['new']}-->
-                                    <i class="fa fa-envelope bm_envelope_unread"> {$question['answers']}</i>
-                                    <!--{/if}-->
-                                    <strong>{$message['subject']}</strong>
-                                </p><br/>
-                                <span style="font-size:13px;"> {$message['content']} </span>
+                                    <i class="fa fa-envelope bm_envelope_unread"></i>
+                                    <strong>{$message['content']}</strong>
+                                </p>
+                                <else />
+                                    <span style="font-size:13px;">{$message['content']} </span>
+                                </if>
                             </td>
                             <td width="14%">
-                                <span>{eval echo tdate($message['time'])}</span>
+                                <span>{:format_date($message['create_time'])}</span>
                             </td>
                             <td width="3%">
-                                <a class="bm_pointer" id="remove_{$message['mid']}">删除</a>
+                                <a type="button" class="glyphicon glyphicon-trash"
+                                                 style="color:grey;cursor:pointer;"
+                                                 id="remove_{$message['id']}"></a>
                             </td>
                         </tr>
                     </table>
                 </li>
-                <!--{/loop}-->
+                </foreach>
                 <center><div>{$departstr}</div></center>
             </ul>
             <div class="col-md-3 col-sm-3" style="overflow:hidden">
@@ -58,5 +62,5 @@ function show() {
 //window.setInterval(show, 1000);
 </script>
 
-<script src="{SITE_URL}/public/js/boostme/message.js"></script>
-<!--{template footer}-->
+<script src="__PUBLIC__/Home/Js/Message.js"></script>
+<include file="Common/footer" />

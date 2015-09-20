@@ -1,9 +1,9 @@
 <include file="Common/header" />
-<link href="{SITE_URL}/public/css/default/forum.css" rel="stylesheet">
-<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/lightbox/lightbox.css"/>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/lightbox/lightbox.js"></script>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.config.js"></script> 
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.all.js"></script> 
+<link href="__PUBLIC__/Home/Css/forum.css" rel="stylesheet">
+<link rel="stylesheet" href="__PUBLIC__/Common/Js/third/lightbox/lightbox.css"/>
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.all.js"></script> 
 <style type="text/css">
     .answer_num {position: absolute; top: 20px; left: 10px; }
     .msg_content {margin: 0 10px 0 45px !important; padding: 10px; line-height: 26px;}
@@ -19,43 +19,46 @@
     a:active {}
 </style>
 <div class="container bm_tpadding_20">
-    <div class="col-sm-2"><!--{template forum_left}--></div>
+    <div class="col-sm-2"><include file="Posts/left" /></div>
     <div class="col-sm-10">
         <ul class="list-group">
-            <!--{loop $questionlist $question}-->
+            <foreach name="post_list" item="post">
             <li class="list-group-item">
                 <table class="bm_table_style">
                     <tr>
                         <td width="10%">
-                            <img width="60" height="60" src="{$question['avatar']}" class="img-circle"/>
-                            <p><small>{$question['author']}</small></p>
+                            <img width="60" height="60" src="{$post['uid']|get_user_avatar}" class="img-circle"/>
+                            <p><small>{$post['nickname']}</small></p>
                         </td>
                         <td width="65%">
-                            <p><a href="{SITE_URL}/question/view?qid={$question['qid']}">{$question['title']}</a></p>
-                            <div id="strip_description">{echo cutstr($question['strip_description'], 120)}</div>
+                            <p><a target="_blank" href="{:U('Posts/view?id=' . $post['id'])}">{$post['title']}</a></p>
+                            <div id="strip_description">{$post['content']|strip_tags|msubstr=0,120}</div>
                             <div id="images">
-                                <!--{loop $question['images'] $img}-->{$img}<!--{/loop}-->
+                                <foreach name="post['images']" item="image">{$image}</foreach>
                             </div>
                         </td>
                         <td class="bm_lpadding_10" width="5%">
-                            <i class="fa fa-comments-o"> {$question['answers']}</i>
+                            <i class="fa fa-comments-o">{$post['answers']}</i>
                         </td>
                         <td width="15%">
                             <div class="pull-right">
-                                <span>{eval echo tdate($question['update_time'])}</span>
+                                <span>{$post['update_time']|format_date}</span>
                             </div>
                         </td>
                     </tr>
                 </table>
                 <hr style="border-color: #DFE2E6">
             </li>
-            <!--{/loop}-->
-            <center><div class="pages">{$departstr}</div></center>
+            </foreach>
+            <li class="list-group-item">
+                <a id="more" class="btn-load-more btn btn-primary btn-lg btn-block">
+                    <i class="fa fa-th"></i>  查看更多
+                </a>
+            </li>
         </ul>
-
-        <div style="background: url({SITE_URL}/public/css/default/forum_editor.jpg) repeat;">
+        <div style="background: url(__PUBLIC__/Home/Css/forum_editor.jpg) repeat;">
             <div style="padding:10px;">
-                共有贴子<span style="color:red">{$question_num}</span>篇，考研小伙伴<span style="color:red">{eval echo $user_num + 888}</span>枚
+                共有贴子<span style="color:red">{$post_num}</span>篇
             </div>
             <div class="msg_content">
                 <div id="question_title" style="margin-bottom:15px;">
@@ -63,17 +66,17 @@
                     <input type="text" class="form-control" placeholder="请输入主题" name="title" id="title"/>
                 </div>
                 <script type="text/plain" id="content" name="content" style="height: 244px;"></script>
-                <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+                <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
                 <div style="margin-top:15px;">
                     <span>验证码：</span>
                     <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
                     <img src="{SITE_URL}/user/ajax_code" onclick="javascript:update_code();" id="verifycode">
                     <a href="javascript:update_code();">&nbsp;换一个</a><span id="codetip"></span>
-                    <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_question_btn">
+                    <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_post_btn">
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script src="{SITE_URL}/public/js/boostme/question.js"></script>
+<script src="__PUBLIC__/Home/Js/Posts.js"></script>
 <include file="Common/footer" />

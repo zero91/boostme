@@ -1,0 +1,106 @@
+<include file="Common/header" />
+<include file="Common/common_link" />
+
+<style type="text/css">
+.list-group-item {border:0px;}
+.tenpay_btn {background: url("__PUBLIC__/Common/Images/tenpay/cft.gif") left bottom;width:180px; height:71px; border:0px; background-size:cover;}
+.alipay_btn {background: url("__PUBLIC__/Common/Images/alipay/alipay.gif") left bottom;width:180px; height:61px; border:0px;background-size:cover;}
+</style>
+
+<div class="container">
+    <foreach name="trade_list" item="trade">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h5 class="panel-title">
+                {$trade['update_time']|format_date}
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                订单号：<a target="_blank" href="{:U('Trade/view?id=' . $trade['id'])}">{$trade['id']}</a>
+            </h5>
+        </div>
+        <div class="panel-body">
+            <table height="100px" width="100%">
+                <tr height="69px">
+                    <td width="60%">
+                        <foreach name="trade['info']" item="trade_info">
+                            <div class="bm_tpadding_10">
+                                <eq name="trade_info['item_type']" value="$Think.TRADE_TARGET_MATERIAL">
+                                    【资料】<a target="_blank" href="{:U('Material/view?id=' . $trade_info['item_id'])}">{$trade_info['item_desc']}</a>
+                                </eq>
+                                <eq name="trade_info['item_type']" value="$Think.TRADE_TARGET_SERVICE">
+                                    【服务】<a target="_blank" href="{:U('Service/view?id=' . $trade_info['item_id'])}">{$trade_info['item_desc']}</a>
+                                </eq>
+                            </div>
+                        </foreach>
+                    </td>
+                    <td width="10%">¥{$trade['price']}</td>
+                    <td width="10%">
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                            <span class="bm_wait_pay_color">等待付款</span>
+                        </eq>
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_WAIT_SELLER_SEND_GOODS">等待发货</eq>
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS">等待确认收货</eq>
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_FINISHED">交易成功结束</eq>
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_CLOSED">交易未成功完成</eq>
+                    </td>
+                    <td width="10%">
+                        <center>
+                        <eq name="trade['status']" value="$Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                            <div><input class="btn btn-danger btn-sm bm_bmargin_10" title="获取资料地址" id="btn_pay_{$trade['id']}" value="付 款" style="width:60px;height:30px;"/></div>
+                        </eq>
+                        <div><a target="_blank" class="bm_pointer" href="{:U('Trade/view?id=' . $trade[id])}">订单详情</a></div>
+
+
+                        <if condition="($trade['status'] eq TRADE_STATUS_WAIT_SELLER_SEND_GOODS) OR
+                                       ($trade['status'] eq TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS) OR
+                                       ($trade['status'] eq TRADE_STATUS_FINISHED)">
+                            <button class="btn btn-info btn-sm" type="button" title="获取资料地址" data-toggle="modal" data-target="#material_url" id="{$trade['id']}">获取商品</button>
+                        </if>
+                        </center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </foreach>
+    <center><div class="pages" style="margin-top:20px;">{$departstr}</div></center>
+</div>
+
+<div class="modal fade" id="material_url" role="dialog">
+  <div class="modal-dialog" style="width:750px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">获取资料链接</h4>
+      </div>
+      <div class="modal-body">
+        <div id="material_url_list"></div>
+      </div>
+      <div class="modal-footer"></div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script type="text/javascript">
+var g_trade_id = "{$trade['id']}";
+$(function() {
+    /*
+    $(".btn-sm").click(function() {
+        trade_no = $(this).attr('id');
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}/trade/ajaxaccess_trade_info/" + trade_no,
+            cache: false,
+            success: function(html_text){
+                $("#material_url_list").html(html_text);
+            }
+        });
+    });
+    */
+});
+</script>
+<script src="__PUBLIC__/Home/Js/Ebank.js"></script>
+<include file="Common/footer" />

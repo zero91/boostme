@@ -19,6 +19,11 @@ define('SERVICE_STATUS_ACCEPTED', 2); // 获取咨询资格
 define('SERVICE_STATUS_DENIED', 3);   // 审核不通过
 define('SERVICE_STATUS_CLOSED', 4);   // 关闭咨询，用户暂时不对外提供咨询服务
 
+// 交易商品类型
+define('TRADE_TARGET_MATERIAL', 1); // 交易对象为：资料
+define('TRADE_TARGET_SERVICE', 2);  // 交易对象为：服务
+define('TRADE_TARGET_VERIFY_EBANK', 3); // 交易对象为：验证用户的电子银行、支付宝等的账户
+
 return array(
     'MESSAGE_NUM_PER_PAGE'         => 10,
     'SERVICE_NUM_PER_PAGE'         => 12,
@@ -31,6 +36,42 @@ return array(
     'PUBLIC_RESOURCE_PATH'         => './Public/', // 生成学校院系分类JS数据时使用目录
 
     'PAY_PRODUCT_NAME'             => '帮考研',    // 递交给第三方支付机构时显示的商品名
+
+    'EDITOR_TOOLBARS'              => "'bold','forecolor','insertimage','autotypeset','attachment','link','unlink','map','insertcode','fullscreen'",
+
+    // 文件上传相关配置
+    'DOWNLOAD_UPLOAD' => array(
+        'mimes'    => '', //允许上传的文件MiMe类型
+        'maxSize'  => 5*1024*1024, //上传的文件大小限制 (0-不做限制)
+        'exts'     => 'jpg,gif,png,jpeg,zip,rar,tar,gz,7z,pdf,doc,docx,ppt,pptx,txt,xml', //允许上传的文件后缀
+        'autoSub'  => true, //自动子目录保存文件
+        'subName'  => array('date', 'Y-m-d'), //子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
+        'rootPath' => './Uploads/Download/', //保存根路径
+        'savePath' => '', //保存路径
+        'saveName' => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
+        'saveExt'  => '', //文件保存后缀，空则使用原后缀
+        'replace'  => false, //存在同名是否覆盖
+        'hash'     => true, //是否生成hash编码
+        'callback' => false, //检测文件是否存在回调函数，如果存在返回文件信息数组
+        'fieldKey' => 'upfile', // 获取上传数据信息的key
+    ), //下载模型上传配置（文件上传类配置）
+
+    // 编辑器图片上传相关配置
+    'EDITOR_UPLOAD' => array(
+        'mimes'    => '', //允许上传的文件MiMe类型
+        'maxSize'  => 2*1024*1024, //上传的文件大小限制 (0-不做限制)
+        'exts'     => 'jpg,gif,png,jpeg', //允许上传的文件后缀
+        'autoSub'  => true, //自动子目录保存文件
+        'subName'  => array('date', 'Y-m-d'), //子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
+        'rootPath' => './Uploads/Editor/', //保存根路径
+        'savePath' => '', //保存路径
+        'saveName' => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
+        'saveExt'  => '', //文件保存后缀，空则使用原后缀
+        'replace'  => false, //存在同名是否覆盖
+        'hash'     => true, //是否生成hash编码
+        'callback' => false, //检测文件是否存在回调函数，如果存在返回文件信息数组
+        'fieldKey' => 'upfile', // 获取上传数据信息的key
+    ),
 );
 
 /*
@@ -84,10 +125,5 @@ define('TRADE_STATUS_UNPAID', 10);       // 已生成订单，但订单尚未付
 define('TRADE_STATUS_PAID_SUCCEED', 11); // 订单付款成功，一般指钱款已经达到了财付通
 define('TRADE_STATUS_PAID_FAILED', 12);  // 用户产生了付款的行为，但最终付款失败
 define('TRADE_STATUS_DONE', 13);         // 订单交易已经结束
-
-// 交易商品类型
-define('TRADE_TARGET_MATERIAL', 1); // 交易对象为：资料
-define('TRADE_TARGET_SERVICE', 2);  // 交易对象为：服务
-define('TRADE_TARGET_VERIFY_EBANK', 3); // 交易对象为：验证用户的电子银行、支付宝等的账户
 
 */

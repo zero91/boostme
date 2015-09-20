@@ -1,0 +1,92 @@
+<include file="Common/header" />
+<include file="Common/common_link" />
+
+<style type="text/css">
+    a:link { color: #003399; }
+    .px12 { font-size: 12px; }
+    a:visited { color: #003399; }
+    a:hover { color: #FF6600; }
+    .list-group-item {border:0px;}
+</style>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ol class="breadcrumb">
+                <li><a href="{:U('Trade/index')}">我的订单</a></li>
+                <li class="active">订单号 - {$trade['id']}
+                    <eq name="trade['status']" value="$Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                        <span class="bm_wait_pay_color">【等待付款】</span>
+                    </eq>
+                </li>
+            </ol>
+            <ul class="col-md-12 col-sm-12 setting-content">
+                <li class="list-group-item">
+                    <table width="100%" border="1px" cellspacing="0" class="bm_center_text">
+                        <tr class="bm_trade_table_head">
+                            <th class="bm_center_text" width="55%">详细情况</th>
+                            <th class="bm_center_text" width="10%">价格</th>
+                            <th class="bm_center_text" width="15%">数量</th>
+                            <th class="bm_center_text" width="10%">小结（元）</th>
+                            <th class="bm_center_text" width="10%">操作</th>
+                        </tr>
+                        <foreach name="trade['info']" item="trade_info">
+                        <tr class="bm_trade_table_row" id="item_info_{$trade_info['item_id']}_{$trade_info['item_type']}">
+                            <td class="bm_left_text">
+                                <eq name="trade_info['item_type']" value="$Think.TRADE_TARGET_MATERIAL">
+                                    <a href="{SITE_URL}/material/view/{$trade_info['target_id']}">{$trade_info['target_info']['title']}</a>
+                                </eq>
+                                <eq name="trade_info['item_type']" value="$Think.TRADE_TARGET_SERVICE">
+                                <table>
+                                    <tr>
+                                        <td width="70px">
+                                            <p><img width="50" height="50" src="{$trade_info['detail']['uid']|get_user_avatar}" class="img-circle"/></p>
+                                            <p>{$trade_info['detail']['username']}</p>
+                                        </td>
+                                        <td class="bm_lpadding_20">
+                                            <p><a target="_blank" href="{:U('Service/view?id=' . $trade_info['item_id'])}">{$trade_info['detail']['content']}</a></p>
+                                        </td>
+                                    </tr>
+                                </table>
+                                </eq>
+                            </td>
+                            <td class="item_price">¥{$trade_info['detail']['price']} / {$trade_info['detail']['duration']}分钟</td>
+                            <td class="item_quantity">
+                                <if condition="$trade['status'] eq $Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                                    <div class="bm_trade_quantity">
+                                        <a class="bm_quantity_op_btn">-</a><input type="text" class="bm_trade_quantity" value="{$trade_info['quantity']}" readonly /><a class="bm_quantity_op_btn">+</a>
+                                    </div>
+                                <else/>
+                                    {$trade_info['quantity']}
+                                    <input type="hidden" class="bm_trade_quantity" value="{$trade_info['quantity']}"/>
+                                </if>
+                            </td>
+                            <td class="bm_trade_summary">0</td>
+                            <td>
+                                <if condition="$trade['status'] eq $Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                                    <a class="bm_pointer item_remove">删除</a>
+                                </if>
+                            </td>
+                        </tr>
+                        </foreach>
+                    </table>
+                    <div class="pull-right bm_tmargin_10 bm_font_bold">
+                        <span style="font-size:20px;">总计：</span>
+                        <span class="bm_trade_summary" id="total_price" style="font-size:20px;margin-right:20px;"></span>
+                        <if condition="$trade['status'] eq $Think.TRADE_STATUS_WAIT_BUYER_PAY">
+                            <input class="btn btn-danger" id="alipay_submit_btn" value="支付宝支付"/>
+                        </if>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="__PUBLIC__/Home/Js/Trade.js"></script>
+<script src="__PUBLIC__/Home/Js/Ebank.js"></script>
+<script type="text/javascript">
+var g_trade_id = "{$trade['id']}";
+$(function() {
+    //$("#alipay_submit_btn").click(function() { alipay_transfer('{$trade['id']}'); });
+});
+</script>
+<include file="Common/footer" />

@@ -9,6 +9,9 @@ define('APP_DEBUG', True);
 
 define('BIND_MODULE', 'Home');
 
+// 定义服务根目录
+define('WEB_ROOT', dirname(__FILE__));
+
 // 定义应用目录
 define('APP_PATH', './Application/');
 

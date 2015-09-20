@@ -2,7 +2,14 @@
 namespace Home\Controller;
 
 class EbankController extends HomeController {
-    public function index(){
+
+    // 我的钱包
+    public function index() {
+        if (is_login()) {
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
     }
 
     // 用户余额套现页面

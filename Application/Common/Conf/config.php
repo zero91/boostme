@@ -11,6 +11,9 @@ return array(
 
     'USER_AUTH_KEY'      =>    'authId',
     'USER_ALLOW_REGISTER' =>   true,
-    'USER_MAX_CACHE'     => 1000, //最大缓存用户数
+    'USER_MAX_CACHE'     =>    1000, //最大缓存用户数
+
+    'USER_AVATAR_UPLOAD_PATH' => '/Public/Common/Data/avatar/',      // 头像上传存放地址，使用服务器绝对地址
+    'USER_DEFAULT_AVATAR'     => '/Public/Common/Images/avatar.png', // 默认头像，使用服务器绝对地址
 );
 ?>

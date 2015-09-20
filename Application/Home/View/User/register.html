@@ -2,7 +2,7 @@
 <div class="container">
     <h2>注册</h2>
     <hr style="border-color: #DFE2E6">
-    <form name="loginform" action="{SITE_URL}/user/register" method="post" class="form-horizontal" onsubmit="return docheck()">
+    <form name="loginform" action="{:U('User/register')}" method="post" class="form-horizontal" onsubmit="return docheck()">
         <div class="form-group">
             <label class="col-sm-2 control-label">用户名</label>
             <div>
@@ -58,5 +58,5 @@
         </div>
     </form>
 </div>
-<script src="__PUBLIC__/js/boostme/user.js"></script>
+<script src="__PUBLIC__/Home/Js/User.js"></script>
 <include file="Common/footer" />

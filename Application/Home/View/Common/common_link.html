@@ -1,31 +1,31 @@
-<link href="__PUBLIC__/css/default/new-general.css" rel="stylesheet" type="text/css"/>
-<link href="__PUBLIC__/css/default/new-setting.css" rel="stylesheet" type="text/css"/>
+<link href="__PUBLIC__/Home/css/new-general.css" rel="stylesheet" type="text/css"/>
+<link href="__PUBLIC__/Home/css/new-setting.css" rel="stylesheet" type="text/css"/>
 
 <div class="jumbotron jsk-setting">
     <div class="container">
         <ul class="nav nav-pills" role="tablist">
-            <if condition="'__SELF__' eq U('User/profile')">
+            <if condition="'__ACTION__' eq U('User/profile', '', '')">
                 <li class="active"><a href="{:U('User/profile')}">基本资料</a></li>
             <else/>
                 <li><a href="{:U('User/profile')}">基本资料</a></li>
             </if>
 
-            <if condition="'__SELF__' eq U('User/password')">
+            <if condition="'__ACTION__' eq U('User/password', '', '')">
                 <li class="active"><a href="{:U('User/password')}">修改密码</a></li>
             <else/>
                 <li><a href="{:U('User/password')}">修改密码</a></li>
             </if>
 
-            <if condition="$regular eq '/user/resume'">
-                <li class="active"><a href="__ROOT__/user/resume">身份认证</a></li>
+            <if condition="'__ACTION__' eq U('User/authenticate', '', '')">
+                <li class="active"><a href="{:U('User/authenticate')}">身份认证</a></li>
             <else/>
-                <li><a href="__ROOT__/user/resume">身份认证</a></li>
+                <li><a href="{:U('User/authenticate')}">身份认证</a></li>
             </if>
 
-            <if condition="$regular eq '/trade/default'">
-                <li class="active"><a href="__ROOT__/trade/default">购买历史</a></li>
+            <if condition="'__ACTION__' eq U('Trade/index', '', '')">
+                <li class="active"><a href="{:U('Trade/index')}">我的交易</a></li>
             <else/>
-                <li><a href="__ROOT__/trade/default">购买历史</a></li>
+                <li><a href="{:U('Trade/index')}">我的交易</a></li>
             </if>
 
             <if condition="$regular eq '/material/provide'">
@@ -34,22 +34,22 @@
                 <li><a href="__ROOT__/material/provide">我的资料</a></li>
             </if>
 
-            <if condition="$regular eq '/service/register'">
-                <li class="active"><a href="__ROOT__/service/register">申请提供服务</a></li>
+            <if condition="'__ACTION__' eq U('Service/register', '', '')">
+                <li class="active"><a href="{:U('Service/register')}">我的服务</a></li>
             <else/>
-                <li><a href="__ROOT__/service/register">申请提供服务</a></li>
+                <li><a href="{:U('Service/register')}">我的服务</a></li>
             </if>
 
-            <if condition="$regular eq '/ebank/withdraw'">
-                <li class="active"><a href="__ROOT__/ebank/withdraw">余额套现</a></li>
+            <if condition="'__ACTION__' eq U('Ebank/index', '', '')">
+                <li class="active"><a href="{:U('Ebank/index')}">我的钱包</a></li>
             <else/>
-                <li><a href="__ROOT__/ebank/withdraw">余额套现</a></li>
+                <li><a href="{:U('Ebank/index')}">我的钱包</a></li>
             </if>
 
-            <if condition="$regular eq '/message/index'">
-                <li class="active"><a href="__ROOT__/message/index">消息中心</a></li>
+            <if condition="'__ACTION__' eq U('Message/index', '', '')">
+                <li class="active"><a href="{:U('Message/index')}">消息中心</a></li>
             <else/>
-                <li><a href="__ROOT__/message/index">消息中心</a></li>
+                <li><a href="{:U('Message/index')}">消息中心</a></li>
             </if>
         </ul>
     </div>

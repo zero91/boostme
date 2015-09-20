@@ -12,7 +12,11 @@ class UpdateController extends HomeController {
 
         $data_dict = array();
         foreach ($lines as $line) {
-            list($region, $school, $dept, $major_str) = explode("\t", $line);
+            $cells = explode("\t", $line);
+            if (count($cells) != 4) {
+                continue;
+            }
+            list($region, $school, $dept, $major_str) = $cells;
             $major_list = explode(",", $major_str);
 
             if (!array_key_exists($region, $data_dict)) {
@@ -40,7 +44,7 @@ class UpdateController extends HomeController {
             }
         }
 
-        $js_category_path = C('PUBLIC_RESOURCE_PATH') . "js/data/category.data.js";
+        $js_category_path = C('PUBLIC_RESOURCE_PATH') . "Common/Data/category/category.data.js";
         $fout = fopen($js_category_path, 'w');
         fwrite($fout, "var school_data = " . json_encode($res) . ";");
         $this->ajaxReturn(array("success" => true));

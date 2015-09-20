@@ -1,9 +1,9 @@
 <include file="Common/header" />
-<link href="{SITE_URL}/public/css/default/forum.css" rel="stylesheet">
-<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/lightbox/lightbox.css"/>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/lightbox/lightbox.js"></script>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.config.js"></script> 
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/ueditor.all.js"></script> 
+<link href="__PUBLIC__/Home/Css/forum.css" rel="stylesheet">
+<link rel="stylesheet" href="__PUBLIC__/Common/Js/third/lightbox/lightbox.css"/>
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/lightbox/lightbox.js"></script>
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.config.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.all.js"></script> 
 
 <style type="text/css">
     .avatar {position: absolute; top: 20px; left: 10px; }
@@ -22,11 +22,11 @@
 </style>
 
 <div class="container bm_tpadding_20">
-    <div class="col-sm-2"><!--{template forum_left}--></div>
+    <div class="col-sm-2"><include file="Posts/left" /></div>
     <div class="col-sm-10">
         <ol class="breadcrumb">
-            <li><a href="{SITE_URL}/question/default">交流区</a></li>
-            <li class="active">{$question['title']}</li>
+            <li><a href="{:U('Posts/index')}">交流区</a></li>
+            <li class="active">{$post_info['title']}</li>
         </ol>
 
         <!--{if $is_followed}-->
@@ -39,43 +39,41 @@
         <ul class="list-group">
             <li class="list-group-item">
                 <div class="avatar" style="max-width:60px">
-                    <img class="img-circle" width="60px" height="60px"
-                            src="{eval echo get_avatar_dir($question['authorid']);}">
-                    <span>{$question['author']}</span>
+                    <img class="img-circle" width="60px" height="60px" src="{$post_info['uid']|get_user_avatar}">
+                    <span>{$post_info['nickname']}</span>
                 </div>
                 <div class="content">
-                    <div class="">{$question['description']}</div> 
+                    <div class="">{$post_info['content']}</div> 
                     <div style="font-size:12px; padding:6px 0 10px;">
-                        <span style="float:right" id="{$answer['id']}">
-                            {$question['format_time']}
+                        <span style="float:right" id="{$post_info['id']}">
+                            {$post_info['create_time']|format_date}
                         </span>
                     </div>
                 </div>
             </li>
         </ul>
 
-        <!--{loop $answerlist $answer}-->
+        <foreach name="answer_list" item="answer">
         <div id="{$answer[id]}" class="list-group-item">
             <div class="avatar" style="max-width:60px">
-                <img class="img-circle" width="60px" height="60px" src="{eval echo get_avatar_dir($answer['authorid']);}">
-                <p>{$answer['author']}</p>
+                <img class="img-circle" width="60px" height="60px" src="{$answer['uid']|get_user_avatar}">
+                <p>{$answer['nickname']}</p>
             </div>
             <div class="content">{$answer['content']}</div>
             <div>
                 <div style="font-size:12px; padding:6px 0 10px; height:24px; line-height:24px;">
                     <div style="float:right" id="{$answer['id']}">
-                        <span>{$answer['format_time']}</span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <span>{$answer['create_time']|format_date}</span>&nbsp;&nbsp;|&nbsp;&nbsp;
                         <span>
                             <a id="show_{$answer['id']}" onclick="show_comment('{$answer['id']}', 1);"
                                 href="javascript:void(0)">回复</a>({$answer['comments']})
-                        </span>&nbsp;&nbsp;|&nbsp;&nbsp;
-                        <input type="button" class="bm_button_agree" value="{$answer['supports']}"/>
+                        </span>
                     </div>
                 </div>
                 <div style="display:none;" class="comments" id="comment_{$answer['id']}">
                     <div class="list-group">
                         <div style="text-align:center;">
-                            <img src='{SITE_URL}/public/css/default/loading.gif' align='absmiddle' />&nbsp;加载中...
+                            <img src='__PUBLIC__/Home/Css/loading.gif' align='absmiddle' />&nbsp;加载中...
                         </div>
                     </div>
                     <div style="padding-top:30px;">
@@ -88,15 +86,15 @@
                 </div>
             </div>
         </div>
-        <!--{/loop}-->
+        </foreach>
         <center><ul class="pagination">{$departstr}</ul></center>
 
-        <div id="answer_area" style="background: url({SITE_URL}/public/css/default/forum_editor.jpg) repeat;height:280px;">
+        <div id="answer_area" style="background: url(__PUBLIC__/Home/Css/forum_editor.jpg) repeat;height:280px;">
             <div class="content">
                 <h4>发表回复</h4>
                 <div>
-                    <script type="text/plain" id="answer_question_content" name="content" style="height: 122px;"></script>
-                    <script type="text/javascript">UE.getEditor('answer_question_content', UE.utils.extend({toolbars:[[{$toolbars}]]}));</script>
+                    <script type="text/plain" id="edit_answer" name="content" style="height: 122px;"></script>
+                    <script type="text/javascript">UE.getEditor('edit_answer', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
                 </div>
                 <div style="margin-top:15px;">
                     <!--{if $setting['code_reply']}-->
@@ -108,7 +106,7 @@
                     <a class="changecode" href="javascript:updatecode();">&nbsp;换一个</a>
                     <span id="codetip"></span>
                     <!--{/if}-->
-                    <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="answer_question({$question['qid']})">
+                    <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="add_answer({$post_info['id']})">
                 </div>
             </div>
         </div>
@@ -120,7 +118,7 @@
 <div class="list-group-item">
     <div style="position:absolute;left:5px;">
         <img class="img-circle" width="30" height="30" src="<%= comment['avatar'] %>">
-        <p><%= comment['author'] %></p>
+        <p><%= comment['nickname'] %></p>
     </div>
     <div style="margin-left:35px;">
         <div class=""><%= comment['content'] %></div>
@@ -133,7 +131,5 @@
 <center><div class="pages"><%= departstr %></div></center>
 </script>
 
-<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/editor/third-party/SyntaxHighlighter/shCoreDefault.css"/>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/editor/third-party/SyntaxHighlighter/shCore.js"></script>
-<script src="{SITE_URL}/public/js/boostme/question.js"></script>
+<script src="__PUBLIC__/Home/Js/Posts.js"></script>
 <include file="Common/footer" />

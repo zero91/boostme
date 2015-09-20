@@ -5,7 +5,8 @@ use Think\Model;
 class TradeModel extends Model {
     protected $_auto = array(
         array('create_time', NOW_TIME, self::MODEL_INSERT),
-        array('update_time', NOW_TIME, self::MODEL_BOTH),
+        //array('update_time', NOW_TIME, self::MODEL_BOTH),
+        array('update_time', 'time', self::MODEL_BOTH, 'function'),
     );
 
     protected $_validate = array(
@@ -18,7 +19,7 @@ class TradeModel extends Model {
 
         $trade_list = $this->field($field)
                            ->where(array("uid" => $uid, "status" => array("NEQ", 0)))
-                           ->order("create_time DESC")
+                           ->order("update_time DESC")
                            ->limit($start, $num_per_page)
                            ->select();
         foreach ($trade_list as &$trade) {
@@ -43,5 +44,15 @@ class TradeModel extends Model {
             return $trade_id ? $trade_id : 0;
         }
         return -1;
+    }
+
+    public function recalc($trade_id) {
+        $trade_info_list = D('TradeInfo')->field(true)->where(array("trade_id" => $trade_id))->select();
+        $tot = 0.0;
+        foreach ($trade_info_list as &$trade_info) {
+            $tot += $trade_info['item_price'] * $trade_info['quantity'];
+        }
+        $this->create(array("id" => $trade_id, "price" => $tot));
+        return $this->save();
     }
 }

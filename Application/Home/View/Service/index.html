@@ -1,8 +1,8 @@
 <include file="Common/header" />
 
-<link href="__PUBLIC__/css/default/service.css" rel="stylesheet">
+<link href="__PUBLIC__/Home/Css/service.css" rel="stylesheet">
 
-<header id="top-header" class="top-header jumbotron" style="background-image: url(/public/images/index/banner_slide_01.jpg);">
+<header id="top-header" class="top-header jumbotron" style="background-image: url(__PUBLIC__/Home/Images/banner_slide_01.jpg);">
     <div class="container">
             <div class="col-md-8">
                 <h2>选学校，挑专业，一头雾水？</h2>
@@ -19,8 +19,7 @@
                         <h2>提供咨询服务<i class="fa fa-star"></i></h2>
                         <p>高校在读研究生，想要提供咨询服务？现在就登记吧！</p>
                         <p class="text-center">
-                            <a class="btn btn-default btn-sm" target="_blank" href="{SITE_URL}/service/register">提供咨询</a>
-                            <!-- <a class="btn btn-default btn-sm" href="{SITE_URL}service/add">上传资料</a> -->
+                            <a target="_blank" class="btn btn-default btn-sm" href="{:U('/Service/register')}">提供咨询</a>
                         </p>
                     </div>
                 </div>
@@ -48,12 +47,50 @@
     <div class="container">
         <div class="row" id="board_show"></div>
         <div class="col-sm-6 col-sm-push-3 col-md-4 col-md-push-4">
-            <p><a id="more" class="btn-load-more btn btn-primary btn-lg btn-block"><i class="fa fa-th"></i>  查看更多</a></p>
+            <p>
+                <a id="more_service" class="btn-load-more btn btn-primary btn-lg btn-block">
+                    <i class="fa fa-th"></i>  查看更多
+                </a>
+                <input type="hidden" id="service_page" value="{$page}"/>
+            </p>
         </div>
     </div>
 </section>
 
+<script type="text/template" id="service_board_template">
+<div class="col-sm-6 col-md-4">';
+    <a target="_blank" href="{:U('/Service/view')}?id=<%= service['id'] %>" class="job-item-wrap">
+    <div class="job-item">
+        <div class="job-source light-green">
+            <img class="img-responsive" src="<%= service['avatar'] %>" />
+        </div>
+        <div class="job-company"><%= service['nickname'] %></div>
+        <div class="job-title"><%= service['content'] %></div>
+        <div class="job-salary">价格：¥ <%= service['price'] %></div>
+        <div class="job-comments">
+            <p>
+                <span class="label label-default">服务<%= service['service_num'] %>人</span>
+                <span class="label label-default">浏览<%= service['view_num'] %>次</span>
+                <span class="label label-default">评论<%= service['comment_num'] %>条</span>
+                <span class="label label-default">平均<%= service['avg_score'] %>分</span>
+            </p>
+        </div>
+        <div class="job-meta">
+            <span class="job-publish-time"><%= service['format_create_time'] %></span>
+        </div>
+    </div>
+    </a>
+</div>
+</script>
+
+<link href="__PUBLIC__/Common/Js/third/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+<script src="__PUBLIC__/Common/Js/third/bootstrap-select/js/bootstrap-select.min.js"></script>
+
+<script src="__PUBLIC__/Home/Js/Category.js"></script>
+<script src="__PUBLIC__/Home/Js/Service.js"></script>
 <script type="text/javascript">
+refresh_category('{$region}', '{$school}', '{$dept}', '{$major}', fetch_service);
+
 var g_region_id = "{$region_id}";
 var g_school_id = "{$school_id}";
 var g_dept_id = "{$dept_id}";
@@ -62,10 +99,4 @@ var g_view_page_num = 0;
 var g_easy_access_type = "service";
 var g_easy_access_cnt = 0;
 </script>
-
-<link href="__PUBLIC__/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
-<script src="__PUBLIC__/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
-
-<script src="__PUBLIC__/js/boostme/category.js"></script>
-<script src="__PUBLIC__/js/boostme/service.js"></script>
 <include file="Common/footer" />

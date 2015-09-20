@@ -1,106 +1,43 @@
 <?php
 namespace Home\Controller;
 
-// 附件上传类
 class AttachController extends HomeController {
-    public function index() {
+
+    // ueditor编辑器上传图片处理
+    public function ue_upimg() {
+        $img_info = $this->upload(C('EDITOR_UPLOAD'));
+        $res = array(
+            'url'      => $img_info['fullpath'],
+            'title'    => htmlspecialchars($_POST['pictitle'], ENT_QUOTES),
+            'original' => $img_info[C('EDITOR_UPLOAD.fieldKey')]['name'],
+            'state'    => $img_info ? 'SUCCESS' : session('upload_error')
+        );
+        $this->ajaxReturn($res);
     }
 
-    function onupload() {
-        // TODO
-        /*
-        //上传配置
-        $config = array(
-            "uploadPath" => "public/data/attach/", //保存路径
-            "fileType" => array(".rar", ".doc", ".docx", ".zip", ".pdf", ".txt", ".swf", ".wmv", "xsl"), //文件允许格式
-            "fileSize" => 10 //文件大小限制，单位MB
+    // ueditor编辑器上传附件处理
+    public function ue_upload() {
+        $file_info = $this->upload(C('DOWNLOAD_UPLOAD'));
+        $res = array(
+            'url'      => $file_info['fullpath'],
+            'title'    => htmlspecialchars($_POST['pictitle'], ENT_QUOTES),
+            'original' => $file_info[C('EDITOR_UPLOAD.fieldKey')]['name'],
+            'state'    => $file_info ? 'SUCCESS' : session('upload_error')
         );
-
-        //文件上传状态,当成功时返回SUCCESS，其余值将直接返回对应字符窜
-        $state = "SUCCESS";
-        $clientFile = $_FILES["upfile"];
-        if (!isset($clientFile)) {
-            echo "{'state':'文件大小超出服务器配置！','url':'null','fileType':'null'}"; //请修改php.ini中的upload_max_filesize和post_max_size
-            exit;
-        }
-
-        //格式验证
-        $current_type = strtolower(strrchr($clientFile["name"], '.'));
-        if (!in_array($current_type, $config['fileType'])) {
-            $state = "不支持的文件类型！";
-        }
-        //大小验证
-        $file_size = 1024 * 1024 * $config['fileSize'];
-        if ($clientFile["size"] > $file_size) {
-            $state = "文件大小超出限制！";
-        }
-
-        //保存文件
-        if ($state == "SUCCESS") {
-            $targetfile = $config['uploadPath'] . gmdate('ym', $this->time) . '/' . random(8) . strrchr($clientFile["name"], '.');
-            $result = $_ENV['attach']->movetmpfile($clientFile, $targetfile);
-            if (!$result) {
-                $state = "文件保存失败！";
-            } else {
-                $_ENV['attach']->add($this->user['uid'], $clientFile["name"], $current_type, $clientFile["size"], $targetfile, 0);
-            }
-        }
-        //向浏览器返回数据json数据
-        $res = array();
-        $res["state"] = $state;
-        $res["url"] = "/" . $targetfile;
-        $res["fileType"] = $current_type;
-        $res["original"] = $clientFile["name"];
-        echo json_encode($res);
-        */
+        $this->ajaxReturn($res);
     }
 
-    function onuploadimage() {
-        // TODO
-        /*
-        //上传配置
-        $config = array(
-            "uploadPath" => "public/data/attach/", //保存路径
-            "fileType" => array(".gif", ".png", ".jpg", ".jpeg", ".bmp"),
-            "fileSize" => 2048
-        );
-        //原始文件名，表单名固定，不可配置
-        $oriName = htmlspecialchars($this->post['fileName'], ENT_QUOTES);
-
-        //上传图片框中的描述表单名称，
-        $title = htmlspecialchars($this->post['pictitle'], ENT_QUOTES);
-
-        //文件句柄
-        $file = $_FILES["upfile"];
-
-        //文件上传状态,当成功时返回SUCCESS，其余值将直接返回对应字符窜并显示在图片预览框，同时可以在前端页面通过回调函数获取对应字符窜
-        $state = "SUCCESS";
-        //格式验证
-        $current_type = strtolower(strrchr($file["name"], '.'));
-        if (!in_array($current_type, $config['fileType'])) {
-            $state = $current_type;
+    private function upload($setting) {
+        session('upload_error', null);
+        $uploader = new \Think\Upload($setting, 'Local');
+        $info   = $uploader->upload($_FILES);
+        if ($info) {
+            $key = $setting['fieldKey'];
+            $url = $setting['rootPath'] . $info[$key]['savepath'] . $info[$key]['savename'];
+            $url = str_replace('./', '/', $url);
+            $info['fullpath'] = __ROOT__ . $url;
         }
-        //大小验证
-        $file_size = 1024 * $config['fileSize'];
-        if ($file["size"] > $file_size) {
-            $state = "b";
-        }
-        //保存图片
-        if ($state == "SUCCESS") {
-            $targetfile = $config['uploadPath'] . gmdate('ym', $this->time) . '/' . random(8) . strrchr($file["name"], '.');
-            $result = $_ENV['attach']->movetmpfile($file, $targetfile);
-            if (!$result) {
-                $state = "c";
-            } else {
-                $_ENV['attach']->add($this->user['uid'], $file["name"], $current_type, $file["size"], $targetfile);
-            }
-        }
-        $res = array();
-        $res['url'] = "/" . $targetfile;
-        $res['title'] = $title;
-        $res['original'] = $oriName;
-        $res['state'] = $state;
-        echo json_encode($res);
-        */
+        session('upload_error', $uploader->getError());
+        return $info;
     }
 }

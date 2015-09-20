@@ -3,24 +3,18 @@ namespace Home\Controller;
 use User\Api\UserApi;
 
 class ServiceController extends HomeController {
-    public function index(){
-        $this->display();
-    }
-
-    public function register() {
-        /*
-        $this->check_login();
-        $service_list = $_ENV['service']->get_by_uid($this->user['uid']);
-        foreach ($service_list as &$t_service) {
-            $t_service['cid_list'] = $_ENV['service_category']->get_by_sid($t_service['id']);
-        }
-        $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
-        include template("service_register");
-        */
+    public function index($region = "", $school = "", $dept = "", $major = "", $page = 1) {
+        $this->assign("region", $region);
+        $this->assign("school", $school);
+        $this->assign("dept", $dept);
+        $this->assign("major", $major);
+        $this->assign("page", $page);
         $this->display();
     }
 
     public function view($id) {
+        $service = D('Service')->field(true)->find($id);
+        $this->assign("title", "服务详情 - " . msubstr($service['content'], 0, 8));
         /*
         $_ENV['service']->update_view_num($id);
         $service = $_ENV['service']->get_by_id($id);
@@ -33,8 +27,28 @@ class ServiceController extends HomeController {
 
         $edu_list = $_ENV['education']->get_by_uid($service['uid']);
         $departstr = page($tot_comment_num, $pagesize, $page, "service/view/$service_id");
-        include template('view_service');
         */
+        $service['avatar'] = get_user_avatar($service['uid']);
+        $this->assign("service", $service);
+        $this->display();
+    }
+
+    public function register() {
+        $this->assign("title", "我的服务");
+        $this->login();
+
+        $uid = is_login();
+        $service_list = D('Service')->field(true)->where(array("uid" => $uid))->select();
+
+
+        foreach ($service_list as &$t_service) {
+            $t_service['category'] = D('ServiceCategory')->field("region,school,dept,major")
+                                                         ->where(array(
+                                                            "service_id" => $t_service['id']))
+                                                         ->select();
+        }
+        $this->assign("service_list", $service_list);
+        // $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
         $this->display();
     }
 
@@ -59,6 +73,10 @@ class ServiceController extends HomeController {
                                     $major = "",
                                     $page = 1) {
         $service_list = D('Service')->lists($region, $school, $dept, $major, $page);
+        foreach ($service_list as &$service) {
+            $service['avatar'] = get_user_avatar($service['uid']);
+            $service['format_create_time'] = format_date($service['create_time']);
+        }
         $this->ajaxReturn(array("success" => true, "list" => $service_list));
     }
 

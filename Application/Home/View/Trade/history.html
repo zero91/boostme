@@ -1,0 +1,110 @@
+<include file="Common/header" />
+<include file="Common/common_link" />
+
+<style type="text/css">
+.list-group-item {border:0px;}
+.tenpay_btn {background: url("{SITE_URL}/public/image/tenpay/cft.gif") left bottom;width:180px; height:71px; border:0px; background-size:cover;}
+.alipay_btn {background: url("{SITE_URL}/public/image/alipay/alipay.gif") left bottom;width:180px; height:61px; border:0px;background-size:cover;}
+</style>
+
+<div class="container">
+    <!--{loop $trade_list $trade}-->
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h5 class="panel-title">
+                订单号：<a href="{SITE_URL}/trade/view?trade_no={$trade['trade_no']}">{$trade['trade_no']}</a>
+            </h5>
+        </div>
+        <div class="panel-body">
+            <table height="100px" width="100%">
+                <tr height="69px">
+                    <td width="60%">
+                        <!--{if count($trade['trade_info']) == 0}-->
+                            Boostme余额套现账户验证
+                        <!--{else}-->
+                            <!--{loop $trade['trade_info'] $trade_info}-->
+                                <div class="bm_tpadding_10">
+                                    <!--{if $trade_info['type'] == TRADE_TARGET_MATERIAL}-->
+                                    【资料】<a target="_blank" href="{SITE_URL}/material/view/{$trade_info['target_id']}">{$trade_info['target_info']['title']}</a>
+                                    <!--{elseif $trade_info['type'] == TRADE_TARGET_SERVICE}-->
+                                    【服务】<a target="_blank" href="{SITE_URL}/service/view?service_id={$trade_info['target_id']}">{$trade_info['target_info']['service_content']}</a>
+                                    <!--{/if}-->
+                                </div>
+                            <!--{/loop}-->
+                        <!--{/if}-->
+                    </td>
+                    <td width="10%">¥{$trade['tot_price']}</td>
+                    <td width="10%">
+                        <!--{if $trade['status'] == TRADE_STATUS_WAIT_BUYER_PAY}-->
+                        <span class="bm_wait_pay_color">等待付款</span>
+                        <!--{elseif $trade['status'] == TRADE_STATUS_WAIT_SELLER_SEND_GOODS}-->
+                        等待发货
+                        <!--{elseif $trade['status'] == TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS}-->
+                        等待确认收货
+                        <!--{elseif $trade['status'] == TRADE_STATUS_FINISHED}-->
+                        交易成功结束
+                        <!--{elseif $trade['status'] == TRADE_STATUS_CLOSED}-->
+                        交易未成功完成
+                        <!--{else}-->
+                        未知状态
+                        <!--{/if}-->
+                    </td>
+                    <td width="10%">{$trade['format_time']}</td>
+                    <td width="10%"><center>
+                        <!--{if $trade['status'] == TRADE_STATUS_WAIT_BUYER_PAY}-->
+                        <div><input class="btn btn-danger btn-sm bm_bmargin_10" title="获取资料地址" id="btn_pay_{$trade['trade_no']}" value="付 款" style="width:60px;height:30px;"/></div>
+                        <!--{/if}-->
+                        <div><a target="_blank" class="bm_pointer" href="{SITE_URL}/trade/view?trade_no={$trade[trade_no]}">查看</a></div>
+                        
+                        <!--{if $trade['status'] == TRADE_STATUS_WAIT_SELLER_SEND_GOODS || 
+                                $trade['status'] == TRADE_STATUS_WAIT_BUYER_CONFIRM_GOODS ||
+                                $trade['status'] == TRADE_STATUS_FINISHED}-->
+                            <!--{if count($trade['trade_info']) > 0}-->
+                        <button class="btn btn-info btn-sm" type="button" title="获取资料地址" data-toggle="modal" data-target="#material_url" id="{$trade['trade_no']}">
+                          获取商品
+                        </button>
+                            <!--{/if}-->
+                        <!--{/if}-->
+                        </center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--{/loop}-->
+    <center><div class="pages" style="margin-top:20px;">{$departstr}</div></center>
+</div>
+
+<div class="modal fade" id="material_url" role="dialog">
+  <div class="modal-dialog" style="width:750px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">获取资料链接</h4>
+      </div>
+      <div class="modal-body">
+        <div id="material_url_list"></div>
+      </div>
+      <div class="modal-footer"></div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script type="text/javascript">
+var g_trade_no = "{$trade['trade_no']}";
+$(function() {
+    $(".btn-sm").click(function() {
+        trade_no = $(this).attr('id');
+        $.ajax({
+            type: "GET",
+            url:"{SITE_URL}/trade/ajaxaccess_trade_info/" + trade_no,
+            cache: false,
+            success: function(html_text){
+                $("#material_url_list").html(html_text);
+            }
+        });
+    });
+});
+</script>
+<script src="{SITE_URL}/public/js/boostme/ebank.js"></script>
+<include file="Common/footer" />

@@ -58,6 +58,7 @@ class TradeInfoModel extends Model {
     //                  -2 - 用户无权操作该笔订单
     //                  -3 - 用户订单已无法更改
     //                  -4 - 创建数据失败
+    //                  -5 - 购买物品数量必须大于0
     //
     public function buy($uid, $trade_id, $item_id, $item_type, $quantity) {
         $trade = D('Trade')->field("uid, status")->find($trade_id);
@@ -79,16 +80,30 @@ class TradeInfoModel extends Model {
             "item_type" => $item_type
         );
 
-        $exists = $this->where($condition)->count();
-        if ($exists > 0) {
-            return $this->where($condition)->setInc("quantity", $quantity);
+        $item_info = $this->where($condition)->find();
+        if (is_array($item_info)) {
+            if ($item_info['quantity'] + $quantity > 0) {
+                return $this->where($condition)->setInc("quantity", $quantity);
+            }
+            return -5; // 购买物品数量必须大于0
         } else {
+            $item_price = 0.0;
+            if ($item_type == TRADE_TARGET_MATERIAL) {
+                //TODO
+            } elseif ($item_type == TRADE_TARGET_SERVICE) {
+                $item = D('Service')->field("price, content")
+                                    ->where(array("id" => $item_id))
+                                    ->find();
+            }
+
             $data = array(
                 "uid"       => $uid,
                 "username"  => get_username(),
                 "trade_id"  => $trade_id,
                 "item_id"   => $item_id,
                 "item_type" => $item_type,
+                "item_desc" => $item["content"],
+                "item_price"=> $item["price"],
                 "quantity"  => $quantity
             );
             if ($this->create($data)) {
@@ -110,7 +125,7 @@ class TradeInfoModel extends Model {
     //         integer -2 - 用户无权操作该笔订单   OR
     //         integer -3 - 创建数据失败
     //
-    public function detail($uid, $trade_id, $verbose = True) {
+    public function detail($uid, $trade_id, $verbose = False) {
         $trade_uid = D('Trade')->where(array("id" => $trade_id))->getField("uid");
         if (!isset($trade_uid)) {
             return -1; // 不存在该订单号
@@ -126,6 +141,12 @@ class TradeInfoModel extends Model {
                                 ->select();
         if ($verbose) {
             //TODO 获取产品具体信息
+            foreach ($trade_info_list as &$trade_info) {
+                if ($trade_info['item_type'] == TRADE_TARGET_MATERIAL) {
+                } elseif ($trade_info['item_type'] == TRADE_TARGET_SERVICE) {
+                    $trade_info['detail'] = D('Service')->field(true)->find($trade_info['item_id']);
+                }
+            }
         }
         return $trade_info_list;
     }

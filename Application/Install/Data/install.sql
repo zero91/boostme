@@ -217,6 +217,8 @@ CREATE TABLE bm_trade_info (
   `trade_id` bigint(20) NOT NULL COMMENT '订单号',
   `item_id` int(10) unsigned NOT NULL COMMENT '物品ID号',
   `item_type` mediumint(8) NOT NULL COMMENT '商品类型(1:资料, 2:咨询, 3:验证支付宝账户)',
+  `item_desc` mediumtext COMMENT '物品简述',
+  `item_price` DOUBLE NOT NULL DEFAULT '0' COMMENT '物品价格',
   `quantity` mediumint(8) NOT NULL DEFAULT '1' COMMENT '购买数量',
   `create_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后更新时间',
@@ -279,6 +281,25 @@ CREATE TABLE bm_attachment (
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='附件表';
+
+DROP TABLE IF EXISTS `bm_file`;
+CREATE TABLE `bm_file` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '文件ID',
+  `uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID号',
+  `name` char(30) NOT NULL DEFAULT '' COMMENT '原始文件名',
+  `savename` char(20) NOT NULL DEFAULT '' COMMENT '保存名称',
+  `savepath` char(30) NOT NULL DEFAULT '' COMMENT '文件保存路径',
+  `ext` char(5) NOT NULL DEFAULT '' COMMENT '文件后缀',
+  `mime` char(40) NOT NULL DEFAULT '' COMMENT '文件mime类型',
+  `size` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '文件大小',
+  `md5` char(32) NOT NULL DEFAULT '' COMMENT '文件md5',
+  `sha1` char(40) NOT NULL DEFAULT '' COMMENT '文件 sha1编码',
+  `location` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '文件保存位置',
+  `create_time` int(10) unsigned NOT NULL COMMENT '上传时间',
+
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_md5` (`md5`)
+) ENGINE=MyISAM AU  =1 DEFAULT CHARSET=utf8 COMMENT='文件表';
 
 DROP TABLE IF EXISTS bm_posts;
 CREATE TABLE bm_posts (

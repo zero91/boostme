@@ -2,18 +2,27 @@
 namespace Home\Controller;
 
 class PostsController extends HomeController {
-    public function index($page = 1){
+
+    // 论坛首页
+    public function index($page = 1) {
         $num_per_page = C('POSTS_NUM_PER_PAGE');
         $start = ($page - 1) * $num_per_page;
-        /*
-        $user_num = $_ENV['user']->rownum_alluser();
-        $question_num = $_ENV['question']->get_total_num();
-        $questionlist = $_ENV['question']->get_list($startindex, $pagesize);
-        $departstr = split_page($question_num, $pagesize, $page, "/question/default&page=%s");
-        */
+
+        $post_list = D('Posts')->field(true)
+                               ->order("update_time DESC")
+                               ->limit($start, $num_per_page)
+                               ->select();
+        foreach ($post_list as &$post) {
+            $post['images'] = fetch_img_tag($post['content'])[0];
+        }
+        $post_num = D('Posts')->count();
+
+        $this->assign('post_num', $post_num);
+        $this->assign('post_list', $post_list);
         $this->display();
     }
 
+    // 帖子详情页
     public function view($id, $page = 1) {
         $post_info = D('Posts')->field(true)->find($id);
 
@@ -24,7 +33,8 @@ class PostsController extends HomeController {
                                       ->limit($start, $num_per_page)
                                       ->select();
 
-        $this->assign("answerlist", $answer_list);
+        $this->assign("post_info", $post_info);
+        $this->assign("answer_list", $answer_list);
         //$rownum = $this->db->fetch_total("answer", " qid=$qid ");
         //$departstr = split_page($rownum, $pagesize, $page, "/question/view?qid=" . $qid . "&page=%s");
         $this->display();
@@ -46,10 +56,14 @@ class PostsController extends HomeController {
 
         $res = array();
         $res['success'] = true;
-        $res['list'] = D('Posts')->field(true)
-                                 ->order("update_time DESC")
-                                 ->limit($start, $num_per_page)
-                                 ->select();
+        $post_list = D('Posts')->field(true)
+                               ->order("update_time DESC")
+                               ->limit($start, $num_per_page)
+                               ->select();
+        foreach ($post_list as &$post) {
+            $post['avatar'] = get_user_avatar($post['uid']);
+        }
+        $res['list'] = $post_list;
         $res['tot'] = D('Posts')->count();
         $this->ajaxReturn($res);
     }
@@ -136,7 +150,7 @@ class PostsController extends HomeController {
                 case -2: $res['error'] = 104; break; // 内容长度不在0,2048之间
                 default: break;
             }
-            $this->ajaxReturn(res);
+            $this->ajaxReturn($res);
         }
     }
 
@@ -282,6 +296,9 @@ class PostsController extends HomeController {
                                           ->limit($start, $num_per_page)
                                           ->where(array("aid" => $answer_id))
                                           ->select();
+        foreach ($comment_list as &$comment) {
+            $comment['avatar'] = get_user_avatar($comment['uid']);
+        }
         $this->ajaxReturn(array("success" => true, "list" => $comment_list));
     }
 

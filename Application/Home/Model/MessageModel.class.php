@@ -78,6 +78,64 @@ class MessageModel extends Model {
         }
     }
 
+    // @brief  system  获取用户的系统消息
+    //
+    // @param  integer  $uid   用户ID号
+    // @param  integer  $page  页码
+    //
+    // @return  array  系统消息列表
+    //
+    public function system($uid, $page = 1) {
+        $num_per_page = C('MESSAGE_NUM_PER_PAGE');
+        $start = ($page - 1) * $num_per_page;
+
+        $condition = array(
+            "from_uid" => 0,
+            "to_uid"   => $uid,
+            "status"   => array("NEQ", MSG_STATUS_TO_DELETED)
+        );
+        $message_list = D('Message')->field(true)
+                                    ->where($condition)
+                                    ->order('create_time DESC')
+                                    ->limit($start, $num_per_page)
+                                    ->select();
+
+        return $message_list;
+    }
+
+    // @brief  dialog  获取用户的指定用户的消息对话
+    //
+    // @param  integer  $from_uid   操作用户ID号
+    // @param  integer  $to_uid     指定获取消息的用户ID号
+    // @param  integer  $page       页码
+    //
+    // @return  array  消息列表
+    //
+    public function dialog($from_uid, $to_uid, $page = 1, $field = true) {
+        $num_per_page = C('MESSAGE_NUM_PER_PAGE');
+        $start = ($page - 1) * $num_per_page;
+
+        $condition = array (
+            array(
+                "from_uid" => $from_uid,
+                "to_uid"   => $to_uid,
+                "status"   => array("IN", array(MSG_STATUS_NOT_DELETED, MSG_STATUS_TO_DELETED))
+            ),
+            array(
+                "from_uid" => $to_uid,
+                "to_uid"   => $from_uid,
+                "status"   => array("IN", array(MSG_STATUS_NOT_DELETED, MSG_STATUS_FROM_DELETED))
+            ),
+            "_logic" => "OR"
+        );
+        $message_list = D('Message')->field($field)
+                                    ->where($condition)
+                                    ->order('create_time DESC')
+                                    ->limit($start, $num_per_page)
+                                    ->select();
+        return $message_list;
+    }
+
     // @brief  remove_dialog  删除用户的指定用户的消息对话
     //
     // @param  integer  $from_uid   操作用户ID号

@@ -9,10 +9,17 @@ class MaterialController extends HomeController {
         //include template('material');
     }
 
-    public function onlist() {
+    public function lists() {
+        if (is_login()) {
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
+        /*
         $type = $this->post['type'];
         empty($type) && $type = "major";
         include template("list_material");
+        */
     }
 
     public function onview() {

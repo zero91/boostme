@@ -56,6 +56,19 @@ class UserController extends HomeController {
         }
     }
 
+    // 身份认证
+    public function authenticate() {
+        $this->assign('title', '身份认证');
+        if (is_login()) {
+            //$resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
+    }
+
+
+
     // 验证码，用于登录和注册
     public function verify() {
         return;
@@ -408,14 +421,6 @@ class UserController extends HomeController {
 
 /*
 class usercontrol extends base {
-    // 维护个人简历
-    public function onresume() {
-        $this->check_login();
-        $navtitle = "完善简历";
-        $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-        include template("resume");
-    }
-
     // 用户上传头像
     public function onupload_avatar() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

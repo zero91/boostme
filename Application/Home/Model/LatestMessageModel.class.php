@@ -25,10 +25,12 @@ class LatestMessageModel extends Model {
         $condition = array("from_uid" => $to_uid, "to_uid" => $uid, "new" => 1);
         $new_num = D('Message')->where($condition)->count();
         $data = array(
-            "uid"     => $uid,
-            "to_uid"  => $to_uid,
-            "content" => $content,
-            "new_num" => $new_num
+            "uid"         => $uid,
+            "to_uid"      => $to_uid,
+            "to_nickname" => get_nickname($to_uid),
+            "content"     => $content,
+            "new_num"     => $new_num,
+            "update_time" => NOW_TIME
         );
         return $this->add($data, array(), true);
     }

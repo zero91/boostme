@@ -1,8 +1,58 @@
 <?php
-/**
- * 前台公共库文件
- * 主要定义前台公共函数库
- */
+
+// @brief  get_user_avatar  获取用户头像地址
+//
+// @param  integer  $uid   用户ID号
+// @param  string   $type  图片大小类型，可为"small", "medium", "large"
+//
+// @return  string  头像地址字符串
+//
+function get_user_avatar($uid, $type = "small") {
+    $uid = sprintf("%010d", $uid);
+    $dir1 = substr($uid, 0, 3);
+    $dir2 = substr($uid, 3, 3);
+    $dir3 = substr($uid, 6, 2);
+
+    $avatar_dir = C('USER_AVATAR_UPLOAD_PATH') . "$dir1/$dir2/$dir3/{$type}_{$uid}";
+    $image_suffix_arr = array(".jpg", ".jepg", ".gif", ".png");
+
+    foreach ($image_suffix_arr as $suffix) {
+        if (file_exists(WEB_ROOT . $avatar_dir . $suffix)) {
+            return $avatar_dir . $suffix;
+        }
+    }
+    return C('USER_DEFAULT_AVATAR');
+}
+
+// @brief  format_date  日期格式显示
+//
+// @param  integer  $time      待转化的时间数值
+// @param  integer  $type      显示时间的部分，年月日、小时分钟
+// @param  boolean  $friendly  是否转化为对用户友好的格式
+//
+// @return  string  格式化后的时间字符串
+//
+function format_date($time, $type = 3, $friendly = true) {
+    $format[] = $type & 2 ? 'Y-n-j' : '';
+    $format[] = $type & 1 ? 'H:i' : '';
+    $timestring = gmdate(implode(' ', $format), $time);
+    if ($friendly) {
+        $time = time() - $time;
+        if ($time <= 24 * 3600) {
+            if ($time > 3600) {
+                $timestring = intval($time / 3600) . '小时前';
+            } elseif ($time > 60) {
+                $timestring = intval($time / 60) . '分钟前';
+            } elseif ($time > 0) {
+                $timestring = $time . '秒前';
+            } else {
+                $timestring = '现在前';
+            }
+        }
+    }
+    return $timestring;
+}
+
 
 /**
  * 检测验证码
@@ -12,8 +62,8 @@
  */
 function check_verify($code, $id = 1){
     return true;
-	$verify = new \Think\Verify();
-	return $verify->check($code, $id);
+    $verify = new \Think\Verify();
+    return $verify->check($code, $id);
 }
 
 /**

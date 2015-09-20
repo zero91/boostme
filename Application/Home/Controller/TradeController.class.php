@@ -2,35 +2,48 @@
 namespace Home\Controller;
 
 class TradeController extends HomeController {
-    public function index(){
-        /*
-        $this->check_login();
-
-        $page = max(1, intval($this->post['page']));
-        $pagesize = $this->setting['list_default'];
-        //$pagesize = 1;
-        $start = ($page - 1) * $pagesize;
-        $total_trade_num = $_ENV['trade']->get_history_trade_num_by_uid($this->user['uid']);
-
-        $trade_list = $_ENV['trade']->get_trade_by_uid($this->user['uid'], $start, $pagesize);
-        foreach ($trade_list as &$t_for_trade) {
-            $t_for_trade['trade_info'] = $this->get_one_trade_full($t_for_trade['trade_no']);
+    public function index($page = 1) {
+        $uid = is_login();
+        if (!$uid) {
+            $this->redirect('User/login');
         }
-        $departstr = split_page($total_trade_num, $pagesize, $page, "/trade/default?page=%s");
-        include template('trade');
-        */
+        $this->assign("title", "我的交易");
+
+        $trade_list = D('Trade')->history($uid, $page);
+        $this->assign("trade_list", $trade_list);
+
         $this->display();
     }
 
-    public function view() {
+    public function view($id) {
+        $this->assign("title", "订单详情 - " . $id);
+        // TODO 权限判断
+        $uid = is_login();
+        $trade = D('Trade')->field(true)->find($id);
+        $trade['info'] = D('TradeInfo')->detail($uid, $id, true);
+
+        if (is_array($trade)) {
+            $this->assign("trade", $trade);
+            //echo json_encode($trade); exit(0);
+
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
         /*
         $trade_no = $this->post['trade_no'];
 
         $trade = $_ENV['trade']->get_trade_by_trade_no($trade_no);
         $trade_info_list = $this->get_one_trade_full($trade_no);
-        include template('view_trade');
         */
-        $this->display();
+    }
+
+    public function history() {
+        if (is_login()) {
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
     }
 
     //===================================================================================
@@ -102,9 +115,10 @@ class TradeController extends HomeController {
 
         $ret = D('TradeInfo')->remove($uid, $trade_id, $item_id, $item_type);
         if ($ret > 0) {
+            D('Trade')->recalc($trade_id);
             $item_cnt = D('TradeInfo')->where(array("trade_id" => $trade_id))->count();
             if ($item_cnt == 0) {
-                D('Trade')->save(array("id" => $trade_id, "status" => 0));
+                D('Trade')->create(array("id" => $trade_id, "status" => 0))->save();
             }
             $this->ajaxReturn(array("success" => true));
         } else {
@@ -134,6 +148,10 @@ class TradeController extends HomeController {
     // @error  102 - 无效参数
     // @error  103 - 添加失败
     // @error  104 - 生成订单失败
+    // @error  105 - 无权从左该订单号
+    // @error  106 - 订单已锁定，不能更改
+    // @error  107 - 操作失败
+    // @error  108 - 购买物品数量必须大于0
     //
     public function ajax_add_item($item_id, $item_type, $quantity = 1) {
         $uid = is_login();
@@ -149,15 +167,19 @@ class TradeController extends HomeController {
         $ret = D('TradeInfo')->buy($uid, $trade_id, $item_id, $item_type, $quantity);
         if ($ret > 0) {
             // TODO 确保订单价格计算正确
-            D('Trade')->save(array("id" => $trade_id, "status" => TRADE_STATUS_WAIT_BUYER_PAY));
+            D('Trade')->recalc($trade_id);
+            D('Trade')->create(array("id" => $trade_id, "status" => TRADE_STATUS_WAIT_BUYER_PAY));
+            D('Trade')->save();
             $this->ajaxReturn(array("success" => true, "trade_id" => $trade_id));
         } else {
             $res = array("success" => false);
             switch ($ret) {
                 case 0: $res['error'] = 103; break; // 添加失败
                 case -1: $res['error'] = 104; break; // 订单号不存在
-                case -2: $res['error'] = 104; break; // 用户无权操作该订单号
-                case -3: $res['error'] = 104; break; // 订单已锁定，不能更改
+                case -2: $res['error'] = 105; break; // 用户无权操作该订单号
+                case -3: $res['error'] = 106; break; // 订单已锁定，不能更改
+                case -4: $res['error'] = 107; break; // 操作失败
+                case -5: $res['error'] = 108; break; // 购买物品数量必须大于0
                 default: break;
             }
             $this->ajaxReturn($res);

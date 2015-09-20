@@ -2,62 +2,47 @@
 namespace Home\Controller;
 
 class MessageController extends HomeController {
-    public function index() {
-        /*
-        $navtitle = '消息中心';
-        //$this->check_login();
-        $system_message_list = $_ENV['message']->list_by_touid($this->user['uid'], 0, 1);
-        $system_message = $system_message_list[0];
+    public function index($page = 1) {
+        $this->assign("title", "消息中心");
+        $this->login();
 
-        $page = max(1, intval($this->post['page']));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        $personal_message_list = $_ENV['message']->group_by_touid($this->user['uid'],
-                                                                  $startindex, $pagesize);
+        $uid = is_login();
+        $num_per_page = C('MESSAGE_NUM_PER_PAGE');
+        $start = ($page - 1) * $num_per_page;
 
-        $personal_usernum = $_ENV['message']->rownum_by_touid($this->user['uid']);
-        $departstr = split_page($personal_usernum, $pagesize, $page, "/message/default?page=%s");
-        include template("message");
-        */
+        $latest_message_list = D('LatestMessage')->field(true)
+                                                 ->where(array("uid" => $uid))
+                                                 ->order("update_time DESC")
+                                                 ->limit($start, $num_per_page)
+                                                 ->select();
+        $this->assign("latest_message_list", $latest_message_list);
+        // TODO 分页显示
         $this->display();
     }
 
-    // 系统消息
-    public function system() {
-        /*
-        $navtitle = '系统消息';
-        $this->check_login();
+    public function system($page = 1) {
+        $this->assign("title", "系统消息");
+        $this->login();
 
-        $page = max(1, intval($this->post['page']));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        $message_list = $_ENV['message']->list_by_touid($this->user['uid'],
-                                                        $startindex, $pagesize);
-        $message_num = $_ENV['message']->get_system_msg_num($this->user['uid']);
-        $departstr = split_page($message_num, $pagesize, $page, "/message/system?page=%s");
-        */
-        //$_ENV['message']->read_by_fromuid(0);
+        $uid = is_login();
+        $message_list = D('Message')->system($uid, $page);
+        $this->assign("message_list", $message_list);
+        // TODO 分页显示
+        // TODO 阅读消息
         $this->display();
     }
 
-    // 私人消息
-    public function personal() {
-        /*
-        $navtitle = '私人消息';
-        $this->check_login();
+    public function personal($uid, $page = 1) {
+        $this->assign("title", '私人消息');
+        $this->login();
 
-        $fromuid = $this->post['uid'];
-        $fromuser = $_ENV['user']->get_by_uid($fromuid);
+        $login_uid = is_login();
+        $message_list = D('Message')->dialog($login_uid, $uid, $page);
 
-        $page = max(1, intval($this->post['page']));
-        $pagesize = $this->setting['list_default'];
-        $startindex = ($page - 1) * $pagesize;
-        $message_list = $_ENV['message']->list_by_fromuid($this->user['uid'], $fromuid,
-                                                          $startindex, $pagesize);
-        $message_num = $_ENV['message']->tot_num_by_fromuid($this->user['uid'], $fromuid);
-        $departstr = split_page($message_num, $pagesize, $page,
-                               "/message/personal?uid=" . $fromuid . "&page=%s");
-        */
+        $this->assign("message_list", $message_list);
+        $this->assign("to_uid", $uid);
+        $this->assign("login_uid", $login_uid);
+
         $this->display();
     }
 
@@ -80,19 +65,7 @@ class MessageController extends HomeController {
             $this->ajaxReturn(array("success" => false, "error" => 101));
         }
 
-        $num_per_page = C('MESSAGE_NUM_PER_PAGE');
-        $start = ($page - 1) * $num_per_page;
-
-        $condition = array(
-            "from_uid" => 0,
-            "to_uid"   => $uid,
-            "status"   => array("NEQ", MSG_STATUS_TO_DELETED)
-        );
-        $message_list = D('Message')->field(true)
-                                    ->where($condition)
-                                    ->order('create_time DESC')
-                                    ->limit($start, $num_per_page)
-                                    ->select();
+        $message_list = D('Message')->system($uid, $page);
         $this->ajaxReturn(array("success" => true, "list" => $message_list));
     }
 
@@ -108,7 +81,7 @@ class MessageController extends HomeController {
     // @error  101  用户尚未登录
     // @error  102  不能获取与用户自己的对话
     //
-    public function ajax_fetch_personal($uid, $page=1) {
+    public function ajax_fetch_personal($uid, $page = 1) {
         $login_uid = is_login();
         if (!$login_uid) {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
@@ -118,27 +91,7 @@ class MessageController extends HomeController {
             $this->ajaxReturn(array("success" => false, "error" => 102)); // 不能获取与自己的对话
         }
 
-        $num_per_page = C('MESSAGE_NUM_PER_PAGE');
-        $start = ($page - 1) * $num_per_page;
-
-        $condition = array (
-            array(
-                "from_uid" => $login_uid,
-                "to_uid"   => $uid,
-                "status"   => array("IN", array(MSG_STATUS_NOT_DELETED, MSG_STATUS_TO_DELETED))
-            ),
-            array(
-                "from_uid" => $uid,
-                "to_uid"   => $login_uid,
-                "status"   => array("IN", array(MSG_STATUS_NOT_DELETED, MSG_STATUS_FROM_DELETED))
-            ),
-            "_logic" => "OR"
-        );
-        $message_list = D('Message')->field(true)
-                                    ->where($condition)
-                                    ->order('create_time DESC')
-                                    ->limit($start, $num_per_page)
-                                    ->select();
+        $message_list = D('Message')->dialog($login_uid, $uid, $page);
         $this->ajaxReturn(array("success" => true, "list" => $message_list));
     }
 

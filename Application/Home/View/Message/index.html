@@ -9,56 +9,56 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <ul class="list-group col-md-10 col-sm-10 setting-content">
-            <!--{if $page == 1}-->
-            <li class="list-group-item" id="{$system_message['mid']}">
-                <table class="bm_table_style">
-                    <tr>
-                        <td width="14%"><center><strong>系统消息</strong></center></td>
-                        <td width="3%">
-                            <!--{if $user['new_system_msg'] > 0}-->
-                            <i class="fa fa-envelope bm_envelope_unread"></i>
-                            <!--{/if}-->
-                        </td>
-                        <td width="67%" class="bm_rpadding_10">
-                            <a href="{SITE_URL}/message/system">{$system_message['subject']}</a>
-                        </td>
-                        <td width="17%"><span>{eval echo tdate($system_message['time'])}</span></td>
-                    </tr>
-                </table>
-            </li>
-            <!--{/if}-->
-            <!--{loop $personal_message_list $message}-->
-            <li class="list-group-item" id="{$message['fromuid']}">
-                <table class="bm_table_style">
-                    <tr>
-                        <td width="14%">
-                            <center>
-                                <img width="60" height="60" src="{echo get_avatar_dir($message['fromuid'])}" class="img-circle"/>
-                                <p><small>{$message['from']}</small></p>
-                            </center>
-                        </td>
-                        <td width="3%">
-                            <!--{if $message['tot_new_msg'] > 0}-->
-                            <i class="fa fa-envelope bm_envelope_unread"> {$question['answers']}</i>
-                            <!--{/if}-->
-                        </td>
-                        <td width="67%" class="bm_rpadding_10">
-                            <a href="{SITE_URL}/message/personal?uid={$message['fromuid']}">{echo strip_tags($message['content'])}</a>
-                        </td>
-                        <td width="14%">
-                            <span>{eval echo tdate($message['time'])}</span>
-                        </td>
-                        <td width="3%">
-                            <a type="button" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a>
-                        </td>
-                    </tr>
-                </table>
-            </li>
-            <!--{/loop}-->
+            <foreach name="latest_message_list" item="message">
+                <li class="list-group-item" id="uid_{$message['to_uid']}">
+                    <table class="bm_table_style">
+                    <if condition="$message['to_uid'] eq 0">
+                        <tr>
+                            <td width="14%"><center><strong>系统消息</strong></center></td>
+                            <td width="3%">
+                                <if condition="$message['new_num'] gt 0">
+                                <i class="fa fa-envelope bm_envelope_unread">{$message['new_num']}</i>
+                                </if>
+                            </td>
+                            <td width="67%" class="bm_rpadding_10">
+                                <a href="{:U('Message/system')}">{$message['content']}</a>
+                            </td>
+                            <td width="17%"><span>{:format_date($message['update_time'])}</span></td>
+                        </tr>
+                    <else />
+                        <tr>
+                            <td width="14%">
+                                <center>
+                                    <img width="60" height="60" src="{:get_user_avatar($message['to_uid'])}" class="img-circle"/>
+                                    <p><small>{$message["to_nickname"]}</small></p>
+                                </center>
+                            </td>
+                            <td width="3%">
+                                <if condition="$message['new_num'] gt 0">
+                                <i class="fa fa-envelope bm_envelope_unread">{$message['new_num']}</i>
+                                </if>
+                            </td>
+                            <td width="67%" class="bm_rpadding_10">
+                                <a href="{:U('Message/personal?uid=' . $message['to_uid'])}">{$message['content']}</a>
+                            </td>
+                            <td width="14%">
+                                <span>{:format_date($message['update_time'])}</span>
+                            </td>
+                            <td width="3%">
+                                <a type="button" class="glyphicon glyphicon-trash"
+                                                     style="color:grey;cursor:pointer;"
+                                                     id="rm_dialog_{$message['to_uid']}"></a>
+
+                            </td>
+                        </tr>
+                    </if>
+                    </table>
+                </li>
+            </foreach>
             <center><div class="split_page">{$departstr}</div></center>
             </ul>
         </div>
     </div>
 </div>
-<script src="__PUBLIC__/js/boostme/message.js"></script>
+<script src="__PUBLIC__/Home/Js/Message.js"></script>
 <include file="Common/footer" />
