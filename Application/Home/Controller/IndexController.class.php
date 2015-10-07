@@ -2,7 +2,7 @@
 namespace Home\Controller;
 
 class IndexController extends HomeController {
-    public function index(){
+    public function index() {
         $this->display();
     }
 }

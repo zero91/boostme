@@ -370,8 +370,8 @@ User.prototype = {
             callback_func(response);
         });
     },
-    update_info : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/user/ajax_update_info";
+    update_profile : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/User/ajax_update_profile";
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });

@@ -80,12 +80,11 @@ class UserApi extends Api {
     // @return true 修改成功，false 修改失败
     //
     public function updateInfo($uid, $password, $data){
-        if ($this->model->updateUserFields($uid, $password, $data) !== false) {
-            $return['status'] = true;
+        $res = $this->model->updateUserFields($uid, $password, $data);
+        if ($res === true || $res > 0) {
+            return array("success" => true);
         } else {
-            $return['status'] = false;
-            $return['info'] = $this->model->getError();
+            return array('success' => false, 'error' => $res);
         }
-        return $return;
     }
 }

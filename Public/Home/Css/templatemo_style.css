@@ -8,6 +8,9 @@ body {
 .container_wapper {
     width: 100%;
     background: #c0c0c0;
+
+    position: fixed; 
+    overflow: hidden;
 }
 .rcolor {
     background: #f00;

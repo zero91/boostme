@@ -298,21 +298,22 @@ function update_info() {
     var req_data_dict = {};
     req_data_dict['email'] = $('#email').val();
     req_data_dict['gender'] = $('#gender').val();
-    req_data_dict['phone'] = $('#phone').val();
+    req_data_dict['mobile'] = $('#mobile').val();
     req_data_dict['qq'] = $('#qq').val();
     req_data_dict['wechat'] = $('#wechat').val();
-    req_data_dict['bday'] = $("#bday").val();
-    req_data_dict['signature'] = $('#signature').val();
+    req_data_dict['birthday'] = $("#birthday").val();
 
+    console.log(req_data_dict);
     var user = new User();
-    user.update_info(req_data_dict, function(response) {
+    user.update_profile(req_data_dict, function(response) {
+        console.log(response);
         var error_dict = {
             101 : "用户尚未登录",
             102 : "邮件格式不正确",
-            103 : "邮件已被占用"
+            103 : "邮件已被占用",
+            104 : "手机号已被占用",
         };
         if (response.success) {
-            alert("修改成功");
             $(".jsk-setting-success").html('信息已经成功修改');
             $(".jsk-setting-success").fadeIn(800);
             $(".jsk-setting-success").fadeOut(1500);

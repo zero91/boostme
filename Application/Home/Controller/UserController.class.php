@@ -39,7 +39,9 @@ class UserController extends HomeController {
     public function profile() {
         $uid = is_login();
         if ($uid > 0) {
-            $user = D('User')->field(true)->find($uid);
+            //$user = D('User')->field(true)->find($uid);
+            $user_api = new UserApi();
+            $user = $user_api->info($uid);
             $this->assign("user", $user);
             $this->display();
         } else {
@@ -67,8 +69,6 @@ class UserController extends HomeController {
         }
     }
 
-
-
     // 验证码，用于登录和注册
     public function verify() {
         return;
@@ -76,12 +76,25 @@ class UserController extends HomeController {
         $verify->entry(1);
     }
 
-    /**
-     * 获取用户注册错误信息
-     * @param  integer $code 错误编码
-     * @return string        错误信息
-     */
-    private function showRegError($code = 0){
+    // 用户上传头像界面
+    public function avatar() {
+        if (is_login()) {
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
+    }
+
+    public function editimg($success = false) {
+        $this->assign("success", $success);
+        $this->display();
+    }
+
+    // 获取用户注册错误信息
+    // @param  integer $code 错误编码
+    // @return string        错误信息
+    //
+    private function showRegError($code = 0) {
         switch ($code) {
             case -1:  $error = '用户名长度必须在16个字符以内！'; break;
             case -2:  $error = '用户名被禁止注册！'; break;
@@ -374,7 +387,7 @@ class UserController extends HomeController {
         }
     }
 
-    // @brief  ajax_update_info  更改用户基本信息
+    // @brief  ajax_update_profile  更改用户基本信息
     // @request  POST
     // @param  string  email     邮箱
     // @param  string  gender    性别
@@ -389,114 +402,104 @@ class UserController extends HomeController {
     // @error  101  用户尚未登录
     // @error  102  邮件格式不正确
     // @error  103  邮件已被占用
+    // @error  104  手机号被占用
     //
-    public function ajax_update_profile($email, $gender, $mobile, $qq, $wechat, $birthday) {
+    public function ajax_update_profile($email = "",
+                                        $gender = "",
+                                        $mobile = "",
+                                        $qq = "",
+                                        $wechat = "",
+                                        $birthday = "") {
         $uid = is_login();
         if (!$uid) {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 尚未登录
         }
         if (!check_email_format($email)) {
-            $res['success'] = false;
-            $res['error'] = 102; // 邮件格式不正确
-            echo json_encode($res);
-            return;
+            $this->ajaxReturn(array("success" => false, "error" => 102)); // 邮件格式不正确
         }
 
-        if ($email != $this->user['email'] && $_ENV['user']->is_email_existed($email)) {
-            $res['success'] = false;
-            $res['error'] = 103;  // 邮件已被占用
-            echo json_encode($res);
-            return;
-        }
-        $_ENV['user']->update($this->user['uid'], $gender, $bday,
-                              $phone, $qq, $wechat, $signature);
+        // TODO 更新邮箱时，需要验证邮箱
+        // TODO 更新手机号时，需要验证手机号
+        // TODO 手机号格式验证
+        $update_data = array(
+            "email"    => $email,
+            "gender"   => $gender,
+            "mobile"   => $mobile,
+            "qq"       => $qq,
+            "wechat"   => $wechat,
+            "birthday" => $birthday
+        );
 
-        if ($email != $this->user['email']) {
-            $_ENV['user']->update_email($this->user['uid'], $email);
+        $user_api = new UserApi();
+        $res = $user_api->updateInfo($uid, "password", $update_data);
+        if ($res['success']) {
+            $this->ajaxReturn(array("success" => true));
+        } else {
+            switch ($res['error']) {
+                case -1:  break; //$error = '用户名长度必须在16个字符以内！'; break;
+                case -2:  break; //$error = '用户名被禁止注册！'; break;
+                case -3:  break; //$error = '用户名被占用！'; break;
+                case -4:  break; //$error = '密码长度必须在6-30个字符之间！'; break;
+                case -5:  break; //$error = '邮箱格式不正确！'; break;
+                case -6:  break; //$error = '邮箱长度必须在1-32个字符之间！'; break;
+                case -7:  break; //$error = '邮箱被禁止注册！'; break;
+                case -8:  $error = 103; break; // 邮箱被占用
+                case -9:  //$error = '手机格式不正确！'; break;
+                case -10: //$error = '手机被禁止注册！'; break;
+                case -11: $error = 104; break; // 手机号被占用
+                default:  break; //$error = '未知错误';
+            }
+            $this->ajaxReturn(array("success" => false, "error" => $error));
         }
-        $res['success'] = true;
-        echo json_encode($res);
+    }
+
+    // @brief  ajax_crop_avatar  截取用户头像
+    // @request  POST
+    //
+    // @param  string  $orig_pic  原始图片地址
+    // @param  string  $x         截图图片x轴坐标
+    // @param  string  $y         截图图片y轴坐标
+    // @param  string  $w         截图图片宽度
+    // @param  string  $h         截图图片高度
+    //
+    // @ajaxReturn  成功 - array("success" => true)
+    //              失败 - array("success" => false, "error" => 错误码)
+    //
+    public function ajax_crop_avatar($orig_pic, $x, $y, $w, $h) {
+        $uid = is_login();
+        if (!$uid) {
+            $this->ajaxReturn(array("success" => false, "error" => 101)); // 尚未登录
+        }
+
+        $avatar_dir = get_avatar_dir($uid);
+        forcemkdir($avatar_dir);
+
+        $extname = extname($orig_pic);
+        $crop_img = sprintf("%s/c_%s.%s", $avatar_dir, $uid, $extname);
+        $sm_img = sprintf("%s/s_%s.%s", $avatar_dir, $uid, $extname);
+        $md_img = sprintf("%s/m_%s.%s", $avatar_dir, $uid, $extname);
+        $lg_img = sprintf("%s/l_%s.%s", $avatar_dir, $uid, $extname);
+
+        $remove_file = glob($avatar_dir . "/c_{$uid}.*");
+        $remove_file = array_merge($remove_file, glob($avatar_dir . "/s_{$uid}.*"));
+        $remove_file = array_merge($remove_file, glob($avatar_dir . "/m_{$uid}.*"));
+        $remove_file = array_merge($remove_file, glob($avatar_dir . "/l_{$uid}.*"));
+        foreach ($remove_file as $imgfile) {
+            if (strtolower($extname) != extname($imgfile)) {
+                unlink($imgfile);
+            }
+        }
+        image_crop(WEB_ROOT . $orig_pic, $crop_img, $x, $y, $w, $h, false);
+        $success = true;
+        $success = $success && image_resize($crop_img, $lg_img, 384, 384);
+        $success = $success && image_resize($crop_img, $md_img, 244, 244);
+        $success = $success && image_resize($crop_img, $sm_img, 100, 100);
+        $this->ajaxReturn(array("success" => $success));
     }
 }
 
 /*
 class usercontrol extends base {
-    // 用户上传头像
-    public function onupload_avatar() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $uid = intval($this->user['uid']);
-            $picname = $_FILES['userimage']['name'];
-            $picsize = $_FILES['userimage']['size'];
-            $extname = extname($picname);
-
-            if (!isimage($extname)) {
-                echo json_encode(array("error" => "101")); //type_error
-                return;
-            }
-            if ($picsize > 5120000) {
-                echo '图片大小不能超过5M';
-                return;
-            }
-            $upload_tmp_file = '/public/data/tmp/user_avatar_' . $uid . '.' . $extname;
-            move_uploaded_file($_FILES["userimage"]["tmp_name"], WEB_ROOT . $upload_tmp_file);
-            $size = round($picsize / 1024, 2);
-            $image_size = getimagesize(WEB_ROOT . $upload_tmp_file);
-     
-            $upload_pic = array(
-                'name'   => $picname,
-                'pic'    => $upload_tmp_file,
-                'size'   => $size,
-                'width'  => $image_size[0],
-                'height' => $image_size[1]
-            );
-        }
-        include template("upload_avatar");
-    }
-
-    // 截取用户头像
-    public function oneditimg() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $x = intval($this->post['x']);
-            $y = intval($this->post['y']);
-            $w = intval($this->post['w']);
-            $h = intval($this->post['h']);
-            $pic = $this->post['src'];
-            $extname = extname($pic);
-
-            $uid = intval($this->user['uid']);
-            $uid = sprintf("%010d", $uid);
-            $avatardir = "/public/data/avatar/";
-            $dir1 = $avatardir . substr($uid, 0, 3);
-            $dir2 = $dir1 . '/' . substr($uid, 3, 3);
-            $dir3 = $dir2 . '/' . substr($uid, 6, 2);
-            (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
-            (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
-            (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
-
-            // crop image
-            $crop_img = $dir3 . "/crop_" . $uid . '.' . $extname;
-            $smallimg = $dir3 . "/small_" . $uid . '.' . $extname;
-            $mediumimg = $dir3 . "/medium_" . $uid . '.' . $extname;
-            $largeimg = $dir3 . "/large_" . $uid . '.' . $extname;
-
-            $remove_file = glob(WEB_ROOT . $dir3 . "/crop_{$uid}.*");
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/small_{$uid}.*"));
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/medium_{$uid}.*"));
-            $remove_file = array_merge($remove_file, glob(WEB_ROOT . $dir3 . "/large_{$uid}.*"));
-            foreach ($remove_file as $imgfile) {
-                if (strtolower($extname) != extname($imgfile)) {
-                    unlink($imgfile);
-                }
-            }
-            image_crop(WEB_ROOT . $pic, WEB_ROOT . $crop_img, $x, $y, $w, $h, false);
-            $success = true;
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $largeimg, 244, 244);
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $mediumimg, 160, 160);
-            $success = $success && image_resize(WEB_ROOT . $crop_img, WEB_ROOT . $smallimg, 100, 100);
-        }
-        include template("editimg");
-    }
-
     // 上传学生证
     public function onupload_student_card() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

@@ -58,7 +58,7 @@ h1 {
     padding-bottom: 20px;
     font: normal normal normal 18px/23px 'Century Gothic', sans-serif;
     color: #000;
-    background: repeat-x url("../../images/index/banner_bg.jpg") 0 -74px ;
+    background: repeat-x url("../Images/banner_bg.jpg") 0 -74px ;
     transition-duration: .5s;
 }
 
@@ -67,7 +67,7 @@ h1 {
     padding-bottom: 20px;
     font: normal normal normal 14px/20px 'Century Gothic', sans-serif;
     color: #000;
-    background: repeat-x url("../../images/index/banner_bg.jpg") 0 -74px ;
+    background: repeat-x url("../Images/banner_bg.jpg") 0 -74px ;
 }
 
 .nav_menu_logo a:hover {text-decoration: none;}

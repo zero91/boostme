@@ -36,21 +36,22 @@
 }
 
 .banner_slide_01 {
-    background: url('../../images/index/banner_slide_01.jpg');
+    background: url('../Images/banner_slide_01.jpg');
     background-size: "cover";
 }
 .banner_slide_02 {
-    background: url('../../images/index/banner_slide_02.jpg');
+    background: url('../Images/banner_slide_02.jpg');
     background-size: "cover";
 }
 .banner_slide_03 {
-    background: url('../../images/index/banner_slide_03.jpg');
+    background: url('../Images/banner_slide_03.jpg');
     background-size: "cover";
 }
 
 #index_about {
+    width: 80%;
     background: #ffffff;
-    float: left;
+    margin: 0 auto;
 }
 #index_about .about_icon img {
     width: 100%;

@@ -106,7 +106,7 @@
 
 .bm_table_style {width:100%;text-align:left;min-height:86px;}
 
-.bm_button_agree {background: url("../default/btn_agree.png") repeat-x scroll 0 0 transparent;border:0;width:67px;line-height: 25px;height:25px;font-size:12px;color:#DB4F1F;font-weight: bold;padding-left:21px; text-align: center;cursor: pointer;}
+.bm_button_agree {background: url("../images/btn_agree.png") repeat-x scroll 0 0 transparent;border:0;width:67px;line-height: 25px;height:25px;font-size:12px;color:#DB4F1F;font-weight: bold;padding-left:21px; text-align: center;cursor: pointer;}
 
 .bm_place_bottom {position: relative; margin-top:20%;}
 

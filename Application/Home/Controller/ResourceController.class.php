@@ -4,7 +4,7 @@ namespace Home\Controller;
 
 // 资源访问权限控制类
 class ResourceController extends HomeController {
-    public function index(){
+    public function index() {
     }
 
     public function onrequest() {

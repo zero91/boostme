@@ -132,6 +132,108 @@ function fetch_img_tag($text) {
     return $matches;
 }
 
+// 检查邮件地址是否合法
+function check_email_format($email) {
+    return preg_match("/^[a-z'0-9]+([._-][a-z'0-9]+)*@([a-z0-9]+([._-][a-z0-9]+))+$/", $email);
+}
+
+// 初始化图片
+function get_image_hander($url) {
+    $size = @getimagesize($url);
+    switch ($size['mime']) {
+        case 'image/bmp' : $im = imagecreatefromwbmp($url); break;
+        case 'image/jpeg': $im = imagecreatefromjpeg($url); break;
+        case 'image/gif' : $im = imagecreatefromgif($url); break;
+        case 'image/png' : $im = imagecreatefrompng($url); break;
+        default: $im = false; break;
+    }
+    return $im;
+}
+
+// 裁剪图片
+function image_crop($src, $dst, $x, $y, $w, $h, $rm_src=true) {
+    $fout = fopen("/Users/zero91/log.txt", "a+");
+    fprintf($fout, "src = [%s]\n", $src);
+    fprintf($fout, "dst = [%s]\n", $dst);
+    fclose($fout);
+    // 创建图片
+    $src_pic = get_image_hander($src);
+
+    $dst_pic = imagecreatetruecolor($w, $h);
+    imagecopyresampled($dst_pic, $src_pic, 0, 0, $x, $y, $w, $h, $w, $h);
+    imagejpeg($dst_pic, $dst);
+    imagedestroy($src_pic);
+    imagedestroy($dst_pic);
+        
+    // 删除已上传未裁切的图片
+    if ($rm_src && file_exists($src)) {
+        unlink($src);
+    }
+    // 返回新图片的位置
+    return $dst;
+}
+
+// 获取image的类型
+function get_image_type($url) {
+    $size = @getimagesize($url);
+    switch ($size['mime']) {
+        case 'image/bmp' : return 'bmp';
+        case 'image/jpeg': return 'jpg';
+        case 'image/gif' : return 'gif';
+        case 'image/png' : return 'png';
+        default: return false;
+    }
+}
+
+function image_resize($src, $dst, $width, $height, $crop = 0) {
+    if (!list($w, $h) = getimagesize($src)) {
+        return "Unsupported picture type!";
+    }
+
+    $img = get_image_hander($src);
+    if (!$img) return false;
+
+    // resize
+    if ($crop) {
+        if ($w < $width or $h < $height) {
+            rename($src, $dst);
+            return true;
+        }
+        $ratio = max($width / $w, $height / $h);
+        $h = $height / $ratio;
+        $x = ($w - $width / $ratio) / 2;
+        $w = $width / $ratio;
+    } else {
+        if ($w < $width and $h < $height) {
+            rename($src, $dst);
+            return true;
+        }
+        $ratio = min($width / $w, $height / $h);
+        $width = $w * $ratio;
+        $height = $h * $ratio;
+        $x = 0;
+    }
+    $new = imagecreatetruecolor($width, $height);
+
+    $type = get_image_type($src);
+    // preserve transparency
+    if ($type == "gif" or $type == "png") {
+        imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
+        imagealphablending($new, false);
+        imagesavealpha($new, true);
+    }
+
+    imagecopyresampled($new, $img, 0, 0, $x, 0, $width, $height, $w, $h);
+
+    switch ($type) {
+        case 'bmp': imagewbmp($new, $dst); break;
+        case 'gif': imagegif($new, $dst); break;
+        case 'jpg': imagejpeg($new, $dst); break;
+        case 'png': imagepng($new, $dst); break;
+    }
+    return true;
+}
+
 // ------------------------------- TO BE FINISHED -----------------------------------
 
 /**

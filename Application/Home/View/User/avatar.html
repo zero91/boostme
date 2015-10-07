@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+<title>上传头像</title>
+<link href="__PUBLIC__/Home/Css/avatar.css" rel="stylesheet" type="text/css"/>
+<script src="__PUBLIC__/Common/Js/third/jquery/jquery.min.js" charset="utf-8"></script>
+<script src="__PUBLIC__/Common/Js/third/Jcrop/js/jquery.Jcrop.min.js" charset="utf-8"></script>
+<script src="__PUBLIC__/Common/Js/third/jquery-form/jquery.form.js"></script>
+<link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
+<link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript">
+var uploaded = 0;
+var g_image_width = 0;
+var g_image_height = 0;
+
+$(function() {
+    $("#crop_submit").click(function(){
+        if (parseInt($("#x").val()) >= 0) {
+            $("#crop_form").ajaxSubmit({
+                url : "{:U('User/ajax_crop_avatar')}",
+                success: function(response, stat) {
+                    if (stat && response['success']) {
+                        self.location = "{:U('User/editimg?success=1')}";
+                    } else {
+                        alert("发生未知错误，请重新操作");
+                    }
+                },
+            }); 
+        } else {
+            alert("要先在图片上划一个选区再单击确认剪裁的按钮！");  
+        }
+        return false;
+    });
+
+    $(".pic").click(function(){
+        if(uploaded == 0){
+            $("#takepic").click();
+            uploaded = 1;
+        }
+    });
+});
+
+function showCoords(obj) {
+    var image_width = g_image_width;
+    var image_height = g_image_height;
+    var image_rx = image_width / $("#target").width();
+    var image_ry = image_height / $("#target").height();
+
+    $("#x").val(obj.x * image_rx);
+    $("#y").val(obj.y * image_ry);
+    $("#w").val(obj.w * image_rx);
+    $("#h").val(obj.h * image_ry);
+
+    if (parseInt(obj.w) > 0) {
+        // 计算预览区域图片缩放的比例
+        var rx = $("#preview_box").width() / obj.w; 
+        var ry = $("#preview_box").height() / obj.h;
+        // 通过比例值控制图片的样式与显示
+        $("#preview").css({
+            width:Math.round(rx * $("#target").width()) + "px",
+            height:Math.round(rx * $("#target").height()) + "px",
+            marginLeft:"-" + Math.round(rx * obj.x) + "px",
+            marginTop:"-" + Math.round(ry * obj.y) + "px"
+        });
+    }
+}
+
+function upload_avatar() {
+    $("#upload_form").ajaxSubmit({
+        target:  '#upload',
+        success: function(response, stat) {
+            if (stat && response['state'] == 'SUCCESS') {
+                $(".pic").html('<img src="' + response['url'] + '" id="target">');
+                $(".cut").show();
+                g_image_width = response['width'];
+                g_image_height = response['height'];
+
+                $("#preview").attr("src", response['url']);
+                $("#orig_pic").val(response['url']);
+                $("#target").Jcrop({
+                    aspectRatio:1,
+                    onChange:showCoords,
+                    onSelect:showCoords
+                });
+            }
+        },
+    }); 
+    return false;
+}
+
+</script>
+</head>
+<body>
+<form method="post" id="crop_form">
+    <input type="hidden" id="orig_pic" name="orig_pic" value="" />
+    <input type="hidden" id="x" name="x" />
+    <input type="hidden" id="y" name="y" />
+    <input type="hidden" id="w" name="w" />
+    <input type="hidden" id="h" name="h" />
+    <div id="head">
+        <div class="pic">
+            <div style="margin:14px;">
+                在这里设置你的头像……<br/>请使用5M以内的jpg、gif、png图片。
+            </div>
+        </div>
+        <div class="preview">
+            <div id="preview_box">
+                <img id="preview" alt="Preview" style="width: 556px; height: 333px; margin-left: -426px; margin-top: -233px;">
+            </div>
+            <div class="quote">头像预览</div>
+        </div>
+        <div class="cut" style="display:none">
+            <input class="btn btn-success btn-sm" type="button" value="确认剪裁" id="crop_submit">
+            <span>请在上图中选择头像区域</span>
+        </div>
+    </div>
+</form>
+
+<div class="upload" id="upload">
+    <form action="{:U('Attach/upload_avatar')}" id="upload_form"
+          enctype="multipart/form-data" method="post" name="upform">
+        <input name="upfile" id="upfile" type="file" onchange="upload_avatar();" />
+    </form>
+</div>
+</body>
+</html>

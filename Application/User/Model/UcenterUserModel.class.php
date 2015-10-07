@@ -151,9 +151,11 @@ class UcenterUserModel extends Model {
             $map['id'] = $uid;
         }
 
-        $user = $this->where($map)->field('id,username,email,mobile,status')->find();
+        //$user = $this->where($map)->field('id,username,email,mobile,status')->find();
+        $user = $this->where($map)->field(true)->find();
         if (is_array($user) && $user['status'] == 1) {
-            return array($user['id'], $user['username'], $user['email'], $user['mobile']);
+            //return array($user['id'], $user['username'], $user['email'], $user['mobile']);
+            return $user;
         } else {
             return -1; //用户不存在或被禁用
         }
@@ -214,10 +216,20 @@ class UcenterUserModel extends Model {
             return -101; // 密码不正确
         }
 
+        $user_info = $this->info($uid);
+        foreach ($user_info as $key => $value) {
+            if (array_key_exists($key, $data) && $data[$key] == $value) {
+                unset($data[$key]);
+            }
+        }
+        if (empty($data)) {
+            return true;
+        }
+
         // 更新用户信息
         $data = $this->create($data);
         if ($data) {
-            return $this->where(array('id'=>$uid))->save($data);
+            return $this->where(array('id' => $uid))->save($data);
         } else {
             return $this->getError(); // 错误详情见自动验证注释
         }
@@ -232,10 +244,13 @@ class UcenterUserModel extends Model {
     //
     protected function verifyUser($uid, $password_in) {
         $password = $this->getFieldById($uid, 'password');
+        if (!UC_UPDATE_NEED_PASSWORD) {
+            return true;
+        }
+
         if (bm_ucenter_md5($password_in, UC_AUTH_KEY) === $password) {
             return true;
         }
         return false;
     }
-
 }

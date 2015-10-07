@@ -27,6 +27,21 @@ class AttachController extends HomeController {
         $this->ajaxReturn($res);
     }
 
+    // 用户上传头像
+    public function upload_avatar() {
+        $img_info = $this->upload(C('AVATAR_UPLOAD'));
+        $image_size = getimagesize(WEB_ROOT . $img_info['fullpath']);
+        $res = array(
+            'url'      => $img_info['fullpath'],
+            'title'    => htmlspecialchars($_POST['pictitle'], ENT_QUOTES),
+            'original' => $img_info[C('EDITOR_UPLOAD.fieldKey')]['name'],
+            'width'  => $image_size[0],
+            'height' => $image_size[1],
+            'state'    => $img_info ? 'SUCCESS' : session('upload_error')
+        );
+        $this->ajaxReturn($res);
+    }
+
     private function upload($setting) {
         session('upload_error', null);
         $uploader = new \Think\Upload($setting, 'Local');
