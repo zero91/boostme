@@ -152,10 +152,6 @@ function get_image_hander($url) {
 
 // 裁剪图片
 function image_crop($src, $dst, $x, $y, $w, $h, $rm_src=true) {
-    $fout = fopen("/Users/zero91/log.txt", "a+");
-    fprintf($fout, "src = [%s]\n", $src);
-    fprintf($fout, "dst = [%s]\n", $dst);
-    fclose($fout);
     // 创建图片
     $src_pic = get_image_hander($src);
 
