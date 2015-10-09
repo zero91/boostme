@@ -1,13 +1,13 @@
 <include file="Common/header" />
-<link rel="stylesheet" href="{SITE_URL}/public/css/default/main.css"/>
-<link rel="stylesheet" href="{SITE_URL}/public/js/plugin/lightbox/lightbox.css"/>
-<link href="{SITE_URL}/public/css/default/avatar.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="{SITE_URL}/public/js/plugin/lightbox/lightbox.js"></script>
+<include file="Common/common_link" />
+<link rel="stylesheet" href="__PUBLIC__/Home/Css/main.css"/>
+<link rel="stylesheet" href="__PUBLIC__/Common/Js/third/lightbox/lightbox.css"/>
+<link href="__PUBLIC__/Home/Css/avatar.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="__PUBLIC__/Common/Js/third/lightbox/lightbox.js"></script>
 <style type="text/css">
     .ui-datepicker-title {color:black;}
 </style>
 
-<include file="Common/common_link" />
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-body">
@@ -66,7 +66,7 @@
                 </div>
             </div>
             <div class="col-md-5 col-sm-5" style="overflow:hidden">
-                <iframe src="{SITE_URL}/user/upload_student_card" style="border:none;"
+                <iframe src="{:U('User/master')}" style="border:none;"
                         width="520px" height="300px;" frameborder="no" border="0"
                         marginwidth="0" marginheight="0" scrolling="no" ></iframe>
             </div>
@@ -103,36 +103,36 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">学历:</label>
         <div class="col-sm-5">
-            <select class="form-control" id="edu_type-<%= id %>">
+            <select class="form-control" id="degree-<%= id %>">
                 <option value="">--请选择--</option>
-                <% if (edu['edu_type'] == {HIGH_SCHOOL}) { %>
-                <option value="{HIGH_SCHOOL}" selected>高中</option>
+                <% if (edu['degree'] == {$Think.EDU_HIGH_SCHOOL}) { %>
+                <option value="{$Think.EDU_HIGH_SCHOOL}" selected>高中</option>
                 <% } else { %>
-                <option value="{HIGH_SCHOOL}">高中</option>
+                <option value="{$Think.EDU_HIGH_SCHOOL}">高中</option>
                 <% } %>
 
-                <% if (edu['edu_type'] == {BACHELOR}) { %>
-                <option value="{BACHELOR}" selected>本科</option>
+                <% if (edu['degree'] == {$Think.EDU_BACHELOR}) { %>
+                <option value="{$Think.EDU_BACHELOR}" selected>本科</option>
                 <% } else { %>
-                <option value="{BACHELOR}">本科</option>
+                <option value="{$Think.EDU_BACHELOR}">本科</option>
                 <% } %>
 
-                <% if (edu['edu_type'] == {MASTER}) { %>
-                <option value="{MASTER}" selected>硕士研究生</option>
+                <% if (edu['degree'] == {$Think.EDU_MASTER}) { %>
+                <option value="{$Think.EDU_MASTER}" selected>硕士研究生</option>
                 <% } else { %>
-                <option value="{MASTER}">硕士研究生</option>
+                <option value="{$Think.EDU_MASTER}">硕士研究生</option>
                 <% } %>
 
-                <% if (edu['edu_type'] == {DOCTOR}) { %>
-                <option value="{DOCTOR}" selected>博士研究生</option>
+                <% if (edu['degree'] == {$Think.EDU_DOCTOR}) { %>
+                <option value="{$Think.EDU_DOCTOR}" selected>博士研究生</option>
                 <% } else { %>
-                <option value="{DOCTOR}">博士研究生</option>
+                <option value="{$Think.EDU_DOCTOR}">博士研究生</option>
                 <% } %>
 
-                <% if (edu['edu_type'] == {POST_DOCTOR}) { %>
-                <option value="{POST_DOCTOR}" selected>博士后</option>
+                <% if (edu['degree'] == {$Think.EDU_POST_DOCTOR}) { %>
+                <option value="{$Think.EDU_POST_DOCTOR}" selected>博士后</option>
                 <% } else { %>
-                <option value="{POST_DOCTOR}">博士后</option>
+                <option value="{$Think.EDU_POST_DOCTOR}">博士后</option>
                 <% } %>
             </select>
         </div>
@@ -140,7 +140,7 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">院系:</label>
         <div class="col-sm-5">
-            <input type="text" class="form-control" value="<%= edu['department'] %>" id="dept-<%= id %>"/>
+            <input type="text" class="form-control" value="<%= edu['dept'] %>" id="dept-<%= id %>"/>
         </div>
     </div>
     <div class="form-group">
@@ -166,14 +166,14 @@
 </div>
 </script>
 
-<link href="{SITE_URL}/public/js/plugin/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" type="text/css" href="{SITE_URL}/public/js/plugin/jquery-ui/jquery-ui.css" />
-<script src="{SITE_URL}/public/js/plugin/jquery-ui/jquery-ui.min.js"></script>
+<link href="__PUBLIC__/Common/Js/third/uploadify/uploadify.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/Common/Js/third/jquery-ui/jquery-ui.css" />
+<script src="__PUBLIC__/Common/Js/third/jquery-ui/jquery-ui.min.js"></script>
 <script type="text/javascript">
-    document.write("<script type='text/javascript' src='{SITE_URL}/public/js/plugin/uploadify/jquery.uploadify.js?" + (new Date()).getTime()  + "'></s" + "cript>"); 
+    document.write("<script type='text/javascript' src='__PUBLIC__/Common/Js/third/uploadify/jquery.uploadify.js?" + (new Date()).getTime()  + "'></s" + "cript>"); 
     $.datepicker.regional["zh-CN"] = {closeText: "关闭", prevText: "&#x3c;上月", nextText: "下月&#x3e;", currentText: "今天", monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"], monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"], dayNames: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"], dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"], dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"], weekHeader: "周", dateFormat: "yy-mm-dd", firstDay: 1, isRTL: !1, showMonthAfterYear: !0, yearSuffix: "年" }
     $.datepicker.setDefaults($.datepicker.regional["zh-CN"]);
 </script>
-<script src="{SITE_URL}/public/js/data/school.js"></script>
-<script src="{SITE_URL}/public/js/boostme/user.js"></script>
+<script src="__PUBLIC__/Common/Data/category/university.js"></script>
+<script src="__PUBLIC__/Home/Js/User.js"></script>
 <include file="Common/footer" />

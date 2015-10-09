@@ -1,0 +1,51 @@
+<include file="Common/header" />
+<include file="Common/common_link" />
+ <style type="text/css">
+  .avatar {position: absolute; top: 20px; left: 10px;}
+  .msg_content {margin: 0 10px 0 55px !important; padding: 10px; line-height: 26px;}
+  .price {color:red;font-weight:bold;font-family: verdana,arial;}
+</style>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="col-md-9 col-sm-8 setting-content">
+                <!--{if $material_num > 0}-->
+                <h3>一共上传了<span style="color:red;">{$material_num}</span>份资料</h3>
+                <table height="100px;" width="100%" border="1px" cellspacing="0" style="text-align:center;margin-top:10px;">
+                    <tr style="background-color:#f2f7ff;">
+                        <th width="56%" style="text-align:center;">资料标题</th>
+                        <th width="12%" style="text-align:center;">详细数据</th>
+                        <th width="16%" style="text-align:center;">上传时间</th>
+                        <th width="16%" style="text-align:center;">操作</th>
+                    </tr>
+                    <!--{loop $material_list $material}-->
+                    <tr height="89px">
+                        <td><a target="_blank" href="{SITE_URL}/material/view?id={$material['id']}">{$material['title']}</a>&nbsp;&nbsp;</td>
+                        <td style="font-size:12px;text-align:left;" width="17%">
+                            <p><span>价格：</span><span class="price">¥{$material['price']}</span></p>
+                            <p><span>购买量：</span><span style="color:green;">{$material['sold_num']}</span></p>
+                            <p><span>浏览量：</span><span style="color:green;">{$material['view_num']}</span></p>
+                            <p><span>评论量：</span><span style="color:green;">{$material['comment_num']}</span></p>
+                        </td>
+                        <td>
+                            <p>{eval echo tdate($material['time'])}</p>
+                        </td>
+                        <td width="8%">
+                            <a target="_blank" href="{SITE_URL}/material/edit?mid={$material['id']}" class="glyphicon glyphicon-pencil" style="font-size:12px;">更改</a>
+                        </td>
+                    </tr>
+                    <!--{/loop}-->
+                </table>
+                <center><div class="pages" style="margin-top:20px;">{$departstr}</div></center>
+                <!--{else}-->
+                <p>您还未上传过任何资料。</p>
+                <!--{/if}-->
+            </ul>
+            <div class="col-md-3 col-sm-4">
+                <a class="btn btn-info" href="{SITE_URL}/material/add">上传</a>
+            </div>
+        </div>
+    </div>
+</div>
+<include file="Common/footer" />

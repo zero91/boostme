@@ -383,7 +383,7 @@ User.prototype = {
         });
     },
     fetch_edu : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/user/ajax_fetch_edu";
+        var req_url = this.server() + "/User/ajax_fetch_edu";
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });

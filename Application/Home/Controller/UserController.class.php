@@ -30,8 +30,6 @@ class UserController extends HomeController {
         }
 
         $this->assign('title', "注册");
-        $forward = isset($_SERVER['HTTP_REFERER'])  ? $_SERVER['HTTP_REFERER'] : __ROOT__;
-        $this->assign('forward', $forward);
         $this->display();
     }
 
@@ -39,7 +37,6 @@ class UserController extends HomeController {
     public function profile() {
         $uid = is_login();
         if ($uid > 0) {
-            //$user = D('User')->field(true)->find($uid);
             $user_api = new UserApi();
             $user = $user_api->info($uid);
             $this->assign("user", $user);
@@ -69,11 +66,21 @@ class UserController extends HomeController {
         }
     }
 
+    // 上传学生证
+    public function master() {
+        if (is_login()) {
+            //$resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+            //$uid = $this->user['uid'];
+            $this->display();
+        } else {
+            $this->redirect('User/login');
+        }
+    }
+
     // 验证码，用于登录和注册
     public function verify() {
-        return;
         $verify = new \Think\Verify();
-        $verify->entry(1);
+        $verify->entry($this->verify_id);
     }
 
     // 用户上传头像界面
@@ -133,7 +140,7 @@ class UserController extends HomeController {
     // @error  103  验证码错误
     // @error  104  已登录
     //
-    public function ajax_login($username="", $password="", $verify="") {
+    public function ajax_login($username="", $password="", $verify="", $forward="") {
         $res = array();
         if (!check_verify($verify)) {
             $res['success'] = false;;
@@ -153,7 +160,8 @@ class UserController extends HomeController {
             $User = D('User');
             if ($User->login($uid)) { //登录用户
                 //TODO:跳转到登录前页面
-                $this->ajaxReturn(array("success" => true));
+                $forward = empty($forward) ? __ROOT__ : $forward;
+                $this->ajaxReturn(array("success" => true, "forward" => $forward));
             } else {
                 $res['success'] = false;
                 $res['error_info'] = $User->getError();
@@ -251,7 +259,6 @@ class UserController extends HomeController {
             //TODO: 发送验证邮件
             $res['success'] = true;
             $res['uid'] = $uid;
-            $res['forward'] = isset($_POST['forward']) ? $_POST['forward'] : "";
             $this->ajaxReturn($res);
         } else { //注册失败，显示错误信息
             $res['success'] = false;
@@ -496,40 +503,116 @@ class UserController extends HomeController {
         $success = $success && image_resize($crop_img, $sm_img, 100, 100);
         $this->ajaxReturn(array("success" => $success));
     }
+
+    // @onajax_update_resume [更新用户学历信息]
+    // @request type         [POST]
+    // @param[in]   realname [真实姓名]
+    // @param[in]      phone [手机]
+    // @param[in]     wechat [微信号]
+    // @param[in]         qq [QQ号]
+    // @param[in]   edu_list [教育信息列表，每列信息包括下列字段：]
+    //                       school     [学校]
+    //                       dept       [院系]
+    //                       major      [专业]
+    //                       edu_type   [学历类型]
+    //                       start_time [起始时间]
+    //                       end_time   [结束时间，可为空]
+    //
+    // @return          成功 [success为true]
+    //                  失败 [success为false，error为相应的错误码]
+    //
+    // @error            101 [用户尚未登录]
+    // @error            102 [更新失败]
+    // @error            103 [未上传学生证]
+    public function ajax_update_resume($edu_list) {
+        $uid = is_login();
+        if (!$uid) {
+            $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
+        }
+
+        if (!D('Education')->update($uid, $edu_list)) {
+            $this->ajaxReturn(array("success" => false, "error" => 102)); // 更新失败
+        }
+        $this->ajaxReturn(array("success" => true));
+        /*
+
+        $affected_rows = 0;
+        $realname = trim($this->post['realname']);
+        if (!empty($realname)) {
+            $affected_rows += $_ENV['userresume']->update_realname($this->user['uid'], $realname);
+        }
+
+        $phone = trim($this->post['phone']);
+        $qq = trim($this->post['qq']);
+        $wechat = trim($this->post['wechat']);
+        if (!empty($phone) || !empty($qq) || !empty($wechat)) {
+            $affected_rows += $_ENV['user']->update_contact_info($this->user['uid'],
+                                                                 $phone, $qq, $wechat);
+        }
+
+        $edu_list = $this->post['edu_list'];
+        $affected_rows += $_ENV['education']->remove_by_uid($this->user['uid']);
+        $affected_rows += $_ENV['education']->multi_add($this->user['uid'], $edu_list);
+
+        if ($this->post['apply']) {
+            $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+            if (empty($resume['studentID'])) {
+                $res['sucess'] = false;
+                $res['error'] = 103; // 未上传学生证
+                echo json_encode($res);
+                return;
+            } else {
+                $affected_rows += $_ENV['userresume']->update_verify($this->user['uid'],
+                                                                     RESUME_APPLY);
+            }
+        }
+        */
+    }
+
+    // @brief  ajax_fetch_edu  获取用户教育信息
+    // @request  GET
+    // @param  uid  用户ID
+    //
+    // @ajaxReturn  成功 => array("success" => true, "list" => 该用户教育信息列表)
+    //              失败 => array("success" => false, "error" => 错误码)
+    //
+    // @error  101  用户尚未登录
+    // @error  102  参数无效
+    //
+    public function ajax_fetch_edu($uid) {
+        if (!is_login()) {
+            $this->ajaxReturn(array("success" => false, "error" => 101));
+        }
+
+        $edu_list = D('Education')->field(true)
+                                  ->where(array("uid" => $uid))
+                                  ->order("start_time DESC")
+                                  ->select();
+        $this->ajaxReturn(array("success" => true, "list" => $edu_list));
+    }
+
+    // @brief  ajax_check_verify  验证验证码是否正确
+    // @request GET
+    // @param  string  $verify  验证码
+    //
+    // @ajaxReturn  正确 => array("success" => true),
+    //              失败 => array("success" => false, "error" => 相应的错误码)
+    //
+    // @error  101  验证码书写错误
+    //
+    public function ajax_check_verify($verify) {
+        $res = array();
+        if (!check_verify($verify, $this->verify_id, false)) {
+            $this->ajaxReturn(array("success" => false, "error" => 101)); // 验证码书写错误
+        } else {
+            $this->ajaxReturn(array("success" => true));
+        }
+    }
+
+    private $verify_id = 1;
 }
 
 /*
-class usercontrol extends base {
-    // 上传学生证
-    public function onupload_student_card() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $resume_dir = "/private/userdata/studentID/";
-            $extname = extname($_FILES["student_card"]["name"]);
-            $uid = abs($this->user['uid']);
-            $uid = sprintf("%010d", $uid);
-            $dir1 = $resume_dir . substr($uid, 0, 3);
-            $dir2 = $dir1 . '/' . substr($uid, 3, 3);
-            $dir3 = $dir2 . '/' . substr($uid, 6, 2);
-
-            (!is_dir(WEB_ROOT . $dir1)) && forcemkdir(WEB_ROOT . $dir1);
-            (!is_dir(WEB_ROOT . $dir2)) && forcemkdir(WEB_ROOT . $dir2);
-            (!is_dir(WEB_ROOT . $dir3)) && forcemkdir(WEB_ROOT . $dir3);
-
-            $file_web_path = $dir3 . "/{$uid}.{$extname}";
-
-            $upload_target_fname = WEB_ROOT . $file_web_path;
-            if (file_exists($upload_target_fname)) { //删除现有学生证照片
-                unlink($upload_target_fname);
-            }
-            if (move_uploaded_file($_FILES["student_card"]["tmp_name"], $upload_target_fname)) {
-                $_ENV['userresume']->update_studentID($uid, substr($file_web_path, 1));
-            }
-        }
-        $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-        $uid = $this->user['uid'];
-        include template("upload_student_card");
-    }
-
     // 找回密码
     function ongetpass() {
         $navtitle = '找回密码';
@@ -620,34 +703,6 @@ class usercontrol extends base {
             $_ENV['userresume']->update_ID_path($uid, substr($file_web_path, 1));
             echo 'ok';
         }
-    }
-
-    // @onajax_check_code   [验证验证码是否正确]
-    // @request type        [GET]
-    // @param[in]      code [验证码]
-    // @return              [正确则success为true，否则success为false且error为相应的错误码]
-    //
-    // @error           101 [验证码书写错误]
-    public function onajax_check_code() {
-        $code = strtolower(trim($this->post['code']));
-        $res = array();
-        if ($code == $_ENV['user']->get_code($this->user['sid'])) {
-            $res['success'] = true;
-        } else {
-            $res['success'] = false;
-            $res['error'] = 101; // 验证码书写错误
-        }
-        echo json_encode($res);
-    }
-
-    // @onajax_code         [获取验证码图片]
-    // @request type        [GET]
-    // @return              [验证码图片]
-    public function onajax_code() {
-        ob_clean();
-        $code = random(4);
-        $_ENV['user']->save_code($this->user['uid'], $this->user['sid'], strtolower($code));
-        makecode($code);
     }
 
     // @onajax_add_easy_access  [添加快捷链接]
@@ -748,104 +803,4 @@ class usercontrol extends base {
         echo json_encode($res);
     }
 
-    // @onajax_fetch_edu      [获取用户教育信息]
-    // @request type          [GET]
-    // @param[in]         uid [用户ID号,userid]
-    // @return           成功 [success为true, edu_list为该用户教育信息列表]
-    //                   失败 [success为false, error为相应的错误码]
-    //
-    // @error             101 [用户尚未登录]
-    // @error             102 [参数无效]
-    public function onajax_fetch_edu() {
-        $res = array();
-        if (!$this->check_login(false)) {
-            $res['success'] = false;
-            $res['error'] = 101;
-            echo json_encode($res);
-            return;
-        }
-
-        $uid = $this->post['uid'];
-        if (empty($uid)) {
-            $res['success'] = false;
-            $res['error'] = 102; // 参数无效
-        } else {
-            $res['success'] = true;
-            $res['edu_list'] = $_ENV['education']->get_by_uid($uid);
-        }
-        echo json_encode($res);
-    }
-
-
-    // @onajax_update_resume [更新用户学历信息]
-    // @request type         [POST]
-    // @param[in]   realname [真实姓名]
-    // @param[in]      phone [手机]
-    // @param[in]     wechat [微信号]
-    // @param[in]         qq [QQ号]
-    // @param[in]   edu_list [教育信息列表，每列信息包括下列字段：]
-    //                       school     [学校]
-    //                       dept       [院系]
-    //                       major      [专业]
-    //                       edu_type   [学历类型]
-    //                       start_time [起始时间]
-    //                       end_time   [结束时间，可为空]
-    //
-    // @return          成功 [success为true]
-    //                  失败 [success为false，error为相应的错误码]
-    //
-    // @error            101 [用户尚未登录]
-    // @error            102 [更新失败]
-    // @error            103 [未上传学生证]
-    public function onajax_update_resume() {
-        $res = array();
-        if (!$this->check_login(false)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 用户尚未登录
-            echo json_encode($res);
-            return;
-        }
-
-        $affected_rows = 0;
-        $realname = trim($this->post['realname']);
-        if (!empty($realname)) {
-            $affected_rows += $_ENV['userresume']->update_realname($this->user['uid'], $realname);
-        }
-
-        $phone = trim($this->post['phone']);
-        $qq = trim($this->post['qq']);
-        $wechat = trim($this->post['wechat']);
-        if (!empty($phone) || !empty($qq) || !empty($wechat)) {
-            $affected_rows += $_ENV['user']->update_contact_info($this->user['uid'],
-                                                                 $phone, $qq, $wechat);
-        }
-
-        $edu_list = $this->post['edu_list'];
-        $affected_rows += $_ENV['education']->remove_by_uid($this->user['uid']);
-        $affected_rows += $_ENV['education']->multi_add($this->user['uid'], $edu_list);
-
-        if ($this->post['apply']) {
-            $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-            if (empty($resume['studentID'])) {
-                $res['sucess'] = false;
-                $res['error'] = 103; // 未上传学生证
-                echo json_encode($res);
-                return;
-            } else {
-                $affected_rows += $_ENV['userresume']->update_verify($this->user['uid'],
-                                                                     RESUME_APPLY);
-            }
-        }
-
-        if ($affected_rows > 0) {
-            $res['success'] = true;
-        } else {
-            $res['success'] = false;
-            $res['error'] = 102; // 更新失败
-        }
-        echo json_encode($res);
-    }
-}
-
-?>
 */

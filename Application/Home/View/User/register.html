@@ -31,28 +31,20 @@
                 <span id="emailtip" class="input_desc">请输入正确的电子邮箱地址</span>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">邀请码</label>
-            <div>
-                <div class="col-sm-5"><input type="text" class="form-control" id="invite_code" name="invite_code" value="{$invite_code}"/></div>
-                <span id="invite_code" class="control-label">选填</span>
-            </div>
-        </div>
-        <!--{if $setting['code_register']}-->
+        <if condition="$Think.config.CODE_REGISTER eq true">
         <div class="form-group">
             <label class="col-sm-2 control-label">验证码</label>
             <div>
-                <div class="col-sm-5"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
-                <img src="{SITE_URL}/user/ajax_code" onclick="update_code();" id="verifycode">
-                <a class="" href="javascript:update_code();">&nbsp;看不清?</a>
+                <div class="col-sm-5"><input type="text" class="form-control" id="verify" name="verify" onblur="check_verify();"/></div>
+                <img src="{:U('User/verify')}" onclick="update_verify();" id="verify_image">
+                <a class="" href="javascript:update_verify();">&nbsp;看不清?</a>
                 <span id="codetip"></span>
             </div>
         </div>
-        <!--{/if}-->
+        </if>
         <div class="form-group">
             <div class="col-sm-2"></div>
             <div class="col-sm-5">
-                <input type="hidden" id="forward" name="forward" value="{$forward}"/>
                 <input id="register_btn" type="button" value="注&nbsp;&nbsp;&nbsp;&nbsp;册" class="btn btn-primary col-sm-12"/>
             </div>
         </div>

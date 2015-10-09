@@ -22,6 +22,11 @@ class MaterialController extends HomeController {
         */
     }
 
+    // 用户拥有的资料
+    public function own() {
+        $this->display();
+    }
+
     public function onview() {
         $mid = $this->post['id'];
 

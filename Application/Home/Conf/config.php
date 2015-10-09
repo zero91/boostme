@@ -24,7 +24,16 @@ define('TRADE_TARGET_MATERIAL', 1); // 交易对象为：资料
 define('TRADE_TARGET_SERVICE', 2);  // 交易对象为：服务
 define('TRADE_TARGET_VERIFY_EBANK', 3); // 交易对象为：验证用户的电子银行、支付宝等的账户
 
+// 学历
+define('EDU_HIGH_SCHOOL', 4);
+define('EDU_BACHELOR', 5);
+define('EDU_MASTER', 6);
+define('EDU_DOCTOR', 7);
+define('EDU_POST_DOCTOR', 8);
+
 return array(
+    'CODE_REGISTER'                => true, // 注册时是否需要验证码
+    'CODE_LOGIN'                   => true, // 登录时是否需要验证码
     'MESSAGE_NUM_PER_PAGE'         => 10,
     'SERVICE_NUM_PER_PAGE'         => 12,
     'SERVICE_COMMENT_NUM_PER_PAGE' => 10,
@@ -126,13 +135,6 @@ define('INDEX_PROBLEM_LIST_SIZE', 10); // 首页单页求助数量
 // search page
 define('SEARCH_PROBLEM_LIST_SIZE', 10); // 求助请求单页数量
 
-// education
-define('HIGH_SCHOOL', 4);
-define('BACHELOR', 5);
-define('MASTER', 6);
-define('DOCTOR', 7);
-define('POST_DOCTOR', 8);
-
 define('RESUME_SAVE', 0);     // 仅仅保存资料，未做任何其他处理
 define('RESUME_APPLY', 1);    // 申请资格
 define('RESUME_ACCEPTED', 2); // 成功获取资格
@@ -142,5 +144,4 @@ define('TRADE_STATUS_UNPAID', 10);       // 已生成订单，但订单尚未付
 define('TRADE_STATUS_PAID_SUCCEED', 11); // 订单付款成功，一般指钱款已经达到了财付通
 define('TRADE_STATUS_PAID_FAILED', 12);  // 用户产生了付款的行为，但最终付款失败
 define('TRADE_STATUS_DONE', 13);         // 订单交易已经结束
-
 */

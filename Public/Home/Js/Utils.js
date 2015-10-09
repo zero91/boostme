@@ -52,23 +52,24 @@ function char_bytes(str) {
 }
 
 // 更新验证码
-function update_code() {
-    var img = g_site_url + "/user/ajax_code/" + Math.random();
-    $('#verifycode').attr("src", img);
+function update_verify() {
+    var img = g_site_url + "/User/verify/" + Math.random();
+    $('#verify_image').attr("src", img);
 }
 
 // 验证码检测
-function check_code() {
-    return true;
-    var code = $.trim($('#code').val());
-    if ($.trim(code) == '') {
+function check_verify() {
+    var verify = $.trim($('#verify').val());
+    if ($.trim(verify) == '') {
         $('#codetip').html("验证码错误");
         $('#codetip').attr('class', 'input_error');
         return false;
     }
+
     var result = true;
-    var req_url = g_site_url + "/user/ajax_check_code";
-    sync_request(req_url, "get", {"code" : code}, function(response) {
+    var req_url = g_site_url + "/User/ajax_check_verify";
+    sync_request(req_url, "get", {"verify" : verify}, function(response) {
+        console.log(response);
         if (response.success) {
             $('#codetip').html("&nbsp;");
             $('#codetip').attr('class', 'input_ok');

@@ -18,9 +18,9 @@ $(function() {
                 102 : "参数无效"
             };
             if (response.success) {
-                if (response.edu_list.length > 0) {
-                    for (var k = 0; k < response.edu_list.length; ++k) {
-                        add_edu(response.edu_list[k]);
+                if (response.list.length > 0) {
+                    for (var k = 0; k < response.list.length; ++k) {
+                        add_edu(response.list[k]);
                     }
                 } else {
                     add_edu({});
@@ -44,7 +44,7 @@ function login() {
     req_data_dict['username'] = $("#username").val();
     req_data_dict['password'] = $("#password").val();
     req_data_dict['forward'] = $("#forward").val();
-    req_data_dict['code'] = $("#code").val();
+    req_data_dict['verify'] = $("#verify").val();
 
     if ($("#cookietime").is(":checked")) {
         req_data_dict['cookietime'] = $("#cookietime").val();
@@ -198,11 +198,10 @@ function register() {
     req_data_dict['password'] = $('#password').val();
     req_data_dict['repassword'] = $('#repassword').val();
     req_data_dict['email'] = $.trim($('#email').val());
-    req_data_dict['verify'] = $('#code').val();
+    req_data_dict['verify'] = $('#verify').val();
 
     var user = new User();
     user.register(req_data_dict, function(response) {
-        console.log(response);
         var error_dict = {
             101 : "用户已登录",
             102 : "系统注册功能暂时处于关闭状态",
@@ -220,8 +219,7 @@ function register() {
             114 : "用户名长度不在16个字符以内"
         };
         if (response.success) {
-            alert("注册成功");
-            self.location.href = response.forward;
+            self.location.href = g_site_url + "/User/login";
         } else {
             errno_alert(response.error, error_dict);
         }
@@ -350,14 +348,20 @@ function get_edu_list() {
     var edu_list = new Array();
     for (var i = 1; i <= g_edu_item_num; ++i) {
         if ($("#school_" + i).length > 0) {
-            var edu_type   = $.trim($("#edu_type-" + i).val());
+            var degree     = $.trim($("#degree-" + i).val());
             var school     = $.trim($("#school-" + i).val());
             var dept       = $.trim($("#dept-" + i).val());
             var major      = $.trim($("#major-" + i).val());
             var start_time = $.trim($("#datepicker-0-" + i).val());
             var end_time   = $.trim($("#datepicker-1-" + i).val());
-            edu_list.push({"school" : school, "dept" : dept, "major" : major,
-                       "edu_type" : edu_type, "start_time" : start_time, "end_time" : end_time});
+            edu_list.push({
+                "school" : school,
+                "dept" : dept,
+                "major" : major,
+                "degree" : degree,
+                "start_time" : start_time,
+                "end_time" : end_time
+            });
         }
     }
     return edu_list;
@@ -369,7 +373,7 @@ function update_resume(apply) {
         if (edu_list[k]["school"] == ""
                 || edu_list[k]["dept"] == ""
                 || edu_list[k]["major"] == ""
-                || edu_list[k]["edu_type"] == ""
+                || edu_list[k]["degree"] == ""
                 || edu_list[k]["start_time"] == "") {
             alert("教育经历信息没有填写完整，请检查");
             return false;
@@ -429,7 +433,7 @@ function update_resume(apply) {
         if (response.success) {
             if (apply) alert("成功提交申请，请耐心等待，我们将在一个工作日内给予答复");
             else alert("更新成功");
-            window.location.reload();
+            //window.location.reload();
         } else {
             errno_alert(response.error, error_dict);
         }

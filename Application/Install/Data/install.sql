@@ -23,6 +23,9 @@ CREATE TABLE `bm_ucenter_user` (
   KEY `status` (`status`)
 ) ENGINE=MyISAM AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 COMMENT='用户表';
 
+INSERT INTO bm_ucenter_user VALUES (10001, "test002", "94137035a20b7035cf56707a0f117078", "test002@bm.cn", 0, "1991-02-01", NULL, NULL, NULL, 1439135030, 0, 1439135030, 0, 0, 1);
+INSERT INTO bm_ucenter_user VALUES (10002, "zero91", "af6159934d9a02e7a7c9d391cf74b9ec", "840025225@qq.com", 0, "1991-02-01", NULL, NULL, NULL, 1439135030, 0, 1439135030, 0, 0, 1);
+
 DROP TABLE IF EXISTS bm_user;
 CREATE TABLE bm_user (
   `uid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID号',
@@ -351,4 +354,37 @@ CREATE TABLE bm_answer_comment (
   KEY `aid` (`aid`),
   KEY `uid` (`uid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS bm_user_resume;
+CREATE TABLE bm_user_resume (
+  `uid` int(10) unsigned NOT NULL COMMENT '用户ID号',
+  `realname` char(16) DEFAULT NULL COMMENT '真实姓名',
+  `experience` mediumtext COMMENT '个人经历简介',
+  `student` varchar(100) DEFAULT NULL COMMENT '学生证照片路径',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '审核状态',
+  `create_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后更新时间',
+
+  PRIMARY KEY (`uid`),
+  KEY `create_time` (`create_time`),
+  KEY `update_time` (`update_time`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS bm_education;
+CREATE TABLE bm_education (
+  `uid` int(10) unsigned NOT NULL COMMENT '用户ID号',
+  `degree` tinyint(1) unsigned DEFAULT NULL COMMENT '学位',
+  `school` varchar(64) DEFAULT "" COMMENT '学校',
+  `dept` varchar(64) DEFAULT "" COMMENT '院系',
+  `major` char(64) DEFAULT "" COMMENT '专业',
+  `start_time` date DEFAULT NULL COMMENT '开始时间',
+  `end_time` date DEFAULT NULL COMMENT '结束时间',
+
+  KEY `uid`(`uid`),
+  KEY `school`(`school`),
+  KEY `dept`(`dept`),
+  KEY `major`(`major`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8; 
+
+INSERT INTO bm_education VALUES (10002, 6, "北京大学", "软件与微电子学院", "自然语言处理", "2012-09-01", "2014-07-02");
 

@@ -11,23 +11,23 @@
             <label class="col-sm-2 control-label">密&nbsp;&nbsp;码</label>
             <div class="col-sm-5"><input type="password" class="form-control" id="password" name="password" /></div>
         </div>
-        <!--{if $setting['code_login']}-->
+        <if condition="$Think.config.CODE_LOGIN eq true">
         <div class="form-group">
             <label class="col-sm-2 control-label">验证码</label>
-            <div class="col-sm-2"><input type="text" class="form-control" id="code" name="code" onblur="check_code();"/></div>
+            <div class="col-sm-2"><input type="text" class="form-control" id="verify" name="verify" onblur="check_verify();"/></div>
             <div class="col-sm-5">
-                <span class="verifycode"><img src="{SITE_URL}/user/ajax_code" onclick="update_code();" id="verifycode"></span>
-                <a class="changecode" href="update_code();">&nbsp;看不清?</a>
+                <span class="verifycode"><img src="{:U('User/verify')}" onclick="update_verify();" id="verify_image"></span>
+                <a class="changecode" href="update_verify();">&nbsp;看不清?</a>
                 <span id="codetip"></span>
             </div>
         </div>
-        <!--{/if}-->
+        </if>
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <div class="col-sm-4">
                     <label><input type="checkbox" checked id="cookietime" name="cookietime" value="2592000">下次自动登录 </label>
                 </div>
-                <div class="col-sm-offset-4"><a href="{SITE_URL}/user/register">还没有账号？立即注册!</a></div>
+                <div class="col-sm-offset-4"><a href="{:U('User/register')}">还没有账号？立即注册!</a></div>
             </div>
         </div>
         <div class="form-group">

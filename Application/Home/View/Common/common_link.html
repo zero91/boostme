@@ -28,10 +28,10 @@
                 <li><a href="{:U('Trade/index')}">我的交易</a></li>
             </if>
 
-            <if condition="$regular eq '/material/provide'">
-                <li class="active"><a href="__ROOT__/material/provide">我的资料</a></li>
+            <if condition="'__ACTION__' eq U('Material/own', '', '')">
+                <li class="active"><a href="{:U('Material/own')}">我的资料</a></li>
             <else/>
-                <li><a href="__ROOT__/material/provide">我的资料</a></li>
+                <li><a href="{:U('Material/own')}">我的资料</a></li>
             </if>
 
             <if condition="'__ACTION__' eq U('Service/register', '', '')">
