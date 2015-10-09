@@ -40,14 +40,9 @@ CREATE TABLE bm_user (
   `last_login_ip` bigint(20) NOT NULL DEFAULT '0' COMMENT '最后登录IP',
   `last_login_time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最后登录时间',
 
-  PRIMARY KEY (`id`),
-  KEY `qq` (`qq`),
-  KEY `wechat` (`wechat`),
+  PRIMARY KEY (`uid`),
   KEY `status` (`status`)
 ) ENGINE=MyISAM AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 COMMENT='会员表';
-
-INSERT INTO bm_user(`uid`,`nickname`,`gender`) values (10001, "test002", 0);
-INSERT INTO bm_user(`uid`,`nickname`,`gender`) values (10002, "zero91", 0);
 
 DROP TABLE IF EXISTS bm_service;
 CREATE TABLE bm_service (
@@ -170,21 +165,6 @@ CREATE TABLE bm_latest_message (
 INSERT INTO bm_latest_message VALUES (10001, 10002, "zero91", "Testing Message 2", 1380173182, 2);
 INSERT INTO bm_latest_message VALUES (10001, 0, "系统管理员", "System Message", 1380173982, 1);
 
-CREATE TABLE trade (
-  `trade_no` varchar(32) NOT NULL,
-  `uid` int(10) unsigned NOT NULL,
-  `username` char(18) NOT NULL,
-  `tot_price` double NOT NULL,
-  `status` smallint(3) NOT NULL,
-  `goods_num` mediumint(8) NOT NULL, 
-  `trade_total_fee` double NOT NULL DEFAULT '0',
-  `trade_discount` double DEFAULT NULL,
-  `trade_type` varchar(32) DEFAULT NULL, /* 支付类型：alipay、tenpay等 */
-  `trade_mode` smallint(2) NOT NULL, /* 支付方式：即时到账、担保交易等 */
-  `transaction_id` varchar(32) DEFAULT NULL,
-  `pay_account` varchar(64) DEFAULT NULL, /* 用户付款账户 */
-  `time` int(10) NOT NULL,
-
 DROP TABLE IF EXISTS bm_trade;
 CREATE TABLE bm_trade (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '订单号',
@@ -208,9 +188,11 @@ CREATE TABLE bm_trade (
   KEY `pay_account` (`pay_account`)
 ) ENGINE=MyISAM AUTO_INCREMENT=100000 DEFAULT CHARSET=utf8 COMMENT '订单表';
 
+/*
 INSERT INTO bm_trade VALUES (100001, 10002, 'zero91', 0.1, 2, 0, 0, NULL, 0, 0, NULL, NULL, 0, 0);
 INSERT INTO bm_trade VALUES (100002, 10002, 'zero91', 0.2, 1, 4, 0.2, 0, 1, 2, '2015012537564096', 'jianzhang9102@gmail.com', 1422170253, 1422189263);
 INSERT INTO bm_trade VALUES (100003, 10001, 'test002', 0.01, 1, 5, 0.01, 0, 1, 2, '2014120850646364', '531322317@qq.com', 1418050776, 1418053973);
+*/
 
 DROP TABLE IF EXISTS bm_trade_info;
 CREATE TABLE bm_trade_info (
@@ -228,10 +210,6 @@ CREATE TABLE bm_trade_info (
   KEY (`trade_id`),
   KEY (`item_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT '订单详情表';
-
-INSERT INTO bm_trade_info VALUES (100002, 1, 2, 1, 1439523848, 1439523848);
-INSERT INTO bm_trade_info VALUES (100002, 2, 2, 1, 1439523889, 1439523889);
-
 
 DROP TABLE IF EXISTS bm_withdraw;
 CREATE TABLE bm_withdraw (
@@ -299,7 +277,7 @@ CREATE TABLE `bm_file` (
 
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_md5` (`md5`)
-) ENGINE=MyISAM AU  =1 DEFAULT CHARSET=utf8 COMMENT='文件表';
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='文件表';
 
 DROP TABLE IF EXISTS bm_posts;
 CREATE TABLE bm_posts (

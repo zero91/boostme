@@ -38,8 +38,8 @@ function get_username($uid = 0) {
     } else { //调用接口获取用户信息
         $User = new User\Api\UserApi();
         $info = $User->info($uid);
-        if ($info && isset($info[1])) {
-            $name = $list[$key] = $info[1];
+        if ($info && isset($info['username'])) {
+            $name = $list[$key] = $info['username'];
             // 缓存用户
             $count = count($list);
             $max   = C('USER_MAX_CACHE');

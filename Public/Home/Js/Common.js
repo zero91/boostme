@@ -317,7 +317,7 @@ User.prototype = {
         return this.host;
     },
     login : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/user/ajax_login";
+        var req_url = this.server() + "/User/ajax_login";
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });

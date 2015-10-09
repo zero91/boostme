@@ -13,7 +13,8 @@ class PostsController extends HomeController {
                                ->limit($start, $num_per_page)
                                ->select();
         foreach ($post_list as &$post) {
-            $post['images'] = fetch_img_tag($post['content'])[0];
+            $img_tag = fetch_img_tag($post['content']);
+            $post['images'] = $img_tag[0];
         }
         $post_num = D('Posts')->count();
 
