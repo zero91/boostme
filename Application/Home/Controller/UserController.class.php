@@ -58,8 +58,17 @@ class UserController extends HomeController {
     // 身份认证
     public function authenticate() {
         $this->assign('title', '身份认证');
-        if (is_login()) {
-            //$resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
+        $uid = is_login();
+        if ($uid > 0) {
+            $user_api = new UserApi();
+            $user = $user_api->info($uid);
+            $this->assign("mobile", $user['mobile']);
+            $this->assign("wechat", $user['wechat']);
+            $this->assign("qq", $user['qq']);
+
+            $realname = D('UserResume')->where(array("uid" => $uid))->getField("realname");
+            $this->assign("realname", $realname);
+
             $this->display();
         } else {
             $this->redirect('User/login');
@@ -142,7 +151,7 @@ class UserController extends HomeController {
     //
     public function ajax_login($username="", $password="", $verify="", $forward="") {
         $res = array();
-        if (!check_verify($verify)) {
+        if (C('CODE_LOGIN') && !check_verify($verify)) {
             $res['success'] = false;;
             $res['error'] = 103; // 验证码错误
             $this->ajaxReturn($res);
@@ -233,7 +242,7 @@ class UserController extends HomeController {
             $this->ajaxReturn($res);
         }
 
-        if (!check_verify($verify)) {
+        if (C('CODE_REGISTER') && !check_verify($verify)) {
             $res['success'] = false;
             $res['error'] = 109; // 验证码错误
             $this->ajaxReturn($res);
@@ -504,56 +513,65 @@ class UserController extends HomeController {
         $this->ajaxReturn(array("success" => $success));
     }
 
-    // @onajax_update_resume [更新用户学历信息]
-    // @request type         [POST]
-    // @param[in]   realname [真实姓名]
-    // @param[in]      phone [手机]
-    // @param[in]     wechat [微信号]
-    // @param[in]         qq [QQ号]
-    // @param[in]   edu_list [教育信息列表，每列信息包括下列字段：]
-    //                       school     [学校]
-    //                       dept       [院系]
-    //                       major      [专业]
-    //                       edu_type   [学历类型]
-    //                       start_time [起始时间]
-    //                       end_time   [结束时间，可为空]
+    // @brief  ajax_update_resume  更新用户学历信息
+    // @request  POST
     //
-    // @return          成功 [success为true]
-    //                  失败 [success为false，error为相应的错误码]
+    // @param  string  $realname  真实姓名
+    // @param  string  $mobile    手机
+    // @param  string  $wechat    微信号
+    // @param  string  $qq        QQ号
+    // @param  array   $edu_list  教育信息列表，每列信息包括下列字段:
+    //                            school      学校
+    //                            dept        院系
+    //                            major       专业
+    //                            degree      学历类型
+    //                            start_time  起始时间
+    //                            end_time    结束时间，可为空
     //
-    // @error            101 [用户尚未登录]
-    // @error            102 [更新失败]
-    // @error            103 [未上传学生证]
-    public function ajax_update_resume($edu_list) {
+    // @ajaxReturn  成功 => array("success" => true)
+    //              失败 => array("success" => false, "error" => 错误码)
+    //
+    // @error  101  用户尚未登录
+    // @error  102  更新学历失败
+    // @error  103  更新真实姓名失败
+    //
+    public function ajax_update_resume($edu_list, $realname, $mobile, $wechat = "", $qq = "") {
         $uid = is_login();
         if (!$uid) {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
         }
 
         if (!D('Education')->update($uid, $edu_list)) {
-            $this->ajaxReturn(array("success" => false, "error" => 102)); // 更新失败
+            $this->ajaxReturn(array("success" => false, "error" => 102)); // 更新学历失败
         }
-        $this->ajaxReturn(array("success" => true));
+
+        if (D('UserResume')->create(array("realname" => $realname, "uid" => $uid))) {
+            D('UserResume')->add('', array(), true);
+        } else {
+            $this->ajaxReturn(array("success" => false, "error" => 103)); // 更新真实姓名失败
+        }
+
+        $update_data = array(
+            "mobile" => $mobile,
+            "wechat" => $wechat,
+            "qq"     => $qq
+        );
+
+        $user_api = new UserApi();
+        $res = $user_api->updateInfo($uid, "password", $update_data);
+        if ($res['success']) {
+            $this->ajaxReturn(array("success" => true));
+        } else {
+            $error = -1;
+            switch ($res['error']) {
+                case -9:  $error = 104; break; // 手机格式不正确
+                case -10: $error = 105; break; // 手机被禁止注册
+                case -11: $error = 106; break; // 手机号被占用
+                default:  break; // 未知错误
+            }
+            $this->ajaxReturn(array("success" => false, "error" => $error));
+        }
         /*
-
-        $affected_rows = 0;
-        $realname = trim($this->post['realname']);
-        if (!empty($realname)) {
-            $affected_rows += $_ENV['userresume']->update_realname($this->user['uid'], $realname);
-        }
-
-        $phone = trim($this->post['phone']);
-        $qq = trim($this->post['qq']);
-        $wechat = trim($this->post['wechat']);
-        if (!empty($phone) || !empty($qq) || !empty($wechat)) {
-            $affected_rows += $_ENV['user']->update_contact_info($this->user['uid'],
-                                                                 $phone, $qq, $wechat);
-        }
-
-        $edu_list = $this->post['edu_list'];
-        $affected_rows += $_ENV['education']->remove_by_uid($this->user['uid']);
-        $affected_rows += $_ENV['education']->multi_add($this->user['uid'], $edu_list);
-
         if ($this->post['apply']) {
             $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
             if (empty($resume['studentID'])) {

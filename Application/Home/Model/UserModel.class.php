@@ -4,15 +4,13 @@ use Think\Model;
 use User\Api\UserApi;
 
 class UserModel extends Model {
-
-    /* 用户模型自动完成 */
     protected $_auto = array(
         array('login', 0, self::MODEL_INSERT),
         array('reg_ip', 'get_client_ip', self::MODEL_INSERT, 'function', 1),
         array('reg_time', NOW_TIME, self::MODEL_INSERT),
         array('last_login_ip', 0, self::MODEL_INSERT),
         array('last_login_time', 0, self::MODEL_INSERT),
-        array('update_time', NOW_TIME),
+        array('update_time', NOW_TIME, self::MODEL_BOTH),
         array('status', 1, self::MODEL_INSERT),
     );
 

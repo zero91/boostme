@@ -33,7 +33,7 @@ define('EDU_POST_DOCTOR', 8);
 
 return array(
     'CODE_REGISTER'                => true, // 注册时是否需要验证码
-    'CODE_LOGIN'                   => true, // 登录时是否需要验证码
+    'CODE_LOGIN'                   => false, // 登录时是否需要验证码
     'MESSAGE_NUM_PER_PAGE'         => 10,
     'SERVICE_NUM_PER_PAGE'         => 12,
     'SERVICE_COMMENT_NUM_PER_PAGE' => 10,

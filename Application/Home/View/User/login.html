@@ -16,7 +16,7 @@
             <label class="col-sm-2 control-label">验证码</label>
             <div class="col-sm-2"><input type="text" class="form-control" id="verify" name="verify" onblur="check_verify();"/></div>
             <div class="col-sm-5">
-                <span class="verifycode"><img src="{:U('User/verify')}" onclick="update_verify();" id="verify_image"></span>
+                <span class="verifycode"><img src="{:U('User/verify')}" onclick="update_verify();" id="verify_image" class="bm_verify"></span>
                 <a class="changecode" href="update_verify();">&nbsp;看不清?</a>
                 <span id="codetip"></span>
             </div>

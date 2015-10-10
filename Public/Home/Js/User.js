@@ -390,14 +390,14 @@ function update_resume(apply) {
         $('#realname_tip').attr('class', 'input_ok');
     }
 
-    var phone = $.trim($("#phone").val());
-    if (phone.length == 11) {
-        $("#phone_tip").html("&nbsp;");
-        $('#phone_tip').attr('class', 'input_ok');
+    var mobile = $.trim($("#mobile").val());
+    if (mobile.length == 11) {
+        $("#mobile_tip").html("&nbsp;");
+        $('#mobile_tip').attr('class', 'input_ok');
     } else {
-        $('#phone_tip').html("请填写您的电话号码");
-        $('#phone_tip').attr('class', 'input_error');
-        $("#phone").focus();
+        $('#mobile_tip').html("请填写您的电话号码");
+        $('#mobile_tip').attr('class', 'input_error');
+        $("#mobile").focus();
         return false;
     }
 
@@ -416,7 +416,7 @@ function update_resume(apply) {
 
     var req_data_dict = {};
     req_data_dict['realname'] = realname;
-    req_data_dict['phone'] = phone;
+    req_data_dict['mobile'] = mobile;
     req_data_dict['wechat'] = wechat;
     req_data_dict['qq'] = qq;
     req_data_dict['edu_list'] = edu_list;
@@ -433,7 +433,7 @@ function update_resume(apply) {
         if (response.success) {
             if (apply) alert("成功提交申请，请耐心等待，我们将在一个工作日内给予答复");
             else alert("更新成功");
-            //window.location.reload();
+            window.location.reload();
         } else {
             errno_alert(response.error, error_dict);
         }
