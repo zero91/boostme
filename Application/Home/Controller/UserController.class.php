@@ -77,9 +77,10 @@ class UserController extends HomeController {
 
     // 上传学生证
     public function master() {
-        if (is_login()) {
-            //$resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-            //$uid = $this->user['uid'];
+        $uid = is_login();
+        if ($uid > 0) {
+            $resume = D('UserResume')->field(true)->where(array("uid" => $uid))->find();
+            $this->assign("resume", $resume);
             $this->display();
         } else {
             $this->redirect('User/login');
@@ -527,6 +528,7 @@ class UserController extends HomeController {
     //                            degree      学历类型
     //                            start_time  起始时间
     //                            end_time    结束时间，可为空
+    // @param  string  $apply     是否申请身份认证
     //
     // @ajaxReturn  成功 => array("success" => true)
     //              失败 => array("success" => false, "error" => 错误码)
@@ -534,8 +536,12 @@ class UserController extends HomeController {
     // @error  101  用户尚未登录
     // @error  102  更新学历失败
     // @error  103  更新真实姓名失败
+    // @error  104  手机格式不正确
+    // @error  105  手机被禁止注册
+    // @error  106  手机号被占用
+    // @error  107  保存成功，但信息未填写完整，提交申请失败
     //
-    public function ajax_update_resume($edu_list, $realname, $mobile, $wechat = "", $qq = "") {
+    public function ajax_update_resume($edu_list, $realname, $mobile, $wechat = "", $qq = "", $apply = false) {
         $uid = is_login();
         if (!$uid) {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
@@ -545,9 +551,7 @@ class UserController extends HomeController {
             $this->ajaxReturn(array("success" => false, "error" => 102)); // 更新学历失败
         }
 
-        if (D('UserResume')->create(array("realname" => $realname, "uid" => $uid))) {
-            D('UserResume')->add('', array(), true);
-        } else {
+        if (!D('UserResume')->update(array("realname" => $realname, "uid" => $uid))) {
             $this->ajaxReturn(array("success" => false, "error" => 103)); // 更新真实姓名失败
         }
 
@@ -559,9 +563,7 @@ class UserController extends HomeController {
 
         $user_api = new UserApi();
         $res = $user_api->updateInfo($uid, "password", $update_data);
-        if ($res['success']) {
-            $this->ajaxReturn(array("success" => true));
-        } else {
+        if (!$res['success']) {
             $error = -1;
             switch ($res['error']) {
                 case -9:  $error = 104; break; // 手机格式不正确
@@ -571,20 +573,19 @@ class UserController extends HomeController {
             }
             $this->ajaxReturn(array("success" => false, "error" => $error));
         }
-        /*
-        if ($this->post['apply']) {
-            $resume = $_ENV['userresume']->get_by_uid($this->user['uid']);
-            if (empty($resume['studentID'])) {
-                $res['sucess'] = false;
-                $res['error'] = 103; // 未上传学生证
-                echo json_encode($res);
-                return;
-            } else {
-                $affected_rows += $_ENV['userresume']->update_verify($this->user['uid'],
-                                                                     RESUME_APPLY);
+        // TODO 申请通过之后，需要进行锁定。如果用户更新，需要确认重新提交申请
+
+        if ($apply) {
+            $student = D('UserResume')->where(array("uid" => $uid))->getField("student");
+            if (!isset($student) || count($edu_list) == 0 
+                                           || empty($realname)
+                                           || (empty($wechat) && empty($qq))) {
+                // 保存成功，但信息未填写完整，提交申请失败
+                $this->ajaxReturn(array("success" => false, "error" => 107));
             }
+            D('UserResume')->update(array("uid" => $uid, "status" => RESUME_APPLY));
         }
-        */
+        $this->ajaxReturn(array("success" => true));
     }
 
     // @brief  ajax_fetch_edu  获取用户教育信息

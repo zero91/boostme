@@ -427,8 +427,12 @@ function update_resume(apply) {
     user.update_resume(req_data_dict, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
-            102 : "更新失败",
-            103 : "未上传学生证"
+            102 : "更新学历失败",
+            103 : "更新真实姓名失败",
+            104 : "手机格式不正确",
+            105 : "手机被禁止注册",
+            106 : "手机号被占用",
+            107 : "保存成功，但信息未填写完整，提交申请失败"
         };
         if (response.success) {
             if (apply) alert("成功提交申请，请耐心等待，我们将在一个工作日内给予答复");

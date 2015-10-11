@@ -7,28 +7,22 @@ class ResourceController extends HomeController {
     public function index() {
     }
 
-    public function onrequest() {
-        // TODO 访问敏感资源的权限控制
-        /*
-        $uid = intval($this->post['uid']);
-        $data_type = $this->post['data_type'];
+    public function student() {
+        $uid = is_login();
+        if ($uid > 0) {
+            $student = D('UserResume')->where(array("uid" => $uid))->getField("student");
+            if (isset($student)) {
+                $filename = WEB_ROOT . C('STUDENT_UPLOAD.rootPath') . "/" . $student;
+                $filename = str_replace('//', '/', $filename);
+                $filename = str_replace('./', '/', $filename);
 
-        if ($uid != $this->user['uid']) {
-            return;
+                header("Content-Type: application/force-download");
+                header("Content-Disposition: attachment; filename=$data_type");
+                if (file_exists($filename)) {
+                    echo file_get_contents($filename);
+                }
+            }
         }
-
-        $resume = $_ENV['userresume']->get_by_uid($uid);
-
-        $filepath = "";
-        if ($data_type == 'ID')             $filepath = WEB_ROOT . "/" . $resume['ID_path'];
-        else if ($data_type == 'studentID') $filepath = WEB_ROOT . "/" . $resume['studentID'];
-        else if ($data_type == 'resume')    $filepath = WEB_ROOT . "/" . $resume['resume_path'];
-
-        header("Content-Type: application/force-download");
-        header("Content-Disposition: attachment; filename=$data_type");
-        if (file_exists($filepath)) {
-            echo readfromfile($filepath);
-        }
-        */
+        exit(0);
     }
 }

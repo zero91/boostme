@@ -10,31 +10,48 @@
 <link rel="stylesheet" href="//cdn.staticfile.org/twitter-bootstrap/3.2.0/css/bootstrap.css">
 <link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 <script type="text/javascript">
-<!--{if !isset($resume['studentID'])}-->
-$(function() {
-    $(".pic").click(function(){
-        $("#student_card").click();
-    });
-});
-<!--{/if}-->
+function upload_student() {
+    $("#upload_form").ajaxSubmit({
+        success: function(response, stat) {
+            console.log(response);
+            console.log(stat);
+            if (stat && response['success']) {
+                window.location.reload();
+            } else {
+                var error_dict = {
+                    101 : "用户尚未登录",
+                    102 : "更新数据失败",
+                };
+                if (response['error'] in error_dict) {
+                    alert(error_dict[response['error']]);
+                } else if (response['error'] == 103) {
+                    alert(response['info']);
+                } else {
+                    alert("发生未知错误");
+                }
+            }
+        },
+    }); 
+    return false;
+}
 </script>
 </head>
 <body>
 <div id="head">
     <div class="pic">
-        <!--{if isset($resume['studentID'])}-->
-        <img src="{SITE_URL}/resource/request?data_type=studentID&uid=$uid" id="target">
-        <!--{else}-->
-        <div style="margin:14px;">
-            在这里上传你的学生证……<br/>请使用4M以内的jpg、gif、png图片。
-        </div>
-        <!--{/if}-->
+        <if condition="isset($resume['student'])">
+            <img src="{:U('Resource/student')}" id="target">
+        <else />
+            <div style="margin:14px;">
+                在这里上传你的学生证……<br/>请使用4M以内的jpg、gif、png图片。
+            </div>
+        </if>
     </div>
 </div>
-<div class="upload" id="upload">
-    <form enctype="multipart/form-data" method="post">
-        <input name="student_card" id="student_card" type="file" onchange="$('#submit').trigger('click')">
-        <input type="submit" id="submit" value="上传" style="display:none">
+<div class="upload" id="upload_student">
+    <form action="{:U('Attach/upload_student')}" id="upload_form"
+          enctype="multipart/form-data" method="post">
+        <input name="upfile" id="upfile" type="file" onchange="upload_student();">
     </form>
 </div>
 </body>

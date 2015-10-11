@@ -31,6 +31,11 @@ define('EDU_MASTER', 6);
 define('EDU_DOCTOR', 7);
 define('EDU_POST_DOCTOR', 8);
 
+define('RESUME_SAVE', 0);     // 仅仅保存资料，未做任何其他处理
+define('RESUME_APPLY', 1);    // 申请资格
+define('RESUME_ACCEPTED', 2); // 成功获取资格
+define('RESUME_DENIED', 3);   // 获取资格失败
+
 return array(
     'CODE_REGISTER'                => true, // 注册时是否需要验证码
     'CODE_LOGIN'                   => false, // 登录时是否需要验证码
@@ -82,7 +87,7 @@ return array(
         'fieldKey' => 'upfile', // 获取上传数据信息的key
     ),
 
-    // 编辑器图片上传相关配置
+    // 用户上传头像相关配置
     'AVATAR_UPLOAD' => array(
         'mimes'    => '', //允许上传的文件MiMe类型
         'maxSize'  => 5*1024*1024, //上传的文件大小限制 (0-不做限制)
@@ -94,6 +99,23 @@ return array(
         'saveName' => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
         'saveExt'  => '', //文件保存后缀，空则使用原后缀
         'replace'  => true, //存在同名是否覆盖
+        'hash'     => true, //是否生成hash编码
+        'callback' => false, //检测文件是否存在回调函数，如果存在返回文件信息数组
+        'fieldKey' => 'upfile', // 获取上传数据信息的key
+    ),
+
+    // 用户上传学生证相关配置
+    'STUDENT_UPLOAD' => array(
+        'mimes'    => '', //允许上传的文件MiMe类型
+        'maxSize'  => 5*1024*1024, //上传的文件大小限制 (0-不做限制)
+        'exts'     => 'jpg,gif,png,jpeg', //允许上传的文件后缀
+        'autoSub'  => true, //自动子目录保存文件
+        'subName'  => array('date', 'Y-m-d'), //子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
+        'rootPath' => './Application/Uploads/Student/', //保存根路径
+        'savePath' => '', //保存路径
+        'saveName' => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
+        'saveExt'  => '', //文件保存后缀，空则使用原后缀
+        'replace'  => false, //存在同名是否覆盖
         'hash'     => true, //是否生成hash编码
         'callback' => false, //检测文件是否存在回调函数，如果存在返回文件信息数组
         'fieldKey' => 'upfile', // 获取上传数据信息的key
@@ -134,11 +156,6 @@ define('INDEX_PROBLEM_LIST_SIZE', 10); // 首页单页求助数量
 
 // search page
 define('SEARCH_PROBLEM_LIST_SIZE', 10); // 求助请求单页数量
-
-define('RESUME_SAVE', 0);     // 仅仅保存资料，未做任何其他处理
-define('RESUME_APPLY', 1);    // 申请资格
-define('RESUME_ACCEPTED', 2); // 成功获取资格
-define('RESUME_DENIED', 3);   // 获取资格失败
 
 define('TRADE_STATUS_UNPAID', 10);       // 已生成订单，但订单尚未付款
 define('TRADE_STATUS_PAID_SUCCEED', 11); // 订单付款成功，一般指钱款已经达到了财付通
