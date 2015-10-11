@@ -1,5 +1,5 @@
 <include file="Common/header" />
-<link href="__PUBLIC__/Home/Css/material.css" rel="stylesheet">
+<link href="__PUBLIC__/Home/Css/service.css" rel="stylesheet">
 
 <style type="text/css">
 h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
@@ -38,9 +38,10 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                         <td>
                             <div>
                                 <p class="li_text_info bm_font_bold">教育经历 </p>
-                                <!--{loop $edu_list $edu}-->
-                                <div><p>{$edu['start_time']} 至 <!--{if $edu['end_time'] == "0000-00-00"}-->今<!--{else}-->{$edu['end_time']}<!--{/if}-->&nbsp;&nbsp;&nbsp;&nbsp;{$edu['school']}{$edu['department']}{$edu['major']}</p><p class="li_text_info"></p></div>
-                                <!--{/loop}-->
+                                <foreach name="edu_list" item="edu">
+                                    <div><p>{$edu['start_time']} 至 <if condition="$edu['end_time'] eq '0000-00-00'">今<else />{$edu['end_time']}</if>&nbsp;&nbsp;&nbsp;&nbsp;
+                                                {$edu['school']} {$edu['department']} {$edu['major']}</p><p class="li_text_info"></p></div>
+                                </foreach>
                             </div>
                         </td>
                     </tr>
@@ -72,7 +73,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
             <if condition="is_login()">
                 <input class="btn btn-primary" click_source="evaluation" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
             <else />
-                <label class="text-primary"><a href="{SITE_URL}/user/login">登录</a></label>后
+                <label class="text-primary"><a href="{:U('User/login')}">登录</a></label>后
                 <input class="btn btn-blue" click_source="evaluation" disabled="disabled" id="evaluation-submit-btn" name="commit" type="submit" value="提交评价" />
             </if>
         </div>
@@ -100,7 +101,7 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
                 <span id="user_score_<%= comment['id'] %>_<%= comment['score'] %>"></span><span><%= comment['score'] %>分</span>
             </div>
             <div class="name">
-                <strong><%= comment['author'] %></strong><em><%= comment['format_time'] %></em>
+                <strong><%= comment['nickname'] %></strong><em><%= comment['format_update_time'] %></em>
             </div>
             <div class="mess break-paragraph"><%= comment['content'] %></div>
             <div class="atti">

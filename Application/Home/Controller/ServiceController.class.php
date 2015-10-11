@@ -15,21 +15,13 @@ class ServiceController extends HomeController {
     public function view($id) {
         $service = D('Service')->field(true)->find($id);
         $this->assign("title", "服务详情 - " . msubstr($service['content'], 0, 8));
-        /*
-        $_ENV['service']->update_view_num($id);
-        $service = $_ENV['service']->get_by_id($id);
-        $user_comment = $_ENV['service_comment']->get_by_uid_sid($this->user['uid'], $id);
 
-        $page = max(1, intval($this->get[3]));
-        $pagesize = $this->setting['list_default'];
-        $start = ($page - 1) * $pagesize;
-        $tot_comment_num = $_ENV['service_comment']->get_comment_num_by_sid($service_id);
-
-        $edu_list = $_ENV['education']->get_by_uid($service['uid']);
-        $departstr = page($tot_comment_num, $pagesize, $page, "service/view/$service_id");
-        */
+        D('Service')->where(array("id" => $id))->setInc('view_num', 1);
         $service['avatar'] = get_user_avatar($service['uid']);
+        $edu_list = D('Education')->field(true)->where(array("uid" => $service['uid']))->select();
+
         $this->assign("service", $service);
+        $this->assign("edu_list", $edu_list);
         $this->display();
     }
 
@@ -48,7 +40,6 @@ class ServiceController extends HomeController {
                                                          ->select();
         }
         $this->assign("service_list", $service_list);
-        // $edu_list = $_ENV['education']->get_by_uid($this->user['uid']);
         $this->display();
     }
 
@@ -141,6 +132,11 @@ class ServiceController extends HomeController {
                                            ->order("update_time DESC")
                                            ->limit($start, $num_per_page)
                                            ->select();
+        foreach ($comment_list as &$comment) {
+            $comment['avatar'] = get_user_avatar($comment['uid']);
+            $comment['format_update_time'] = format_date($comment['update_time']);
+            $comment['format_create_time'] = format_date($comment['create_time']);
+        }
         if (is_array($comment_list)) {
             $res = array();
             $res['success'] = true;
@@ -182,12 +178,12 @@ class ServiceController extends HomeController {
         }
     }
 
-    // @brief  ajax_comment  对服务进行评论
+    // @brief  ajax_add_comment  对服务进行评论
     // @request  POST
     //
-    // @param  integer  $id       服务ID号
-    // @param  string   $content  评论内容
-    // @param  integer  $score    评分
+    // @param  integer  $service_id  服务ID号
+    // @param  string   $content     评论内容
+    // @param  integer  $score       评分
     //
     // @ajaxReturn  成功 - array("success" => true, "id" => 新增评论ID号)
     //              失败 - array("success" => false, "error" => 错误码)
@@ -198,14 +194,18 @@ class ServiceController extends HomeController {
     // @error  104 - 用户已评论
     // @error  105 - 用户未购买该服务，无权评论
     //
-    public function ajax_comment($id, $content, $score) {
+    public function ajax_add_comment($service_id, $content, $score) {
         $uid = is_login();
         if (!$uid) {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
         }
 
-        $id = D('ServiceComment')->comment($id, $uid, $content, $score);
+        $id = D('ServiceComment')->comment($service_id, $uid, $content, $score);
         if ($id > 0) {
+            $avg_score = D('ServiceComment')->where(array("service_id" => $service_id))->avg("score");
+            if (D('Service')->create(array("id" => $service_id, "avg_score" => $avg_score))) {
+                D('Service')->save();
+            }
             $this->ajaxReturn(array("success" => true, "id" => $id));
         } else {
             $res = array("success" => false);

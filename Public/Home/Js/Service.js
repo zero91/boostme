@@ -1,7 +1,6 @@
 function fetch_service(category) {
     var service = new Service();
     service.fetch_list(category, function(response) {
-        console.log(response);
         if (response.success) {
             var service_template = _.template($("#service_board_template").html());
             for (var s = 0; s < response['list'].length; ++s) {
@@ -37,6 +36,51 @@ function fetch_service(category) {
     });
 }
 
+function raty_user_comment_score() {
+    $('span[id^="user_score_"]').each(function(){
+        var id = $(this).attr('id'); 
+        var score = id.substr(id.lastIndexOf('_') + 1);
+
+        $(this).raty({
+            number : 5,
+            path: g_site_url + "/Public/Common/Js/third/raty/images",
+            half: true,
+            readOnly: true,
+            score: score
+        });
+    });
+}
+
+function fetch_user_comment(service_id) {
+    var service = new Service();
+    service.fetch_user_comment({"service_id" : service_id}, function(response) {
+        var error_dict = {
+            101 : "用户尚未登录",
+            102 : "无效参数",
+        };
+
+        var star_config = {
+            number : 5,
+            hints : ['1', '2', '3', '4', '5'],
+            path : g_site_url + "/Public/Common/Js/third/raty/images",
+            starOff : "star-off-big.png",
+            starOn : "star-on-big.png",
+            starHalf :"star-half-big.png",
+            half : true,
+            round : {down: .26, full: .6, up: .76},
+            readOnly:  false,
+        };
+
+        if (response.success) {
+            $("#user_comment").html('<div style="padding:20px 0;"><p>' + 
+                                        response["content"] + "</p></div>");
+            star_config['score'] = response["score"];
+            star_config['readOnly'] = true;
+        }
+        $('#self_star').raty(star_config);
+    });
+};
+
 $(function() {
     $("#select_region").change(function() {
         $("#service_page").val(1);
@@ -69,56 +113,7 @@ $(function() {
         fetch_service(category);
         $("#service_page").val(service_page);
     });
-});
 
-function raty_user_comment_score() {
-    $('span[id^="user_score_"]').each(function(){
-        var id = $(this).attr('id'); 
-        var score = id.substr(id.lastIndexOf('_') + 1);
-
-        $(this).raty({
-            number : 10,
-            path: g_site_url + "/Public/Common/Js/third/raty/images",
-            half: false,
-            readOnly: true,
-            score: score
-        });
-    });
-}
-
-function fetch_user_comment(service_id) {
-    var service = new Service();
-    service.fetch_user_comment({"service_id" : service_id}, function(response) {
-        var error_dict = {
-            101 : "用户尚未登录",
-            102 : "无效参数",
-        };
-        if (response.success) {
-            var show_score = 0
-            var read_only = false;
-            if (response.comment) {
-                $("#user_comment").html('<div style="padding:20px 0;"><p>' + 
-                                    response.comment["content"] + "</p></div>");
-                show_score = response.comment['score'];
-                read_only = true;
-            }
-            $('#self_star').raty({
-                number : 10,
-                hints: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-                path: g_site_url + "/Public/Common/Js/third/raty/images",
-                starOff:"star-off-big.png",
-                starOn:"star-on-big.png",
-                starHalf:"star-half-big.png",
-                half : false,
-                round : {down: .26, full: .6, up: .76},
-                score : show_score,
-                readOnly:  read_only,
-            });
-        }
-    });
-};
-
-$(function() {
     $("#service_register_btn").click(function() {
         var service_content = $("#service_content").val();
         var service_time = $("#service_time").val();
@@ -177,16 +172,16 @@ $(function() {
     if (typeof(g_service_id) !== "undefined") {
         var service = new Service();
         service.fetch_category({"service_id" :  g_service_id}, function(response) {
+            console.log(response);
             var error_dict = {
                 101 : "无效参数",
             };
             if (response.success) {
-                for (var k = 0; k < response.cid_list.length; ++k) {
-                    $("#service_category_list").append("<p>" +
-                            fetch_name_by_all(response.cid_list[k].region_id,
-                                              response.cid_list[k].school_id,
-                                              response.cid_list[k].dept_id,
-                                              response.cid_list[k].major_id) + '</p><p class="li_text_info"></p>');
+                for (var k = 0; k < response['category'].length; ++k) {
+                    var c = response['category'][k].school + 
+                                ' ' + response['category'][k].dept +
+                                ' ' + response['category'][k].major;
+                    $("#service_category_list").append("<p>" + c + '</p><p class="li_text_info"></p>');
                 }
             } else {
                 errno_alert(response.error, error_dict);
@@ -199,7 +194,7 @@ $(function() {
             };
             if (response.success) {
                 var comment_template = _.template($("#comment_list_template").html());
-                $("#comment_list").html(comment_template({'comment_list' : response.comment_list}));
+                $("#comment_list").html(comment_template({'comment_list' : response['list']}));
                 raty_user_comment_score();
             } else {
                 errno_alert(response.error, error_dict);
@@ -209,12 +204,12 @@ $(function() {
         fetch_user_comment(g_service_id);
 
         $('#avg_star').raty({
-            number : 10,
+            number : 5,
             path: g_site_url + "/Public/Common/Js/third/raty/images",
             starOff:"star-off-big.png",
             starOn:"star-on-big.png",
             starHalf:"star-half-big.png",
-            half : false,
+            half : true,
             readOnly:  true,
             score: g_service_avg_score,
         });
@@ -230,10 +225,10 @@ $(function() {
                 alert("评论内容不能为空");
                 return false;
             }
-
             service.add_comment({"service_id" : g_service_id,
                                  "content" : content,
                                  "score" : score}, function(response) {
+                console.log(response);
                 var error_dict = {
                     101 : "用户尚未登录",
                     102 : "无效参数",
@@ -247,33 +242,3 @@ $(function() {
         });
     }
 });
-/*
-    $("a[id^='thumbs_']").click(function() {
-        var id = $(this).attr('id'); 
-        var comment_id = id.substr(id.lastIndexOf('_') + 1);
-        var t_id = id.substr(0, id.lastIndexOf('_'));
-        var thumbs_type = t_id.substr(t_id.lastIndexOf('_') + 1);
-
-        var num_target = $(this).children('em');
-
-
-        $.get("{SITE_URL}service/comment_support/" + comment_id + "/" + thumbs_type, "", function(data) {
-            data = parseInt(data);
-            if (data > 0) {
-                if (thumbs_type == '0') {
-                    num_target.html("有用(" + data + ")");
-                } else {
-                    num_target.html("无用(" + data + ")");
-                }
-            } else if (data == '0') {
-                alert("请先登录");
-                window.location.href = "{SITE_URL}user/login";
-            } else if (data == '-1') {
-                alert("操作失败");
-            } else if (data == '-2') {
-                alert("请勿重复操作");
-            }
-        });
-    });
-});
-*/
