@@ -5,143 +5,123 @@ class EbankController extends HomeController {
 
     // 我的钱包
     public function index() {
-        if (is_login()) {
+        $uid = is_login();
+        if ($uid > 0) {
+            $user = D('User')->where(array("uid" => $uid))->field("balance")->find();
+
+            $account_list = D('UserEbank')->field(true)
+                                          ->where(array("uid" => $uid))
+                                          ->order("isdefault DESC, update_time DESC")
+                                          ->select();
+
+            $this->assign("ebank_account_list", $account_list);
+            $this->assign("user", $user);
             $this->display();
         } else {
             $this->redirect('User/login');
         }
     }
 
-    // 用户余额套现页面
-    public function onwithdraw() {
-        // TODO
-        /*
-        $this->check_login();
-        $ebank_account_list = $_ENV['user_ebank']->get_by_uid($this->user['uid']);
-        include template("withdraw");
-        */
-    }
+    //===================================================================================
+    //==========================  JSON Format Request/Response ==========================
+    //===================================================================================
 
-    // 验证账户
-    public function onverify_account() {
-        // TODO
-
-        /*
-        $verified_trade = $_ENV['trade']->get_user_verified_trade($this->user['uid']);
-        if (empty($verified_trade)) {
-            $out_trade_no = $_ENV['trade']->create_trade_no($this->user['sid']); // 订单号
-            $_ENV['trade']->add_trade($out_trade_no, $this->user['uid'], $this->user['username'], 0.01);
-        } else {
-            $out_trade_no = $verified_trade['trade_no'];
-        }
-
-        $product_name = "Boostme支付宝账户验证"; // 商品名称
-        $order_price = "0.01"; // 价格
-        $_ENV['ebank']->alipaytransfer($out_trade_no, $order_price, $product_name);
-        */
-    }
-
-    // @onajax_fetch_account   [获取用户已经验证的支付宝账号]
-    // @request type           [GET]
-    // @return            成功 [success为true, account_list为用户认证过的支付宝账户]
-    //                    失败 [success为false, error为相应的错误码]
+    // @brief  ajax_withdraw     [获取用户历史申请套现列表]
+    // @request  POST
     //
-    // @error              101 [用户尚未登录]
-    public function onajax_fetch_account() {
-        // TODO
-        /*
-        $res = array();
-        if (!$this->check_login(false)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 用户尚未登录
-            echo json_encode($res);
-            return;
-        }
-
-        $res['success'] = true;
-        $res['account_list'] = $_ENV['user_ebank']->get_by_uid($this->user['uid']);
-        echo json_encode($res);
-        */
-    }
-
-    // @onajax_fetch_history   [获取用户历史申请套现列表]
-    // @request type           [GET]
-    // @return            成功 [success为true, withdraw_list为用户历史套现列表]
-    //                    失败 [success为false, error为相应的错误码]
+    // @param  integer  $money          套现金额
+    // @param  string   $ebank_account  套现账户
+    // @param  integer  $ebank_type     套现账户类型
     //
-    // @error              101 [用户尚未登录]
-    public function onajax_fetch_history() {
-        // TODO
-        /*
-        $res = array();
-        if (!$this->check_login(false)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 用户尚未登录
-            echo json_encode($res);
-            return;
-        }
-        $res['success'] = true;
-        $res['withdraw_list'] = $_ENV['withdraw']->get_by_uid($this->user['uid']);
-        echo json_encode($res);
-        */
-    }
-
-    // @onajax_add_withdraw     [获取用户历史申请套现列表]
-    // @request type            [POST]
+    // @ajaxReturn  成功 => array("success" => true)
+    //              失败 => array("success" => false, "error" => 错误码)
     //
-    // @param[in]         money [套现金额]
-    // @param[in] ebank_account [套现账户]
-    // @param[in]    ebank_type [套现账户类型，暂定为：alipay]
+    // @error  101  用户尚未登录
+    // @error  102  账户余额不足
+    // @error  103  无效参数
+    // @error  104  添加失败
+    // @error  105  更新失败
     //
-    // @return             成功 [success为true, withdraw_list为用户历史套现列表]
-    //                     失败 [success为false, error为相应的错误码]
-    //
-    // @error               101 [用户尚未登录]
-    // @error               102 [账户余额不足]
-    // @error               103 [无效参数]
-    // @error               104 [添加失败]
-    public function onajax_add_withdraw() {
-        // TODO
-        /*
-        $res = array();
-        if (!$this->check_login(false)) {
-            $res['success'] = false;
-            $res['error'] = 101; // 用户尚未登录
-            echo json_encode($res);
-            return;
+    public function ajax_withdraw($ebank_account, $ebank_type, $money) {
+        // TODO 防止用户多次重复提交，导致绕过余额的判断，而多套现金额
+        $uid = is_login();
+        if (!$uid) {
+            $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
         }
 
-        $money = $this->post['money'];
-        if ($money > $this->user['balance']) {
-            $res['success'] = false;
-            $res['error'] = 102; // 账户余额不足
-            echo json_encode($res);
-            return;
+        if ($money <= 0) {
+            $this->ajaxReturn(array("success" => false, "error" => 103)); // 无效参数
         }
 
-        $ebank_account = $this->post['ebank_account'];
-        $ebank_type = $this->post['ebank_type'];
-        if (empty($ebank_account) || empty($ebank_type)) {
-            $res['success'] = false;
-            $res['error'] = 103; // 无效参数
-            echo json_encode($res);
-            return;
+        $balance = D('User')->where(array("uid" => $uid))->getField("balance");
+        if ($money > $balance) {
+            $this->ajaxReturn(array("success" => false, "error" => 102)); // 账户余额不足
         }
 
-        $id = $_ENV['withdraw']->add($this->user['uid'], $money, $ebank_type, $ebank_account);
-        if ($id > 0) {
-            $affected_rows = $_ENV['user']->update_balance($this->user['uid'], -$money);
-            if ($affected_rows > 0) {
-                $res['success'] = true;
-                echo json_encode($res);
-                return;
+        $remain = number_format($balance - $money, 2, '.', '');
+        if (!D('User')->create(array("uid" => $uid, "balance" => $remain)) || !D('User')->save()) {
+            $this->ajaxReturn(array("success" => false, "error" => 105)); // 更新失败
+        }
+
+        $data = array(
+            "uid"           => $uid,
+            "money"         => $money,
+            "ebank_type"    => $ebank_type,
+            "ebank_account" => $ebank_account,
+            "status"        => WITHDRAW_APPLY
+        );
+        if (D('Withdraw')->create($data)) {
+            if (D('Withdraw')->add()) {
+                D('UserEbank')->account($uid, $ebank_account, $ebank_type);
+                $this->ajaxReturn(array("success" => true));
             } else {
-                $_ENV['withdraw']->remove_by_id($id);
+                D('User')->where(array("uid" => $uid))->setInc("balance", $money);
             }
         }
-        $res['success'] = false;
-        $res['error'] = 104; // 添加失败
-        echo json_encode($res);
-        */
+        $this->ajaxReturn(array("success" => false, "error" => 104)); // 添加失败
+    }
+
+    // @brief  ajax_fetch_withdraw  获取用户历史申请套现列表
+    // @request  GET
+    // @ajaxReturn  成功 => array("success" => true, "list" => 用户历史套现列表)
+    //              失败 => array("success" => false, "error" => 错误码)
+    //
+    // @error  101  用户尚未登录
+    //
+    public function ajax_fetch_withdraw() {
+        $uid = is_login();
+        if (!$uid) {
+            $this->ajaxReturn(array('success' => false, 'error' => 101)); // 用户尚未登录
+        }
+        $field = "ebank_account,ebank_type,money,status,create_time,update_time";
+        $list = D('Withdraw')->field($field)
+                             ->where(array("uid" => $uid))
+                             ->order("update_time DESC")
+                             ->select();
+        foreach ($list as &$item) {
+            $item['update_time'] = format_date($item['update_time']);
+            $item['create_time'] = format_date($item['create_time']);
+        }
+        $this->ajaxReturn(array("success" => true, "list" => $list));
+    }
+
+    // @brief  ajax_fetch_account  获取用户已经验证的支付宝账号
+    // @request  GET
+    // @ajaxReturn  成功 => array("success" => true, "list" => 用户历史操作银行账户列表)
+    //              失败 => array("success" => false, "error" => 错误码)
+    //
+    // @error  101  用户尚未登录
+    //
+    public function ajax_fetch_account() {
+        $uid = is_login();
+        if (!$uid) {
+            $this->ajaxReturn(array("success" => false, "error" => 101)); // 用户尚未登录
+        }
+
+        $list = D('UserEbank')->field(true)
+                              ->where(array("uid" => $uid))
+                              ->order("isdefault DESC, update_time DESC")
+                              ->select();
+        $this->ajaxReturn(array("success" => true, "list" => $list));
     }
 }

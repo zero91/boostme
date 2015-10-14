@@ -56,7 +56,7 @@
                 </a>
             </li>
         </ul>
-        <div style="background: url(__PUBLIC__/Home/Css/forum_editor.jpg) repeat;">
+        <div style="background: url(__PUBLIC__/Home/Images/forum_editor.jpg) repeat;">
             <div style="padding:10px;">
                 共有贴子<span style="color:red">{$post_num}</span>篇
             </div>
@@ -69,9 +69,9 @@
                 <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
                 <div style="margin-top:15px;">
                     <span>验证码：</span>
-                    <input type="text" class="code-input" id="code" name="code" onblur="check_code()">&nbsp;
-                    <img src="{SITE_URL}/user/ajax_code" onclick="javascript:update_code();" id="verifycode">
-                    <a href="javascript:update_code();">&nbsp;换一个</a><span id="codetip"></span>
+                    <input type="text" class="code-input" id="verify" name="verify" onblur="check_verify()">&nbsp;
+                    <img src="{:U('User/verify')}" onclick="javascript:update_verify();" id="verify_image">
+                    <a href="javascript:update_verify();">&nbsp;换一个</a><span id="codetip"></span>
                     <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_post_btn">
                 </div>
             </div>

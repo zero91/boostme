@@ -292,14 +292,14 @@ EBank.prototype = {
             callback_func(response);
         });
     },
-    fetch_history : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/ebank/ajax_fetch_history";
+    fetch_withdraw : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_fetch_withdraw";
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });
     },
-    add_withdraw : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/ebank/ajax_add_withdraw";
+    withdraw : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/ebank/ajax_withdraw";
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });

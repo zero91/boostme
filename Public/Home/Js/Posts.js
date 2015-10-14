@@ -90,13 +90,9 @@ function add_post() {
         return false;
     }
 
-    if (!check_code()) {
-        return false;
-    }
-
+    var verify = $("#verify").val();
     var posts= new Posts();
-    posts.add({"title" : title, "content" : content}, function(response) {
-        console.log(response);
+    posts.add({"title" : title, "content" : content, "verify" : verify}, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
             102 : "验证码错误",

@@ -1,5 +1,6 @@
 <include file="Common/header" />
 <include file="Common/common_link" />
+<link href="__PUBLIC__/Home/Css/withdraw.css" rel="stylesheet">
 <div class="container">
     <div class="panel panel-default">
         <div class="panel-body">
@@ -7,75 +8,85 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-9">
-                        您当前账户余额为 <strong>¥{$user['balance']}</strong>，可提取现金为 <strong>¥{$user['balance']}</strong>
-                        <!--{if count($ebank_account_list) == 0}-->
-                        <p style="color:grey;">您还未认证过收款支付宝账户，套现的账户是需要认证的哦，现在就去<a target="_blank" href="{SITE_URL}/ebank/verify_account">认证</a></p>
-                        <!--{/if}-->
+                        您当前可提取现金为 <strong>¥{$user['balance']}</strong>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="ebank_account" class="col-sm-3 control-label">收款支付宝账号</label>
-                    <div class="col-sm-7">
-                        <select id="ebank_account" class="form-control">
-                            <!--{loop $ebank_account_list $account}-->
-                                <!--{if $account['isdefault']}-->
-                                <option value="{$account['ebank_type']}_{$account['ebank_account']}" selected="selected">{$account['ebank_account']}</option>
-                                <!--{else}-->
-                                <option value="{$account['ebank_type']}_{$account['ebank_account']}">{$account['ebank_account']}</option>
-                                <!--{/if}-->
-                            <!--{/loop}-->
-                        </select>
-                    </div>
+                    <if condition="count($ebank_account_list) gt 0">
+                        <div class="col-sm-7">
+                            <select id="ebank_account" class="form-control">
+                                <foreach name="ebank_account_list" item="account">
+                                    <if  condition="$account['isdefault']">
+                                        <option value="{$account['ebank_type']}_{$account['ebank_account']}" selected="selected">{$account['ebank_account']}</option>
+                                    <else />
+                                        <option value="{$account['ebank_type']}_{$account['ebank_account']}">{$account['ebank_account']}</option>
+                                    </if>
+                                </foreach>
+                            </select>
+                        </div>
+                        <div class="col-sm-2" style="margin-left:-15px;padding-top:5px;">
+                            <a id="add_account" style="cursor:pointer;" onclick="add_ebank_account()">新增</a>
+                        </div>
+                    <else />
+                        <div class="col-sm-7">
+                            <input id="ebank_account" type="text" class="form-control" style="float:left; border-left:none;" value="">
+                        </div>
+                    </if>
                 </div>
                 <div class="form-group">
                     <label for="money" class="col-sm-3 control-label">套现金额</label>
                     <div class="col-sm-7">
-                        <input id="money" type="text" class="form-control" style="float:left; border-left:none;" value="{$user['balance']}">
+                        <input id="money" type="text" class="form-control" style="float:left; border-left:none;" value="" placeholder="{$user['balance']}">
+                    </div>
+                    <div class="col-sm-2" style="margin-left:-15px;padding-top:5px;">
+                        <a id="withdraw_all" style="cursor:pointer;" onclick="javascript:$('#money').val({$user['balance']});">全部取出</a>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-7 jsk-setting-submit2">
-                        <input id="add_withdraw_btn" class="btn btn-success col-sm-12" value="申请套现">
+                        <input id="withdraw_btn" class="btn btn-success col-sm-12" value="申请套现">
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-sm-7 gd" style="overflow:hidden" id="withdraw_history"></div>
+            <div class="col-md-6 col-sm-7 gd" style="overflow:hidden" id="withdraw_history_2"></div>
         </div>
     </div>
+    <div class="" style="overflow:hidden" id="withdraw_history"></div>
 </div>
 <script type="text/template" id="withdraw_history_template">
-<center><h2>已申请套现订单</h2></center>
-<table width="100%" border="1px" cellspacing="0" style="text-align:center;">
-    <tr style="background-color:#f2f7ff;">
-        <th width="15%" style="text-align:center;">账户类型</th>
-        <th width="40%" style="text-align:center;">账户账号</th>
-        <th width="15%" style="text-align:center;">套现金额</th>
-        <th width="15%" style="text-align:center;">状态</th>
-        <th width="15%" style="text-align:center;">申请时间</th>
-    </tr>
-    <% _.each(withdraw_list, function(withdraw) { %>
-    <tr style="height:50px;">
-        <td>
-            <% if (withdraw['ebank_type'] == 'alipay') { %>
-            支付宝
+<center><h3 class="top_title">操作历史</h3></center>
+<section id="cd-timeline" class="cd-container">
+<% _.each(list, function(item) { %>
+    <div class="cd-timeline-block">
+        <div class="cd-timeline-img cd-movie">
+            <img src="__PUBLIC__/Home/Images/withdraw/cd-icon-movie.svg" alt="Movie">
+        </div>
+        <div class="cd-timeline-content">
+            <h2>取现 ¥<%= item['money'] %></h2>
+
+            <% if (item['ebank_type'] == '1') { %>
+            <p>类型：支付宝</p>
             <% } else { %>
-            其它
+            <p>类型：未知</p>
             <% } %>
-        </td>
-        <td><%= withdraw['ebank_account'] %></td>
-        <td><%= withdraw['money'] %></td>
-        <td>
-            <% if (parseInt(withdraw['ispaid']) == 0) { %>
-            <span style="color:red;">等待支付</span>
-            <% } else { %>
-            已支付
-            <% } %>
-        </td>
-        <td><%= withdraw['format_apply_time'] %></td>
-    </tr>
-    <%})%>
-</table>
+
+            <p> 账号：<%= item['ebank_account'] %> </p>
+            <p>状态：
+                <% if (parseInt(item['status']) == 1) { %>
+                <span style="color:red;">等待审核</span>
+                <% } else if (parseInt(item['status']) == 2) { %>
+                <span style="color:red;">已到账</span>
+                <% } else if (parseInt(item['status']) == 3) { %>
+                <span style="color:red;">审核未通过</span>
+                <% } %>
+            </p>
+            <span class="cd-date"><%= item['create_time'] %></span>
+        </div>
+    </div>
+<%})%>
+</section>
 </script>
-<script src="{SITE_URL}/public/js/boostme/ebank.js"></script>
+<script src="__PUBLIC__/Home/Js/Ebank.js"></script>
 <include file="Common/footer" />

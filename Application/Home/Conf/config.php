@@ -31,10 +31,21 @@ define('EDU_MASTER', 6);
 define('EDU_DOCTOR', 7);
 define('EDU_POST_DOCTOR', 8);
 
+// 用户个人简历状态
 define('RESUME_SAVE', 0);     // 仅仅保存资料，未做任何其他处理
 define('RESUME_APPLY', 1);    // 申请资格
 define('RESUME_ACCEPTED', 2); // 成功获取资格
 define('RESUME_DENIED', 3);   // 获取资格失败
+
+// 网络支付/银行卡账号类型
+define('EBANK_ALIPAY', 1); // 支付宝
+define('EBANK_TENPAY', 2); // 财付通
+
+// 套现申请状态
+define('WITHDRAW_SAVE', 0);  // 申请信息处于保存状态
+define('WITHDRAW_APPLY', 1);  // 申请套现
+define('WITHDRAW_DONE', 2);   // 套现成功
+define('WITHDRAW_DENIED', 3); // 套现申请被拒绝
 
 return array(
     'CODE_REGISTER'                => true, // 注册时是否需要验证码
@@ -136,9 +147,6 @@ define('DEMAND_STATUS_QUEUE', 1);   // 请求正在排队
 define('DEMAND_STATUS_ACCEPT', 2);  // 达成合作
 define('DEMAND_STATUS_DENIED', 4);  // 请求被拒绝
 define('DEMAND_STATUS_EXPIRED', 8); // 请求已过期，发生在需求已经被解决
-
-// message
-define('DEFAULT_DEMAND_MESSAGE', "您好，我对您的需求十分感兴趣，希望能够帮助您!");
 
 // charge
 define('CHARGING_STATUS_DEMAND', 0);  // 尚未达成交易

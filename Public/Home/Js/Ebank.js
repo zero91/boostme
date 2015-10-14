@@ -12,8 +12,14 @@ $(function() {
         fetch_withdraw_history();
     }
 
-    $("#add_withdraw_btn").click(function() { add_withdraw() });
+    $("#withdraw_btn").click(function() { withdraw() });
 });
+
+function add_ebank_account() {
+    var input_html = '<input id="ebank_account" type="text" class="form-control" style="float:left; border-left:none;" value="">';
+    $("#ebank_account").parent().html(input_html);
+    $("#add_account").hide();
+}
 
 function alipay_transfer(trade_id) {
     var alipay = new Alipay();
@@ -33,15 +39,15 @@ function alipay_transfer(trade_id) {
 
 function fetch_withdraw_history() {
     var ebank = new EBank();
-    ebank.fetch_history({}, function(response) {
+    ebank.fetch_withdraw({}, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
         };
-        if (response.success) {
-            if (response.withdraw_list.length > 0) {
+        if (response['success']) {
+            if (response['list'].length > 0) {
                 var withdraw_history_template = _.template($("#withdraw_history_template").html());
                 $("#withdraw_history").html(withdraw_history_template({
-                                            'withdraw_list' : response.withdraw_list}));
+                                            'list' : response['list']}));
             }
         } else {
             errno_alert(response.error, error_dict);
@@ -49,15 +55,15 @@ function fetch_withdraw_history() {
     });
 }
 
-function add_withdraw() {
+function withdraw() {
     var ebank_type_account = $("#ebank_account").val();
     if (!$.trim(ebank_type_account)) {
         alert("请选择您要套现的支付宝账号");
         return false;
     }
     var money = parseFloat($("#money").val());
-    if (money <= 0) {
-        alert("金额必须大于0，且不高于账户余额");
+    if (isNaN(money) || money <= 0) {
+        alert("金额必须大于0，且不高于可提取现金");
         return false;
     }
 
@@ -65,17 +71,21 @@ function add_withdraw() {
     var ebank_type = ebank_type_account.substr(0, split_ind);
     var ebank_account = ebank_type_account.substr(split_ind + 1);
     var ebank = new EBank();
-    ebank.add_withdraw({"money" : money,
-                        "ebank_account" : ebank_account,
-                        "ebank_type" : ebank_type}, function(response) {
+    if (!$.trim(ebank_type)) {
+        ebank_type = 1;
+    }
+    ebank.withdraw({"money" : money,
+                    "ebank_account" : ebank_account,
+                    "ebank_type" : ebank_type}, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
             102 : "账户余额不足",
             103 : "无效参数",
-            104 : "添加失败"
+            104 : "添加失败",
+            105 : "更新失败",
         };
         if (response.success) {
-            alert("申请套现成功，请您耐心等待。工作人员审核通过后，就会将现金打到你的账户上");
+            alert("申请套现成功，请您耐心等待。工作人员审核通过后，就会将现金打到您的账户上");
             window.location.reload();
         } else {
             errno_alert(response.error, error_dict);
