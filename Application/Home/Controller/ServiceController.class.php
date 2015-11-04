@@ -123,11 +123,12 @@ class ServiceController extends HomeController {
                                                    ->select();
             $edu_list = D('Education')->field(true)->where(array("uid" => $service_info['uid']))->select();
             $res['edu_list'] = $edu_list;
-
+            
+            $comment_num = C('SERVICE_WITH_COMMENT_NUM_FOR_ANDROID');
             $comment_list = D('ServiceComment')->field(true)
                 ->where(array("service_id" => $id))
                 ->order("update_time DESC")
-                ->limit(0, 2)
+                ->limit(0, $comment_num)
                 ->select();
             foreach ($comment_list as &$comment) {
                 $comment['avatar'] = get_user_avatar($comment['uid']);
@@ -246,7 +247,10 @@ class ServiceController extends HomeController {
         $id = D('ServiceComment')->comment($service_id, $uid, $content, $score);
         if ($id > 0) {
             $avg_score = D('ServiceComment')->where(array("service_id" => $service_id))->avg("score");
-            if (D('Service')->create(array("id" => $service_id, "avg_score" => $avg_score))) {
+            $comment_num = D('Service')->field("comment_num")->find($id) + 1;
+            if (D('Service')->create(array("id" => $service_id, 
+                                           "avg_score" => $avg_score,
+                                           "comment_num" => $comment_num))) {
                 D('Service')->save();
             }
             $this->ajaxReturn(array("success" => true, "id" => $id));

@@ -53,6 +53,7 @@ return array(
     'MESSAGE_NUM_PER_PAGE'         => 10,
     'SERVICE_NUM_PER_PAGE'         => 12,
     'SERVICE_COMMENT_NUM_PER_PAGE' => 10,
+    'SERVICE_WITH_COMMENT_NUM_FOR_ANDROID' => 2,
     'POSTS_NUM_PER_PAGE'           => 10,
     'POST_ANSWER_NUM_PER_PAGE'     => 10,
     'ANSWER_COMMENT_NUM_PER_PAGE'  => 10,
