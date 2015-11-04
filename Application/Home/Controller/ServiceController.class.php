@@ -118,7 +118,6 @@ class ServiceController extends HomeController {
             $res = array();
             $res['success'] = true;
             $res['info'] = $service_info;
-            $res['info']['tot'] = D('ServiceComment')->where(array("service_id" => $id))->count();
             $res['category'] = D('ServiceCategory')->field("region, school, dept, major")
                                                    ->where(array("service_id" => $id))
                                                    ->select();
