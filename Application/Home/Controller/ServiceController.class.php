@@ -126,10 +126,10 @@ class ServiceController extends HomeController {
             
             $comment_num = C('SERVICE_WITH_COMMENT_NUM_FOR_ANDROID');
             $comment_list = D('ServiceComment')->field(true)
-                ->where(array("service_id" => $id))
-                ->order("update_time DESC")
-                ->limit(0, $comment_num)
-                ->select();
+                                               ->where(array("service_id" => $id))
+                                               ->order("update_time DESC")
+                                               ->limit(0, $comment_num)
+                                               ->select();
             foreach ($comment_list as &$comment) {
                 $comment['avatar'] = get_user_avatar($comment['uid']);
                 $comment['format_update_time'] = format_date($comment['update_time']);
