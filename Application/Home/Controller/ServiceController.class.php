@@ -69,8 +69,8 @@ class ServiceController extends HomeController {
             $service['format_create_time'] = format_date($service['create_time']);
             $category = D('ServiceCategory')->field("region, school, dept, major")
                                                    ->where(array("service_id" => $service['id']))
-												   ->select();
-			$service['category'] = $category;
+                                                   ->select();
+            $service['category'] = $category;
         }
         $this->ajaxReturn(array("success" => true, "list" => $service_list));
     }
@@ -93,11 +93,49 @@ class ServiceController extends HomeController {
             $res = array();
             $res['success'] = true;
             $res['info'] = $service_info;
-            $res['info']['category'] = D('ServiceCategory')->field("region, school, dept, major")
+
+            $this->ajaxReturn($res);
+        } else {
+            $this->ajaxReturn(array("success" => false, "error" => 101));
+        }
+    }
+    
+    // @brief  ajax_fetch_info_with_comment  获取单个service详细信息
+    // @request  GET
+    // @param  integer  id  service的ID号
+    //
+    // @ajaxReturn  成功 - array("success" => true,
+    //                           "info" => service详细信息,
+    //                           "category" => 分类信息)
+    //
+    //              失败 - array("success" => false, "error" => 错误码)
+    //
+    // @error  101  无效参数或指定的service不存在
+    //
+    public function ajax_fetch_info_with_comment($id) {
+        $service_info = D('Service')->field(true)->find($id);
+        if (is_array($service_info)) {
+            $res = array();
+            $res['success'] = true;
+            $res['info'] = $service_info;
+            $res['info']['tot'] = D('ServiceComment')->where(array("service_id" => $id))->count();
+            $res['category'] = D('ServiceCategory')->field("region, school, dept, major")
                                                    ->where(array("service_id" => $id))
-												   ->select();
-			$edu_list = D('Education')->field(true)->where(array("uid" => $service_info['uid']))->select();
-			$res['info']["edu_list"] = $edu_list;
+                                                   ->select();
+            $edu_list = D('Education')->field(true)->where(array("uid" => $service_info['uid']))->select();
+            $res['edu_list'] = $edu_list;
+
+            $comment_list = D('ServiceComment')->field(true)
+                ->where(array("service_id" => $id))
+                ->order("update_time DESC")
+                ->limit(0, 2)
+                ->select();
+            foreach ($comment_list as &$comment) {
+                $comment['avatar'] = get_user_avatar($comment['uid']);
+                $comment['format_update_time'] = format_date($comment['update_time']);
+                $comment['format_create_time'] = format_date($comment['create_time']);
+            }
+            $res['comments'] = $comment_list;
 
             $this->ajaxReturn($res);
         } else {
@@ -138,20 +176,20 @@ class ServiceController extends HomeController {
                                            ->where(array("service_id" => $service_id))
                                            ->order("update_time DESC")
                                            ->limit($start, $num_per_page)
-										   ->select();
-		$total_score = 0;
+                                           ->select();
+        $total_score = 0;
         foreach ($comment_list as &$comment) {
             $comment['avatar'] = get_user_avatar($comment['uid']);
             $comment['format_update_time'] = format_date($comment['update_time']);
-			$comment['format_create_time'] = format_date($comment['create_time']);
-			$total_score += $comment['score'];
+            $comment['format_create_time'] = format_date($comment['create_time']);
+            $total_score += $comment['score'];
         }
         if (is_array($comment_list)) {
             $res = array();
             $res['success'] = true;
             $res['list'] = $comment_list;
-			$res['tot'] = D('ServiceComment')->where(array("service_id" => $service_id))->count();
-			$res['average_score'] = $total_score / $res['tot'];
+            $res['tot'] = D('ServiceComment')->where(array("service_id" => $service_id))->count();
+            $res['average_score'] = $total_score / $res['tot'];
             $this->ajaxReturn($res);
         } else {
             $this->ajaxReturn(array("success" => false, "error" => 101)); // 无效参数
