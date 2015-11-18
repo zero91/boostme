@@ -32,7 +32,7 @@
     <ul class="nav nav-pills nav-stacked">
         <li><a href="{:U('Index/index')}"><i class="glyphicon glyphicon-home"></i> &nbsp;首页</a></li>
         <li><a href="{:U('Service/index')}"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;咨询区</a></li>
-        <li><a href="{:U('Material/index')}"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li>
+        <!-- <li><a href="{:U('Material/index')}"><i class="glyphicon glyphicon-bullhorn"></i> &nbsp;资料区</a></li> -->
         <li><a href="{:U('Posts/index')}"><i class="glyphicon glyphicon-calendar"></i> &nbsp;交流区</a></li>
     </ul>
 </div>
@@ -58,11 +58,13 @@
                         <li><a href="{:U('Service/index')}">师兄师姐</a></li>
                     </if>
 
+                    <!--
                     <if condition="'__ACTION__' eq U('Material/index', '', '')">
                         <li class="menu_link_on"><a href="{:U('Material/index')}">考研资料</a></li>
                     <else />
                         <li><a href="{:U('Material/index')}">考研资料</a></li>
                     </if>
+                    -->
 
                     <if condition="'__ACTION__' eq U('Posts/index', '', '')">
                         <li class="menu_link_on"><a href="{:U('Posts/index')}">考研圈</a></li>

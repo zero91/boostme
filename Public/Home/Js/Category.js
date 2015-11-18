@@ -42,7 +42,7 @@ function fetch_major_optionhtml(region, school, dept) {
                      .find(function(item) { return item['name'] == dept; })
                      .find(function(value, key) { return key == "major"; })
                      .map(function(major) {
-                         return "<option value='" + major+ "'>" + major + "</option>"; })
+                         return "<option value='" + major + "'>" + major + "</option>"; })
                      .value()
     );
 }
@@ -64,7 +64,9 @@ function select_region(callback) {
     $("#select_major").html(fetch_major_optionhtml());
     $("#select_major").attr('disabled', 'disabled');
 
-    callback({"region" : region});
+    if (_.isFunction(callback)) { 
+        callback({"region" : region});
+    }
     if ($('.selectpicker') && $('.selectpicker').selectpicker) {
         $('.selectpicker').selectpicker('refresh');
     }
@@ -85,7 +87,9 @@ function select_school(callback) {
     $("#select_major").html(fetch_major_optionhtml());
     $("#select_major").attr('disabled', 'disabled');
 
-    callback({"region" : region, "school" : school});
+    if (_.isFunction(callback)) {
+        callback({"region" : region, "school" : school});
+    }
     if ($('.selectpicker') && $('.selectpicker').selectpicker) {
         $('.selectpicker').selectpicker('refresh');
     }
@@ -104,7 +108,9 @@ function select_dept(callback) {
         $("#select_major").attr('disabled', 'disabled');
     }
 
-    callback({"region" : region, "school" : school, "dept" : dept});
+    if (_.isFunction(callback)) {
+        callback({"region" : region, "school" : school, "dept" : dept});
+    }
     if ($('.selectpicker') && $('.selectpicker').selectpicker) {
         $('.selectpicker').selectpicker('refresh');
     }
@@ -116,7 +122,9 @@ function select_major(callback) {
     var dept = $("#select_dept option:selected").val();
     var major = $("#select_major option:selected").val();
 
-    callback({"region" : region, "school" : school, "dept" : dept, "major" : major});
+    if (_.isFunction(callback)) {
+        callback({"region" : region, "school" : school, "dept" : dept, "major" : major});
+    }
     if ($('.selectpicker') && $('.selectpicker').selectpicker) {
         $('.selectpicker').selectpicker('refresh');
     }
@@ -129,22 +137,22 @@ function refresh_category(region, school, dept, major, callback) {
     var dept_disabled = true;
     var major_disabled = true;
 
-    if (typeof(region) != 'undefined' && $.trim(region).length > 0) {
+    if (_.isUndefined(region) && _.isNull(region) && $.trim(region).length > 0) {
         school_disabled = false;
         $("#select_region").val(region);
         $("#select_school").html(fetch_school_optionhtml(region));
 
-        if (typeof(school) != 'undefined' && $.trim(school).length > 0) {
+        if (_.isUndefined(school) && _.isNull(school) && $.trim(school).length > 0) {
             dept_disabled = false;
             $("#select_school").val(school);
             $("#select_dept").html(fetch_dept_optionhtml(region, school));
 
-            if (typeof(dept) != 'undefined' && $.trim(dept).length > 0) {
+            if (_.isUndefined(dept) && _.isNull(dept) && $.trim(dept).length > 0) {
                 major_disabled = false;
                 $("#select_dept").val(dept);
                 $("#select_major").html(fetch_major_optionhtml(region, school, dept));
 
-                if (typeof(major) != 'undefined' && $.trim(major).length > 0) {
+                if (_.isUndefined(major) && _.isNull(major) && $.trim(major).length > 0) {
                     $("#select_major").val(major);
                 }
             }
@@ -163,7 +171,7 @@ function refresh_category(region, school, dept, major, callback) {
         $("#select_major").html(fetch_major_optionhtml());
         $("#select_major").attr('disabled', 'disabled');
     }
-    if (typeof(callback) != 'undefined' && _.isFunction(callback)) {
+    if (_.isFunction(callback)) {
         callback({"region" : region, "school" : school, "dept" : dept, "major" : major});
     }
     if ($('.selectpicker') && $('.selectpicker').selectpicker) {

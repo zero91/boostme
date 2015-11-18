@@ -7,23 +7,22 @@ function fetch_service(category) {
                 $("#board_show").append(service_template({"service" : response['list'][s]}));
             }
 
-            var para_cnt = 0;
+            var param_arr = new Array();
+            if (_.has(category, "region") && $.trim(category['region']).length > 0) {
+                param_arr.push('region=' + category['region']);
+            }
+            if (_.has(category, "school") && $.trim(category['school']).length > 0) {
+                param_arr.push('school=' + category['school']);
+            }
+            if (_.has(category, "dept") && $.trim(category['dept']).length > 0) {
+                param_arr.push('dept=' + category['dept']);
+            }
+            if (_.has(category, "major") && $.trim(category['major']).length > 0) {
+                param_arr.push('major=' + category['major']);
+            }
             var url = g_site_url + g_regular;
-            if (category['region'] !== undefined && $.trim(category['region']) != '') {
-                url += (para_cnt++ == 0) ? '?' : '&';
-                url += 'region=' + category['region'];
-            }
-            if (category['school'] !== undefined && $.trim(category['school']) != '') {
-                url += (para_cnt++ == 0) ? '?' : '&';
-                url += 'school=' + category['school'];
-            }
-            if (category['dept'] !== undefined && $.trim(category['dept']) != '') {
-                url += (para_cnt++ == 0) ? '?' : '&';
-                url += 'dept=' + category['dept'];
-            }
-            if (category['major'] !== undefined && $.trim(category['major']) != '') {
-                url += (para_cnt++ == 0) ? '?' : '&';
-                url += 'major=' + category['major'];
+            if (param_arr.length > 0) {
+                url += "?" + param_arr.join("&");
             }
             history.pushState({}, 0, url);
 
@@ -82,71 +81,6 @@ function fetch_user_comment(service_id) {
 };
 
 $(function() {
-    $("#select_region").change(function() {
-        $("#service_page").val(1);
-        $("#board_show").empty();
-        select_region(fetch_service);
-    });
-
-    $("#select_school").change(function() {
-        $("#service_page").val(1);
-        $("#board_show").empty();
-        select_school(fetch_service);
-    });
-
-    $("#select_dept").change(function() {
-        $("#service_page").val(1);
-        $("#board_show").empty();
-        select_dept(fetch_service);
-    });
-
-    $("#select_major").change(function() {
-        $("#service_page").val(1);
-        $("#board_show").empty();
-        select_major(fetch_service);
-    });
-
-    $("#more_service").click(function() {
-        var service_page = Math.max(1, parseInt($("#service_page").val()) + 1);
-        var category = fetch_choose_category();
-        category['page'] = service_page;
-        fetch_service(category);
-        $("#service_page").val(service_page);
-    });
-
-    $("#service_register_btn").click(function() {
-        var service_content = $("#service_content").val();
-        var service_time = $("#service_time").val();
-        var price = $("#price").val();
-        var phone = $("#phone").val();
-        var qq = $("#qq").val();
-        var wechat = $("#wechat").val();
-
-        $("#add_category").click();
-
-        var service = new Service();
-
-        service.add_service({"service_content" : service_content,
-                             "service_time" : service_time,
-                             "price" : price,
-                             "phone" : phone,
-                             "qq" : qq,
-                             "wechat" : wechat,
-                             "category_list" : g_add_category}, function(response) {
-            var error_dict = {
-                101 : "尚未登录",
-                102 : "服务尚未填写完整",
-                103 : "未填写手机号"
-            };
-            if (response.success) {
-                window.location.reload();
-                alert("已成功提交申请，我们将在24小时内给您答复，请耐心等待");
-            } else {
-                errno_alert(response.error, error_dict);
-            }
-        });
-    });
-
     $("a[id^=service_close_]").click(function() {
         var service_id = $(this).attr("id").substr("14");
         var service = new Service();

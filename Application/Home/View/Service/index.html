@@ -1,7 +1,6 @@
 <include file="Common/header" />
 
 <link href="__PUBLIC__/Home/Css/service.css" rel="stylesheet">
-
 <header id="top-header" class="top-header jumbotron" style="background-image: url(__PUBLIC__/Home/Images/banner_slide_01.jpg);">
     <div class="container">
             <div class="col-md-8">
@@ -51,7 +50,7 @@
                 <a id="more_service" class="btn-load-more btn btn-primary btn-lg btn-block">
                     <i class="fa fa-th"></i>  查看更多
                 </a>
-                <input type="hidden" id="service_page" value="{$page}"/>
+                <input type="hidden" id="service_page" value="1"/>
             </p>
         </div>
     </div>
@@ -89,14 +88,39 @@
 <script src="__PUBLIC__/Home/Js/Category.js"></script>
 <script src="__PUBLIC__/Home/Js/Service.js"></script>
 <script type="text/javascript">
-refresh_category('{$region}', '{$school}', '{$dept}', '{$major}', fetch_service);
+$(function() {
+    $("#select_region").change(function() {
+        $("#service_page").val(1);
+        $("#board_show").empty();
+        select_region(fetch_service);
+    });
 
-var g_region_id = "{$region_id}";
-var g_school_id = "{$school_id}";
-var g_dept_id = "{$dept_id}";
-var g_major_id = "{$major_id}";
-var g_view_page_num = 0;
-var g_easy_access_type = "service";
-var g_easy_access_cnt = 0;
+    $("#select_school").change(function() {
+        $("#service_page").val(1);
+        $("#board_show").empty();
+        select_school(fetch_service);
+    });
+
+    $("#select_dept").change(function() {
+        $("#service_page").val(1);
+        $("#board_show").empty();
+        select_dept(fetch_service);
+    });
+
+    $("#select_major").change(function() {
+        $("#service_page").val(1);
+        $("#board_show").empty();
+        select_major(fetch_service);
+    });
+
+    $("#more_service").click(function() {
+        var service_page = Math.max(1, parseInt($("#service_page").val()) + 1);
+        var category = fetch_choose_category();
+        category['page'] = service_page;
+        fetch_service(category);
+        $("#service_page").val(service_page);
+    });
+    refresh_category('{$region}', '{$school}', '{$dept}', '{$major}', fetch_service);
+});
 </script>
 <include file="Common/footer" />

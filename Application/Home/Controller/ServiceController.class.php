@@ -3,12 +3,11 @@ namespace Home\Controller;
 use User\Api\UserApi;
 
 class ServiceController extends HomeController {
-    public function index($region = "", $school = "", $dept = "", $major = "", $page = 1) {
+    public function index($region = "", $school = "", $dept = "", $major = "") {
         $this->assign("region", $region);
         $this->assign("school", $school);
         $this->assign("dept", $dept);
         $this->assign("major", $major);
-        $this->assign("page", $page);
         $this->display();
     }
 
@@ -39,7 +38,12 @@ class ServiceController extends HomeController {
                                                             "service_id" => $t_service['id']))
                                                          ->select();
         }
+
+        $User = new UserApi();
+        $user_info = $User->info($uid);
+
         $this->assign("service_list", $service_list);
+        $this->assign("user_info", $user_info);
         $this->display();
     }
 
@@ -50,11 +54,11 @@ class ServiceController extends HomeController {
     // @brief  ajax_fetch_list  获取service列表
     // @request  GET
     //
-    // @param  string  region_id  区域ID号
-    // @param  string  school_id  学校ID号
-    // @param  string  dept_id    院系ID号
-    // @param  string  major_id   专业ID号
-    // @param  string  page       页号
+    // @param  string  region  区域
+    // @param  string  school  学校
+    // @param  string  dept    院系
+    // @param  string  major   专业
+    // @param  string  page    页号
     //
     // @ajaxReturn  成功 - array("success" => true, "list" => service列表)
     //

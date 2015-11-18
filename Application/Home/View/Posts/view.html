@@ -97,15 +97,13 @@
                     <script type="text/javascript">UE.getEditor('edit_answer', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
                 </div>
                 <div style="margin-top:15px;">
-                    <!--{if $setting['code_reply']}-->
                     <span>验证码：</span>
-                    <input type="text" onblur="check_code()" name="code" id="code">&nbsp;
+                    <input type="text" onblur="check_code()" name="verify" id="verify">&nbsp;
                     <span class="verifycode">
-                        <img id="verifycode" onclick="javascript:updatecode();" src="{SITE_URL}user/code">
+                        <img id="verify_image" onclick="javascript:update_verify();" src="{:U('User/verify')}">
                     </span>
-                    <a class="changecode" href="javascript:updatecode();">&nbsp;换一个</a>
+                    <a class="changecode" href="javascript:update_verify();">&nbsp;换一个</a>
                     <span id="codetip"></span>
-                    <!--{/if}-->
                     <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="add_answer({$post_info['id']})">
                 </div>
             </div>

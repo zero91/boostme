@@ -55,7 +55,7 @@
         <div class="panel-body">
             <ul class="col-md-12 col-sm-12 setting-content">
                 <if condition="count($edu_list) eq 0">
-                <strong>请先完善<a href="__ROOT__/user/resume" target="_blank">教育信息</a><span style="color:red;">(必填)</span></strong>
+                <strong>请先完成<a href="{:U('User/authenticate')}" target="_blank">身份验证</a><span style="color:red;">(必填)</span></strong>
                 <else/>
                 </if>
                 <div class="bm_tmargin_40"></div>
@@ -63,24 +63,23 @@
                     <tr>
                         <td width="50px"><strong>描述</strong></td>
                         <td width="65%" class="bm_rpadding_10">
-                            <textarea class="bm_full_width" name="service_content" id="service_content" style="height:150px;"></textarea>
+                            <textarea class="bm_full_width" name="content" id="content" style="height:150px;"></textarea>
                         </td>
                         <td width="30%"><span class="help-block">能够提供服务的详细内容</span></td>
                     </tr>
                 </table>
-                <table class="bm_full_width">
+                <table>
                     <tr>
-                        <td width="8%"><strong>分类</strong></td>
-                        <td width="5%">
+                        <td width="50px"><strong>分类</strong></td>
+                        <td width="10%" class="bm_rpadding_10"><select class="selectpicker" id="select_region"></td>
+                        <td width="10%"><select class="selectpicker" id="select_school" disabled="disabled"></select></td>
+                        <td width="10%"><select class="selectpicker" id="select_dept" disabled="disabled"></select></td>
+                        <td width="10%"><select class="selectpicker" id="select_major" disabled="disabled"></select></td>
+                        <td width="13%">
                             <a id="add_category" data-toggle="tooltip" class="tip" data-placement="bottom" data-original-title="添加">
                                 <small class="glyphicon glyphicon-plus-sign"></small>
                             </a>
                         </td>
-                        <td width="10%"><select class="selectpicker" id="select_region"></td>
-                        <td width="10%"><select class="selectpicker" id="select_school" disabled="disabled"></select></td>
-                        <td width="10%"><select class="selectpicker" id="select_dept" disabled="disabled"></select></td>
-                        <td width="10%"><select class="selectpicker" id="select_major" disabled="disabled"></select></td>
-                        <td width="40%"><span class="help-block">服务的分类</span></td>
                     </tr>
                 </table>
                 <table>
@@ -94,23 +93,23 @@
                         <td width="50px" class="bm_rpadding_10"><strong>价格</strong></td>
                         <td width="40%" class="bm_rpadding_10">
                             <input type="number" name="price" id="price" class="form-control" value="25">
-                            <input type="hidden" name="service_time" id="service_time" value="15">
+                            <input type="hidden" name="duration" id="duration" value="15">
                         </td>
                         <td width="50%"><span class="help-block">元/15分钟</span></td>
                     </tr>
                     <tr>
                         <td><strong>手机</strong></td>
-                        <td class="bm_rpadding_10"><input name="phone" id="phone" class="form-control" value="{$user['phone']}"></td>
+                        <td class="bm_rpadding_10"><input name="mobile" id="mobile" class="form-control" value="{$user_info['mobile']}"></td>
                         <td><span class="help-block">必填项</span></td>
                     </tr>
                     <tr>
                         <td><strong>QQ</strong></td>
-                        <td class="bm_rpadding_10"><input name="qq" id="qq" class="form-control" value="{$user['qq']}"></td>
+                        <td class="bm_rpadding_10"><input name="qq" id="qq" class="form-control" value="{$user_info['qq']}"></td>
                         <td><span class="help-block">作为联系你的备选项</span></td>
                     </tr>
                     <tr>
                         <td><strong>微信</strong></td>
-                        <td class="bm_rpadding_10"><input name="wechat" id="wechat" class="form-control" value="{$user['wechat']}"></td>
+                        <td class="bm_rpadding_10"><input name="wechat" id="wechat" class="form-control" value="{$user_info['wechat']}"></td>
                         <td><span class="help-block">作为联系你的备选项</span></td>
                     </tr>
                 </table>
@@ -120,27 +119,94 @@
     </div>
 </div>
 
+<link href="__PUBLIC__/Common/Js/third/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
+<script src="__PUBLIC__/Common/Js/third/bootstrap-select/js/bootstrap-select.min.js"></script>
+<script src="__PUBLIC__/Home/Js/Category.js"></script>
+<script src="__PUBLIC__/Home/Js/Service.js"></script>
 <script type="text/javascript">
 $(function() {
+    var choose_category_arr = new Array();
 
-<foreach name="service_list" item="service">
-<!--{loop $service['cid_list'] $t_category}-->
-$("#service_category_{$service['id']}").append("<p>" + 
-                                fetch_name_by_all("{$t_category['region_id']}",
-                                                  "{$t_category['school_id']}",
-                                                  "{$t_category['dept_id']}",
-                                                  "{$t_category['major_id']}") + "</p>");
-<!--{/loop}-->
-</foreach>
+    $("#select_region").change(function() {
+        select_region(null);
+    });
 
+    $("#select_school").change(function() {
+        select_school(null);
+    });
+
+    $("#select_dept").change(function() {
+        select_dept(null);
+    });
+
+    $("#select_major").change(function() {
+        select_major(null);
+    });
+    refresh_category(null, null, null, null, null);
+
+    $("#add_category").click(function() {
+        var category = fetch_choose_category();
+        if (category['region'].length == 0 && category['school'].length == 0
+                                           && category['dept'].length == 0
+                                           && category['major'].length == 0) {
+            return;
+        }
+        if (_.some(choose_category_arr, function(t_category) {
+                    return _.isEqual(t_category, category);
+                })) {
+            return;
+        }
+        var show_val = category['region'] + " " + category['school'] 
+                                          + " " + category['dept']
+                                          + " " + category['major'];
+        category_show_id = choose_category_arr.length;
+        show_str = "<p> + ";
+        show_str += show_val;
+        show_str += ' <a id="remove_category_' + category_show_id;
+        show_str += '" class="glyphicon glyphicon-trash" style="color:grey;cursor:pointer;"></a></p>';
+        $("#category_list").append(show_str);
+        choose_category_arr.push(category);
+        $("#select_region").val("");
+        $("#select_region").change();
+    });
+
+    $("#service_register_btn").click(function() {
+        var content = $("#content").val();
+        var duration = $("#duration").val();
+        var price = $("#price").val();
+        var mobile = $("#mobile").val();
+        var qq = $("#qq").val();
+        var wechat = $("#wechat").val();
+
+        $("#add_category").click();
+
+        var service = new Service();
+        service.add_service({"content" : content,
+                             "duration" : duration,
+                             "price" : price,
+                             "category" : choose_category_arr}, function(response) {
+            var error_dict = {
+                101 : "尚未登录",
+                102 : "保存成功，但由于没有手机号，申请提供服务操作失败",
+                103 : "内容长度不合法",
+                104 : "补充信息长度不合法",
+                105 : "价格不合法",
+                106 : "时长不合法"
+            };
+            if (response.success) {
+                window.location.reload();
+                alert("已成功提交申请，我们将在24小时内给您答复，请耐心等待");
+            } else {
+                errno_alert(response.error, error_dict);
+            }
+        });
+    });
+
+    $("body").on('click', 'a[id^=remove_category_]', function() {
+        var remove_index = $(this).attr("id").substr(16);
+        $(this).parent().remove();
+        choose_category_arr.splice(remove_index, 1);
+    }); 
 });
 </script>
-
-<link href="{SITE_URL}/public/js/plugin/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet">
-<script src="{SITE_URL}/public/js/plugin/bootstrap-select/js/bootstrap-select.min.js"></script>
-<script src="{SITE_URL}/public/js/boostme/category.js"></script>
-<script src="{SITE_URL}/public/js/boostme/service.js"></script>
-
-<script src="__PUBLIC__/Home/Js/user.js"></script>
-<script src="__PUBLIC__/Home/Js/message.js"></script>
 <include file="Common/footer" />
