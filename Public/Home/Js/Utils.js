@@ -201,3 +201,6 @@ function makeCenter(id) {
     $(target_name).css("z-index","1000");
 }
 
+function islogin() {
+    return g_userid == 0;
+}

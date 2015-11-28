@@ -5,78 +5,88 @@
 <script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.config.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.all.js"></script> 
 <style type="text/css">
-    .answer_num {position: absolute; top: 20px; left: 10px; }
     .msg_content {margin: 0 10px 0 45px !important; padding: 10px; line-height: 26px;}
     .msg_content img {max-width:150px;max-height:150px;}
     .list-group-item {border:0px;background-color:#FCFCFC;}
-    .container {width:90%;}
+    .container {width:73%;}
     #description {max-height:100px;max-width:500px;overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
     #description img{max-height:100px;max-width:200px;}
-    #images img {max-width:200px;max-height:150px;}
     a:link {color: #0449be;}
     a:visited {color: #653096;}
     a:hover {color: #2d64b3;}
     a:active {}
 </style>
 <div class="container bm_tpadding_20">
-    <div class="col-sm-2"><include file="Posts/left" /></div>
-    <div class="col-sm-10">
-        <ul class="list-group">
-            <foreach name="post_list" item="post">
-            <li class="list-group-item">
-                <table class="bm_table_style">
-                    <tr>
-                        <td width="10%">
-                            <img width="60" height="60" src="{$post['uid']|get_user_avatar}" class="img-circle"/>
-                            <p><small>{$post['nickname']}</small></p>
-                        </td>
-                        <td width="65%">
-                            <p><a target="_blank" href="{:U('Posts/view?id=' . $post['id'])}">{$post['title']}</a></p>
-                            <div id="strip_description">{$post['content']|strip_tags|msubstr=0,120}</div>
-                            <div id="images">
-                                <foreach name="post['images']" item="image">{$image}</foreach>
-                            </div>
-                        </td>
-                        <td class="bm_lpadding_10" width="5%">
-                            <i class="fa fa-comments-o">{$post['answers']}</i>
-                        </td>
-                        <td width="15%">
-                            <div class="pull-right">
-                                <span>{$post['update_time']|format_date}</span>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                <hr style="border-color: #DFE2E6">
-            </li>
-            </foreach>
-            <li class="list-group-item">
-                <a id="more" class="btn-load-more btn btn-primary btn-lg btn-block">
-                    <i class="fa fa-th"></i>  查看更多
-                </a>
-            </li>
-        </ul>
-        <div style="background: url(__PUBLIC__/Home/Images/forum_editor.jpg) repeat;">
-            <div style="padding:10px;">
-                共有贴子<span style="color:red">{$post_num}</span>篇
+    <div id="post_list"></div>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a id="more_posts" class="btn-load-more btn btn-block">
+                <i class="fa fa-th"></i>  查看更多
+            </a>
+            <input id="hidden_page_num" value="0" type="hidden">
+        </li>
+    </ul>
+    <div style="background: url(__PUBLIC__/Home/Images/forum_editor.jpg) repeat;">
+        <div class="msg_content">
+            <div id="question_title" style="margin-bottom:15px;">
+                <div id="limit_num" class="pull-right">还可输入<span style="color:red">40</span>字</div>
+                <input type="text" class="form-control" placeholder="请输入主题" name="title" id="title"/>
             </div>
-            <div class="msg_content">
-                <div id="question_title" style="margin-bottom:15px;">
-                    <div id="limit_num" class="pull-right">还可输入<span style="color:red">40</span>字</div>
-                    <input type="text" class="form-control" placeholder="请输入主题" name="title" id="title"/>
-                </div>
-                <script type="text/plain" id="content" name="content" style="height: 244px;"></script>
-                <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
-                <div style="margin-top:15px;">
-                    <span>验证码：</span>
-                    <input type="text" class="code-input" id="verify" name="verify" onblur="check_verify()">&nbsp;
-                    <img src="{:U('User/verify')}" onclick="javascript:update_verify();" id="verify_image">
-                    <a href="javascript:update_verify();">&nbsp;换一个</a><span id="codetip"></span>
-                    <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_post_btn">
-                </div>
+            <script type="text/plain" id="content" name="content" style="height: 244px;"></script>
+            <script type="text/javascript">UE.getEditor('content', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
+            <div style="margin-top:15px;">
+                <span>验证码：</span>
+                <input type="text" class="code-input" id="verify" name="verify" onblur="check_verify()">&nbsp;
+                <img src="{:U('User/verify')}" onclick="javascript:update_verify();" id="verify_image">
+                <a href="javascript:update_verify();">&nbsp;换一个</a><span id="codetip"></span>
+                <input value="发&nbsp;表" class="btn btn-primary pull-right" id="add_post_btn">
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/template" id="post_item_template">
+<div class="post_item">
+    <div class="post_item_avatar">
+        <img width="50px" height="50px" src="<%= post['avatar'] %>" class="img-circle"/>
+    </div>
+    <div class="post_item_main">
+        <div class="source">
+            <span><%= post['nickname'] %></span>
+            <span class="time"><%= post['format_update_time'] %></span>
+        </div>
+        <div class="content">
+            <h2>
+                <a target="_blank" href="{:U('Posts/view')}?id=<%= post['id']%>">
+                    <%= post['title'] %>
+                </a>
+            </h2>
+            <div class="detail">
+                <div class="desc"><%= post['content'] %></div>
+                <div class="images">
+                    <% for (var i = 0; i < post['images'].length; ++i) { %>
+                        <%= post['images'][i] %>
+                    <% } %>
+                </div>
+            </div>
+            <div class="meta">
+                <a><i class="fa fa-star-o"></i> 关注此贴<a>
+                <a><i class="fa fa-comments-o"></i> <%= post['answers']%>条评论</a>
+            </div>
+        </div>
+    </div>
+    <hr style="border-color: #DFE2E6">
+</div>
+</script>
 <script src="__PUBLIC__/Home/Js/Posts.js"></script>
+<script type="text/javascript">
+$(function() {
+    $("#more_posts").click(function() {
+        var page_num = parseInt($("#hidden_page_num").val());
+        fetch_posts(page_num + 1); 
+        $("#hidden_page_num").val(page_num + 1); 
+    }); 
+    $("#more_posts").click();
+}); 
+</script>
 <include file="Common/footer" />

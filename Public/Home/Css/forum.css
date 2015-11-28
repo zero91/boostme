@@ -1,3 +1,35 @@
+.btn-load-more {background-color:#D4D4D4;}
+.btn-load-more:hover {background-color:#CDC9C9;}
+.post_item_avatar {float:left; margin:3px 0 0;}
+.post_item_main {margin-left: 58px;}
+/* .post_item_main .source {color: #999;} */
+
+.post_item_main .content a {color: #259;}
+.post_item h1, h2, h3, h4, h5 {font-weight: 700; font-size: 14px; outline: 0; margin: 0;}
+.post_item_main .source .time {display:inline-block; font-size:12px; color:#999; margin-left:2px; float:right;} 
+.post_item_main .images img {max-width:200px;max-height:150px;margin:0 3px;}
+.post_item_main .content .meta {background: transparent; padding: 5px 0; margin-bottom: -5px; background: #fff; color:#888;font-size:13px;}
+.post_item_main .content .meta a {text-decoration: none; color:#999; font-size:13px;margin:0 3px;} 
+.post_item_main .content .meta a:hover {color:#259; cursor:pointer; text-decoration:underline;}
+.post_info .post_info_avatar {float:left; margin:3px 0 0;}
+.post_info .post_info_content {margin-left: 68px;}
+.post_info .post_info_content .source .time {display:inline-block; font-size:12px; color:#999; margin-left:2px; float:right;} 
+
+.post_info .post_info_content .content {padding: 10px; line-height: 26px; min-height:100px;}
+.post_info .post_info_content .content img {max-width:300px;max-height:400px;}
+
+.post_answer_list .post_answer_avatar {float:left; margin:3px 0 0;}
+.post_answer_list .post_answer_content {margin-left: 58px;}
+.post_answer_list .post_answer_content .source .time {display:inline-block; font-size:12px; color:#999; margin-left:2px; float:right;} 
+.post_answer_list .post_answer_content .meta {background: transparent; padding: 10px 0 0; margin-bottom: -5px; background: #fff; color:#888;font-size:12px;}
+.post_answer_list .post_answer_content .meta a {text-decoration: none; color:#999; font-size:12px;margin:0 3px;} 
+.post_answer_list .post_answer_content .meta a:hover {color:#259; cursor:pointer; text-decoration:underline;}
+
+.answer_comment_item .answer_comment_avatar {float:left; margin:3px 0 0;}
+.answer_comment_item .answer_comment_content {margin-left: 38px;}
+.answer_comment_item .answer_comment_content .content {color: black;}
+.answer_comment_item .answer_comment_content .source .time {display:inline-block; font-size:12px; color:#999; margin-left:2px; float:right;} 
+
 .top-header{color:#fff;max-height:330px;height:330px;background-color:#ddd;background-size:cover;background-repeat:no-repeat}
 .top-header .dujia{height:50px;float:right;margin-top:10px}
 .top-header .page-header{border-bottom-color:rgba(0,0,0,.1)}
@@ -55,8 +87,6 @@
 .job-item .job-meta:after{clear:both}
 .job-item .job-meta .job-location{float:left}
 .job-item .job-meta .job-publish-time{float:right}
-.btn-load-more{background-color:#62458d;border-radius:5px;box-shadow:0 5px 0 #4f3872;position:relative;margin-bottom:5px;border-color:transparent}
-.btn-load-more:hover,.btn-load-more:focus,.btn-load-more.active{bottom:-5px;box-shadow:none;background-color:#563d7c}
 .newest-jobs .page-header{margin-top:-20px}
 .select-region{padding-top:12px}
 .select-region>a{margin-left:8px}
@@ -66,8 +96,6 @@
 .select-region .dropdown .dropdown-menu{left:auto;right:0}
 
 h1,.h1,h2,.h2,h3,.h3{margin-top:20px;margin-bottom:10px}
-
-
 
 .open-class-eval-list .item{padding-top:32px}
 .open-class-eval-list .item .pic{width:68px;float:left}

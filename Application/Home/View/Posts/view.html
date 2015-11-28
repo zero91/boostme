@@ -6,128 +6,144 @@
 <script type="text/javascript" src="__PUBLIC__/Common/Js/third/editor/ueditor.all.js"></script> 
 
 <style type="text/css">
-    .avatar {position: absolute; top: 20px; left: 10px; }
-    .content {margin: 0 10px 0 75px !important; padding: 10px; line-height: 26px; min-height:100px;}
-    .content img {max-width:300px;max-height:400px;}
-    .comments {margin-top:15px;margin-left:45%;background:#FAFAFA;}
-
-    .comments .list-group .list-group-item {background:#FAFAFA;border-left:0px;
-            border-right:0px;font-size:12px;min-height:70px;}
-    .container {width:90%;} 
-
-    a:link {color: #0449be;}
-    a:visited {color: #653096;}
-    a:hover {color: #2d64b3;}
-    a:active {}
+#verify_image {max-width:150px;max-height:150px;}
+.container {width:73%;} 
+a:link {color: #0449be;}
+a:visited {color: #653096;}
+a:hover {color: #2d64b3;}
+a:active {}
+.panel {padding:10px; width:80%;}
 </style>
-
+<!--
+    <input type="button" class="btn btn-sm btn-success pull-right" id="attenttoquestion" value="取消关注" onclick="attentto_question({$question['qid']})"/>
+    <input type="button" class="btn btn-sm btn-info pull-right" id="attenttoquestion" value="关注此贴" onclick="attentto_question({$question['qid']})"/>
+-->
 <div class="container bm_tpadding_20">
-    <div class="col-sm-2"><include file="Posts/left" /></div>
-    <div class="col-sm-10">
-        <ol class="breadcrumb">
-            <li><a href="{:U('Posts/index')}">交流区</a></li>
-            <li class="active">{$post_info['title']}</li>
-        </ol>
-
-        <!--{if $is_followed}-->
-        <input type="button" class="btn btn-sm btn-success pull-right" id="attenttoquestion"
-                value="取消关注" onclick="attentto_question({$question['qid']})"/>
-        <!--{else}-->
-        <input type="button" class="btn btn-sm btn-info pull-right" id="attenttoquestion"
-                value="关注此贴" onclick="attentto_question({$question['qid']})"/>
-        <!--{/if}-->
-        <ul class="list-group">
-            <li class="list-group-item">
-                <div class="avatar" style="max-width:60px">
-                    <img class="img-circle" width="60px" height="60px" src="{$post_info['uid']|get_user_avatar}">
-                    <span>{$post_info['nickname']}</span>
-                </div>
-                <div class="content">
-                    <div class="">{$post_info['content']}</div> 
-                    <div style="font-size:12px; padding:6px 0 10px;">
-                        <span style="float:right" id="{$post_info['id']}">
-                            {$post_info['create_time']|format_date}
-                        </span>
-                    </div>
-                </div>
-            </li>
-        </ul>
-
-        <foreach name="answer_list" item="answer">
-        <div id="{$answer[id]}" class="list-group-item">
-            <div class="avatar" style="max-width:60px">
-                <img class="img-circle" width="60px" height="60px" src="{$answer['uid']|get_user_avatar}">
-                <p>{$answer['nickname']}</p>
+    <ol class="breadcrumb">
+        <li><a href="{:U('Posts/index')}">交流区</a></li>
+        <li class="active">{$post['title']}</li>
+    </ol>
+    <div class="post_info">
+        <div class="post_info_avatar">
+            <img class="img-circle" width="60px" height="60px" src="{$post['avatar']}">
+        </div>
+        <div class="post_info_content">
+            <div class="source">
+                <span>{$post['nickname']}</span>
+                <span class="time">{$post['format_create_time']}</span>
             </div>
-            <div class="content">{$answer['content']}</div>
-            <div>
-                <div style="font-size:12px; padding:6px 0 10px; height:24px; line-height:24px;">
-                    <div style="float:right" id="{$answer['id']}">
-                        <span>{$answer['create_time']|format_date}</span>&nbsp;&nbsp;|&nbsp;&nbsp;
-                        <span>
-                            <a id="show_{$answer['id']}" onclick="show_comment('{$answer['id']}', 1);"
-                                href="javascript:void(0)">回复</a>({$answer['comments']})
-                        </span>
-                    </div>
-                </div>
-                <div style="display:none;" class="comments" id="comment_{$answer['id']}">
-                    <div class="list-group">
-                        <div style="text-align:center;">
-                            <img src='__PUBLIC__/Home/Css/loading.gif' align='absmiddle' />&nbsp;加载中...
-                        </div>
-                    </div>
-                    <div style="padding-top:30px;">
-                        <span style="margin-left:5%;">我也说一句</span>
-                        <textarea name="content" class="form-control" maxlength="90"
-                                style="height:70px;width:90%;margin-left:5%;margin-bottom:10px;resize:none;"></textarea>
-                        <input type="button" value="发&nbsp;表" class="btn btn-sm btn-primary" name="submit"
-                                onclick="add_comment({$answer['id']});" style="margin-left:85%;"/>
-                    </div>
-                </div>
+            <div class="content">
+                {$post['content']}
             </div>
         </div>
-        </foreach>
-        <center><ul class="pagination">{$departstr}</ul></center>
-
-        <div id="answer_area" style="background: url(__PUBLIC__/Home/Css/forum_editor.jpg) repeat;height:280px;">
-            <div class="content">
-                <h4>发表回复</h4>
-                <div>
-                    <script type="text/plain" id="edit_answer" name="content" style="height: 122px;"></script>
-                    <script type="text/javascript">UE.getEditor('edit_answer', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
-                </div>
-                <div style="margin-top:15px;">
-                    <span>验证码：</span>
-                    <input type="text" onblur="check_code()" name="verify" id="verify">&nbsp;
-                    <span class="verifycode">
-                        <img id="verify_image" onclick="javascript:update_verify();" src="{:U('User/verify')}">
-                    </span>
-                    <a class="changecode" href="javascript:update_verify();">&nbsp;换一个</a>
-                    <span id="codetip"></span>
-                    <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="add_answer({$post_info['id']})">
-                </div>
+        <hr style="border-color: #DFE2E6">
+    </div>
+    <div class="post_answer_list" id="post_answer_list"></div>
+    <div class="">
+        <a id="more_answers" class="btn-load-more btn btn-block">
+            <i class="fa fa-th"></i>  查看更多
+        </a>
+        <input id="hidden_page_num" value="0" type="hidden">
+    </div>
+    <div id="answer_area" style="background: url(__PUBLIC__/Home/Images/forum_editor.jpg) repeat;height:280px;padding:20px;margin-top:20px;">
+        <div class="content">
+            <h4>发表回复</h4>
+            <div>
+                <script type="text/plain" id="edit_answer" name="content" style="height: 122px;"></script>
+                <script type="text/javascript">UE.getEditor('edit_answer', UE.utils.extend({toolbars:[[{$Think.config.EDITOR_TOOLBARS}]]}));</script>
+            </div>
+            <div style="margin-top:15px;">
+                <span>验证码：</span>
+                <input type="text" onblur="check_verify()" name="verify" id="verify">&nbsp;
+                <span class="verifycode">
+                    <img id="verify_image" onclick="javascript:update_verify();" src="{:U('User/verify')}">
+                </span>
+                <a class="changecode" href="javascript:update_verify();">&nbsp;换一个</a>
+                <span id="codetip"></span>
+                <input id="answer_question_btn" class="btn btn-primary pull-right" value="发&nbsp;表" onclick="add_answer({$post['id']})">
             </div>
         </div>
     </div>
 </div>
 
+<script type="text/template" id="post_answer_template">
+<div id="answer_<%= answer['id'] %>">
+    <div class="post_answer_avatar">
+        <img class="img-circle" width="50px" height="50px" src="<%= answer['avatar'] %>">
+    </div>
+    <div class="post_answer_content">
+        <div class="source">
+            <span><%= answer['nickname'] %></span>
+        </div>
+        <div class="content">
+            <%= answer['content'] %>
+        </div>
+        <div class="meta">
+            <span>发布于 <%= answer['format_create_time'] %></span>
+            <a><i class="fa fa-comments-o"></i> <%= answer['comments'] %> 条评论</a>
+            <div style="display:none;" class="panel panel-default" id="comment_<%= answer['id'] %>">
+                <div class="list-group">
+                    <div style="text-align:center;">
+                        <img src='__PUBLIC__/Home/Images/loading.gif' align='absmiddle' />&nbsp;加载中...
+                    </div>
+                </div>
+                <div style="padding-top:20px;">
+                    <textarea name="content" class="form-control" maxlength="90"
+                            style="height:70px;margin-bottom:10px;resize:none;"></textarea>
+                    <input type="button" value="发&nbsp;表" class="btn btn-sm btn-primary" name="submit"
+                            onclick="add_comment(<%= answer['id'] %>);">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr style="border-color: #DFE2E6">
+</script>
 <script type="text/template" id="answer_comment_list_template">
 <% _.each(comment_list, function(comment) { %>
-<div class="list-group-item">
-    <div style="position:absolute;left:5px;">
+<div class="answer_comment_item">
+    <div class="answer_comment_avatar">
         <img class="img-circle" width="30" height="30" src="<%= comment['avatar'] %>">
-        <p><%= comment['nickname'] %></p>
     </div>
-    <div style="margin-left:35px;">
-        <div class=""><%= comment['content'] %></div>
-        <div style="position:absolute;right:25px;bottom:1px;font-size:11px;color:grey;">
-            <span><%= comment['format_time'] %></span>
+    <div class="answer_comment_content">
+        <div class="source">
+            <span><%= comment['nickname'] %></span>
+        </div>
+        <div class="content">
+            <%= comment['content'] %>
+        </div>
+        <div class="meta">
+            <span class="time"><%= comment['format_create_time'] %></span>
         </div>
     </div>
 </div>
+<hr style="border-color: #DFE2E6">
 <%})%>
-<center><div class="pages"><%= departstr %></div></center>
 </script>
-
 <script src="__PUBLIC__/Home/Js/Posts.js"></script>
+<script type="text/javascript">
+var answer_comment_num = Array();
+$(function() {
+    $("#more_answers").click(function() {
+        var page_num = parseInt($("#hidden_page_num").val());
+        fetch_answers({$post['id']}, page_num + 1);
+        $("#hidden_page_num").val(page_num + 1); 
+    });
+    $("#more_answers").click();
+
+    $("body").on('click', '.meta>a', function() {
+        var icon_piece = '<i class="fa fa-comments-o"></i> ';
+        if (_.isNull($(this).html().match(/\d+/g))) {
+            var answer_id = $(this).parent().parent().parent().attr("id").substr(7);
+            $(this).html(icon_piece + answer_comment_num[answer_id] + ' 条评论');
+            hide_comment(answer_id);
+        } else {
+            var answer_id = $(this).parent().parent().parent().attr("id").substr(7);
+            answer_comment_num[answer_id] = parseInt($(this).html().match(/\d+/g)[0]);
+            $(this).html(icon_piece + "收起评论");
+            show_comment(answer_id, 1);
+        }
+    }); 
+});
+</script>
 <include file="Common/footer" />

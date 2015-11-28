@@ -4,40 +4,16 @@ namespace Home\Controller;
 class PostsController extends HomeController {
 
     // 论坛首页
-    public function index($page = 1) {
-        $num_per_page = C('POSTS_NUM_PER_PAGE');
-        $start = ($page - 1) * $num_per_page;
-
-        $post_list = D('Posts')->field(true)
-                               ->order("update_time DESC")
-                               ->limit($start, $num_per_page)
-                               ->select();
-        foreach ($post_list as &$post) {
-            $img_tag = fetch_img_tag($post['content']);
-            $post['images'] = $img_tag[0];
-        }
-        $post_num = D('Posts')->count();
-
-        $this->assign('post_num', $post_num);
-        $this->assign('post_list', $post_list);
+    public function index() {
         $this->display();
     }
 
     // 帖子详情页
-    public function view($id, $page = 1) {
-        $post_info = D('Posts')->field(true)->find($id);
-
-        $num_per_page = C('POST_ANSWER_NUM_PER_PAGE');
-        $start = ($page - 1) * $num_per_page;
-        $answer_list = D('PostAnswer')->field(true)
-                                      ->where(array("pid" => $id))
-                                      ->limit($start, $num_per_page)
-                                      ->select();
-
-        $this->assign("post_info", $post_info);
-        $this->assign("answer_list", $answer_list);
-        //$rownum = $this->db->fetch_total("answer", " qid=$qid ");
-        //$departstr = split_page($rownum, $pagesize, $page, "/question/view?qid=" . $qid . "&page=%s");
+    public function view($id) {
+        $post = D('Posts')->field(true)->find($id);
+        $post['avatar'] = get_user_avatar($post['uid']);
+        $post['format_create_time'] = format_date($post['create_time']);
+        $this->assign("post", $post);
         $this->display();
     }
 
@@ -62,7 +38,12 @@ class PostsController extends HomeController {
                                ->limit($start, $num_per_page)
                                ->select();
         foreach ($post_list as &$post) {
+            $img_tag = fetch_img_tag($post['content']);
+            $post['images'] = $img_tag[0];
             $post['avatar'] = get_user_avatar($post['uid']);
+            $post['content'] = msubstr(strip_tags($post['content']), 0, 120);
+            $post['format_update_time'] = format_date($post['update_time']);
+            $post['format_create_time'] = format_date($post['create_time']);
         }
         $res['list'] = $post_list;
         $res['tot'] = D('Posts')->count();
@@ -219,6 +200,11 @@ class PostsController extends HomeController {
                                       ->order("create_time ASC")
                                       ->limit($start, $num_per_page)
                                       ->select();
+        foreach ($answer_list as &$answer) {
+            $answer['avatar'] = get_user_avatar($answer['uid']);
+            $answer['format_create_time'] = format_date($answer['create_time']);
+        }
+
         $this->ajaxReturn(array("success" => true, "list" => $answer_list));
     }
 
@@ -299,6 +285,7 @@ class PostsController extends HomeController {
                                           ->select();
         foreach ($comment_list as &$comment) {
             $comment['avatar'] = get_user_avatar($comment['uid']);
+            $comment['format_create_time'] = format_date($comment['create_time']);
         }
         $this->ajaxReturn(array("success" => true, "list" => $comment_list));
     }

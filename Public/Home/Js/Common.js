@@ -7,7 +7,7 @@ Posts.prototype = {
         return this.host;
     },
     fetch_list : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/posts/ajax_fetch_list";
+        var req_url = this.server() + "/Posts/ajax_fetch_list";
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });
@@ -37,7 +37,13 @@ Posts.prototype = {
         });
     },
     fetch_comment_list : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/posts/ajax_fetch_comment_list";
+        var req_url = this.server() + "/Posts/ajax_fetch_comment_list";
+        async_request(req_url, "get", req_data_dict, function(response) {
+            callback_func(response);
+        });
+    },
+    fetch_answer_list : function(req_data_dict, callback_func) {
+        var req_url = this.server() + "/Posts/ajax_fetch_answer_list";
         async_request(req_url, "get", req_data_dict, function(response) {
             callback_func(response);
         });

@@ -72,6 +72,84 @@ $(function() {
     });
 });
 
+// 获取帖子列表
+function fetch_posts(page) {
+    var post = new Posts();
+    if (!_.isNumber(page)) {
+        page = 1;
+    }
+    post.fetch_list({"page" : page}, function(response) {
+        if (response.success) {
+            if (_.isUndefined($("#post_item_template").html())) {
+                return false;
+            }
+            var post_template = _.template($("#post_item_template").html());
+            for (var k = 0; k < response['list'].length; ++k) {
+                $("#post_list").append(post_template({"post" : response['list'][k]}));
+            }
+            if (response['list'].length == 0) {
+                $("#more_posts").html("暂无更多");
+            }
+        }
+    });
+}
+
+function fetch_answers(pid, page) {
+    var post = new Posts();
+    if (!_.isNumber(page)) {
+        page = 1;
+    }
+    post.fetch_answer_list({"pid" : pid, "page" : page}, function(response) {
+        if (response.success) {
+            if (_.isUndefined($("#post_answer_template").html())) {
+                return false;
+            }
+            var post_answer_template = _.template($("#post_answer_template").html());
+            for (var k = 0; k < response['list'].length; ++k) {
+                $("#post_answer_list").append(post_answer_template({"answer" : response['list'][k]}));
+            }
+            if (response['list'].length == 0) {
+                $("#more_answers").html("暂无更多");
+            }
+        }
+    });
+}
+
+// 加载回复的评论
+function load_comment(answer_id, page) {
+    var posts = new Posts();
+    posts.fetch_comment_list({"answer_id" : answer_id, "page" : page}, function(response) {
+        if (response.success) {
+            if (response.list.length == 0 && page == 1) {
+                var comments = '<div style="text-align:center;">暂无评论</div>';
+                $("#comment_" + answer_id + " .list-group").html(comments);
+            } else {
+                var comment_template = _.template($("#answer_comment_list_template").html());
+                var comments = comment_template({'comment_list' : response.list});
+                $("#comment_" + answer_id + " .list-group").html(comments);
+            }
+        }
+    });
+}
+
+// 显示回复的评论
+function show_comment(answer_id, page) {
+    if ($("#comment_" + answer_id).css("display") === "none") {
+        //$("#show_" + answerid).removeAttr('onclick');
+        $("#show_" + answer_id).attr('onclick', "hide_comment(" + answer_id + ");");
+        $("#show_" + answer_id).html("收起回复");
+    }
+    load_comment(answer_id, page);
+    $("#comment_" + answer_id).slideDown();
+}
+
+// 隐藏回复的评论
+function hide_comment(answer_id) {
+    $("#comment_" + answer_id).slideUp();
+    $("#show_" + answer_id).attr('onclick', "show_comment(" + answer_id + ", 1);");
+    $("#show_" + answer_id).html("回复");
+}
+
 // 新增帖子
 function add_post() {
     if (g_userid == 0) {
@@ -111,8 +189,7 @@ function add_post() {
 
 // 新增回复
 function add_answer(pid) {
-    if (g_userid == 0) {
-        alert("您还未登录，请先登录");
+    if (islogin()) {
         window.location.href = g_site_url + "/User/login";
         return false;
     }
@@ -121,9 +198,9 @@ function add_answer(pid) {
         alert("内容不能为空!");
         return false;
     }
-
+    var verify = $("#verify").val();
     var posts = new Posts();
-    posts.answer({"pid" : pid, "content" : content}, function(response) {
+    posts.answer({"pid" : pid, "content" : content, "verify" : verify}, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
             102 : "提交回答失败,帖子不存在",
@@ -168,38 +245,4 @@ function add_comment(answer_id) {
     });
 }
 
-// 加载回复的评论
-function load_comment(answer_id, page) {
-    var posts = new Posts();
-    posts.fetch_comment_list({"answer_id" : answer_id, "page" : page}, function(response) {
-        if (response.success) {
-            if (response.list.length == 0 && page == 1) {
-                var comments = '<div style="text-align:center;">暂无评论</div>';
-                $("#comment_" + answer_id + " .list-group").html(comments);
-            } else {
-                var comment_template = _.template($("#answer_comment_list_template").html());
-                var comments = comment_template({'comment_list' : response.list,
-                                                 'departstr' : response.departstr});
-                $("#comment_" + answer_id + " .list-group").html(comments);
-            }
-        }
-    });
-}
 
-// 显示回复的评论
-function show_comment(answer_id, page) {
-    if ($("#comment_" + answer_id).css("display") === "none") {
-        //$("#show_" + answerid).removeAttr('onclick');
-        $("#show_" + answer_id).attr('onclick', "hide_comment(" + answer_id + ");");
-        $("#show_" + answer_id).html("收起回复");
-    }
-    load_comment(answer_id, page);
-    $("#comment_" + answer_id).slideDown();
-}
-
-// 隐藏回复的评论
-function hide_comment(answerid) {
-    $("#comment_" + answerid).slideUp();
-    $("#show_" + answerid).attr('onclick', "show_comment(" + answerid + ", 1);");
-    $("#show_" + answerid).html("回复");
-}
