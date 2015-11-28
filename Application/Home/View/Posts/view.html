@@ -120,7 +120,6 @@ a:active {}
 <hr style="border-color: #DFE2E6">
 <%})%>
 </script>
-<script src="__PUBLIC__/Home/Js/Posts.js"></script>
 <script type="text/javascript">
 var answer_comment_num = Array();
 $(function() {
@@ -129,7 +128,9 @@ $(function() {
         fetch_answers({$post['id']}, page_num + 1);
         $("#hidden_page_num").val(page_num + 1); 
     });
-    $("#more_answers").click();
+    $.getScript("__PUBLIC__/Home/Js/Posts.js", function() {
+        $("#more_answers").click();
+    });
 
     $("body").on('click', '.meta>a', function() {
         var icon_piece = '<i class="fa fa-comments-o"></i> ';

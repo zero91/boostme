@@ -250,10 +250,11 @@ class ServiceController extends HomeController {
 
         $id = D('ServiceComment')->comment($service_id, $uid, $content, $score);
         if ($id > 0) {
-            $avg_score = D('ServiceComment')->where(array("service_id" => $service_id))->avg("score");
+            $avg_score = D('ServiceComment')->where(array("service_id" => $service_id))
+                                            ->avg("score");
             $comment_num = D('Service')->field("comment_num")->find($id) + 1;
             if (D('Service')->create(array("id" => $service_id, 
-                                           "avg_score" => $avg_score,
+                                           "avg_score" => round($avg_score, 2),
                                            "comment_num" => $comment_num))) {
                 D('Service')->save();
             }

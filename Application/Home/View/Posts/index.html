@@ -78,7 +78,6 @@
     <hr style="border-color: #DFE2E6">
 </div>
 </script>
-<script src="__PUBLIC__/Home/Js/Posts.js"></script>
 <script type="text/javascript">
 $(function() {
     $("#more_posts").click(function() {
@@ -86,7 +85,10 @@ $(function() {
         fetch_posts(page_num + 1); 
         $("#hidden_page_num").val(page_num + 1); 
     }); 
-    $("#more_posts").click();
+
+    $.getScript("__PUBLIC__/Home/Js/Posts.js", function() {
+        $("#more_posts").click();
+    });
 }); 
 </script>
 <include file="Common/footer" />
