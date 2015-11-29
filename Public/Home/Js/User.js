@@ -227,8 +227,8 @@ function register() {
 }
 
 function update_passwd() {
-    if (!check_code()) {
-        $("#code").focus();
+    if (!check_verify()) {
+        $("#verify").focus();
         return false;
     }
     var newpwd = $.trim($("#newpwd").val());
@@ -237,6 +237,9 @@ function update_passwd() {
         $("#newpwd_tip").attr("class", "input_error");
         $("#newpwd").focus();
         return false;
+    } else {
+        $("#newpwd_tip").html("&nbsp;");
+        $("#newpwd_tip").attr("class", "input_ok");
     }
 
     var confirmpwd = $.trim($("#confirmpwd").val());
@@ -245,11 +248,20 @@ function update_passwd() {
         $("#confirmpwd_tip").attr("class", "input_error");
         $("#confirmpwd").focus();
         return false;
+    } else {
+        $('#confirmpwd_tip').html("&nbsp;");
+        $('#confirmpwd_tip').attr('class', 'input_ok');
     }
 
+    var verify = $.trim($('#verify').val());
     var oldpwd = $('#oldpwd').val();
     var user = new User();
-    user.update_passwd({"newpwd" : newpwd, "oldpwd" : oldpwd}, function(response) {
+
+    var req_data_dict = {};
+    req_data_dict["newpwd"] = newpwd;
+    req_data_dict["oldpwd"] = oldpwd;
+    req_data_dict["verify"] = verify;
+    user.update_passwd(req_data_dict, function(response) {
         var error_dict = {
             101 : "用户尚未登录",
             102 : "新密码为空",
@@ -301,10 +313,8 @@ function update_info() {
     req_data_dict['wechat'] = $('#wechat').val();
     req_data_dict['birthday'] = $("#birthday").val();
 
-    console.log(req_data_dict);
     var user = new User();
     user.update_profile(req_data_dict, function(response) {
-        console.log(response);
         var error_dict = {
             101 : "用户尚未登录",
             102 : "邮件格式不正确",

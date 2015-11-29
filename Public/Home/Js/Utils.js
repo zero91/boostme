@@ -69,7 +69,6 @@ function check_verify() {
     var result = true;
     var req_url = g_site_url + "/User/ajax_check_verify";
     sync_request(req_url, "get", {"verify" : verify}, function(response) {
-        console.log(response);
         if (response.success) {
             $('#codetip').html("&nbsp;");
             $('#codetip').attr('class', 'input_ok');

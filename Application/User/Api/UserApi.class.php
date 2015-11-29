@@ -79,7 +79,7 @@ class UserApi extends Api {
     //
     // @return true 修改成功，false 修改失败
     //
-    public function updateInfo($uid, $password, $data){
+    public function updateInfo($uid, $password, $data) {
         $res = $this->model->updateUserFields($uid, $password, $data);
         if ($res === true || $res > 0) {
             return array("success" => true);

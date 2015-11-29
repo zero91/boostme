@@ -371,7 +371,7 @@ User.prototype = {
         });
     },
     update_passwd : function(req_data_dict, callback_func) {
-        var req_url = this.server() + "/user/ajax_uppass";
+        var req_url = this.server() + "/User/ajax_uppass";
         async_request(req_url, "post", req_data_dict, function(response) {
             callback_func(response);
         });

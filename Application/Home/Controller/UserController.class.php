@@ -18,9 +18,9 @@ class UserController extends HomeController {
     public function logout() {
         if (is_login()) {
             D('User')->logout();
-            $this->success('退出成功！', U('User/login'));
+            $this->success('退出成功！', U('Index/index'));
         } else {
-            $this->redirect('User/login');
+            $this->redirect('Index/index');
         }
     }  
 
@@ -388,7 +388,8 @@ class UserController extends HomeController {
         }
 
         $user_api = new UserApi();
-        $res = $user_api->updateUserFields($uid, $oldpwd, array("password" => $newpwd));
+        // TODO 更新密码时，需要验证原始密码是输入正确的，暂时还没有加以验证
+        $res = $user_api->updateInfo($uid, $oldpwd, array("password" => $newpwd));
         if ($res > 0) {
             $this->ajaxReturn(array("success" => true));
         } else {
