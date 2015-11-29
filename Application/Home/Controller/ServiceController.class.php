@@ -69,12 +69,18 @@ class ServiceController extends HomeController {
                                     $page = 1) {
         $service_list = D('Service')->lists($region, $school, $dept, $major, $page);
         foreach ($service_list as &$service) {
-            $service['avatar'] = get_user_avatar($service['uid']);
+            $service['avatar'] = get_user_avatar($service['uid'], "l");
             $service['format_create_time'] = format_date($service['create_time']);
             $category = D('ServiceCategory')->field("region, school, dept, major")
                                             ->where(array("service_id" => $service['id']))
                                             ->select();
             $service['category'] = $category;
+            $edu = D('Education')->field(true)
+                                 ->where(array("uid" => $service['uid']))
+                                 ->order("degree DESC")
+                                 ->limit(0, 1)
+                                 ->find();
+            $service['edu'] = $edu['school'] . " " . $edu['dept'] . " " . $edu['major'];
         }
         $this->ajaxReturn(array("success" => true, "list" => $service_list));
     }

@@ -1,3 +1,10 @@
+.service_main .service_main_avatar {float:left; margin:0 3px;}
+.service_main .service_main_content {margin-left: 98px;}
+.service_main .service_main_content .source {padding-bottom:10px;}
+.service_main .service_main_content .source .info {padding-left:40px;font-size:13px;color:#999;}
+.service_main .service_main_content .content {padding-bottom:30px;}
+.service_main .service_main_content .content h4 {font-weight: 400; font-size: 15px; outline: 0; margin: 0;line-height:25px;}
+
 .top-header{color:#fff;max-height:330px;height:330px;background-color:#ddd;background-size:cover;background-repeat:no-repeat}
 .top-header .dujia{height:50px;float:right;margin-top:10px}
 .top-header .page-header{border-bottom-color:rgba(0,0,0,.1)}
@@ -32,10 +39,10 @@
 .job-list{margin-top:60px}
 .job-list .job-item-wrap{text-decoration:none}
 .job-list .job-item-wrap:hover .job-item{border-color:#a38cc6}
-.job-item{position:relative;padding:30px;padding-top:70px;padding-bottom:20px;margin-bottom:80px;border:2px solid #efefef;background-color:#fdfdfd}
+.job-item {position:relative;padding:20px;padding-top:70px;padding-bottom:20px;margin-bottom:80px;border:2px solid #efefef;background-color:#fdfdfd}
 @media screen and (min-width:768px){.job-item{margin-left:30px}}
-.job-item .job-company{position:absolute;top:10px;left:110px;right:10px;height:20px;overflow:hidden;color:#777}
-@media screen and (min-width:768px){.job-item .job-company{left:60px}}
+.job-item .job-company{position:absolute;top:5px;left:40px;right:2px;height:20px;color:#777}
+@media screen and (min-width:768px){.job-item .job-company{left:40px}}
 .job-item .job-source{width:70px;border:3px solid #f1f2f7;position:absolute;top:-20px;margin-left:-33px;background-color:#fff;background-size:cover;background-position:center center;z-index:1}
 @media screen and (min-width:768px){.job-item .job-source{margin-left:-60px}}
 .job-item .job-source img{padding:3px}

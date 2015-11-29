@@ -13,50 +13,46 @@ h4, h5, h6 { margin-top: 0px; margin-bottom: 0px;}
 <div class="container">
     <div class="panel panel-info">
         <div class="panel-body">
-            <ul class="col-md-12 col-sm-12 setting-content">
-                <table>
-                    <tr>
-                        <td class="bm_rpadding_20 bm_large_avatar">
-                            <img src="{$service['avatar']}" class="img-circle bm_large_avatar"/>
-                        </td>
-                        <td class="bm_full_width"><h4>{$service['content']}</h4></td>
-                    </tr>
-                    <tr>
+            <ul class="col-md-12 col-sm-12 setting-content service_main">
+                <div class="service_main_avatar">
+                    <img width="80px" height="80px" src="{$service['avatar']}" class="img-circle" />
+                </div>
+
+                <div class="service_main_content">
+                    <div class="source">
+                        <span>{$service['username']}</span>
+                        <span class="info">浏览&nbsp;{$service['view_num']}&nbsp;次&nbsp;&nbsp;|&nbsp;&nbsp;服务&nbsp;{$service['service_num']}&nbsp;次</span>
+                    </div>
+                    <div class="content"><h4>{$service['content']}</h4></div>
+                    <div>
                         <td width="80px" class="bm_rpadding_20"></td>
                         <td class="price_info">
                             <p>
                             <span class="li_text_info bm_font_bold">价格</span>
                             <span class="bm_rmb_num">{$service['price']}</span><span>元/{$service['duration']}分钟</span>
-                            <span class="pull-right">
-                                浏览&nbsp;{$service['view_num']}&nbsp;次&nbsp;&nbsp;|&nbsp;&nbsp;服务&nbsp;{$service['service_num']}&nbsp;次
-                            </span>
                             </p>
                         </td>
-                    </tr>
-                    <tr>
+                    </div>
+                    <div>
                         <td width="80px" class="bm_rpadding_20"></td>
                         <td>
                             <div>
                                 <p class="li_text_info bm_font_bold">教育经历 </p>
                                 <foreach name="edu_list" item="edu">
                                     <div><p>{$edu['start_time']} 至 <if condition="$edu['end_time'] eq '0000-00-00'">今<else />{$edu['end_time']}</if>&nbsp;&nbsp;&nbsp;&nbsp;
-                                                {$edu['school']} {$edu['department']} {$edu['major']}</p><p class="li_text_info"></p></div>
+                                                {$edu['school']} {$edu['dept']} {$edu['major']}</p><p class="li_text_info"></p></div>
                                 </foreach>
                             </div>
                         </td>
-                    </tr>
-                    <tr>
-                        <td width="80px" class="bm_rpadding_20"></td>
-                        <td><div><p class="li_text_info bm_font_bold">服务分类 </p><div id="service_category_list"></div></div></td>
-                    </tr>
-                    <tr>
+                    </div>
+                    <div>
                         <td width="80px" class="bm_rpadding_20"></td>
                         <td>
-                            <a class="btn btn-info buy_btn" href="{:U('/Message/personal?uid=' . $service['uid'])}" target="_blank">私信聊一聊</a>
-                            <button class="btn btn-danger buy_btn" id="buy_service_btn">电话一对一</button>
+                            <a class="btn btn-info buy_btn" href="{:U('/Message/personal?uid=' . $service['uid'])}" target="_blank">私信咨询</a>
+                            <button class="btn btn-danger buy_btn" id="buy_service_btn">获取电话</button>
                         </td>
-                    </tr>
-                </table>
+                    </div>
+                </div>
             </ul>
         </div>
     </div>

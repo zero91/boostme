@@ -4,30 +4,26 @@ use Think\Model;
 
 class UcenterUserModel extends Model {
     // 数据表前缀
-    // @var string
     protected $tablePrefix = UC_TABLE_PREFIX;
 
     // 数据库连接
-    // @var string
     protected $connection = UC_DB_DSN;
 
     // 用户模型自动验证
     protected $_validate = array(
-        /* 验证用户名 */
-        array('username', '1,30', -1, self::EXISTS_VALIDATE, 'length'), //用户名长度不合法
-        array('username', 'checkDenyMember', -2, self::EXISTS_VALIDATE, 'callback'), //用户名禁止注册
+        array('username', '1,30', -1, self::EXISTS_VALIDATE, 'length'), // 用户名长度不合法
+
+        // 用户名禁止注册
+        array('username', 'checkDenyMember', -2, self::EXISTS_VALIDATE, 'callback'),
         array('username', '', -3, self::EXISTS_VALIDATE, 'unique'), //用户名被占用
 
-        /* 验证密码 */
         array('password', '6,30', -4, self::EXISTS_VALIDATE, 'length'), //密码长度不合法
 
-        /* 验证邮箱 */
         array('email', 'email', -5, self::EXISTS_VALIDATE), //邮箱格式不正确
         array('email', '1,64', -6, self::EXISTS_VALIDATE, 'length'), //邮箱长度不合法
         array('email', 'checkDenyEmail', -7, self::EXISTS_VALIDATE, 'callback'), //邮箱禁止注册
         array('email', '', -8, self::EXISTS_VALIDATE, 'unique'), //邮箱被占用
 
-        /* 验证手机号码 */
         array('mobile', '//', -9, self::EXISTS_VALIDATE), //手机格式不正确 TODO:
         array('mobile', 'checkDenyMobile', -10, self::EXISTS_VALIDATE, 'callback'), //手机禁止注册
         array('mobile', '', -11, self::EXISTS_VALIDATE, 'unique'), //手机号被占用
@@ -35,45 +31,56 @@ class UcenterUserModel extends Model {
 
     // 用户模型自动完成
     protected $_auto = array(
-        array('password', 'bm_ucenter_md5', self::MODEL_BOTH, 'function', UC_AUTH_KEY),
+        // array('password', 'bm_ucenter_md5', self::MODEL_BOTH, 'function', UC_AUTH_KEY),
+        array('password', 'encryptPassword', self::MODEL_BOTH, 'callback'),
+        array('password', '', self::MODEL_BOTH, 'ignore'),
         array('reg_time', NOW_TIME, self::MODEL_INSERT),
         array('reg_ip', 'get_client_ip', self::MODEL_INSERT, 'function', 1),
         array('update_time', NOW_TIME),
         array('status', 'getStatus', self::MODEL_BOTH, 'callback'),
     );
 
-    /**
-     * 检测用户名是不是被禁止注册
-     * @param  string $username 用户名
-     * @return boolean          ture - 未禁用，false - 禁止注册
-     */
-    protected function checkDenyMember($username){
+    // @encryptPassword  加密密码字符串
+    // @param  string  $password  密码字符串
+    //
+    // @return string  若原始密码为空，则返回空字符串；否则返回加密后的字符串
+    //
+    protected function encryptPassword($password) {
+        return $password ? bm_ucenter_md5($password, UC_AUTH_KEY) : "";
+    }
+
+    // @checkDenyMember  检测用户名是不是被禁止注册
+    // @param  string $username 用户名
+    //
+    // @return boolean          ture - 未禁用，false - 禁止注册
+    //
+    protected function checkDenyMember($username) {
         return true; //TODO: 暂不限制，下一个版本完善
     }
 
-    /**
-     * 检测邮箱是不是被禁止注册
-     * @param  string $email 邮箱
-     * @return boolean       ture - 未禁用，false - 禁止注册
-     */
-    protected function checkDenyEmail($email){
+    // @checkDenyEmail  检测邮箱是不是被禁止注册
+    // @param  string $email 邮箱
+    //
+    // @return boolean       ture - 未禁用，false - 禁止注册
+    //
+    protected function checkDenyEmail($email) {
         return true; //TODO: 暂不限制，下一个版本完善
     }
 
-    /**
-     * 检测手机是不是被禁止注册
-     * @param  string $mobile 手机
-     * @return boolean        ture - 未禁用，false - 禁止注册
-     */
-    protected function checkDenyMobile($mobile){
+    // @checkDenyMobile  检测手机是不是被禁止注册
+    // @param  string $mobile 手机
+    //
+    // @return boolean        ture - 未禁用，false - 禁止注册
+    //
+    protected function checkDenyMobile($mobile) {
         return true; //TODO: 暂不限制，下一个版本完善
     }
 
-    /**
-     * 根据配置指定用户状态
-     * @return integer 用户状态
-     */
-    protected function getStatus(){
+    // @getStatus  根据配置指定用户状态
+    //
+    // @return integer 用户状态
+    //
+    protected function getStatus() {
         return true; //TODO: 暂不限制，下一个版本完善
     }
 
